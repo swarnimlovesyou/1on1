@@ -32,7 +32,15 @@ Local evidence is retained under ignored `.cache` (final-verify/build/browser/ht
 
 ## Clean-source rehearsal
 
-Pending the outgoing local source checkpoint; the result will be recorded here before final handover.
+A complete source-history bundle was restored into `.cache/fresh-phase1` without copying `.env`, dependencies, Java output or any database. `npm run setup` installed locked dependencies and compiled Java. `npm run doctor` correctly reported native prerequisites ready, Docker unavailable and Gemini not configured.
+
+The restored copy started through `npm run dev:core` with a separate new H2 database; Flyway created V1 then V2. All 12 browser journeys passed (52.1 seconds). A subsequent draft-language round-trip fix was fast-forwarded into the restored source; the expanded draft/reload scenario passed again (9.9 seconds), and the production build passed.
+
+A real HTTP smoke call confirmed missing-key tutoring returns unavailability; a real submission job persisted `UNAVAILABLE`, returned no private receipts/fixtures and awarded zero accepted credit. `npm run stop:core` and `backup` passed. A second `npm run setup` preserved `.env`, generated secrets/config and the stopped learner H2 file byte-for-byte, checked using hashes without printing their contents.
+
+The rehearsal caught two portability issues, both fixed: resolving Windows npm's absolute executable and avoiding PowerShell's forwarded `--` ambiguity through `dev:core`/`stop:core` aliases. Bundle restore instructions explicitly select `--branch main`.
+
+This is a Windows same-machine, fresh-directory rehearsal using existing system runtimes and package caches. It is not proof of another OS, an entirely new machine or Docker sandbox compatibility. The main preview was restored afterward. H2/Flyway emits a version-compatibility warning (H2 2.4 versus Flyway's verified 2.3); actual migrations/reopen/tests passed, while future dependency compatibility remains part of final verification.
 
 ---
 

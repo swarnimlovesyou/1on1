@@ -98,7 +98,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Use `npm run verify` for Java/frontend/build checks, `npm run verify:references` for trusted authored Python/C++ references, and `npm run verify:live` with the app running for actual provider evidence. Live verification exits nonzero if a required provider is blocked. Judge adapter tests use a local fixture server and do not establish sandbox compatibility. Actual Gemini passed; Docker/Judge0, SMTP and LeetCode remain separate live gates. Browser tests capture desktop/mobile evidence under the ignored `.impeccable/review` directory.
+A source-only restore and repeat setup were rehearsed locally with separate data. Use `npm run verify` for Java/frontend/build checks, `npm run verify:references` for trusted authored Python/C++ references, and `npm run verify:live` with the app running for actual provider evidence. Live verification exits nonzero if a required provider is blocked. Judge adapter tests use a local fixture server and do not establish sandbox compatibility. Actual Gemini passed; Docker/Judge0, SMTP and LeetCode remain separate live gates. Browser tests capture desktop/mobile evidence under the ignored `.impeccable/review` directory.
 
 Regenerate deterministic authored content with `python scripts/generate_content.py`. Content seeds update unedited built-in records on startup; changes saved through the admin UI are marked as edited and preserved. Retired, unedited built-ins are archived, not deleted. Take database backups before content or schema upgrades.
 

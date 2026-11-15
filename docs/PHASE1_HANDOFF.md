@@ -95,8 +95,10 @@ The eight linked problems have three-language references and adversarial/boundar
 | Actual Gemini | Explanation, validated scene and real SSE pass through Java with the locally configured credential. |
 | Actual Judge0 | Blocked: language discovery cannot reach the local runner. No real acceptance claimed. |
 | Persistence/backup | Existing H2 version 2 reopened; stopped H2 copied by backup command and reopened without reset. |
-| Fresh source setup | Same-machine clean-directory rehearsal is recorded in [VALIDATION.md](VALIDATION.md). It is distinct from a fresh-machine/Docker rehearsal. |
+| Fresh source setup | Source-only bundle restore, setup/doctor, fresh V1→V2 database, 12 browser journeys and expanded draft-switch follow-up pass. Repeated setup preserved config/secrets/database byte-for-byte. See [VALIDATION.md](VALIDATION.md); fresh-machine/Docker gates remain open. |
 | Other integrations | SMTP, PostgreSQL and LeetCode live checks remain open. Remote GitHub CI has not run because of the previously recorded account restriction. |
+
+Portable core-only commands were added after the rehearsal exposed PowerShell flag forwarding. The final handover bundle uses an explicit main branch, excludes personal/generated files, and is verified by Git.
 
 Detailed local logs and live evidence are under ignored `.cache`, while screenshots are under ignored `.impeccable/review`. The committed validation record preserves results without personal databases or test accounts. Tests deliberately using a local provider fixture are not live-service evidence.
 
