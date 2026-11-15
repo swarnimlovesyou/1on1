@@ -39,6 +39,7 @@ public class SecurityConfig {
             "/api/v1/paths",
             "/api/v1/search",
             "/api/v1/experiments",
+            "/api/v1/challenges/*/attempts",
             "/error"
           )
           .permitAll()

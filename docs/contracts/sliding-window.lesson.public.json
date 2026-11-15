@@ -1,0 +1,147 @@
+{
+  "id": "lesson-sliding-window",
+  "kind": "lesson",
+  "order": 2,
+  "title": "A little less work, every time",
+  "subtitle": "Sliding Window",
+  "topics": [
+    "Arrays",
+    "Sliding window"
+  ],
+  "difficulty": "Foundations",
+  "minutes": 15,
+  "published": true,
+  "body": "Imagine a frame that holds exactly three readings. Slide it one place to the right: two readings stay inside, one leaves, and one enters. The previous sum already contains almost everything you need. Remove the outgoing reading and add the incoming one. The frame represents a contiguous interval; it cannot skip an inconvenient reading. Try changing one value before looking at the code, then predict which windows it will affect.",
+  "invariant": "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition.",
+  "pitfall": "Updating the best answer before a full window exists gives the wrong result. Initialize the best sum below every valid sum so negative inputs work.",
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(1)",
+  "code": [
+    "int sum = 0, best = Integer.MIN_VALUE;",
+    "for (int right = 0; right < a.length; right++) { sum += a[right];",
+    "  if (right >= k) sum -= a[right - k];",
+    "  if (right >= k - 1) best = Math.max(best, sum); }",
+    "return best;"
+  ],
+  "experiment": {
+    "algorithm": "sliding-window",
+    "input": "2,1,5,1,3,2",
+    "target": 3,
+    "seed": 42
+  },
+  "checkpoint": {
+    "question": "Which statement captures the key idea?",
+    "options": [
+      "Add the incoming value and subtract the outgoing one",
+      "Sort the whole window again",
+      "Recompute all previous windows"
+    ],
+    "id": "challenge-lesson-sliding-window-checkpoint"
+  },
+  "prerequisites": [
+    "lesson-two-pointers"
+  ],
+  "takeaways": [
+    "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition.",
+    "Updating the best answer before a full window exists gives the wrong result. Initialize the best sum below every valid sum so negative inputs work."
+  ],
+  "blocks": [
+    {
+      "id": "worked",
+      "kind": "explanation",
+      "title": "Reuse the work you already did",
+      "text": "For 2, 1, 5, 1, 3, 2 with k = 3, the first full window sums to 8. Moving right removes 2 and adds 1, so the next sum is 7. The following windows sum to 9 and 6. The answer is 9. The largest element alone is not the answer: the problem asks for three consecutive readings.",
+      "lines": []
+    },
+    {
+      "id": "invariant",
+      "kind": "explanation",
+      "title": "The frame and the sum agree",
+      "text": "After processing index right, the running sum contains exactly the readings from max(0, right-k+1) through right. Only compare with best once the frame contains k readings. Initializing best to zero breaks all-negative inputs. Keep best unset, or at the smallest representable value, until the first full window exists.",
+      "lines": []
+    },
+    {
+      "id": "tradeoff",
+      "kind": "explanation",
+      "title": "What the constraint tells you",
+      "text": "Recomputing each of n-k+1 sums takes O(nk). Reusing the sum takes O(n) time and O(1) extra space. This fixed-size technique works with negative readings. A variable-size window that shrinks whenever a sum is too large needs additional assumptions; negative values can break that shrinking rule.",
+      "lines": []
+    }
+  ],
+  "referenceJourney": true,
+  "linkedProblems": [
+    "problem-three-window",
+    "problem-distinct-windows"
+  ],
+  "challenges": [
+    {
+      "id": "challenge-sliding-window-prediction",
+      "kind": "prediction",
+      "title": "Predict the next change",
+      "prompt": "Slide the first full window one place right. What is the new sum?",
+      "options": [
+        "8: keep the previous sum",
+        "7: subtract 2 and add 1",
+        "9: take the largest window immediately"
+      ],
+      "hint": "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition."
+    },
+    {
+      "id": "challenge-sliding-window-pattern",
+      "kind": "pattern",
+      "title": "Spot the pattern",
+      "prompt": "You have up to 100000 signed readings and need the largest sum of exactly k consecutive values. Which approach fits?",
+      "options": [
+        "Sort, then take the k largest: O(n log n)",
+        "Try every subset: O(2^n)",
+        "Maintain a fixed window sum: O(n)"
+      ],
+      "hint": "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition."
+    },
+    {
+      "id": "challenge-sliding-window-manipulation",
+      "kind": "manipulation",
+      "title": "Make the model your own",
+      "prompt": "Change the readings so the largest sum of exactly three consecutive values is 12. Keep k = 3.",
+      "scene": {
+        "algorithm": "sliding-window",
+        "input": "2,1,5,1,3,2",
+        "target": 3,
+        "seed": 42
+      },
+      "hint": "Updating the best answer before a full window exists gives the wrong result. Initialize the best sum below every valid sum so negative inputs work."
+    },
+    {
+      "id": "challenge-sliding-window-dry-run",
+      "kind": "dry-run",
+      "title": "Dry-run the state",
+      "prompt": "Fill the state table after processing right = 3, using the original input and k = 3.",
+      "fields": [
+        {
+          "key": "left",
+          "label": "Left index"
+        },
+        {
+          "key": "right",
+          "label": "Right index"
+        },
+        {
+          "key": "sum",
+          "label": "Current sum"
+        },
+        {
+          "key": "best",
+          "label": "Best full-window sum"
+        }
+      ],
+      "scene": {
+        "algorithm": "sliding-window",
+        "input": "2,1,5,1,3,2",
+        "target": 3,
+        "seed": 42
+      },
+      "traceStep": 4,
+      "hint": "Start from the first full sum, 8. The next operation removes index 0 and adds index 3."
+    }
+  ]
+}

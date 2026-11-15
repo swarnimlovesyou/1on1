@@ -1,5 +1,7 @@
 # 1on1: Interactive DSA Learning and Practice
 
+> Phase 1 update (16 November 2026): see [current handoff](PHASE1_HANDOFF.md) and [validation](VALIDATION.md). This earlier academic baseline/demo outline must be refreshed in Phase 3; it is not evidence that later planned features or live grading are complete.
+
 **Course:** Advanced Algorithm, Semester V, CIA 3, 2026–27.
 
 **Team:** Two or three students. Record official student names/IDs and actual contributions before faculty submission; these personal details have not been supplied.

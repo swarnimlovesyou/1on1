@@ -12,3 +12,5 @@ target/
 playwright-report/
 test-results/
 *.tsbuildinfo
+__pycache__/
+*.pyc

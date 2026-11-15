@@ -1,10 +1,20 @@
 # Deployment and operations
 
+For the assessment's local-demo allowance, Judge0/free-tier details, Vercel split hosting and laptop execution dependencies, read [the handoff guide](HANDOFF.md) first. A locally running website does not automatically include a locally running Judge0 service.
+
 ## Local application
 
-Use the README's two-terminal setup. The H2 file database is persistent; back up `backend/.data` only after the API has stopped. Local application tests were run with Java 25 compiling for release 21. CI uses Java 21. Node 22 is the supported frontend runtime.
+Use the README's `npm run setup`, `doctor` and combined `dev` commands; do not start a second Java server. The H2 file database is persistent; back up `backend/.data` only after the API has stopped. Local application tests were run with Java 25 compiling for release 21. CI uses Java 21. Node 22 is the supported frontend runtime.
+
+The primary service definition is `infra/local.compose.yaml`, managed by `npm run services`/`dev`/`stop`. It runs only Judge0, its private PostgreSQL/Redis, and Mailpit. Authentication/configuration is generated under ignored `.cache`; the application itself uses native H2. Bindings are localhost only. Judge0 uses its upstream privileged worker requirement; the downloaded image has not yet been proven compatible with this Docker Desktop engine.
+
+On 16 November, the official image pull failed with unexpected EOF, followed by an unresponsive Docker daemon. Docker backend logs recorded SCSI virtual-device I/O errors. No volumes were deleted, no WSL VM was substituted, and no hosted judge fallback was enabled. Read [the exact blocker and recovery sequence](PHASE1_HANDOFF.md) before attempting grading.
+
+`npm run backup` refuses while Java's port is open and copies native H2 files only. Restore with Java stopped, retaining a copy of the previous file first. This is separate from PostgreSQL `pg_dump` and does not export credentials.
 
 ## Full container deployment
+
+This older optional topology remains unverified and is not the primary setup. Its API container cannot reach the host runner through `127.0.0.1`; explicitly configure an authenticated reachable judge URL/mode and container networking before testing it. It does not contain a Judge0 service. Do not run it alongside the native service definition because Mailpit ports overlap.
 
 1. Copy `.env.example` to the ignored `.env`. Set a strong `POSTGRES_PASSWORD`. For the provided local container setup set `APP_BASE_URL=http://localhost:8088`, `SMTP_HOST=mailpit`, `SMTP_PORT=1025`, and `COOKIE_SECURE=false`. Add external AI/judge credentials locally if using those features.
 2. Run `docker compose config --quiet`, then `docker compose up --build -d`.

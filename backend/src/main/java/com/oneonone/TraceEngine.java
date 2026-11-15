@@ -38,12 +38,27 @@ public class TraceEngine {
 
     String family;
     final List<Map<String, Object>> steps = new ArrayList<>();
-    List<Integer> a;
+    TraceArray a;
+    long seed = 42;
+    int nextId;
+    String algorithm;
+    String pending = "initialize";
     Map<String, Object> extra = new LinkedHashMap<>();
 
     Run(String f, List<Integer> a) {
       family = f;
-      this.a = new ArrayList<>(a);
+      this.a = new TraceArray(a, this);
+    }
+
+    void setArray(List<Integer> values) {
+      a = new TraceArray(values, this);
+      pending = "initialize";
+    }
+
+    void swap(int i, int j) {
+      Collections.swap(a, i, j);
+      Collections.swap(a.ids, i, j);
+      pending = "swap";
     }
 
     void step(
@@ -52,16 +67,124 @@ public class TraceEngine {
       List<Integer> active,
       Map<String, Object> vars
     ) {
-      if (steps.size() >= 500) return;
+      if (steps.size() >= 1000) return;
       var s = new LinkedHashMap<String, Object>();
       s.put("id", "step-" + steps.size());
       s.put("array", List.copyOf(a));
+      var entities = new ArrayList<Contracts.Entity>();
+      var affected = new ArrayList<String>();
+      for (int i = 0; i < a.size(); i++) {
+        entities.add(
+          new Contracts.Entity(
+            a.ids.get(i),
+            a.get(i),
+            i,
+            active.contains(i) ? "active" : "idle"
+          )
+        );
+        if (active.contains(i)) affected.add(a.ids.get(i));
+      }
+      s.put("entities", entities);
+      String kind = steps.isEmpty() ? "initialize" : pending;
+      if (algorithm.equals("sliding-window")) kind = vars.containsKey("left")
+        ? "move-window"
+        : "initialize";
+      if (family.equals("tree")) kind = vars.containsKey("inserted")
+        ? "insert-node"
+        : "visit-node";
+      if (family.equals("graph")) kind = vars.containsKey("discovered")
+        ? "discover-vertex"
+        : "visit-vertex";
+      if (family.equals("dp")) kind =
+        vars.containsKey("i") || vars.containsKey("n")
+          ? "write-cell"
+          : "read-result";
+      if (steps.isEmpty()) kind = "initialize";
+      s.put(
+        "operation",
+        new Contracts.Operation(
+          kind,
+          List.copyOf(affected),
+          new LinkedHashMap<>(vars)
+        )
+      );
       s.put("active", List.copyOf(active));
       s.put("variables", new LinkedHashMap<>(vars));
       s.put("text", text);
       s.put("line", line);
       s.putAll(extra);
       steps.add(s);
+      pending = "compare";
+    }
+  }
+
+  /** Values and identities move together; equal values remain distinct objects. */
+  static final class TraceArray extends ArrayList<Integer> {
+
+    final List<String> ids = new ArrayList<>();
+    final Run owner;
+
+    TraceArray(List<Integer> values, Run owner) {
+      super(values);
+      this.owner = owner;
+      for (int i = 0; i < values.size(); i++) ids.add(identity(i));
+    }
+
+    String identity(int position) {
+      return Set.of("dp", "graph", "bitset").contains(owner.family)
+        ? "cell-" + position
+        : "item-" + owner.nextId++;
+    }
+
+    @Override
+    public boolean add(Integer value) {
+      ids.add(identity(size()));
+      owner.pending = "insert";
+      return super.add(value);
+    }
+
+    @Override
+    public void add(int index, Integer value) {
+      ids.add(index, identity(size()));
+      owner.pending = "insert";
+      super.add(index, value);
+    }
+
+    @Override
+    public Integer remove(int index) {
+      ids.remove(index);
+      owner.pending = "remove";
+      return super.remove(index);
+    }
+
+    @Override
+    public Integer removeLast() {
+      return remove(size() - 1);
+    }
+
+    @Override
+    public Integer removeFirst() {
+      return remove(0);
+    }
+
+    @Override
+    public Integer set(int index, Integer value) {
+      owner.pending = "write";
+      return super.set(index, value);
+    }
+
+    @Override
+    public void sort(Comparator<? super Integer> comparator) {
+      var order = new ArrayList<Integer>();
+      for (int i = 0; i < size(); i++) order.add(i);
+      order.sort((a, b) -> comparator.compare(get(a), get(b)));
+      var values = new ArrayList<>(this);
+      var identities = new ArrayList<>(ids);
+      for (int i = 0; i < size(); i++) {
+        super.set(i, values.get(order.get(i)));
+        ids.set(i, identities.get(order.get(i)));
+      }
+      owner.pending = "reorder";
     }
   }
 
@@ -101,18 +224,24 @@ public class TraceEngine {
       "Use at most 200 characters of words."
     );
     Run r = new Run(family(alg), a);
+    r.algorithm = alg;
+    try {
+      r.seed = Long.parseLong(Store.text(b, "seed", "42"));
+    } catch (NumberFormatException error) {
+      throw new IllegalArgumentException("Seed must be an integer.");
+    }
     if (
       Set.of("stack", "queue", "recursion", "backtracking", "heap").contains(
         alg
       )
-    ) r.a = new ArrayList<>();
+    ) r.setArray(List.of());
     if (Set.of("memoization", "tabulation").contains(alg)) {
-      r.a = new ArrayList<>(Collections.nCopies(target + 1, 0));
+      r.setArray(new ArrayList<>(Collections.nCopies(target + 1, 0)));
       if (target > 0) r.a.set(1, 1);
     }
     if (alg.equals("trie")) r.extra.put("words", List.of());
-    if (alg.equals("bloom-filter")) r.a = new ArrayList<>(
-      Collections.nCopies(16, 0)
+    if (alg.equals("bloom-filter")) r.setArray(
+      new ArrayList<>(Collections.nCopies(16, 0))
     );
     r.step(
       "Start with the input. Predict what will change first.",
@@ -136,7 +265,7 @@ public class TraceEngine {
             i < k - 1
               ? "Expand the window until it contains " + k + " values."
               : "Add the incoming value and remove the outgoing value. Update the best sum.",
-            i < k ? 1 : 3,
+            i < k - 1 ? 1 : 3,
             java.util.stream.IntStream.rangeClosed(Math.max(0, i - k + 1), i)
               .boxed()
               .toList(),
@@ -154,8 +283,14 @@ public class TraceEngine {
         }
       }
       case "two-pointers" -> {
-        a.sort(Integer::compare);
-        r.a = a;
+        r.a.sort(Integer::compare);
+        a = r.a;
+        r.step(
+          "Prepare sorted input before the linear search phase.",
+          0,
+          List.of(),
+          Map.of("preparation", "sort")
+        );
         int l = 0,
           h = a.size() - 1;
         while (l < h) {
@@ -186,8 +321,14 @@ public class TraceEngine {
         }
       }
       case "binary-search" -> {
-        a.sort(Integer::compare);
-        r.a = a;
+        r.a.sort(Integer::compare);
+        a = r.a;
+        r.step(
+          "Prepare sorted input before the linear search phase.",
+          0,
+          List.of(),
+          Map.of("preparation", "sort")
+        );
         int lo = 0,
           hi = a.size() - 1;
         boolean found = false;
@@ -226,21 +367,44 @@ public class TraceEngine {
         select(r, k);
       }
       case "linked-list" -> {
-        r.extra.put("nodes", a);
-        var order = new ArrayList<Integer>();
-        for (int i = 0; i < a.size(); i++) {
-          order.add(0, a.get(i));
-          r.a = new ArrayList<>(order);
-          r.step(
-            "Save next, reverse this link, then advance previous and current.",
-            2,
-            List.of(0),
-            Map.of("current", a.get(i), "reversed", order.size())
+        int[] next = new int[a.size()];
+        for (int i = 0; i < next.length; i++) next[i] =
+          i + 1 < next.length ? i + 1 : -1;
+        var originalIds = List.copyOf(r.a.ids);
+        int previous = -1;
+        for (int current = 0; current < a.size(); current++) {
+          int following = next[current];
+          next[current] = previous;
+          var links = new ArrayList<Map<String, Object>>();
+          for (int i = 0; i < next.length; i++) links.add(
+            Map.of(
+              "from",
+              originalIds.get(i),
+              "to",
+              next[i] < 0 ? "" : originalIds.get(next[i])
+            )
           );
+          r.extra.put("links", links);
+          r.extra.put("head", originalIds.get(current));
+          r.pending = "rewire-link";
+          r.step(
+            "Save next, reverse the current link, then advance previous and current.",
+            2,
+            List.of(current),
+            Map.of("current", current, "previous", previous, "next", following)
+          );
+          previous = current;
         }
+        for (int i = 0; i < a.size() / 2; i++) r.swap(i, a.size() - 1 - i);
+        r.step(
+          "The old tail is now the head; every link points toward the previous node.",
+          3,
+          List.of(0),
+          Map.of("reversed", a.size())
+        );
       }
       case "stack", "queue" -> {
-        r.a = new ArrayList<>();
+        r.setArray(List.of());
         for (int value : a) {
           r.a.add(value);
           r.step(
@@ -266,7 +430,7 @@ public class TraceEngine {
       }
       case "recursion" -> {
         int n = Math.min(target, 10);
-        r.a = new ArrayList<>();
+        r.setArray(List.of());
         long fact = 1;
         for (int i = n; i >= 1; i--) {
           r.a.add(i);
@@ -291,7 +455,7 @@ public class TraceEngine {
       }
       case "backtracking" -> {
         a = new ArrayList<>(a.subList(0, Math.min(5, a.size())));
-        r.a = new ArrayList<>();
+        r.setArray(List.of());
         subsets(r, a, 0);
       }
       case "bst", "avl", "tree-traversal" -> {
@@ -303,9 +467,9 @@ public class TraceEngine {
             alg.equals("avl")
               ? "Insert the key and restore the AVL height invariant."
               : "Insert smaller values to the left and larger values to the right.",
-            2,
+            3,
             List.of(),
-            Map.of("inserted", v)
+            Map.of("inserted", v, "root", root.v, "height", root.h)
           );
         }
         if (alg.equals("tree-traversal")) {
@@ -327,14 +491,14 @@ public class TraceEngine {
         }
       }
       case "heap" -> {
-        r.a = new ArrayList<>();
+        r.setArray(List.of());
         for (int v : a) {
           r.a.add(v);
           int i = r.a.size() - 1;
           while (i > 0) {
             int p = (i - 1) / 2;
             if (r.a.get(p) >= r.a.get(i)) break;
-            Collections.swap(r.a, p, i);
+            r.swap(p, i);
             i = p;
           }
           r.step(
@@ -348,7 +512,7 @@ public class TraceEngine {
       case "bfs", "dfs", "dijkstra", "max-flow" -> graph(r, alg, target);
       case "memoization", "tabulation" -> {
         int n = Math.min(target, 16);
-        r.a = new ArrayList<>(Collections.nCopies(n + 1, 0));
+        r.setArray(new ArrayList<>(Collections.nCopies(n + 1, 0)));
         r.a.set(0, 0);
         if (n > 0) r.a.set(1, 1);
         if (alg.equals("memoization")) fib(r, n);
@@ -374,7 +538,7 @@ public class TraceEngine {
           "Use at most 200 characters of words."
         );
         List<String> inserted = new ArrayList<>();
-        r.a = new ArrayList<>();
+        r.setArray(List.of());
         for (String word : words.toLowerCase(Locale.ROOT).split("[,\\s]+")) {
           if (word.isBlank()) continue;
           inserted.add(word);
@@ -397,7 +561,7 @@ public class TraceEngine {
           Set.of("DP", "Arrays"),
           Set.of("Trees")
         );
-        r.a = new ArrayList<>();
+        r.setArray(List.of());
         r.extra.put("topics", List.copyOf(remaining));
         for (int round = 0; !remaining.isEmpty(); round++) {
           int best = -1;
@@ -427,7 +591,7 @@ public class TraceEngine {
         }
       }
       case "bloom-filter" -> {
-        r.a = new ArrayList<>(Collections.nCopies(16, 0));
+        r.setArray(new ArrayList<>(Collections.nCopies(16, 0)));
         Set<String> exact = new HashSet<>();
         for (String word : Store.text(b, "words", "tree, graph, heap").split(
           "[,\\s]+"
@@ -458,7 +622,7 @@ public class TraceEngine {
     }
     return Map.of(
       "version",
-      1,
+      2,
       "algorithm",
       alg,
       "family",
@@ -468,8 +632,24 @@ public class TraceEngine {
       "result",
       r.steps.getLast(),
       "input",
-      b
+      normalizedInput(b, alg, a, target, r.seed)
     );
+  }
+
+  Map<String, Object> normalizedInput(
+    Map<String, Object> body,
+    String algorithm,
+    List<Integer> values,
+    int target,
+    long seed
+  ) {
+    var input = new LinkedHashMap<String, Object>();
+    input.put("algorithm", algorithm);
+    input.put("input", Store.text(body, "input", "2,1,5,1,3,2"));
+    input.put("target", target);
+    input.put("seed", seed);
+    if (body.containsKey("words")) input.put("words", body.get("words"));
+    return input;
   }
 
   public List<Integer> parse(String input) {
@@ -504,6 +684,7 @@ public class TraceEngine {
   String family(String a) {
     return switch (a) {
       case "linked-list" -> "linked";
+      case "bloom-filter" -> "bitset";
       case "stack", "queue" -> a;
       case "recursion", "backtracking" -> "recursion";
       case "bst", "avl", "tree-traversal" -> "tree";
@@ -524,13 +705,17 @@ public class TraceEngine {
     List<Integer> out = new ArrayList<>();
     int i = lo,
       j = m + 1;
-    while (i <= m || j <= hi)
-      out.add(
-        j > hi || (i <= m && r.a.get(i) <= r.a.get(j))
-          ? r.a.get(i++)
-          : r.a.get(j++)
-      );
-    for (int k = 0; k < out.size(); k++) r.a.set(lo + k, out.get(k));
+    List<String> identities = new ArrayList<>();
+    while (i <= m || j <= hi) {
+      int source = j > hi || (i <= m && r.a.get(i) <= r.a.get(j)) ? i++ : j++;
+      out.add(r.a.get(source));
+      identities.add(r.a.ids.get(source));
+    }
+    for (int k = 0; k < out.size(); k++) {
+      r.a.set(lo + k, out.get(k));
+      r.a.ids.set(lo + k, identities.get(k));
+    }
+    r.pending = "merge";
     r.step(
       "Merge the sorted halves into one ordered interval.",
       3,
@@ -550,7 +735,7 @@ public class TraceEngine {
     int pivot = r.a.get(hi),
       p = lo;
     for (int j = lo; j < hi; j++) {
-      if (r.a.get(j) <= pivot) Collections.swap(r.a, p++, j);
+      if (r.a.get(j) <= pivot) r.swap(p++, j);
       r.step(
         "Keep values no larger than the pivot on the left.",
         2,
@@ -558,7 +743,7 @@ public class TraceEngine {
         Map.of("pivot", pivot, "boundary", p)
       );
     }
-    Collections.swap(r.a, p, hi);
+    r.swap(p, hi);
     r.step(
       "Place the pivot in its final sorted position.",
       3,
@@ -569,11 +754,11 @@ public class TraceEngine {
   }
 
   void select(Run r, int k) {
-    Random random = new Random(42);
+    Random random = new Random(r.seed);
     int lo = 0,
       hi = r.a.size() - 1;
     while (lo <= hi) {
-      Collections.swap(r.a, lo + random.nextInt(hi - lo + 1), hi);
+      r.swap(lo + random.nextInt(hi - lo + 1), hi);
       int p = partition(r, lo, hi);
       if (p == k) {
         r.step(
@@ -677,6 +862,7 @@ public class TraceEngine {
   Object tree(Node n) {
     if (n == null) return null;
     Map<String, Object> m = new LinkedHashMap<>();
+    m.put("id", "node-" + n.v);
     m.put("value", n.v);
     m.put("left", tree(n.l));
     m.put("right", tree(n.r));
@@ -697,7 +883,14 @@ public class TraceEngine {
     }
     r.extra.put("edges", edges);
     r.extra.put("vertexCount", n);
-    r.a = new ArrayList<>(Collections.nCopies(n, -1));
+    r.setArray(new ArrayList<>(Collections.nCopies(n, -1)));
+    r.steps.clear();
+    r.step(
+      "Start at vertex 0. A frontier holds discovered vertices waiting for work.",
+      0,
+      List.of(0),
+      Map.of("visiting", 0, "frontier", List.of(0))
+    );
     if (alg.equals("max-flow")) {
       int total = 0;
       while (true) {
@@ -754,10 +947,12 @@ public class TraceEngine {
           d[v],
           d[u] + g[u][v]
         );
-        r.a = Arrays.stream(d)
-          .map(x -> x == 999999 ? -1 : x)
-          .boxed()
-          .toList();
+        r.setArray(
+          Arrays.stream(d)
+            .map(x -> x == 999999 ? -1 : x)
+            .boxed()
+            .toList()
+        );
         r.step(
           "Finalize the nearest unvisited vertex and relax its outgoing edges.",
           2,
@@ -774,6 +969,7 @@ public class TraceEngine {
     int order = 0;
     while (!q.isEmpty()) {
       int u = alg.equals("dfs") ? q.removeLast() : q.removeFirst();
+      r.extra.put("activeEdge", "");
       r.a.set(u, order++);
       r.step(
         alg.equals("dfs")
@@ -786,7 +982,21 @@ public class TraceEngine {
       for (int v = 0; v < n; v++) if (g[u][v] > 0 && !seen[v]) {
         seen[v] = true;
         q.addLast(v);
+        r.extra.put("activeEdge", "edge-" + u + "-" + v);
+        r.step(
+          "Discover vertex " + v + " and add it to the frontier exactly once.",
+          3,
+          List.of(u, v),
+          Map.of("visiting", u, "discovered", v, "frontier", List.copyOf(q))
+        );
       }
     }
+    r.extra.put("activeEdge", "");
+    r.step(
+      "Every reachable vertex has been processed.",
+      4,
+      List.of(),
+      Map.of("visited", order, "frontier", List.of())
+    );
   }
 }

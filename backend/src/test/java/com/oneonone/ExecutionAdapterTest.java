@@ -16,6 +16,8 @@ class ExecutionAdapterTest {
   ExecutionService execution;
   HttpServer judge;
   List<Map<String, Object>> requests;
+  volatile int replyStatus = 3;
+  String receivedToken, receivedRapidKey;
 
   @BeforeEach
   void setup() throws Exception {
@@ -34,8 +36,15 @@ class ExecutionAdapterTest {
         .readAllBytes()
     ).split(";"))
       if (!sql.isBlank()) db.execute(sql);
+    for (String sql : new String(
+      getClass()
+        .getResourceAsStream("/db/migration/V2__learning_evidence.sql")
+        .readAllBytes()
+    ).split(";"))
+      if (!sql.isBlank()) db.execute(sql);
     store = new Store(db);
-    execution = new ExecutionService(store);
+    execution = new ExecutionService(store, new ProgressService(store));
+    execution.mode = "rapidapi";
     requests = Collections.synchronizedList(new ArrayList<>());
     judge = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     judge.createContext("/submissions", exchange -> {
@@ -49,10 +58,26 @@ class ExecutionAdapterTest {
             )
           )
         );
+        receivedToken = exchange.getRequestHeaders().getFirst("X-Auth-Token");
+        receivedRapidKey = exchange
+          .getRequestHeaders()
+          .getFirst("X-RapidAPI-Key");
         body = "{\"token\":\"fixture-token\"}";
       } else body =
-        "{\"status\":{\"id\":3},\"stdout\":\"42\\n\",\"time\":\"0.01\",\"memory\":1000}";
+        "{\"status\":{\"id\":" +
+        replyStatus +
+        "},\"stdout\":\"42\\n\",\"time\":\"0.01\",\"memory\":1000}";
       byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+      exchange.getResponseHeaders().add("Content-Type", "application/json");
+      exchange.sendResponseHeaders(200, bytes.length);
+      exchange.getResponseBody().write(bytes);
+      exchange.close();
+    });
+    judge.createContext("/languages", exchange -> {
+      byte[] bytes =
+        "[{\"id\":62,\"name\":\"Java (OpenJDK)\"},{\"id\":71,\"name\":\"Python (3.8)\"},{\"id\":54,\"name\":\"C++ (GCC)\"}]".getBytes(
+          StandardCharsets.UTF_8
+        );
       exchange.getResponseHeaders().add("Content-Type", "application/json");
       exchange.sendResponseHeaders(200, bytes.length);
       exchange.getResponseBody().write(bytes);
@@ -100,7 +125,7 @@ class ExecutionAdapterTest {
     assertEquals("ACCEPTED", finished.get("status"));
     assertEquals(
       List.of("problem-fixture"),
-      store.get("state-alice").get("solved")
+      new ProgressService(store).summary("alice").get("solved")
     );
     var result = Store.items(finished.get("results")).getFirst();
     assertFalse(result.containsKey("input"));
@@ -176,6 +201,144 @@ class ExecutionAdapterTest {
       () -> store.owned("note-private", "bob")
     );
     assertEquals("42\n7", ExecutionService.normalize("42  \r\n7\n"));
+  }
+
+  @Test
+  void selfHostedAuthenticationDoesNotSendHostedCredentials() throws Exception {
+    execution.mode = "self-hosted";
+    execution.token = "local-token";
+    var created = execution.submit(
+      "alice",
+      Map.of(
+        "problem",
+        "problem-fixture",
+        "language",
+        "java",
+        "code",
+        "trusted fixture",
+        "official",
+        false
+      )
+    );
+    assertEquals("FINISHED", await(created).get("status"));
+    assertEquals("local-token", receivedToken);
+    assertNull(receivedRapidKey);
+  }
+
+  @Test
+  void retriesReturnTheSameJobAndRejectAChangedPayload() throws Exception {
+    var body = Map.<String, Object>of(
+      "problem",
+      "problem-fixture",
+      "language",
+      "java",
+      "code",
+      "trusted fixture",
+      "requestId",
+      "same-request-123"
+    );
+    var first = execution.submit("alice", body);
+    var second = execution.submit("alice", body);
+    assertEquals(first.get("id"), second.get("id"));
+    await(first);
+    assertEquals(1, requests.size());
+    var changed = new HashMap<>(body);
+    changed.put("code", "different");
+    assertThrows(
+      org.springframework.web.server.ResponseStatusException.class,
+      () -> execution.submit("alice", changed)
+    );
+  }
+
+  @Test
+  void recoveryPollsSavedReceiptsWithoutDispatchingAgain() throws Exception {
+    var data = durable("known-receipt");
+    data.put("tokens", Map.of("0", "fixture-token"));
+    store.put("submission-recover", "submission", "alice", data);
+    execution.recover();
+    assertEquals(
+      "ACCEPTED",
+      await(Map.of("id", "submission-recover")).get("status")
+    );
+    assertTrue(requests.isEmpty());
+  }
+
+  @Test
+  void uncertainDispatchIsInterruptedRatherThanDuplicated() throws Exception {
+    var data = durable("uncertain-dispatch");
+    data.put("dispatching", 0);
+    store.put("submission-uncertain", "submission", "alice", data);
+    execution.recover();
+    assertEquals(
+      "INTERRUPTED",
+      await(Map.of("id", "submission-uncertain")).get("status")
+    );
+    assertTrue(requests.isEmpty());
+  }
+
+  @Test
+  void expiredJobsDoNotExecute() throws Exception {
+    var data = durable("expired-job");
+    data.put("deadlineAt", java.time.Instant.now().minusSeconds(1).toString());
+    store.put("submission-expired", "submission", "alice", data);
+    execution.recover();
+    assertEquals(
+      "INTERRUPTED",
+      await(Map.of("id", "submission-expired")).get("status")
+    );
+    assertTrue(requests.isEmpty());
+  }
+
+  @Test
+  void customCompilationErrorsAreNotReportedAsFinished() throws Exception {
+    replyStatus = 6;
+    var job = execution.submit(
+      "alice",
+      Map.of(
+        "problem",
+        "problem-fixture",
+        "language",
+        "cpp",
+        "code",
+        "invalid fixture",
+        "official",
+        false
+      )
+    );
+    assertEquals("COMPILATION_ERROR", await(job).get("status"));
+    assertEquals(
+      List.of(),
+      new ProgressService(store).summary("alice").get("solved")
+    );
+  }
+
+  @Test
+  void configurationAndLanguageDiscoveryDoNotClaimExecutionVerification() {
+    assertTrue(execution.available());
+    assertEquals(false, execution.probe().get("executionVerified"));
+    assertEquals(true, execution.status().get("reachable"));
+  }
+
+  Map<String, Object> durable(String request) {
+    var data = new LinkedHashMap<String, Object>();
+    data.put("problem", "problem-fixture");
+    data.put("code", "trusted fixture");
+    data.put("language", "java");
+    data.put("official", true);
+    data.put("status", "RUNNING");
+    data.put("createdAt", java.time.Instant.now().toString());
+    data.put("deadlineAt", java.time.Instant.now().plusSeconds(60).toString());
+    data.put("requestId", request);
+    data.put("tokens", Map.of());
+    data.put("results", List.of());
+    data.put("dispatching", -1);
+    data.put(
+      "fixtures",
+      List.of(
+        Map.of("input", "private input", "output", "42\n", "public", false)
+      )
+    );
+    return data;
   }
 
   Map<String, Object> await(Map<String, Object> created) throws Exception {

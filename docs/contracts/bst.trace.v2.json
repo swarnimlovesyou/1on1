@@ -1,0 +1,1246 @@
+{
+  "version": 2,
+  "algorithm": "bst",
+  "family": "tree",
+  "input": {
+    "algorithm": "bst",
+    "input": "8,3,10,1,6,14,4,7,13",
+    "target": 3,
+    "seed": 42
+  },
+  "steps": [
+    {
+      "id": "step-0",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "size": 9
+      },
+      "text": "Start with the input. Predict what will change first.",
+      "line": 0,
+      "operation": {
+        "kind": "initialize",
+        "entityIds": [],
+        "details": {
+          "size": 9
+        }
+      }
+    },
+    {
+      "id": "step-1",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 8,
+        "height": 1
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 8,
+          "height": 1
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": null,
+        "right": null
+      }
+    },
+    {
+      "id": "step-2",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 3,
+        "height": 2
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 3,
+          "height": 2
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": null,
+          "right": null
+        },
+        "right": null
+      }
+    },
+    {
+      "id": "step-3",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 10,
+        "height": 2
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 10,
+          "height": 2
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": null,
+          "right": null
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": null
+        }
+      }
+    },
+    {
+      "id": "step-4",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 1,
+        "height": 3
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 1,
+          "height": 3
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": {
+            "id": "node-1",
+            "value": 1,
+            "left": null,
+            "right": null
+          },
+          "right": null
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": null
+        }
+      }
+    },
+    {
+      "id": "step-5",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 6,
+        "height": 3
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 6,
+          "height": 3
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": {
+            "id": "node-1",
+            "value": 1,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "id": "node-6",
+            "value": 6,
+            "left": null,
+            "right": null
+          }
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": null
+        }
+      }
+    },
+    {
+      "id": "step-6",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 14,
+        "height": 3
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 14,
+          "height": 3
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": {
+            "id": "node-1",
+            "value": 1,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "id": "node-6",
+            "value": 6,
+            "left": null,
+            "right": null
+          }
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": {
+            "id": "node-14",
+            "value": 14,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    },
+    {
+      "id": "step-7",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 4,
+        "height": 4
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 4,
+          "height": 4
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": {
+            "id": "node-1",
+            "value": 1,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "id": "node-6",
+            "value": 6,
+            "left": {
+              "id": "node-4",
+              "value": 4,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          }
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": {
+            "id": "node-14",
+            "value": 14,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    },
+    {
+      "id": "step-8",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 7,
+        "height": 4
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 7,
+          "height": 4
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": {
+            "id": "node-1",
+            "value": 1,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "id": "node-6",
+            "value": 6,
+            "left": {
+              "id": "node-4",
+              "value": 4,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "id": "node-7",
+              "value": 7,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": {
+            "id": "node-14",
+            "value": 14,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    },
+    {
+      "id": "step-9",
+      "array": [
+        8,
+        3,
+        10,
+        1,
+        6,
+        14,
+        4,
+        7,
+        13
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 8,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 3,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 10,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 6,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 14,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "item-6",
+          "value": 4,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "item-7",
+          "value": 7,
+          "position": 7,
+          "role": "idle"
+        },
+        {
+          "id": "item-8",
+          "value": 13,
+          "position": 8,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "root": 8,
+        "inserted": 13,
+        "height": 4
+      },
+      "text": "Insert smaller values to the left and larger values to the right.",
+      "line": 3,
+      "operation": {
+        "kind": "insert-node",
+        "entityIds": [],
+        "details": {
+          "root": 8,
+          "inserted": 13,
+          "height": 4
+        }
+      },
+      "tree": {
+        "id": "node-8",
+        "value": 8,
+        "left": {
+          "id": "node-3",
+          "value": 3,
+          "left": {
+            "id": "node-1",
+            "value": 1,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "id": "node-6",
+            "value": 6,
+            "left": {
+              "id": "node-4",
+              "value": 4,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "id": "node-7",
+              "value": 7,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "id": "node-10",
+          "value": 10,
+          "left": null,
+          "right": {
+            "id": "node-14",
+            "value": 14,
+            "left": {
+              "id": "node-13",
+              "value": 13,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          }
+        }
+      }
+    }
+  ],
+  "result": {
+    "id": "step-9",
+    "array": [
+      8,
+      3,
+      10,
+      1,
+      6,
+      14,
+      4,
+      7,
+      13
+    ],
+    "entities": [
+      {
+        "id": "item-0",
+        "value": 8,
+        "position": 0,
+        "role": "idle"
+      },
+      {
+        "id": "item-1",
+        "value": 3,
+        "position": 1,
+        "role": "idle"
+      },
+      {
+        "id": "item-2",
+        "value": 10,
+        "position": 2,
+        "role": "idle"
+      },
+      {
+        "id": "item-3",
+        "value": 1,
+        "position": 3,
+        "role": "idle"
+      },
+      {
+        "id": "item-4",
+        "value": 6,
+        "position": 4,
+        "role": "idle"
+      },
+      {
+        "id": "item-5",
+        "value": 14,
+        "position": 5,
+        "role": "idle"
+      },
+      {
+        "id": "item-6",
+        "value": 4,
+        "position": 6,
+        "role": "idle"
+      },
+      {
+        "id": "item-7",
+        "value": 7,
+        "position": 7,
+        "role": "idle"
+      },
+      {
+        "id": "item-8",
+        "value": 13,
+        "position": 8,
+        "role": "idle"
+      }
+    ],
+    "active": [],
+    "variables": {
+      "root": 8,
+      "inserted": 13,
+      "height": 4
+    },
+    "text": "Insert smaller values to the left and larger values to the right.",
+    "line": 3,
+    "operation": {
+      "kind": "insert-node",
+      "entityIds": [],
+      "details": {
+        "root": 8,
+        "inserted": 13,
+        "height": 4
+      }
+    },
+    "tree": {
+      "id": "node-8",
+      "value": 8,
+      "left": {
+        "id": "node-3",
+        "value": 3,
+        "left": {
+          "id": "node-1",
+          "value": 1,
+          "left": null,
+          "right": null
+        },
+        "right": {
+          "id": "node-6",
+          "value": 6,
+          "left": {
+            "id": "node-4",
+            "value": 4,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "id": "node-7",
+            "value": 7,
+            "left": null,
+            "right": null
+          }
+        }
+      },
+      "right": {
+        "id": "node-10",
+        "value": 10,
+        "left": null,
+        "right": {
+          "id": "node-14",
+          "value": 14,
+          "left": {
+            "id": "node-13",
+            "value": 13,
+            "left": null,
+            "right": null
+          },
+          "right": null
+        }
+      }
+    }
+  }
+}

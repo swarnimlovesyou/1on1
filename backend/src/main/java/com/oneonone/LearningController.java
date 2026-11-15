@@ -11,105 +11,48 @@ public class LearningController {
 
   final Store s;
   final TraceEngine traces;
+  final ProgressService progress;
+  final ChallengeService challenges;
 
-  public LearningController(Store s, TraceEngine t) {
+  public LearningController(
+    Store s,
+    TraceEngine t,
+    ProgressService progress,
+    ChallengeService challenges
+  ) {
+    this.progress = progress;
+    this.challenges = challenges;
     this.s = s;
     traces = t;
   }
 
   @PostMapping("/experiments")
-  public Map<String, Object> trace(@RequestBody Map<String, Object> b) {
-    return traces.trace(b);
+  public Contracts.ExecutionTrace trace(@RequestBody Contracts.SceneRequest b) {
+    return Contracts.ExecutionTrace.from(traces.trace(b.toMap()));
   }
 
   @GetMapping("/progress")
   public Map<String, Object> progress(Authentication a) {
-    String u = AuthController.user(a);
-    var out = new LinkedHashMap<>(
-      s
-        .find("state-" + u)
-        .orElse(
-          Map.of(
-            "completed",
-            List.of(),
-            "solved",
-            List.of(),
-            "bookmarks",
-            List.of(),
-            "activity",
-            Map.of()
-          )
-        )
-    );
-    for (String key : List.of("completed", "solved", "bookmarks"))
-      out.putIfAbsent(key, List.of());
-    out.putIfAbsent("activity", Map.of());
-    out.put("notes", s.list("note", u));
-    out.put("plans", s.list("plan", u));
-    out.put("drafts", s.list("draft", u));
-    out.put(
-      "submissions",
-      s.list("submission", u).stream().map(ExecutionService::visible).toList()
-    );
-    return out;
+    return progress.summary(AuthController.user(a));
   }
 
   @PostMapping("/progress")
-  public synchronized Map<String, Object> update(
+  public Map<String, Object> update(
     Authentication a,
-    @RequestBody Map<String, Object> b
+    @RequestBody Map<String, Object> body
   ) {
-    String u = AuthController.user(a);
-    Map<String, Object> state = new LinkedHashMap<>(
-      s.find("state-" + u).orElse(Map.of())
-    );
-    for (String k : List.of("completed", "bookmarks")) {
-      if (b.containsKey(k)) {
-        var ids = Store.strings(b.get(k));
-        if (ids.size() > 500) throw new IllegalArgumentException(
-          "Too many items."
-        );
-        state.put(
-          k,
-          ids
-            .stream()
-            .distinct()
-            .filter(id -> s.find(id).isPresent())
-            .toList()
-        );
-      }
-    }
-    for (String k : List.of(
-      "level",
-      "goal",
-      "language",
-      "resumeLesson",
-      "resumeStep",
-      "onboarded"
-    ))
-      if (b.containsKey(k)) state.put(k, b.get(k));
-    if (b.containsKey("checkpoint")) {
-      var checks = new LinkedHashMap<String, Object>(
-        (Map<String, Object>) state.getOrDefault("checkpoints", Map.of())
+    String user = AuthController.user(a);
+    if (body.get("checkpoint") instanceof Map<?, ?> cp) {
+      challenges.attempt(
+        user,
+        "challenge-" + cp.get("lesson") + "-checkpoint",
+        new Contracts.AttemptRequest(
+          cp.get("answer"),
+          UUID.randomUUID().toString()
+        )
       );
-      var check = (Map<String, Object>) b.get("checkpoint");
-      String id = Store.text(check, "lesson", "");
-      var lesson = s.get(id);
-      var cp = (Map<String, Object>) lesson.get("checkpoint");
-      boolean correct = Objects.equals(
-        String.valueOf(check.get("answer")),
-        String.valueOf(cp.get("answer"))
-      );
-      checks.put(id, Map.of("answer", check.get("answer"), "correct", correct));
-      state.put("checkpoints", checks);
     }
-    var activity = new LinkedHashMap<String, Object>(
-      (Map<String, Object>) state.getOrDefault("activity", Map.of())
-    );
-    String day = java.time.LocalDate.now(java.time.ZoneOffset.UTC).toString();
-    activity.put(day, ((Number) activity.getOrDefault(day, 0)).intValue() + 1);
-    state.put("activity", activity);
-    return s.put("state-" + u, "state", u, state);
+    return progress.update(user, body);
   }
 
   @GetMapping("/notes")
@@ -180,6 +123,13 @@ public class LearningController {
     if (code.length() > 50000) throw new IllegalArgumentException(
       "Code must be under 50000 characters."
     );
+    String language = Store.text(b, "language", "java");
+    if (
+      !Set.of("java", "python", "cpp").contains(language) ||
+      !s.owned(problem, "public").containsKey("tests")
+    ) throw new IllegalArgumentException(
+      "Choose a published problem and supported language."
+    );
     return s.put(
       "draft-" + u + "-" + problem + "-" + Store.text(b, "language", "java"),
       "draft",
@@ -190,7 +140,9 @@ public class LearningController {
         "language",
         Store.text(b, "language", "java"),
         "code",
-        code
+        code,
+        "codeRevision",
+        Contracts.codeRevision(language, code)
       )
     );
   }
@@ -207,7 +159,9 @@ public class LearningController {
     ) throw new IllegalArgumentException("Select between 1 and 50 topics.");
     String difficulty = Store.text(b, "difficulty", "All");
     var state = s.find("state-" + u).orElse(Map.of());
-    Set<String> solved = new HashSet<>(Store.strings(state.get("solved")));
+    Set<String> solved = new HashSet<>(
+      Store.strings(progress.summary(u).get("solved"))
+    );
     var candidates = s
       .list("problem", "public")
       .stream()
@@ -328,12 +282,7 @@ public class LearningController {
       int[] scores = ids
         .stream()
         .mapToInt(id ->
-          Store.strings(
-            s
-              .find("state-" + id)
-              .orElse(Map.of())
-              .get("solved")
-          )
+          Store.strings(progress.summary(id).get("solved"))
             .stream()
             .distinct()
             .mapToInt(problem -> weights.getOrDefault(problem, 0))
@@ -376,12 +325,7 @@ public class LearningController {
         u
       );
       if (names.isEmpty()) continue;
-      int score = Store.strings(
-        s
-          .find("state-" + u)
-          .orElse(Map.of())
-          .get("solved")
-      )
+      int score = Store.strings(progress.summary(u).get("solved"))
         .stream()
         .distinct()
         .mapToInt(id -> weights.getOrDefault(id, 0))

@@ -11,6 +11,7 @@ export async function api<T>(
   path: string,
   body?: unknown,
   method?: string,
+  signal?: AbortSignal,
 ): Promise<T> {
   const verb = method ?? (body === undefined ? "GET" : "POST");
   if (verb !== "GET" && !csrf) {
@@ -21,6 +22,7 @@ export async function api<T>(
   const r = await fetch("/api/v1" + path, {
     method: verb,
     credentials: "include",
+    signal,
     headers: {
       "Content-Type": "application/json",
       ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
@@ -46,6 +48,7 @@ export function resetCsrf() {
 export async function streamTutor(
   body: unknown,
   onToken: (text: string) => void,
+  signal?: AbortSignal,
 ): Promise<string> {
   if (!csrf) await api("/auth/session");
   const response = await fetch("/api/v1/tutor/stream", {
@@ -53,6 +56,7 @@ export async function streamTutor(
     credentials: "include",
     headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf },
     body: JSON.stringify(body),
+    signal,
   });
   if (!response.ok) {
     const error = await response

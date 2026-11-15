@@ -53,28 +53,29 @@
       "title": "A little less work, every time",
       "subtitle": "Sliding Window",
       "topics": [
-        "Arrays"
+        "Arrays",
+        "Sliding window"
       ],
       "difficulty": "Foundations",
-      "minutes": 10,
+      "minutes": 15,
       "published": true,
-      "body": "Suppose you need the largest sum of three consecutive values. You could add every group from scratch. But adjacent windows share almost everything. Keep a running sum: add the value entering from the right, then remove the value leaving from the left.",
+      "body": "Imagine a frame that holds exactly three readings. Slide it one place to the right: two readings stay inside, one leaves, and one enters. The previous sum already contains almost everything you need. Remove the outgoing reading and add the incoming one. The frame represents a contiguous interval; it cannot skip an inconvenient reading. Try changing one value before looking at the code, then predict which windows it will affect.",
       "invariant": "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition.",
       "pitfall": "Updating the best answer before a full window exists gives the wrong result. Initialize the best sum below every valid sum so negative inputs work.",
       "timeComplexity": "O(n)",
       "spaceComplexity": "O(1)",
       "code": [
-        "sum = 0; best = -infinity",
-        "for right in range(length):",
-        "  sum += values[right]",
-        "  if right >= k: sum -= values[right-k]",
-        "  if right >= k-1: best = max(best, sum)"
+        "int sum = 0, best = Integer.MIN_VALUE;",
+        "for (int right = 0; right < a.length; right++) { sum += a[right];",
+        "  if (right >= k) sum -= a[right - k];",
+        "  if (right >= k - 1) best = Math.max(best, sum); }",
+        "return best;"
       ],
       "experiment": {
         "algorithm": "sliding-window",
-        "input": "2, 1, 5, 1, 3, 2",
+        "input": "2,1,5,1,3,2",
         "target": 3,
-        "words": "tree, trie, try, track"
+        "seed": 42
       },
       "checkpoint": {
         "question": "Which statement captures the key idea?",
@@ -92,6 +93,116 @@
       "takeaways": [
         "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition.",
         "Updating the best answer before a full window exists gives the wrong result. Initialize the best sum below every valid sum so negative inputs work."
+      ],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Reuse the work you already did",
+          "text": "For 2, 1, 5, 1, 3, 2 with k = 3, the first full window sums to 8. Moving right removes 2 and adds 1, so the next sum is 7. The following windows sum to 9 and 6. The answer is 9. The largest element alone is not the answer: the problem asks for three consecutive readings.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The frame and the sum agree",
+          "text": "After processing index right, the running sum contains exactly the readings from max(0, right-k+1) through right. Only compare with best once the frame contains k readings. Initializing best to zero breaks all-negative inputs. Keep best unset, or at the smallest representable value, until the first full window exists.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "What the constraint tells you",
+          "text": "Recomputing each of n-k+1 sums takes O(nk). Reusing the sum takes O(n) time and O(1) extra space. This fixed-size technique works with negative readings. A variable-size window that shrinks whenever a sum is too large needs additional assumptions; negative values can break that shrinking rule.",
+          "lines": []
+        }
+      ],
+      "referenceJourney": true,
+      "linkedProblems": [
+        "problem-three-window",
+        "problem-distinct-windows"
+      ],
+      "challenges": [
+        {
+          "id": "challenge-sliding-window-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Slide the first full window one place right. What is the new sum?",
+          "options": [
+            "8: keep the previous sum",
+            "7: subtract 2 and add 1",
+            "9: take the largest window immediately"
+          ],
+          "answer": 1,
+          "explanation": "The retained 1 and 5 already belong to the sum. Only the outgoing and incoming readings change it.",
+          "hint": "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition."
+        },
+        {
+          "id": "challenge-sliding-window-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You have up to 100000 signed readings and need the largest sum of exactly k consecutive values. Which approach fits?",
+          "options": [
+            "Sort, then take the k largest: O(n log n)",
+            "Try every subset: O(2^n)",
+            "Maintain a fixed window sum: O(n)"
+          ],
+          "answer": 2,
+          "explanation": "Contiguity and a fixed k let us reuse work. Sorting destroys the required order.",
+          "hint": "The running sum is exactly the sum of the current window. A fixed-size window is a different problem from a variable-length window whose validity depends on a condition."
+        },
+        {
+          "id": "challenge-sliding-window-manipulation",
+          "kind": "manipulation",
+          "title": "Make the model your own",
+          "prompt": "Change the readings so the largest sum of exactly three consecutive values is 12. Keep k = 3.",
+          "scene": {
+            "algorithm": "sliding-window",
+            "input": "2,1,5,1,3,2",
+            "target": 3,
+            "seed": 42
+          },
+          "rule": {
+            "path": "variables.best",
+            "equals": 12
+          },
+          "explanation": "The Java-computed final state meets the goal. Try a second input to test the same idea.",
+          "hint": "Updating the best answer before a full window exists gives the wrong result. Initialize the best sum below every valid sum so negative inputs work.",
+          "requiredTarget": 3
+        },
+        {
+          "id": "challenge-sliding-window-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Fill the state table after processing right = 3, using the original input and k = 3.",
+          "scene": {
+            "algorithm": "sliding-window",
+            "input": "2,1,5,1,3,2",
+            "target": 3,
+            "seed": 42
+          },
+          "traceStep": 4,
+          "fields": [
+            {
+              "key": "left",
+              "label": "Left index"
+            },
+            {
+              "key": "right",
+              "label": "Right index"
+            },
+            {
+              "key": "sum",
+              "label": "Current sum"
+            },
+            {
+              "key": "best",
+              "label": "Best full-window sum"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this fixed input.",
+          "hint": "Start from the first full sum, 8. The next operation removes index 0 and adds index 3."
+        }
       ]
     },
     {
@@ -489,25 +600,24 @@
         "Trees"
       ],
       "difficulty": "Intermediate",
-      "minutes": 12,
+      "minutes": 15,
       "published": true,
-      "body": "A binary search tree organizes keys by order: smaller keys go left, larger keys go right. Search follows these comparisons rather than scanning every stored key. Shape depends on insertion order.",
+      "body": "Imagine a branching set of signposts. At each node, smaller keys go left and larger keys go right. A search never needs to inspect both branches. Build a tree by inserting the values one at a time, and notice that insertion order determines the shape. A binary search tree describes an ordering rule; it does not promise that the two sides have similar heights.",
       "invariant": "Every node separates smaller keys in its left subtree from larger keys in its right subtree. This experiment ignores duplicate insertions.",
       "pitfall": "Sorted input can turn an ordinary BST into a chain. Height, rather than the mere presence of two child links, controls search cost.",
       "timeComplexity": "O(h) per insert/search",
       "spaceComplexity": "O(n)",
       "code": [
-        "begin at the root",
-        "compare with the current key",
-        "follow the smaller or larger branch",
-        "insert at an empty position",
-        "preserve the BST invariant"
+        "if (node == null) return new Node(value);",
+        "if (value < node.value) node.left = insert(node.left, value);",
+        "else if (value > node.value) node.right = insert(node.right, value);",
+        "return node; // an equal key leaves the tree unchanged"
       ],
       "experiment": {
         "algorithm": "bst",
-        "input": "4, 2, 7, 1, 3, 6",
+        "input": "8,3,10,1,6,14,4,7,13",
         "target": 3,
-        "words": "tree, trie, try, track"
+        "seed": 42
       },
       "checkpoint": {
         "question": "Which statement captures the key idea?",
@@ -520,11 +630,116 @@
         "explanation": "The height of the tree. Every node separates smaller keys in its left subtree from larger keys in its right subtree. This experiment ignores duplicate insertions."
       },
       "prerequisites": [
-        "lesson-backtracking"
+        "lesson-binary-search"
       ],
       "takeaways": [
         "Every node separates smaller keys in its left subtree from larger keys in its right subtree. This experiment ignores duplicate insertions.",
         "Sorted input can turn an ordinary BST into a chain. Height, rather than the mere presence of two child links, controls search cost."
+      ],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "A decision at each branch",
+          "text": "Insert 8, then 3, then 10. The first value becomes the root; 3 goes left and 10 goes right. To insert 6, compare with 8 and move left, then compare with 3 and move right. The new node is the right child of 3. An in-order traversal visits 1, 3, 4, 6, 7, 8, 10, 13, 14 for this lesson's complete input.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The rule covers whole subtrees",
+          "text": "Every key in the left subtree is smaller than its ancestor, not merely smaller than its immediate parent. The corresponding right subtree contains larger keys. Our implementation ignores duplicate keys. Watch whether a repeated insertion changes the node count or shape; it should do neither.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Shape determines the cost",
+          "text": "Searching and inserting cost O(h), where h is the height. A balanced tree has logarithmic height; inserting an increasing sequence into an ordinary BST makes a chain with linear height. An AVL tree adds rotations to maintain balance. Do not silently claim O(log n) for every unbalanced BST operation.",
+          "lines": []
+        }
+      ],
+      "referenceJourney": true,
+      "linkedProblems": [
+        "problem-bst-inorder",
+        "problem-tree-height"
+      ],
+      "challenges": [
+        {
+          "id": "challenge-bst-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "After inserting 8, 3, 10, and 1, where will 6 be inserted?",
+          "options": [
+            "Left child of 8",
+            "Right child of 10",
+            "Right child of 3"
+          ],
+          "answer": 2,
+          "explanation": "6 is smaller than 8, then larger than 3. Follow those two comparisons.",
+          "hint": "Every node separates smaller keys in its left subtree from larger keys in its right subtree. This experiment ignores duplicate insertions."
+        },
+        {
+          "id": "challenge-bst-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You need ordered traversal as well as repeated insertions and searches. Which structure fits, and what controls its operation cost?",
+          "options": [
+            "A queue; every operation is O(log n)",
+            "A BST; search and insertion cost O(height)",
+            "A hash table; its iteration is always sorted"
+          ],
+          "answer": 1,
+          "explanation": "A BST preserves ordered relationships. Its height determines how many comparisons a path needs.",
+          "hint": "Every node separates smaller keys in its left subtree from larger keys in its right subtree. This experiment ignores duplicate insertions."
+        },
+        {
+          "id": "challenge-bst-manipulation",
+          "kind": "manipulation",
+          "title": "Make the model your own",
+          "prompt": "Create an insertion order whose unbalanced BST has height 4. Duplicate keys are ignored.",
+          "scene": {
+            "algorithm": "bst",
+            "input": "8,3,10,1,6,14,4,7,13",
+            "target": 3,
+            "seed": 42
+          },
+          "rule": {
+            "path": "variables.height",
+            "equals": 4
+          },
+          "explanation": "The Java-computed final state meets the goal. Try a second input to test the same idea.",
+          "hint": "Sorted input can turn an ordinary BST into a chain. Height, rather than the mere presence of two child links, controls search cost."
+        },
+        {
+          "id": "challenge-bst-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Fill the table after inserting the first five values: 8, 3, 10, 1, 6.",
+          "scene": {
+            "algorithm": "bst",
+            "input": "8,3,10,1,6,14,4,7,13",
+            "target": 3,
+            "seed": 42
+          },
+          "traceStep": 5,
+          "fields": [
+            {
+              "key": "inserted",
+              "label": "Just-inserted key"
+            },
+            {
+              "key": "root",
+              "label": "Root key"
+            },
+            {
+              "key": "height",
+              "label": "Height in nodes"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this fixed input.",
+          "hint": "Height counts nodes on the longest root-to-leaf path. Insertion into an ordinary BST does not move the root."
+        }
       ]
     },
     {
@@ -681,25 +896,25 @@
         "Graphs"
       ],
       "difficulty": "Intermediate",
-      "minutes": 12,
+      "minutes": 15,
       "published": true,
-      "body": "Breadth-first search visits vertices in increasing unweighted distance from the starting vertex. A queue ensures that all vertices at one distance are explored before deeper ones.",
+      "body": "Imagine ripples moving out from a starting room. Breadth-first search explores the nearest discovered rooms before moving farther away. Its queue is the boundary between what has been discovered and what still needs processing. In this small directed network we start at vertex 0; each input value helps derive an edge weight, but BFS ignores weights and follows discovery order.",
       "invariant": "Mark vertices when they enter the queue. A vertex is discovered once, even if several edges lead to it.",
       "pitfall": "Edge weights are displayed but ignored by BFS. BFS does not generally find a minimum-weight path. The experiment derives a small directed graph from the numeric input.",
       "timeComplexity": "O(V + E) with adjacency lists",
       "spaceComplexity": "O(V)",
       "code": [
-        "enqueue and mark the source",
-        "while the queue is not empty:",
-        "  visit the next vertex",
-        "  enqueue unvisited neighbors",
-        "finish when no frontier remains"
+        "queue.add(0); seen[0] = true;",
+        "while (!queue.isEmpty()) { int u = queue.remove();",
+        "  for (int v : neighbours[u]) if (!seen[v]) {",
+        "    seen[v] = true; queue.add(v); }",
+        "} // every reachable vertex was processed once"
       ],
       "experiment": {
         "algorithm": "bfs",
-        "input": "4, 2, 7, 1, 3, 6",
+        "input": "4,2,7,1,3,6",
         "target": 3,
-        "words": "tree, trie, try, track"
+        "seed": 42
       },
       "checkpoint": {
         "question": "Which statement captures the key idea?",
@@ -712,11 +927,116 @@
         "explanation": "Minimum number of edges in an unweighted graph. Mark vertices when they enter the queue. A vertex is discovered once, even if several edges lead to it."
       },
       "prerequisites": [
-        "lesson-heap"
+        "lesson-queue"
       ],
       "takeaways": [
         "Mark vertices when they enter the queue. A vertex is discovered once, even if several edges lead to it.",
         "Edge weights are displayed but ignored by BFS. BFS does not generally find a minimum-weight path. The experiment derives a small directed graph from the numeric input."
+      ],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "The queue makes the layers",
+          "text": "Start with queue [0] and mark 0 discovered. Remove 0, discover neighbours 1 and 2, and enqueue them in that order. Processing 1 next can discover 3. Processing 2 must not enqueue 3 again if 1 already discovered it. The graph drawing shows the exact edges used by the Java execution; vertex labels are the same numeric IDs used in code.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Discover once, process once",
+          "text": "Mark a vertex when it enters the queue, rather than when it leaves. Otherwise two parents can enqueue the same vertex. A vertex can be discovered without having been processed yet; those are different states. Maintain a visited/discovered set even when a graph has cycles or self-loops.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "When the first route is shortest",
+          "text": "For unweighted edges, the first discovery of a vertex gives its minimum number of edges from the source. This does not find the cheapest weighted route. With adjacency lists, BFS uses O(V+E) time and O(V) auxiliary state. Unreachable vertices remain undiscovered. The small teaching network is generated and directed; the linked problems accept explicit graph input.",
+          "lines": []
+        }
+      ],
+      "referenceJourney": true,
+      "linkedProblems": [
+        "problem-reachable-rooms",
+        "problem-fewest-doors"
+      ],
+      "challenges": [
+        {
+          "id": "challenge-bfs-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "After expanding vertex 0, its newly discovered neighbours are 1 and 2. What is the queue?",
+          "options": [
+            "[1, 2]",
+            "[2, 1]",
+            "[0, 1, 2]"
+          ],
+          "answer": 0,
+          "explanation": "Vertex 0 has already left the queue. A FIFO queue retains the discovery order of 1 and 2.",
+          "hint": "Mark vertices when they enter the queue. A vertex is discovered once, even if several edges lead to it."
+        },
+        {
+          "id": "challenge-bfs-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A directed, unweighted graph has up to 100000 vertices. You need minimum edge counts from one source. Which approach fits?",
+          "options": [
+            "Depth-first search always gives shortest paths: O(V+E)",
+            "BFS with a queue: O(V+E)",
+            "Sort all edges by weight: O(E log E)"
+          ],
+          "answer": 1,
+          "explanation": "BFS explores by edge-distance layers. DFS can discover a longer route first.",
+          "hint": "Mark vertices when they enter the queue. A vertex is discovered once, even if several edges lead to it."
+        },
+        {
+          "id": "challenge-bfs-manipulation",
+          "kind": "manipulation",
+          "title": "Make the model your own",
+          "prompt": "Change the input length so exactly five vertices are processed in this generated teaching graph.",
+          "scene": {
+            "algorithm": "bfs",
+            "input": "4,2,7,1,3,6",
+            "target": 3,
+            "seed": 42
+          },
+          "rule": {
+            "path": "variables.visited",
+            "equals": 5
+          },
+          "explanation": "The Java-computed final state meets the goal. Try a second input to test the same idea.",
+          "hint": "Edge weights are displayed but ignored by BFS. BFS does not generally find a minimum-weight path. The experiment derives a small directed graph from the numeric input."
+        },
+        {
+          "id": "challenge-bfs-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Fill the table immediately after vertex 0 discovers and enqueues neighbour 2.",
+          "scene": {
+            "algorithm": "bfs",
+            "input": "4,2,7,1,3,6",
+            "target": 3,
+            "seed": 42
+          },
+          "traceStep": 3,
+          "fields": [
+            {
+              "key": "visiting",
+              "label": "Currently processing vertex"
+            },
+            {
+              "key": "discovered",
+              "label": "Just-discovered vertex"
+            },
+            {
+              "key": "frontier",
+              "label": "Queue, front to back"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this fixed input.",
+          "hint": "The earlier neighbour is still waiting. Enter queue IDs separated by commas."
+        }
       ]
     },
     {
@@ -921,25 +1241,25 @@
         "Dynamic programming"
       ],
       "difficulty": "Intermediate",
-      "minutes": 14,
+      "minutes": 15,
       "published": true,
-      "body": "Tabulation starts with base states and fills a table in dependency order. For Fibonacci, each value uses the two previous entries. The table makes the reuse of work explicit.",
+      "body": "Imagine a row of small solved questions. A later cell can depend on earlier cells, but never on a value that has not been computed. For Fibonacci, each cell is the sum of its two predecessors. Tabulation chooses an order that makes these dependencies available. Start by changing n and tracing the dependency arrows; the table is a record of reusable results, not a formula to memorize without understanding its base cases.",
       "invariant": "Before filling state i, every state it depends on is already available. The iteration order follows the dependency graph.",
       "pitfall": "A correct recurrence with the wrong loop order can still be wrong. Some tables can be compressed after the dependency pattern is understood.",
       "timeComplexity": "O(n)",
       "spaceComplexity": "O(n), compressible to O(1)",
       "code": [
-        "initialize base states",
-        "for each later state:",
-        "  combine the previous two values",
-        "store the new result",
-        "read the final table entry"
+        "int[] dp = new int[n + 1];",
+        "if (n > 0) dp[1] = 1;",
+        "for (int i = 2; i <= n; i++) dp[i] = dp[i - 1] + dp[i - 2];",
+        "// every dependency was computed before its user",
+        "return dp[n];"
       ],
       "experiment": {
         "algorithm": "tabulation",
-        "input": "4, 2, 7, 1, 3, 6",
-        "target": 8,
-        "words": "tree, trie, try, track"
+        "input": "0,1",
+        "target": 7,
+        "seed": 42
       },
       "checkpoint": {
         "question": "Which statement captures the key idea?",
@@ -952,11 +1272,112 @@
         "explanation": "Dependency order. Before filling state i, every state it depends on is already available. The iteration order follows the dependency graph."
       },
       "prerequisites": [
-        "lesson-memoization"
+        "lesson-recursion"
       ],
       "takeaways": [
         "Before filling state i, every state it depends on is already available. The iteration order follows the dependency graph.",
         "A correct recurrence with the wrong loop order can still be wrong. Some tables can be compressed after the dependency pattern is understood."
+      ],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Build the answer from the beginning",
+          "text": "Set F(0)=0 and F(1)=1. Then F(2)=1, F(3)=2, F(4)=3, and F(5)=5. Computing F(7) reads 5 and 8 from the two preceding cells and stores 13. Each write highlights both dependencies and the destination so you can see why that computation is valid.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Dependencies come before their users",
+          "text": "Before iteration i, every table entry below i is final. The two dependencies at i-1 and i-2 are therefore available. Decide what a state means before writing a recurrence. Counting staircase routes has a similar recurrence but a different interpretation and base case: there is one empty route for zero steps.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "What the table saves",
+          "text": "Naive recursive Fibonacci repeats the same subproblems many times. This table computes each state once, using O(n) time and O(n) storage. When only the final value is needed, retain two previous values for O(1) extra storage. Keeping the full table is useful here because it makes the dependency order visible.",
+          "lines": []
+        }
+      ],
+      "referenceJourney": true,
+      "linkedProblems": [
+        "problem-fibonacci-station",
+        "problem-staircase"
+      ],
+      "challenges": [
+        {
+          "id": "challenge-tabulation-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "F(4)=3 and F(5)=5 are final. Which value belongs in F(6)?",
+          "options": [
+            "5",
+            "8",
+            "13"
+          ],
+          "answer": 1,
+          "explanation": "Read F(5) and F(4), then add 5 + 3. F(7), not F(6), is 13.",
+          "hint": "Before filling state i, every state it depends on is already available. The iteration order follows the dependency graph."
+        },
+        {
+          "id": "challenge-tabulation-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A recurrence repeatedly requests the same smaller states and you can order those dependencies. Which approach avoids repeating the work?",
+          "options": [
+            "Compute each state once in a table",
+            "Recompute both branches every time",
+            "Sort the resulting answers"
+          ],
+          "answer": 0,
+          "explanation": "Tabulation stores each state after its dependencies. A correct state definition and base cases come first.",
+          "hint": "Before filling state i, every state it depends on is already available. The iteration order follows the dependency graph."
+        },
+        {
+          "id": "challenge-tabulation-manipulation",
+          "kind": "manipulation",
+          "title": "Make the model your own",
+          "prompt": "Choose n so the stored Fibonacci result is 21. The teaching table supports n from 0 to 16.",
+          "scene": {
+            "algorithm": "tabulation",
+            "input": "0,1",
+            "target": 7,
+            "seed": 42
+          },
+          "rule": {
+            "path": "variables.result",
+            "equals": 21
+          },
+          "explanation": "The Java-computed final state meets the goal. Try a second input to test the same idea.",
+          "hint": "A correct recurrence with the wrong loop order can still be wrong. Some tables can be compressed after the dependency pattern is understood."
+        },
+        {
+          "id": "challenge-tabulation-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Fill the state table immediately after computing F(5).",
+          "scene": {
+            "algorithm": "tabulation",
+            "input": "0,1",
+            "target": 7,
+            "seed": 42
+          },
+          "traceStep": 4,
+          "fields": [
+            {
+              "key": "i",
+              "label": "Destination index"
+            },
+            {
+              "key": "value",
+              "label": "Stored value"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this fixed input.",
+          "hint": "F(3)=2 and F(4)=3. Use the destination index, not the count of animation steps."
+        }
       ]
     },
     {
@@ -2390,18 +2811,39 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "14\n",
           "public": false
+        },
+        {
+          "input": "-5 -2 -9 -4\n",
+          "output": "-15\n",
+          "public": false
+        },
+        {
+          "input": "0 0 0 0\n",
+          "output": "0\n",
+          "public": false
+        },
+        {
+          "input": "2\n1\n5\n1\n3\n2\n",
+          "output": "9\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the largest sum of three consecutive values, or the sum of all values if fewer than three exist.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Maintain the sum of the last min(3,n) values and update best only for full windows. Initialize best from the first real window so negative arrays work.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint k=Math.min(3,a.length);long sum=0,best=Long.MIN_VALUE;for(int i=0;i<a.length;i++){sum+=a[i];if(i>=k)sum-=a[i-k];if(i>=k-1)best=Math.max(best,sum);}System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Exactly three means contiguous positions, not the three largest values.",
+        "After the first window, subtract the outgoing value before adding the incoming one.",
+        "Initialize best from a complete window; zero is not a safe baseline for all-negative input."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint k=Math.min(3,a.length);long sum=0,best=Long.MIN_VALUE;for(int i=0;i<a.length;i++){sum+=a[i];if(i>=k)sum-=a[i-k];if(i>=k-1)best=Math.max(best,sum);}System.out.println(best);\n }\n}",
+        "python": "import sys\na = list(map(int, sys.stdin.read().split()))\nk = min(3, len(a))\nwindow = sum(a[:k])\nbest = window\nfor right in range(k, len(a)):\n    window += a[right] - a[right-k]\n    best = max(best, window)\nprint(best)\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);vector<long long>a;long long x;while(cin>>x)a.push_back(x);int k=min(3,(int)a.size());long long sum=0,best=LLONG_MIN;for(int i=0;i<(int)a.size();i++){sum+=a[i];if(i>=k)sum-=a[i-k];if(i>=k-1)best=max(best,sum);}cout<<best;\n}\n"
+      }
     },
     {
       "id": "problem-left-rotation",
@@ -4106,7 +4548,7 @@
       "difficulty": "Easy",
       "description": "Given one integer n (0 ≤ n ≤ 30), print Fibonacci(n), with F(0)=0 and F(1)=1.",
       "constraints": "One integer within the range stated above.",
-      "inputFormat": "Read one line.",
+      "inputFormat": "Read one integer n from 0 through 30.",
       "outputFormat": "Print the requested result. Separate sequence elements with spaces.",
       "samples": [
         {
@@ -4155,18 +4597,34 @@
           "input": "15\n",
           "output": "610\n",
           "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "832040\n",
+          "public": false
+        },
+        {
+          "input": "3\n",
+          "output": "2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given one integer n (0 ≤ n ≤ 30), print Fibonacci(n), with F(0)=0 and F(1)=1.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Start with the consecutive pair F(0)=0 and F(1)=1. Advance the pair n times. The first value is then F(n). A table is equally valid; two variables reduce extra storage.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nlong x=0,y=1;for(int i=0;i<n;i++){long z=x+y;x=y;y=z;}System.out.println(x);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Handle n=0 before assuming a positive index.",
+        "Keep two consecutive Fibonacci values.",
+        "Update both values using the old pair, not an overwritten first variable."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nlong x=0,y=1;for(int i=0;i<n;i++){long z=x+y;x=y;y=z;}System.out.println(x);\n }\n}",
+        "python": "import sys\nn = int(sys.stdin.read())\na, b = 0, 1\nfor _ in range(n):\n    a, b = b, a+b\nprint(a)\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);int n;cin>>n;long long a=0,b=1;while(n--){long long c=a+b;a=b;b=c;}cout<<a;\n}\n"
+      }
     },
     {
       "id": "problem-staircase",
@@ -4179,7 +4637,7 @@
       "difficulty": "Medium",
       "description": "Given n (0 ≤ n ≤ 30), count ordered ways to climb n steps using steps of size 1 or 2. There is one way to climb zero steps.",
       "constraints": "One integer within the range stated above.",
-      "inputFormat": "Read one line.",
+      "inputFormat": "Read one integer n from 0 through 30.",
       "outputFormat": "Print the requested result. Separate sequence elements with spaces.",
       "samples": [
         {
@@ -4228,18 +4686,34 @@
           "input": "15\n",
           "output": "987\n",
           "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "1346269\n",
+          "public": false
+        },
+        {
+          "input": "3\n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given n (0 ≤ n ≤ 30), count ordered ways to climb n steps using steps of size 1 or 2. There is one way to climb zero steps.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Let ways[i] count ordered routes to step i. The last move is either one step or two, so ways[i]=ways[i-1]+ways[i-2]. ways[0]=1 represents the empty route; ways[1]=1.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nlong x=1,y=1;for(int i=0;i<n;i++){long z=x+y;x=y;y=z;}System.out.println(x);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "There is one way to climb zero steps: take no steps.",
+        "Partition routes by whether their final move has length one or two.",
+        "This recurrence resembles Fibonacci but starts from 1,1."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nlong x=1,y=1;for(int i=0;i<n;i++){long z=x+y;x=y;y=z;}System.out.println(x);\n }\n}",
+        "python": "import sys\nn = int(sys.stdin.read())\na, b = 1, 1\nfor _ in range(n):\n    a, b = b, a+b\nprint(a)\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);int n;cin>>n;long long a=1,b=1;while(n--){long long c=a+b;a=b;b=c;}cout<<a;\n}\n"
+      }
     },
     {
       "id": "problem-small-coins",
@@ -4741,18 +5215,39 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-9 -8 -7 -6 -5 -2 -1 4 8 9 11 12\n",
           "public": false
+        },
+        {
+          "input": "4 4 4 4\n",
+          "output": "4\n",
+          "public": false
+        },
+        {
+          "input": "5 4 3 2 1\n",
+          "output": "1 2 3 4 5\n",
+          "public": false
+        },
+        {
+          "input": "2\n1\n5\n1\n3\n2\n",
+          "output": "1 2 3 5\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Insert the readings into a BST, ignoring duplicates. Print its in-order traversal.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n) with a balanced tree. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "In-order traversal of a BST yields its distinct keys in sorted order. A sorted set is an equivalent output-oriented reference for this problem; the lesson separately demonstrates explicit BST insertion. An explicit traversal is also valid.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nTreeSet<Long>set=new TreeSet<>();for(long x:a)set.add(x);for(long x:set)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(n log n) with a balanced tree",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Duplicates are ignored, not counted.",
+        "In-order means left subtree, node, then right subtree.",
+        "Output-oriented approaches can use a sorted set; explicit BST insertion has O(nh) worst-case cost over n insertions."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nTreeSet<Long>set=new TreeSet<>();for(long x:a)set.add(x);for(long x:set)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\na = list(map(int, sys.stdin.read().split()))\nprint(*sorted(set(a)))\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);set<long long>s;long long x;while(cin>>x)s.insert(x);for(auto value:s)cout<<value<<\" \";\n}\n"
+      }
     },
     {
       "id": "problem-heap-root",
@@ -4887,18 +5382,39 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "5\n",
           "public": false
+        },
+        {
+          "input": "4 4 4 4\n",
+          "output": "1\n",
+          "public": false
+        },
+        {
+          "input": "5 4 3 2 1\n",
+          "output": "5\n",
+          "public": false
+        },
+        {
+          "input": "2\n1\n5\n1\n3\n2\n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Insert distinct readings into an unbalanced BST, ignoring duplicates. Print its height in nodes.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n²) worst case. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Build the unbalanced BST in input order, ignoring duplicates. Traverse it with depth starting at one for the root, then return the largest depth. Sorting first changes the tree and is incorrect.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\nstatic class Node{long v;Node l,r;Node(long v){this.v=v;}}static Node insert(Node n,long v){if(n==null)return new Node(v);if(v<n.v)n.l=insert(n.l,v);else if(v>n.v)n.r=insert(n.r,v);return n;}static int height(Node n){return n==null?0:1+Math.max(height(n.l),height(n.r));}\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nNode root=null;for(long x:a)root=insert(root,x);System.out.println(height(root));\n }\n}",
       "complexity": "O(n²) worst case",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A root alone has height one in this problem.",
+        "Insertion order changes the shape; do not sort the readings.",
+        "Repeated values create no node. An iterative stack can measure height without deep recursive calls."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\nstatic class Node{long v;Node l,r;Node(long v){this.v=v;}}static Node insert(Node n,long v){if(n==null)return new Node(v);if(v<n.v)n.l=insert(n.l,v);else if(v>n.v)n.r=insert(n.r,v);return n;}static int height(Node n){return n==null?0:1+Math.max(height(n.l),height(n.r));}\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nNode root=null;for(long x:a)root=insert(root,x);System.out.println(height(root));\n }\n}",
+        "python": "import sys\na = list(map(int, sys.stdin.read().split()))\nnodes = []\nfor value in a:\n    if not nodes:\n        nodes.append([value, None, None])\n        continue\n    at = 0\n    while nodes[at][0] != value:\n        side = 1 if value < nodes[at][0] else 2\n        if nodes[at][side] is None:\n            nodes[at][side] = len(nodes)\n            nodes.append([value, None, None])\n            break\n        at = nodes[at][side]\nstack = [(0, 1)]\nheight = 0\nwhile stack:\n    at, depth = stack.pop()\n    height = max(height, depth)\n    for child in nodes[at][1:]:\n        if child is not None:\n            stack.append((child, depth + 1))\nprint(height)\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);struct N{long long v;int l=-1,r=-1;};vector<N>t;long long x;while(cin>>x){if(t.empty()){t.push_back({x});continue;}int at=0;while(t[at].v!=x){int child=x<t[at].v?t[at].l:t[at].r;if(child<0){int next=t.size();if(x<t[at].v)t[at].l=next;else t[at].r=next;t.push_back({x});break;}at=child;}}vector<pair<int,int>>st{{0,1}};int h=0;while(!st.empty()){auto entry=st.back();int at=entry.first,d=entry.second;st.pop_back();h=max(h,d);if(t[at].l>=0)st.push_back({t[at].l,d+1});if(t[at].r>=0)st.push_back({t[at].r,d+1});}cout<<h;\n}\n"
+      }
     },
     {
       "id": "problem-consecutive-chain",
@@ -5107,18 +5623,39 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "2 2 2 2 1 2 2 2 2 2 2 2 2\n",
           "public": false
+        },
+        {
+          "input": "7 7 7 7\n",
+          "output": "1 1 1\n",
+          "public": false
+        },
+        {
+          "input": "1 2 2 3\n",
+          "output": "2 1 2\n",
+          "public": false
+        },
+        {
+          "input": "2\n1\n5\n1\n3\n2\n",
+          "output": "2 2 2 2 2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. For each consecutive pair, print how many distinct values it contains. Print an empty line if fewer than two values exist.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "A window contains exactly two values. It has one distinct value when both are equal, otherwise two. Compare each neighbouring pair without sorting.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=0;i+1<a.length;i++)System.out.print((a[i]==a[i+1]?1:2)+\" \");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "There is no complete pair for a one-value input.",
+        "A two-value window needs only an equality check.",
+        "Output one result per adjacent pair, retaining the original order."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=0;i+1<a.length;i++)System.out.print((a[i]==a[i+1]?1:2)+\" \");\n }\n}",
+        "python": "import sys\na = list(map(int, sys.stdin.read().split()))\nprint(*(1 if x == y else 2 for x, y in zip(a, a[1:])))\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);vector<long long>a;long long x;while(cin>>x)a.push_back(x);for(int i=0;i+1<(int)a.size();i++)cout<<(a[i]==a[i+1]?1:2)<<\" \";\n}\n"
+      }
     },
     {
       "id": "problem-reachable-rooms",
@@ -5131,7 +5668,7 @@
       "difficulty": "Medium",
       "description": "The input begins n m, followed by m directed edges u v. Count the vertices reachable from vertex 0, including 0.",
       "constraints": "1 ≤ n ≤ 100; 0 ≤ m ≤ 1000; vertex identifiers are 0..n-1. Self loops and parallel edges are allowed.",
-      "inputFormat": "Read one line.",
+      "inputFormat": "Read n m, followed by m directed edges u v. Values may be separated by spaces or newlines.",
       "outputFormat": "Print the requested result. Separate sequence elements with spaces.",
       "samples": [
         {
@@ -5180,18 +5717,39 @@
           "input": "4 5 0 1 0 1 1 2 2 3 3 1\n",
           "output": "4\n",
           "public": false
+        },
+        {
+          "input": "5 4 0 1 1 0 2 3 3 4\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "3 5 0 0 0 1 0 1 1 2 2 0\n",
+          "output": "3\n",
+          "public": false
+        },
+        {
+          "input": "4\n4\n0\n1\n0\n2\n1\n3\n2\n3\n",
+          "output": "4\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. The input begins n m, followed by m directed edges u v. Count the vertices reachable from vertex 0, including 0.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(V + E). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Build directed adjacency lists. Start a queue at vertex 0 and mark vertices when enqueued. Count processed vertices. Cycles, repeated edges, and self-loops must not enqueue a discovered vertex again.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];List<List<Integer>>g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int i=2;i<a.length;i+=2)g.get((int)a[i]).add((int)a[i+1]);boolean[]seen=new boolean[n];seen[0]=true;Deque<Integer>q=new ArrayDeque<>();q.add(0);int count=0;while(!q.isEmpty()){int u=q.remove();count++;for(int v:g.get(u))if(!seen[v]){seen[v]=true;q.add(v);}}System.out.println(count);\n }\n}",
       "complexity": "O(V + E)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Directed reachability does not automatically include the reverse edge.",
+        "The source counts as reachable even with no edges.",
+        "Mark on enqueue, then each vertex enters the queue at most once."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];List<List<Integer>>g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int i=2;i<a.length;i+=2)g.get((int)a[i]).add((int)a[i+1]);boolean[]seen=new boolean[n];seen[0]=true;Deque<Integer>q=new ArrayDeque<>();q.add(0);int count=0;while(!q.isEmpty()){int u=q.remove();count++;for(int v:g.get(u))if(!seen[v]){seen[v]=true;q.add(v);}}System.out.println(count);\n }\n}",
+        "python": "import sys\ndata = list(map(int, sys.stdin.read().split()))\nn, m = data[:2]\ngraph = [[] for _ in range(n)]\nfor i in range(m):\n    u, v = data[2+2*i:4+2*i]\n    graph[u].append(v)\ndistance = [-1] * n\ndistance[0] = 0\nqueue = [0]\nhead = 0\nwhile head < len(queue):\n    u = queue[head]\n    head += 1\n    for v in graph[u]:\n        if distance[v] == -1:\n            distance[v] = distance[u] + 1\n            queue.append(v)\nprint(sum(d >= 0 for d in distance))\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);int n,m;cin>>n>>m;vector<vector<int>>g(n);for(int i=0,u,v;i<m;i++){cin>>u>>v;g[u].push_back(v);}vector<int>d(n,-1);queue<int>q;d[0]=0;q.push(0);while(!q.empty()){int u=q.front();q.pop();for(int v:g[u])if(d[v]<0){d[v]=d[u]+1;q.push(v);}}cout<<count_if(d.begin(),d.end(),[](int x){return x>=0;});\n}\n"
+      }
     },
     {
       "id": "problem-fewest-doors",
@@ -5205,7 +5763,7 @@
       "difficulty": "Medium",
       "description": "The input begins n m, followed by m directed edges u v. Print the minimum number of edges from 0 to every vertex in vertex order, using -1 if unreachable.",
       "constraints": "1 ≤ n ≤ 100; 0 ≤ m ≤ 1000; vertex identifiers are 0..n-1. Self loops and parallel edges are allowed.",
-      "inputFormat": "Read one line.",
+      "inputFormat": "Read n m, followed by m directed edges u v. Values may be separated by spaces or newlines.",
       "outputFormat": "Print the requested result. Separate sequence elements with spaces.",
       "samples": [
         {
@@ -5254,18 +5812,39 @@
           "input": "4 5 0 1 0 1 1 2 2 3 3 1\n",
           "output": "0 1 2 3\n",
           "public": false
+        },
+        {
+          "input": "5 4 0 1 1 0 2 3 3 4\n",
+          "output": "0 1 -1 -1 -1\n",
+          "public": false
+        },
+        {
+          "input": "3 5 0 0 0 1 0 1 1 2 2 0\n",
+          "output": "0 1 2\n",
+          "public": false
+        },
+        {
+          "input": "4\n4\n0\n1\n0\n2\n1\n3\n2\n3\n",
+          "output": "0 1 1 2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. The input begins n m, followed by m directed edges u v. Print the minimum number of edges from 0 to every vertex in vertex order, using -1 if unreachable.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(V + E). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Initialize all distances to -1 and the source to 0. When BFS first discovers v from u, set distance[v]=distance[u]+1. Queue order makes the first distance minimal for unweighted edges.\n\nTest the smallest valid input, repeated values, and the relevant disconnected or all-negative case. Compare against the stated output format; hidden cases use the same rules.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];List<List<Integer>>g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int i=2;i<a.length;i+=2)g.get((int)a[i]).add((int)a[i+1]);int[]d=new int[n];Arrays.fill(d,-1);d[0]=0;Deque<Integer>q=new ArrayDeque<>();q.add(0);while(!q.isEmpty()){int u=q.remove();for(int v:g.get(u))if(d[v]<0){d[v]=d[u]+1;q.add(v);}}for(int x:d)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(V + E)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Keep -1 for vertices never discovered.",
+        "The source distance is zero, not one.",
+        "Assign the distance when enqueuing a vertex for the first time."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "referenceJourney": true,
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];List<List<Integer>>g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int i=2;i<a.length;i+=2)g.get((int)a[i]).add((int)a[i+1]);int[]d=new int[n];Arrays.fill(d,-1);d[0]=0;Deque<Integer>q=new ArrayDeque<>();q.add(0);while(!q.isEmpty()){int u=q.remove();for(int v:g.get(u))if(d[v]<0){d[v]=d[u]+1;q.add(v);}}for(int x:d)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\ndata = list(map(int, sys.stdin.read().split()))\nn, m = data[:2]\ngraph = [[] for _ in range(n)]\nfor i in range(m):\n    u, v = data[2+2*i:4+2*i]\n    graph[u].append(v)\ndistance = [-1] * n\ndistance[0] = 0\nqueue = [0]\nhead = 0\nwhile head < len(queue):\n    u = queue[head]\n    head += 1\n    for v in graph[u]:\n        if distance[v] == -1:\n            distance[v] = distance[u] + 1\n            queue.append(v)\nprint(*distance)\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ios::sync_with_stdio(false);cin.tie(nullptr);int n,m;cin>>n>>m;vector<vector<int>>g(n);for(int i=0,u,v;i<m;i++){cin>>u>>v;g[u].push_back(v);}vector<int>d(n,-1);queue<int>q;d[0]=0;q.push(0);while(!q.empty()){int u=q.front();q.pop();for(int v:g[u])if(d[v]<0){d[v]=d[u]+1;q.push(v);}}for(int x:d)cout<<x<<\" \";\n}\n"
+      }
     },
     {
       "id": "problem-island-groups",

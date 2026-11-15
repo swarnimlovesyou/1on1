@@ -1,5 +1,7 @@
 # Demonstration and assessment evidence
 
+> Phase 1 update (16 November 2026): see [current handoff](PHASE1_HANDOFF.md) and [validation](VALIDATION.md). This earlier academic baseline/demo outline must be refreshed in Phase 3; it is not evidence that later planned features or live grading are complete.
+
 ## Approximately eight-minute flow
 
 1. **0:00–1:00 — Real problem and user.** Explain fragmented DSA study. Open the learning space and an interactive notebook.

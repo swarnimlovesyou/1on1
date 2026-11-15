@@ -9,6 +9,43 @@ export interface Scene {
   input: string;
   target: number;
   words?: string;
+  seed?: number;
+}
+export interface LessonBlock {
+  id: string;
+  kind: "explanation" | "code";
+  title: string;
+  text: string;
+  lines: string[];
+}
+export interface Challenge {
+  id: string;
+  kind: "prediction" | "pattern" | "manipulation" | "dry-run";
+  title: string;
+  prompt: string;
+  options?: string[];
+  fields?: { key: string; label: string }[];
+  scene?: Scene;
+  traceStep?: number;
+  hint?: string;
+}
+export interface AttemptResult {
+  id: string;
+  challengeId: string;
+  kind: Challenge["kind"];
+  correct: boolean;
+  feedback: string;
+  explanation: string;
+  saved: boolean;
+}
+export interface StudyContext {
+  version: 1;
+  lesson: string;
+  scene: Scene;
+  step: number;
+  section: string;
+  codeRevision: string;
+  updatedAt?: string;
 }
 export interface Lesson {
   id: string;
@@ -20,6 +57,10 @@ export interface Lesson {
   difficulty: string;
   minutes: number;
   body: string;
+  blocks?: LessonBlock[];
+  challenges: Challenge[];
+  referenceJourney?: boolean;
+  linkedProblems?: string[];
   invariant: string;
   pitfall: string;
   timeComplexity: string;
@@ -29,8 +70,7 @@ export interface Lesson {
   checkpoint: {
     question: string;
     options: string[];
-    answer: number;
-    explanation: string;
+    id: string;
   };
   prerequisites: string[];
 }
@@ -48,6 +88,7 @@ export interface Problem {
   samples: { input: string; output: string }[];
   editorial: string;
   reference?: string;
+  references?: Record<string, string>;
   complexity: string;
   hints: string[];
 }
@@ -111,10 +152,25 @@ export interface Progress {
   onboarded?: boolean;
   notes: Note[];
   plans: Plan[];
-  drafts: { problem: string; language: string; code: string }[];
+  drafts: {
+    problem: string;
+    language: string;
+    code: string;
+    codeRevision?: string;
+  }[];
   submissions: Submission[];
+  studyContexts?: StudyContext[];
+  attempts?: {
+    id: string;
+    challengeId: string;
+    lessonId: string;
+    kind: string;
+    correct: boolean;
+    createdAt: string;
+  }[];
 }
 export interface Tree {
+  id?: string;
   value: number;
   left: Tree | null;
   right: Tree | null;
@@ -126,6 +182,18 @@ export interface Step {
   variables: Record<string, unknown>;
   text: string;
   line: number;
+  entities?: {
+    id: string;
+    value: number;
+    position: number;
+    role: "active" | "idle";
+  }[];
+  operation?: {
+    kind: string;
+    entityIds: string[];
+    details: Record<string, unknown>;
+  };
+  activeEdge?: string;
   tree?: Tree;
   words?: string[];
   topics?: string[];

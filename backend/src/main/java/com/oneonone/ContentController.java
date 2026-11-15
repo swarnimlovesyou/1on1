@@ -20,6 +20,7 @@ public class ContentController {
     var out = new LinkedHashMap<>(p);
     out.remove("tests");
     out.remove("reference");
+    out.remove("references");
     return out;
   }
 
@@ -34,6 +35,7 @@ public class ContentController {
           ((Number) x.getOrDefault("order", 999)).intValue()
         )
       )
+      .map(ChallengeService::publicLesson)
       .toList();
   }
 
@@ -88,14 +90,19 @@ public class ContentController {
   @GetMapping("/problems/{id}/editorial")
   public Map<String, Object> editorial(@PathVariable String id) {
     var p = store.get(id);
-    if (!p.containsKey("tests")) throw new IllegalArgumentException(
+    if (
+      !p.containsKey("tests") || Boolean.FALSE.equals(p.get("published"))
+    ) throw new org.springframework.web.server.ResponseStatusException(
+      org.springframework.http.HttpStatus.NOT_FOUND,
       "Problem not found."
     );
     return Map.of(
       "editorial",
       p.get("editorial"),
       "reference",
-      p.get("reference")
+      p.get("reference"),
+      "references",
+      p.getOrDefault("references", Map.of("java", p.get("reference")))
     );
   }
 }

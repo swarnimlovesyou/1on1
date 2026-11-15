@@ -49,7 +49,7 @@ typography:
     fontWeight: 400
   notebook-prose:
     fontFamily: '"Geist", sans-serif'
-    fontSize: "15px"
+    fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.9
   label:
@@ -293,3 +293,12 @@ Compact experiments reduce the frame radius, header, cells, and control sizes. E
 - **Don't** turn separator-based lesson rows into a grid of framed cards.
 - **Don't** use status color as the only explanation of a result.
 - **Don't** treat synthesized palette ramps or additional accent colors as implemented tokens.
+
+
+## Reference-journey motion and controls
+
+The diagram is the moving focal point; the reading surface remains steady. `Experiment` coordinates requests and input, `usePlayback` owns exact indices and pause/seek behavior, and `SceneCanvas` renders Java state using entity IDs. Animation timing follows playback speed, capped at 550 ms. Seeking and reduced-motion mode render immediately. Offscreen/hidden playback pauses.
+
+Arrays preserve identity even when values repeat; windows show boundaries, BFS shows current/frontier/edge state, BST nodes retain identity and tabulation highlights dependencies. Mobile diagrams use a local horizontal viewport rather than shrinking labels beyond legibility. Notebook prose is 16 px on desktop and 15 px on mobile. Other visualization families retain the legacy renderer until the Phase 2 pass.
+
+Focus the experiment for left/right stepping, Space play/pause and Home reset. Inputs/buttons keep their native keyboard behavior. The range control seeks exactly; stepping, transcript and pseudocode remain available with reduced motion. Preserve these behaviors when refining the presentation.

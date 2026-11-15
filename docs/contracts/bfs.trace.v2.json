@@ -1,0 +1,1710 @@
+{
+  "version": 2,
+  "algorithm": "bfs",
+  "family": "graph",
+  "input": {
+    "algorithm": "bfs",
+    "input": "4,2,7,1,3,6",
+    "target": 3,
+    "seed": 42
+  },
+  "steps": [
+    {
+      "id": "step-0",
+      "array": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": -1,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "cell-1",
+          "value": -1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": -1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0
+      ],
+      "variables": {
+        "frontier": [
+          0
+        ],
+        "visiting": 0
+      },
+      "text": "Start at vertex 0. A frontier holds discovered vertices waiting for work.",
+      "line": 0,
+      "operation": {
+        "kind": "initialize",
+        "entityIds": [
+          "cell-0"
+        ],
+        "details": {
+          "frontier": [
+            0
+          ],
+          "visiting": 0
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ]
+    },
+    {
+      "id": "step-1",
+      "array": [
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "cell-1",
+          "value": -1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": -1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0
+      ],
+      "variables": {
+        "frontier": [],
+        "visiting": 0
+      },
+      "text": "Explore vertices in discovery order.",
+      "line": 2,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [
+          "cell-0"
+        ],
+        "details": {
+          "frontier": [],
+          "visiting": 0
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    },
+    {
+      "id": "step-2",
+      "array": [
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "cell-1",
+          "value": -1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "cell-2",
+          "value": -1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0,
+        1
+      ],
+      "variables": {
+        "visiting": 0,
+        "discovered": 1,
+        "frontier": [
+          1
+        ]
+      },
+      "text": "Discover vertex 1 and add it to the frontier exactly once.",
+      "line": 3,
+      "operation": {
+        "kind": "discover-vertex",
+        "entityIds": [
+          "cell-0",
+          "cell-1"
+        ],
+        "details": {
+          "visiting": 0,
+          "discovered": 1,
+          "frontier": [
+            1
+          ]
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": "edge-0-1"
+    },
+    {
+      "id": "step-3",
+      "array": [
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "cell-1",
+          "value": -1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": -1,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0,
+        2
+      ],
+      "variables": {
+        "visiting": 0,
+        "discovered": 2,
+        "frontier": [
+          1,
+          2
+        ]
+      },
+      "text": "Discover vertex 2 and add it to the frontier exactly once.",
+      "line": 3,
+      "operation": {
+        "kind": "discover-vertex",
+        "entityIds": [
+          "cell-0",
+          "cell-2"
+        ],
+        "details": {
+          "visiting": 0,
+          "discovered": 2,
+          "frontier": [
+            1,
+            2
+          ]
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": "edge-0-2"
+    },
+    {
+      "id": "step-4",
+      "array": [
+        0,
+        1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "cell-2",
+          "value": -1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        1
+      ],
+      "variables": {
+        "frontier": [
+          2
+        ],
+        "visiting": 1
+      },
+      "text": "Explore vertices in discovery order.",
+      "line": 2,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [
+          "cell-1"
+        ],
+        "details": {
+          "frontier": [
+            2
+          ],
+          "visiting": 1
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    },
+    {
+      "id": "step-5",
+      "array": [
+        0,
+        1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "cell-2",
+          "value": -1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        1,
+        3
+      ],
+      "variables": {
+        "visiting": 1,
+        "discovered": 3,
+        "frontier": [
+          2,
+          3
+        ]
+      },
+      "text": "Discover vertex 3 and add it to the frontier exactly once.",
+      "line": 3,
+      "operation": {
+        "kind": "discover-vertex",
+        "entityIds": [
+          "cell-1",
+          "cell-3"
+        ],
+        "details": {
+          "visiting": 1,
+          "discovered": 3,
+          "frontier": [
+            2,
+            3
+          ]
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": "edge-1-3"
+    },
+    {
+      "id": "step-6",
+      "array": [
+        0,
+        1,
+        2,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        2
+      ],
+      "variables": {
+        "frontier": [
+          3
+        ],
+        "visiting": 2
+      },
+      "text": "Explore vertices in discovery order.",
+      "line": 2,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [
+          "cell-2"
+        ],
+        "details": {
+          "frontier": [
+            3
+          ],
+          "visiting": 2
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    },
+    {
+      "id": "step-7",
+      "array": [
+        0,
+        1,
+        2,
+        -1,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "cell-3",
+          "value": -1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        2,
+        4
+      ],
+      "variables": {
+        "visiting": 2,
+        "discovered": 4,
+        "frontier": [
+          3,
+          4
+        ]
+      },
+      "text": "Discover vertex 4 and add it to the frontier exactly once.",
+      "line": 3,
+      "operation": {
+        "kind": "discover-vertex",
+        "entityIds": [
+          "cell-2",
+          "cell-4"
+        ],
+        "details": {
+          "visiting": 2,
+          "discovered": 4,
+          "frontier": [
+            3,
+            4
+          ]
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": "edge-2-4"
+    },
+    {
+      "id": "step-8",
+      "array": [
+        0,
+        1,
+        2,
+        3,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 3,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        3
+      ],
+      "variables": {
+        "frontier": [
+          4
+        ],
+        "visiting": 3
+      },
+      "text": "Explore vertices in discovery order.",
+      "line": 2,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [
+          "cell-3"
+        ],
+        "details": {
+          "frontier": [
+            4
+          ],
+          "visiting": 3
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    },
+    {
+      "id": "step-9",
+      "array": [
+        0,
+        1,
+        2,
+        3,
+        -1,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 3,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "cell-4",
+          "value": -1,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "active"
+        }
+      ],
+      "active": [
+        3,
+        5
+      ],
+      "variables": {
+        "visiting": 3,
+        "discovered": 5,
+        "frontier": [
+          4,
+          5
+        ]
+      },
+      "text": "Discover vertex 5 and add it to the frontier exactly once.",
+      "line": 3,
+      "operation": {
+        "kind": "discover-vertex",
+        "entityIds": [
+          "cell-3",
+          "cell-5"
+        ],
+        "details": {
+          "visiting": 3,
+          "discovered": 5,
+          "frontier": [
+            4,
+            5
+          ]
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": "edge-3-5"
+    },
+    {
+      "id": "step-10",
+      "array": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        -1
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 3,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 4,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "cell-5",
+          "value": -1,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        4
+      ],
+      "variables": {
+        "frontier": [
+          5
+        ],
+        "visiting": 4
+      },
+      "text": "Explore vertices in discovery order.",
+      "line": 2,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [
+          "cell-4"
+        ],
+        "details": {
+          "frontier": [
+            5
+          ],
+          "visiting": 4
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    },
+    {
+      "id": "step-11",
+      "array": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 3,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 4,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 5,
+          "position": 5,
+          "role": "active"
+        }
+      ],
+      "active": [
+        5
+      ],
+      "variables": {
+        "frontier": [],
+        "visiting": 5
+      },
+      "text": "Explore vertices in discovery order.",
+      "line": 2,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [
+          "cell-5"
+        ],
+        "details": {
+          "frontier": [],
+          "visiting": 5
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    },
+    {
+      "id": "step-12",
+      "array": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 2,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 3,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 4,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 5,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "frontier": [],
+        "visited": 6
+      },
+      "text": "Every reachable vertex has been processed.",
+      "line": 4,
+      "operation": {
+        "kind": "visit-vertex",
+        "entityIds": [],
+        "details": {
+          "frontier": [],
+          "visited": 6
+        }
+      },
+      "vertexCount": 6,
+      "edges": [
+        {
+          "from": 0,
+          "to": 1,
+          "weight": 5
+        },
+        {
+          "from": 0,
+          "to": 2,
+          "weight": 6
+        },
+        {
+          "from": 1,
+          "to": 2,
+          "weight": 3
+        },
+        {
+          "from": 1,
+          "to": 3,
+          "weight": 4
+        },
+        {
+          "from": 2,
+          "to": 3,
+          "weight": 8
+        },
+        {
+          "from": 2,
+          "to": 4,
+          "weight": 4
+        },
+        {
+          "from": 3,
+          "to": 4,
+          "weight": 2
+        },
+        {
+          "from": 3,
+          "to": 5,
+          "weight": 3
+        },
+        {
+          "from": 4,
+          "to": 5,
+          "weight": 4
+        }
+      ],
+      "activeEdge": ""
+    }
+  ],
+  "result": {
+    "id": "step-12",
+    "array": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "entities": [
+      {
+        "id": "cell-0",
+        "value": 0,
+        "position": 0,
+        "role": "idle"
+      },
+      {
+        "id": "cell-1",
+        "value": 1,
+        "position": 1,
+        "role": "idle"
+      },
+      {
+        "id": "cell-2",
+        "value": 2,
+        "position": 2,
+        "role": "idle"
+      },
+      {
+        "id": "cell-3",
+        "value": 3,
+        "position": 3,
+        "role": "idle"
+      },
+      {
+        "id": "cell-4",
+        "value": 4,
+        "position": 4,
+        "role": "idle"
+      },
+      {
+        "id": "cell-5",
+        "value": 5,
+        "position": 5,
+        "role": "idle"
+      }
+    ],
+    "active": [],
+    "variables": {
+      "frontier": [],
+      "visited": 6
+    },
+    "text": "Every reachable vertex has been processed.",
+    "line": 4,
+    "operation": {
+      "kind": "visit-vertex",
+      "entityIds": [],
+      "details": {
+        "frontier": [],
+        "visited": 6
+      }
+    },
+    "vertexCount": 6,
+    "edges": [
+      {
+        "from": 0,
+        "to": 1,
+        "weight": 5
+      },
+      {
+        "from": 0,
+        "to": 2,
+        "weight": 6
+      },
+      {
+        "from": 1,
+        "to": 2,
+        "weight": 3
+      },
+      {
+        "from": 1,
+        "to": 3,
+        "weight": 4
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "weight": 8
+      },
+      {
+        "from": 2,
+        "to": 4,
+        "weight": 4
+      },
+      {
+        "from": 3,
+        "to": 4,
+        "weight": 2
+      },
+      {
+        "from": 3,
+        "to": 5,
+        "weight": 3
+      },
+      {
+        "from": 4,
+        "to": 5,
+        "weight": 4
+      }
+    ],
+    "activeEdge": ""
+  }
+}

@@ -22,12 +22,15 @@ test("guest can learn, manipulate a trace, and open practice", async ({
   await expect(page.locator(".step-count")).toContainText("2");
   await page
     .getByRole("button", {
-      name: "Add the incoming value and subtract the outgoing one",
+      name: /7: subtract 2 and add 1/,
     })
     .click();
-  await page.getByRole("button", { name: "Check my intuition" }).click();
-  await expect(page.locator(".checkpoint-feedback")).toContainText(
-    "That’s the idea",
+  await page
+    .getByRole("button", { name: "Check my intuition" })
+    .first()
+    .click();
+  await expect(page.locator(".challenge-feedback")).toContainText(
+    "You connected the state to the idea",
   );
   await page.getByRole("link", { name: "Three-reading window" }).click();
   await expect(
@@ -110,16 +113,29 @@ test("desktop and mobile surfaces remain readable without overflow", async ({
 test("draft and notebook position survive a fresh page load", async ({
   page,
 }) => {
-  await page.goto("/login");
-  await page.getByLabel("Email address").fill("demo@1on1.local");
-  await page.getByLabel("Password", { exact: true }).fill("learnwith1on1");
-  await page.getByRole("button", { name: "Back to learning" }).click();
+  await page.goto("/signup");
+  await page.getByLabel("Your name").fill("Saved work verification");
+  await page
+    .getByLabel("Email address")
+    .fill(`saved-${Date.now()}@example.test`);
+  await page
+    .getByLabel("Password", { exact: true })
+    .fill("browser-test-password");
+  await page.getByRole("button", { name: "Create your account" }).click();
+  await page
+    .getByRole("button", { name: "Find my first lightbulb moment" })
+    .click();
   await expect(page).toHaveURL(/home/);
   await page.goto("/learn/lesson-sliding-window");
   await expect(page.getByRole("button", { name: "Next step" })).toBeEnabled();
   await page.getByRole("button", { name: "Next step" }).click();
   await page.getByRole("button", { name: "Next step" }).click();
-  await expect.poll(async()=>{const response=await page.request.get('/api/v1/progress');return (await response.json()).resumeStep}).toBe(2);
+  await expect
+    .poll(async () => {
+      const response = await page.request.get("/api/v1/progress");
+      return (await response.json()).resumeStep;
+    })
+    .toBe(2);
   await page.reload();
   await expect(page.locator(".step-count")).toContainText("3");
   await page.goto("/practice/problem-running-altitude");

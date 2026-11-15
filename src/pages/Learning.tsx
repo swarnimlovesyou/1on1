@@ -32,6 +32,7 @@ import {
 } from "../components/Shared";
 import Experiment from "../components/Experiment";
 import Tutor from "../components/Tutor";
+import ChallengeCard from "../components/ChallengeCard";
 const sampleScene: Scene = {
   algorithm: "sliding-window",
   input: "2, 1, 5, 1, 3, 2",
@@ -493,17 +494,15 @@ export function NotebookPage() {
       queryFn: () => api<Lesson>("/lessons/" + id),
     }),
     problems = useProblems();
-  const [selected, setSelected] = useState<number>(),
-    [checked, setChecked] = useState(false),
-    [note, setNote] = useState(""),
+  const [note, setNote] = useState(""),
+    [section, setSection] = useState("idea"),
     [activeScene, setActiveScene] = useState<Scene>(),
     [contextScene, setContextScene] = useState<Scene>(),
     [step, setStep] = useState(0);
   useEffect(() => {
     setActiveScene(undefined);
     setContextScene(undefined);
-    setSelected(undefined);
-    setChecked(false);
+    setSection(window.location.hash.slice(1) || "idea");
     setStep(0);
     const encoded = sceneParams.get("scene");
     if (encoded && encoded.length < 3000) {
@@ -528,22 +527,49 @@ export function NotebookPage() {
   });
   const lastResume = useRef("");
   useEffect(() => {
-    if (!user || !query.data) return;
-    const key = `${id}:${step}`;
+    if (!user || !query.data || !contextScene) return;
+    const context = {
+      version: 1,
+      lesson: id,
+      scene: contextScene,
+      step,
+      section,
+      codeRevision: "",
+    };
+    const key = JSON.stringify(context);
     if (lastResume.current === key) return;
     const timer = setTimeout(() => {
-      lastResume.current = key;
-      api("/progress", { resumeLesson: id, resumeStep: step }).catch(() => {});
-    }, 1200);
+      api("/study-context/" + id, context, "PUT")
+        .then(() => {
+          lastResume.current = key;
+        })
+        .catch((error) =>
+          notify("Your study position could not be saved. " + error.message),
+        );
+    }, 700);
     return () => clearTimeout(timer);
-  }, [user?.id, id, step, query.data?.id]);
+  }, [
+    user?.id,
+    id,
+    step,
+    section,
+    JSON.stringify(contextScene),
+    query.data?.id,
+  ]);
   if (query.isLoading || (user && !progressReady)) return <Loading />;
   if (query.error || !query.data) return <ErrorState error={query.error} />;
   const l = query.data,
-    scene = activeScene ?? l.experiment,
+    savedContext = progress.studyContexts?.find(
+      (context) => context.lesson === l.id,
+    ),
+    scene = activeScene ?? savedContext?.scene ?? l.experiment,
     completed = progress.completed.includes(l.id);
   const related = problems.data
-    ?.filter((p) => p.topics.some((t) => l.topics.includes(t)))
+    ?.filter((p) =>
+      l.linkedProblems
+        ? l.linkedProblems.includes(p.id)
+        : p.topics.some((t) => l.topics.includes(t)),
+    )
     .sort(
       (a, b) =>
         Number(
@@ -569,7 +595,7 @@ export function NotebookPage() {
           ["checkpoint", "Check your intuition"],
           ["practice", "Make it stick"],
         ].map(([href, label]) => (
-          <a key={href} href={"#" + href}>
+          <a key={href} href={"#" + href} onClick={() => setSection(href)}>
             {label}
           </a>
         ))}
@@ -597,6 +623,14 @@ export function NotebookPage() {
         <section id="idea">
           <h2>The idea</h2>
           <p className="lesson-prose">{l.body}</p>
+          {l.blocks
+            ?.filter((block) => block.id === "worked")
+            .map((block) => (
+              <div className="lesson-block" key={block.id}>
+                <h3>{block.title}</h3>
+                <p className="lesson-prose">{block.text}</p>
+              </div>
+            ))}
         </section>
         <section id="experiment">
           <div className="section-heading">
@@ -615,7 +649,12 @@ export function NotebookPage() {
             key={l.id}
             scene={scene}
             initialStep={
-              progress.resumeLesson === l.id ? (progress.resumeStep ?? 0) : 0
+              activeScene
+                ? 0
+                : (savedContext?.step ??
+                  (progress.resumeLesson === l.id
+                    ? (progress.resumeStep ?? 0)
+                    : 0))
             }
             code={l.code}
             onStep={(s, index) => {
@@ -642,59 +681,28 @@ export function NotebookPage() {
           </div>
           <h3>Watch out for this</h3>
           <p className="lesson-prose">{l.pitfall}</p>
-        </section>
-        <section id="checkpoint" className="checkpoint">
-          <div className="checkpoint-title">
-            <CheckCircle size={21} />
-            <h2>A quick gut check.</h2>
-          </div>
-          <p>{l.checkpoint.question}</p>
-          <div className="checkpoint-options">
-            {l.checkpoint.options.map((o, i) => (
-              <button
-                key={o}
-                className={
-                  (selected === i ? "selected " : "") +
-                  (checked && i === l.checkpoint.answer ? "correct" : "")
-                }
-                onClick={() => {
-                  setSelected(i);
-                  setChecked(false);
-                }}
-              >
-                <span>{String.fromCharCode(65 + i)}</span>
-                {o}
-                {checked && i === l.checkpoint.answer && <Check size={18} />}
-              </button>
+          {l.blocks
+            ?.filter((block) => block.id !== "worked")
+            .map((block) => (
+              <div className="lesson-block" key={block.id}>
+                <h3>{block.title}</h3>
+                <p className="lesson-prose">{block.text}</p>
+              </div>
             ))}
-          </div>
-          <button
-            className="button secondary small"
-            disabled={selected === undefined}
-            onClick={() => {
-              setChecked(true);
-              if (user)
-                update.mutate({
-                  checkpoint: { lesson: l.id, answer: selected },
-                });
-            }}
-          >
-            Check my intuition <ArrowRight size={15} />
-          </button>
-          {checked && (
-            <p
-              className={
-                "checkpoint-feedback " +
-                (selected === l.checkpoint.answer ? "success" : "")
-              }
-            >
-              {selected === l.checkpoint.answer
-                ? "That’s the idea. "
-                : "Not quite — here’s the key. "}
-              {l.checkpoint.explanation}
-            </p>
-          )}
         </section>
+        <div id="checkpoint" className="lesson-challenges">
+          <h2>Try the idea yourself.</h2>
+          <p className="muted">
+            Predict, change an input, recognise the pattern, and trace a state.
+          </p>
+          {l.challenges.map((challenge) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              scene={contextScene ?? scene}
+            />
+          ))}
+        </div>
         <section>
           <h2>In your own words</h2>
           <p className="muted">
@@ -721,6 +729,7 @@ export function NotebookPage() {
                     title: l.subtitle + " — my understanding",
                     text: note,
                     lesson: l.id,
+                    experiment: contextScene ?? scene,
                   });
                   setNote("");
                   reload();

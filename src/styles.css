@@ -21,6 +21,7 @@
   --success: #17825d;
   --warning: #966315;
   --error: #c44040;
+  --trace-cell-width: 58px;
   --shadow: 0 12px 40px #20273512;
   color-scheme: light;
 }
@@ -4640,4 +4641,343 @@ section[id] {
 .content-upload input {
   font-size: 11px;
   padding: 10px;
+}
+
+/* Phase 1 motion and learning primitives. Geometry is data-driven; surface tokens remain shared. */
+.study-notebook .lesson-prose {
+  font-size: 16px;
+  line-height: 1.85;
+  max-width: 70ch;
+}
+.lesson-block {
+  margin-top: 28px;
+}
+.lesson-block h3 {
+  margin-bottom: 10px;
+}
+.experiment:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+}
+.experiment:fullscreen {
+  background: var(--bg);
+  padding: 24px;
+  overflow: auto;
+}
+.trace-array-viewport {
+  width: 100%;
+  overflow-x: auto;
+  padding: 12px 4px 8px;
+}
+.trace-array-track {
+  position: relative;
+  height: 136px;
+  margin: 8px auto 0;
+}
+.trace-cell {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  width: 50px;
+  height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+}
+.trace-cell.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.trace-cell.is-destination {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.trace-cell-value {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.trace-cell-index {
+  position: absolute;
+  top: 60px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.trace-window {
+  position: absolute;
+  top: 25px;
+  left: -4px;
+  height: 74px;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  pointer-events: none;
+}
+.trace-window span {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+}
+.trace-empty {
+  font-size: 14px;
+  color: var(--muted);
+  fill: var(--muted);
+}
+.trace-array-track > .trace-empty {
+  position: absolute;
+  top: 52px;
+  left: 0;
+}
+.trace-legend {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 12px;
+  text-align: center;
+}
+.trace-vertex circle {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 2;
+  transition:
+    fill 0.18s,
+    stroke 0.18s;
+}
+.trace-vertex > text {
+  fill: var(--ink);
+  font-size: 17px;
+  font-family: var(--font-mono);
+}
+.trace-vertex.is-active circle {
+  fill: var(--accent-wash);
+  stroke: var(--accent);
+}
+.trace-vertex.is-active > text {
+  fill: var(--accent);
+}
+.trace-vertex.in-frontier circle {
+  stroke: var(--warning);
+  stroke-dasharray: 4 3;
+}
+.trace-vertex.is-visited circle {
+  stroke: var(--success);
+}
+.trace-vertex > .vertex-state {
+  fill: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+}
+.trace-edge line,
+.trace-edge path {
+  stroke: var(--line);
+  stroke-width: 2;
+  fill: none;
+  transition: stroke 0.2s;
+}
+.trace-edge.is-active line,
+.trace-edge.is-active path {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.trace-scrubber {
+  display: block;
+  padding: 8px 22px 15px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.trace-scrubber input {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 0;
+  accent-color: var(--accent);
+  height: 22px;
+  cursor: pointer;
+}
+.trace-code {
+  overflow-x: auto;
+}
+.trace-code code {
+  white-space: pre;
+}
+.lesson-challenges {
+  margin-top: 42px;
+  scroll-margin-top: 100px;
+}
+.learning-challenge {
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+}
+.challenge-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.challenge-heading h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.challenge-passed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--success);
+  font-size: 12px;
+}
+.learning-challenge > p {
+  font-size: 15px;
+  line-height: 1.7;
+}
+.learning-challenge .checkpoint-options button {
+  font-size: 14px;
+  min-height: 48px;
+}
+.challenge-actions {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.hint-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.hint-link:hover {
+  color: var(--accent);
+}
+.challenge-hint {
+  padding: 14px 16px;
+  background: var(--surface-soft);
+  border-radius: 9px;
+  color: var(--muted);
+}
+.challenge-input-summary {
+  color: var(--muted);
+  font-size: 13px !important;
+}
+.challenge-input-summary code {
+  font-size: 12px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.dry-run-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.dry-run-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.dry-run-fields input {
+  width: 100%;
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+.challenge-feedback {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 15px 16px;
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+.challenge-feedback.is-correct {
+  color: var(--success);
+}
+.challenge-feedback svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.challenge-feedback p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.challenge-feedback p + p {
+  margin-top: 8px;
+  color: var(--ink);
+}
+.challenge-feedback small {
+  display: block;
+  margin-top: 9px;
+  color: var(--muted);
+}
+@media (max-width: 767px) {
+  .trace-scrubber {
+    padding-inline: 16px;
+  }
+  .dry-run-fields {
+    grid-template-columns: 1fr;
+  }
+  .study-notebook .lesson-prose {
+    font-size: 15px;
+  }
+  .challenge-heading {
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trace-vertex circle,
+  .trace-edge line,
+  .trace-edge path {
+    transition: none;
+  }
+}
+
+.experiment-top > span {
+  font-size: 12px;
+}
+.experiment-computed {
+  font-size: 11px;
+}
+.experiment-meta strong {
+  font-size: 14px;
+}
+.experiment .variables small {
+  font-size: 12px;
+}
+.experiment .variables strong {
+  font-size: 13px;
+}
+.experiment .step-explanation p {
+  font-size: 13px;
+  line-height: 1.65;
+}
+.experiment .trace-code code {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.experiment .experiment-inputs label {
+  font-size: 12px;
+}
+.experiment .step-count {
+  font-size: 12px;
+}
+.experiment-visual:has(> .diagram) {
+  display: block;
+  overflow-x: auto;
+}
+.experiment-visual > .diagram {
+  min-width: 420px;
+  width: 100%;
+}
+.trace-vertex > .vertex-state {
+  font-size: 14px;
 }

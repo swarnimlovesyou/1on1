@@ -1,0 +1,601 @@
+{
+  "version": 2,
+  "algorithm": "sliding-window",
+  "family": "array",
+  "input": {
+    "algorithm": "sliding-window",
+    "input": "2,1,5,1,3,2",
+    "target": 3,
+    "seed": 42
+  },
+  "steps": [
+    {
+      "id": "step-0",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "size": 6
+      },
+      "text": "Start with the input. Predict what will change first.",
+      "line": 0,
+      "operation": {
+        "kind": "initialize",
+        "entityIds": [],
+        "details": {
+          "size": 6
+        }
+      }
+    },
+    {
+      "id": "step-1",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0
+      ],
+      "variables": {
+        "sum": 2,
+        "right": 0,
+        "best": "\u2014",
+        "left": 0
+      },
+      "text": "Expand the window until it contains 3 values.",
+      "line": 1,
+      "operation": {
+        "kind": "move-window",
+        "entityIds": [
+          "item-0"
+        ],
+        "details": {
+          "sum": 2,
+          "right": 0,
+          "best": "\u2014",
+          "left": 0
+        }
+      }
+    },
+    {
+      "id": "step-2",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0,
+        1
+      ],
+      "variables": {
+        "sum": 3,
+        "right": 1,
+        "best": "\u2014",
+        "left": 0
+      },
+      "text": "Expand the window until it contains 3 values.",
+      "line": 1,
+      "operation": {
+        "kind": "move-window",
+        "entityIds": [
+          "item-0",
+          "item-1"
+        ],
+        "details": {
+          "sum": 3,
+          "right": 1,
+          "best": "\u2014",
+          "left": 0
+        }
+      }
+    },
+    {
+      "id": "step-3",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0,
+        1,
+        2
+      ],
+      "variables": {
+        "sum": 8,
+        "right": 2,
+        "best": 8,
+        "left": 0
+      },
+      "text": "Add the incoming value and remove the outgoing value. Update the best sum.",
+      "line": 3,
+      "operation": {
+        "kind": "move-window",
+        "entityIds": [
+          "item-0",
+          "item-1",
+          "item-2"
+        ],
+        "details": {
+          "sum": 8,
+          "right": 2,
+          "best": 8,
+          "left": 0
+        }
+      }
+    },
+    {
+      "id": "step-4",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        1,
+        2,
+        3
+      ],
+      "variables": {
+        "sum": 7,
+        "right": 3,
+        "best": 8,
+        "left": 1
+      },
+      "text": "Add the incoming value and remove the outgoing value. Update the best sum.",
+      "line": 3,
+      "operation": {
+        "kind": "move-window",
+        "entityIds": [
+          "item-1",
+          "item-2",
+          "item-3"
+        ],
+        "details": {
+          "sum": 7,
+          "right": 3,
+          "best": 8,
+          "left": 1
+        }
+      }
+    },
+    {
+      "id": "step-5",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        2,
+        3,
+        4
+      ],
+      "variables": {
+        "sum": 9,
+        "right": 4,
+        "best": 9,
+        "left": 2
+      },
+      "text": "Add the incoming value and remove the outgoing value. Update the best sum.",
+      "line": 3,
+      "operation": {
+        "kind": "move-window",
+        "entityIds": [
+          "item-2",
+          "item-3",
+          "item-4"
+        ],
+        "details": {
+          "sum": 9,
+          "right": 4,
+          "best": 9,
+          "left": 2
+        }
+      }
+    },
+    {
+      "id": "step-6",
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "entities": [
+        {
+          "id": "item-0",
+          "value": 2,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "item-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "item-2",
+          "value": 5,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "item-3",
+          "value": 1,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "item-4",
+          "value": 3,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "item-5",
+          "value": 2,
+          "position": 5,
+          "role": "active"
+        }
+      ],
+      "active": [
+        3,
+        4,
+        5
+      ],
+      "variables": {
+        "sum": 6,
+        "right": 5,
+        "best": 9,
+        "left": 3
+      },
+      "text": "Add the incoming value and remove the outgoing value. Update the best sum.",
+      "line": 3,
+      "operation": {
+        "kind": "move-window",
+        "entityIds": [
+          "item-3",
+          "item-4",
+          "item-5"
+        ],
+        "details": {
+          "sum": 6,
+          "right": 5,
+          "best": 9,
+          "left": 3
+        }
+      }
+    }
+  ],
+  "result": {
+    "id": "step-6",
+    "array": [
+      2,
+      1,
+      5,
+      1,
+      3,
+      2
+    ],
+    "entities": [
+      {
+        "id": "item-0",
+        "value": 2,
+        "position": 0,
+        "role": "idle"
+      },
+      {
+        "id": "item-1",
+        "value": 1,
+        "position": 1,
+        "role": "idle"
+      },
+      {
+        "id": "item-2",
+        "value": 5,
+        "position": 2,
+        "role": "idle"
+      },
+      {
+        "id": "item-3",
+        "value": 1,
+        "position": 3,
+        "role": "active"
+      },
+      {
+        "id": "item-4",
+        "value": 3,
+        "position": 4,
+        "role": "active"
+      },
+      {
+        "id": "item-5",
+        "value": 2,
+        "position": 5,
+        "role": "active"
+      }
+    ],
+    "active": [
+      3,
+      4,
+      5
+    ],
+    "variables": {
+      "sum": 6,
+      "right": 5,
+      "best": 9,
+      "left": 3
+    },
+    "text": "Add the incoming value and remove the outgoing value. Update the best sum.",
+    "line": 3,
+    "operation": {
+      "kind": "move-window",
+      "entityIds": [
+        "item-3",
+        "item-4",
+        "item-5"
+      ],
+      "details": {
+        "sum": 6,
+        "right": 5,
+        "best": 9,
+        "left": 3
+      }
+    }
+  }
+}

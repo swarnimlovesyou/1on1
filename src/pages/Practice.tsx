@@ -222,9 +222,11 @@ export function ProblemPage() {
   const editorial = useQuery({
     queryKey: ["editorial", id],
     queryFn: () =>
-      api<{ editorial: string; reference: string }>(
-        "/problems/" + id + "/editorial",
-      ),
+      api<{
+        editorial: string;
+        reference: string;
+        references?: Record<string, string>;
+      }>("/problems/" + id + "/editorial"),
     enabled: tab === "Editorial",
   });
   const submission = useQuery({
@@ -247,6 +249,7 @@ export function ProblemPage() {
     mutationFn: (official: boolean) =>
       api<Submission>("/submissions", {
         problem: id,
+        requestId: crypto.randomUUID(),
         language,
         code,
         input: input || query.data?.samples[0]?.input || "",
@@ -299,7 +302,7 @@ export function ProblemPage() {
         </div>
         <div>
           <Bookmark id={p.id} />
-          <Tutor code={code} submission={job} />
+          <Tutor problem={id} code={code} submission={job} />
         </div>
       </div>
       <div className="coding-workspace">
@@ -379,9 +382,29 @@ export function ProblemPage() {
               <>
                 <h3>One way to reason about it</h3>
                 <p className="preserve-lines">{editorial.data?.editorial}</p>
-                <h3>Java reference solution</h3>
+                <h3>
+                  {(editorial.data?.references?.[language]
+                    ? language
+                    : "java") === "cpp"
+                    ? "C++"
+                    : (editorial.data?.references?.[language]
+                          ? language
+                          : "java") === "python"
+                      ? "Python"
+                      : "Java"}{" "}
+                  reference solution
+                </h3>
+                {language !== "java" &&
+                  !editorial.data?.references?.[language] && (
+                    <p className="muted">
+                      This problem currently has a Java reference. You can still
+                      submit your own {language === "cpp" ? "C++" : "Python"}{" "}
+                      solution.
+                    </p>
+                  )}
                 <pre className="reference-code">
-                  {editorial.data?.reference}
+                  {editorial.data?.references?.[language] ??
+                    editorial.data?.reference}
                 </pre>
               </>
             )}

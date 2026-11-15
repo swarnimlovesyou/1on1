@@ -12,7 +12,9 @@ services:
       DATABASE_USERNAME: oneonone
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.1-flash-lite}
+      JUDGE0_MODE: ${JUDGE0_MODE:-self-hosted}
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN:-}
       JUDGE0_URL: ${JUDGE0_URL:-https://judge0-ce.p.rapidapi.com}
       JUDGE0_API_KEY: ${JUDGE0_API_KEY:-}
       JUDGE0_RAPIDAPI_HOST: ${JUDGE0_RAPIDAPI_HOST:-judge0-ce.p.rapidapi.com}
@@ -26,7 +28,7 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_TLS: ${SMTP_TLS:-false}
     depends_on:
-      db: {condition: service_healthy}
+      db: { condition: service_healthy }
     restart: unless-stopped
   db:
     image: postgres:17-alpine

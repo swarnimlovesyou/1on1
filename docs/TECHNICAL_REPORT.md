@@ -1,5 +1,7 @@
 # 1on1 — Technical report
 
+> Phase 1 update (16 November 2026): see [current handoff](PHASE1_HANDOFF.md) and [validation](VALIDATION.md). This earlier academic baseline/demo outline must be refreshed in Phase 3; it is not evidence that later planned features or live grading are complete.
+
 Advanced Algorithm CIA 3 · Semester V · 2026–27
 
 This report describes the implemented system. Benchmark numbers belong to the exported results for the machine on which the experiments run. They must not be inferred from theoretical complexity. The team must add official student names, IDs, and actual individual contributions before submission.

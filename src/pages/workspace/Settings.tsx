@@ -59,10 +59,20 @@ function SettingsContent() {
     queryFn: () =>
       api<{
         ai: boolean;
+        aiStatus: { verified: boolean; reason: string };
+        executionStatus: {
+          configured: boolean;
+          reachable: boolean;
+          executionVerified: boolean;
+        };
         execution: boolean;
         aiProvider: string;
         aiModel: string;
       }>("/system"),
+  });
+  const checkRunner = useMutation({
+    mutationFn: () => api("/system/check", {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["system"] }),
   });
   const sync = useMutation({
     mutationFn: () =>
@@ -227,16 +237,32 @@ function SettingsContent() {
           <h2>Your learning tools</h2>
           <div className="service-row">
             <span>Gemini tutor</span>
-            <span className={system.data?.ai ? "success" : "muted"}>
-              {system.data?.ai ? "Configured" : "Awaiting local configuration"}
+            <span
+              className={system.data?.aiStatus?.verified ? "success" : "muted"}
+            >
+              {system.data?.aiStatus?.verified
+                ? "Verified this session"
+                : system.data?.ai
+                  ? "Configured; no verified response yet"
+                  : "Awaiting local configuration"}
             </span>
           </div>
           <div className="service-row">
             <span>Isolated code execution</span>
-            <span className={system.data?.execution ? "success" : "muted"}>
-              {system.data?.execution
-                ? "Configured"
-                : "Awaiting Judge0 configuration"}
+            <span
+              className={
+                system.data?.executionStatus?.executionVerified
+                  ? "success"
+                  : "muted"
+              }
+            >
+              {system.data?.executionStatus?.executionVerified
+                ? "All three languages verified"
+                : system.data?.executionStatus?.reachable
+                  ? "Reachable; execution not verified"
+                  : system.data?.execution
+                    ? "Configured; connection not verified"
+                    : "Awaiting Judge0 configuration"}
             </span>
           </div>
           <p className="form-note">

@@ -45,7 +45,7 @@ class TraceTest {
       );
       var steps = Store.items(result.get("steps"));
       assertFalse(steps.isEmpty(), alg);
-      assertTrue(steps.size() <= 500);
+      assertTrue(steps.size() <= 1000);
       assertTrue(
         steps
           .stream()
@@ -123,5 +123,19 @@ class TraceTest {
         )
       );
     }
+  }
+
+  @Test
+  void largestDescendingInputFinishesWithoutSilentTraceTruncation() {
+    String input = java.util.stream.IntStream.iterate(32, x -> x - 1)
+      .limit(32)
+      .mapToObj(String::valueOf)
+      .collect(java.util.stream.Collectors.joining(","));
+    var trace = engine.trace(Map.of("algorithm", "quick-sort", "input", input));
+    assertEquals(
+      java.util.stream.IntStream.rangeClosed(1, 32).boxed().toList(),
+      ((Map<?, ?>) trace.get("result")).get("array")
+    );
+    assertTrue(Store.items(trace.get("steps")).size() < 1000);
   }
 }

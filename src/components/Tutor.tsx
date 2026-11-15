@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   Sparkle,
@@ -14,6 +14,7 @@ import { useApp } from "../context";
 import { useNavigate } from "react-router-dom";
 export default function Tutor({
   lesson,
+  problem,
   experiment,
   step = 0,
   code,
@@ -21,6 +22,7 @@ export default function Tutor({
   onScene,
 }: {
   lesson?: string;
+  problem?: string;
   experiment?: Scene;
   step?: number;
   code?: string;
@@ -33,9 +35,65 @@ export default function Tutor({
     [draftAnswer, setDraftAnswer] = useState(""),
     [text, setText] = useState(""),
     [mode, setMode] = useState("explain"),
+    [stopped, setStopped] = useState(false),
+    [historyReady, setHistoryReady] = useState(false),
+    [historyError, setHistoryError] = useState(""),
+    [historyRetry, setHistoryRetry] = useState(0),
     [messages, setMessages] = useState<
       { role: string; text: string; scene?: Scene }[]
     >([]);
+  const contextId = lesson ?? problem ?? "workspace";
+  const hydrated = useRef(false),
+    savedConversation = useRef(""),
+    abort = useRef<AbortController | undefined>(undefined);
+  useEffect(() => {
+    hydrated.current = false;
+    setHistoryReady(false);
+    setHistoryError("");
+    setMessages([]);
+    setDraftAnswer("");
+    setStopped(false);
+    const controller = new AbortController();
+    if (user)
+      api<{ messages: { role: string; text: string; scene?: Scene }[] }>(
+        "/conversations/" + contextId,
+        undefined,
+        "GET",
+        controller.signal,
+      )
+        .then((data) => {
+          savedConversation.current = JSON.stringify(data.messages);
+          hydrated.current = true;
+          setHistoryReady(true);
+          setMessages(data.messages);
+        })
+        .catch((error) => {
+          if (!controller.signal.aborted)
+            setHistoryError(
+              "Your tutor history could not be loaded. " + error.message,
+            );
+        });
+    return () => {
+      controller.abort();
+      abort.current?.abort();
+    };
+  }, [contextId, user?.id, historyRetry]);
+  useEffect(() => {
+    if (!user || !hydrated.current) return;
+    const latest = messages.slice(-20),
+      key = JSON.stringify(latest);
+    if (key === savedConversation.current) return;
+    const timer = setTimeout(() => {
+      api("/conversations/" + contextId, { messages: latest }, "PUT")
+        .then(() => {
+          savedConversation.current = key;
+        })
+        .catch((error) =>
+          notify("Your tutor history could not be saved. " + error.message),
+        );
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [messages, contextId, user?.id]);
   const mutation = useMutation({
     mutationFn: async (message: string) => {
       const request = {
@@ -50,9 +108,20 @@ export default function Tutor({
           .slice(-8)
           .map((m) => ({ role: m.role, text: m.text.slice(0, 1500) })),
       };
+      const controller = new AbortController();
+      abort.current = controller;
       if (mode === "visualize")
-        return api<{ text: string; scene?: Scene }>("/tutor", request);
-      const answer = await streamTutor(request, setDraftAnswer);
+        return api<{ text: string; scene?: Scene }>(
+          "/tutor",
+          request,
+          "POST",
+          controller.signal,
+        );
+      const answer = await streamTutor(
+        request,
+        setDraftAnswer,
+        controller.signal,
+      );
       return { text: answer };
     },
     onSuccess: (data) => {
@@ -61,8 +130,9 @@ export default function Tutor({
     },
   });
   const send = (message: string) => {
-    if (!message.trim() || mutation.isPending || !user) return;
+    if (!message.trim() || mutation.isPending || !user || !historyReady) return;
     setDraftAnswer("");
+    setStopped(false);
     setMessages((m) => [...m, { role: "you", text: message }]);
     setText("");
     mutation.mutate(message);
@@ -107,6 +177,20 @@ export default function Tutor({
             </button>
           </div>
           <div className="chat-messages">
+            {user && !historyReady && !historyError && (
+              <p role="status">Loading your conversation…</p>
+            )}
+            {historyError && (
+              <div className="inline-alert" role="alert">
+                <p>{historyError}</p>
+                <button
+                  className="button secondary small"
+                  onClick={() => setHistoryRetry((value) => value + 1)}
+                >
+                  Retry conversation
+                </button>
+              </div>
+            )}
             {!messages.length && (
               <div className="tutor-welcome">
                 <h3>You don’t have to figure it out alone.</h3>
@@ -119,7 +203,11 @@ export default function Tutor({
                   "Give me a hint without the solution",
                   "What edge case am I missing?",
                 ].map((s) => (
-                  <button key={s} onClick={() => send(s)} disabled={!user}>
+                  <button
+                    key={s}
+                    onClick={() => send(s)}
+                    disabled={!user || !historyReady}
+                  >
                     {s}
                     <ArrowRight size={16} />
                   </button>
@@ -187,12 +275,29 @@ export default function Tutor({
                 Thinking through the idea<span>…</span>
               </p>
             )}
-            {mutation.isError && (
+            {stopped && (
+              <p className="inline-alert" role="status">
+                Response stopped. You can ask another question.
+              </p>
+            )}
+            {mutation.isError && !stopped && (
               <p className="inline-alert" role="alert">
                 {mutation.error.message}
               </p>
             )}
           </div>
+          {mutation.isPending && (
+            <button
+              className="button secondary small"
+              onClick={() => {
+                abort.current?.abort();
+                setStopped(true);
+                setDraftAnswer("");
+              }}
+            >
+              Stop response
+            </button>
+          )}
           <form
             className="tutor-compose"
             onSubmit={(e) => {
@@ -217,7 +322,9 @@ export default function Tutor({
             <button
               className="send-button"
               aria-label="Send question"
-              disabled={!text.trim() || mutation.isPending || !user}
+              disabled={
+                !text.trim() || mutation.isPending || !user || !historyReady
+              }
             >
               <ArrowUp size={20} />
             </button>

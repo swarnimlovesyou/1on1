@@ -1,0 +1,765 @@
+{
+  "version": 2,
+  "algorithm": "tabulation",
+  "family": "dp",
+  "input": {
+    "algorithm": "tabulation",
+    "input": "0,1",
+    "target": 7,
+    "seed": 42
+  },
+  "steps": [
+    {
+      "id": "step-0",
+      "array": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 0,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 0,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 0,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 0,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "cell-6",
+          "value": 0,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "cell-7",
+          "value": 0,
+          "position": 7,
+          "role": "idle"
+        }
+      ],
+      "active": [],
+      "variables": {
+        "size": 2
+      },
+      "text": "Start with the input. Predict what will change first.",
+      "line": 0,
+      "operation": {
+        "kind": "initialize",
+        "entityIds": [],
+        "details": {
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "step-1",
+      "array": [
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "active"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "cell-3",
+          "value": 0,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 0,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 0,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "cell-6",
+          "value": 0,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "cell-7",
+          "value": 0,
+          "position": 7,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        0,
+        1,
+        2
+      ],
+      "variables": {
+        "i": 2,
+        "value": 1
+      },
+      "text": "Reuse the two previously computed states.",
+      "line": 2,
+      "operation": {
+        "kind": "write-cell",
+        "entityIds": [
+          "cell-0",
+          "cell-1",
+          "cell-2"
+        ],
+        "details": {
+          "i": 2,
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "step-2",
+      "array": [
+        0,
+        1,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "active"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "cell-3",
+          "value": 2,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "cell-4",
+          "value": 0,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 0,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "cell-6",
+          "value": 0,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "cell-7",
+          "value": 0,
+          "position": 7,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        1,
+        2,
+        3
+      ],
+      "variables": {
+        "i": 3,
+        "value": 2
+      },
+      "text": "Reuse the two previously computed states.",
+      "line": 2,
+      "operation": {
+        "kind": "write-cell",
+        "entityIds": [
+          "cell-1",
+          "cell-2",
+          "cell-3"
+        ],
+        "details": {
+          "i": 3,
+          "value": 2
+        }
+      }
+    },
+    {
+      "id": "step-3",
+      "array": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        0,
+        0,
+        0
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "active"
+        },
+        {
+          "id": "cell-3",
+          "value": 2,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "cell-4",
+          "value": 3,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "cell-5",
+          "value": 0,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "cell-6",
+          "value": 0,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "cell-7",
+          "value": 0,
+          "position": 7,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        2,
+        3,
+        4
+      ],
+      "variables": {
+        "i": 4,
+        "value": 3
+      },
+      "text": "Reuse the two previously computed states.",
+      "line": 2,
+      "operation": {
+        "kind": "write-cell",
+        "entityIds": [
+          "cell-2",
+          "cell-3",
+          "cell-4"
+        ],
+        "details": {
+          "i": 4,
+          "value": 3
+        }
+      }
+    },
+    {
+      "id": "step-4",
+      "array": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        5,
+        0,
+        0
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 2,
+          "position": 3,
+          "role": "active"
+        },
+        {
+          "id": "cell-4",
+          "value": 3,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "cell-5",
+          "value": 5,
+          "position": 5,
+          "role": "active"
+        },
+        {
+          "id": "cell-6",
+          "value": 0,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "cell-7",
+          "value": 0,
+          "position": 7,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        3,
+        4,
+        5
+      ],
+      "variables": {
+        "i": 5,
+        "value": 5
+      },
+      "text": "Reuse the two previously computed states.",
+      "line": 2,
+      "operation": {
+        "kind": "write-cell",
+        "entityIds": [
+          "cell-3",
+          "cell-4",
+          "cell-5"
+        ],
+        "details": {
+          "i": 5,
+          "value": 5
+        }
+      }
+    },
+    {
+      "id": "step-5",
+      "array": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        5,
+        8,
+        0
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 2,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 3,
+          "position": 4,
+          "role": "active"
+        },
+        {
+          "id": "cell-5",
+          "value": 5,
+          "position": 5,
+          "role": "active"
+        },
+        {
+          "id": "cell-6",
+          "value": 8,
+          "position": 6,
+          "role": "active"
+        },
+        {
+          "id": "cell-7",
+          "value": 0,
+          "position": 7,
+          "role": "idle"
+        }
+      ],
+      "active": [
+        4,
+        5,
+        6
+      ],
+      "variables": {
+        "i": 6,
+        "value": 8
+      },
+      "text": "Reuse the two previously computed states.",
+      "line": 2,
+      "operation": {
+        "kind": "write-cell",
+        "entityIds": [
+          "cell-4",
+          "cell-5",
+          "cell-6"
+        ],
+        "details": {
+          "i": 6,
+          "value": 8
+        }
+      }
+    },
+    {
+      "id": "step-6",
+      "array": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        5,
+        8,
+        13
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 2,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 5,
+          "position": 5,
+          "role": "active"
+        },
+        {
+          "id": "cell-6",
+          "value": 8,
+          "position": 6,
+          "role": "active"
+        },
+        {
+          "id": "cell-7",
+          "value": 13,
+          "position": 7,
+          "role": "active"
+        }
+      ],
+      "active": [
+        5,
+        6,
+        7
+      ],
+      "variables": {
+        "i": 7,
+        "value": 13
+      },
+      "text": "Reuse the two previously computed states.",
+      "line": 2,
+      "operation": {
+        "kind": "write-cell",
+        "entityIds": [
+          "cell-5",
+          "cell-6",
+          "cell-7"
+        ],
+        "details": {
+          "i": 7,
+          "value": 13
+        }
+      }
+    },
+    {
+      "id": "step-7",
+      "array": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        5,
+        8,
+        13
+      ],
+      "entities": [
+        {
+          "id": "cell-0",
+          "value": 0,
+          "position": 0,
+          "role": "idle"
+        },
+        {
+          "id": "cell-1",
+          "value": 1,
+          "position": 1,
+          "role": "idle"
+        },
+        {
+          "id": "cell-2",
+          "value": 1,
+          "position": 2,
+          "role": "idle"
+        },
+        {
+          "id": "cell-3",
+          "value": 2,
+          "position": 3,
+          "role": "idle"
+        },
+        {
+          "id": "cell-4",
+          "value": 3,
+          "position": 4,
+          "role": "idle"
+        },
+        {
+          "id": "cell-5",
+          "value": 5,
+          "position": 5,
+          "role": "idle"
+        },
+        {
+          "id": "cell-6",
+          "value": 8,
+          "position": 6,
+          "role": "idle"
+        },
+        {
+          "id": "cell-7",
+          "value": 13,
+          "position": 7,
+          "role": "active"
+        }
+      ],
+      "active": [
+        7
+      ],
+      "variables": {
+        "result": 13
+      },
+      "text": "Read the stored answer. Each state is computed once.",
+      "line": 4,
+      "operation": {
+        "kind": "read-result",
+        "entityIds": [
+          "cell-7"
+        ],
+        "details": {
+          "result": 13
+        }
+      }
+    }
+  ],
+  "result": {
+    "id": "step-7",
+    "array": [
+      0,
+      1,
+      1,
+      2,
+      3,
+      5,
+      8,
+      13
+    ],
+    "entities": [
+      {
+        "id": "cell-0",
+        "value": 0,
+        "position": 0,
+        "role": "idle"
+      },
+      {
+        "id": "cell-1",
+        "value": 1,
+        "position": 1,
+        "role": "idle"
+      },
+      {
+        "id": "cell-2",
+        "value": 1,
+        "position": 2,
+        "role": "idle"
+      },
+      {
+        "id": "cell-3",
+        "value": 2,
+        "position": 3,
+        "role": "idle"
+      },
+      {
+        "id": "cell-4",
+        "value": 3,
+        "position": 4,
+        "role": "idle"
+      },
+      {
+        "id": "cell-5",
+        "value": 5,
+        "position": 5,
+        "role": "idle"
+      },
+      {
+        "id": "cell-6",
+        "value": 8,
+        "position": 6,
+        "role": "idle"
+      },
+      {
+        "id": "cell-7",
+        "value": 13,
+        "position": 7,
+        "role": "active"
+      }
+    ],
+    "active": [
+      7
+    ],
+    "variables": {
+      "result": 13
+    },
+    "text": "Read the stored answer. Each state is computed once.",
+    "line": 4,
+    "operation": {
+      "kind": "read-result",
+      "entityIds": [
+        "cell-7"
+      ],
+      "details": {
+        "result": 13
+      }
+    }
+  }
+}
