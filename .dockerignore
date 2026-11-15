@@ -1,0 +1,11 @@
+node_modules
+dist
+backend/target
+backend/.data
+.git
+.cache
+.env
+.env.*
+!.env.example
+.impeccable
+test-results

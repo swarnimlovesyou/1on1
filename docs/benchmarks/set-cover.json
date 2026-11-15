@@ -1,0 +1,36 @@
+{
+  "seed": 42,
+  "java": "25.0.4.1",
+  "os": "Windows 11",
+  "processors": 32,
+  "repetitions": 5,
+  "method": "set-cover",
+  "note": "In-process measurements exclude HTTP, database, and network latency. Trie index construction is excluded. Set cover compares quality as well as speed against first-useful selection. Results depend on dataset and hardware.",
+  "rows": [
+    {
+      "baselineMs": 0.07974,
+      "algorithmMs": 2.81792,
+      "size": 100,
+      "selected": 10,
+      "uncovered": 0,
+      "baselineSelected": 15
+    },
+    {
+      "baselineMs": 0.09591999999999999,
+      "algorithmMs": 31.432920000000003,
+      "size": 1000,
+      "selected": 9,
+      "uncovered": 0,
+      "baselineSelected": 15
+    },
+    {
+      "baselineMs": 0.0972,
+      "algorithmMs": 294.26538,
+      "size": 10000,
+      "selected": 8,
+      "uncovered": 0,
+      "baselineSelected": 15
+    }
+  ],
+  "warmups": 2
+}

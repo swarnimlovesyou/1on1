@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-15T15:40:32Z",
+  "title": "Design System: 1on1",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Canvas"
+      },
+      "dark-bg": {
+        "role": "neutral",
+        "displayName": "Dark canvas"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface"
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark surface"
+      },
+      "surface-soft": {
+        "role": "neutral",
+        "displayName": "Soft surface"
+      },
+      "dark-surface-soft": {
+        "role": "neutral",
+        "displayName": "Dark soft surface"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink"
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Dark ink"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted ink"
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark muted ink"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line"
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "Dark line"
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Cobalt accent"
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Dark cobalt accent"
+      },
+      "accent-wash": {
+        "role": "primary",
+        "displayName": "Cobalt wash"
+      },
+      "dark-accent-wash": {
+        "role": "primary",
+        "displayName": "Dark cobalt wash"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Home's main heading; responsive overrides are documented in DESIGN.md."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Default page heading."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Root interface text."
+      },
+      "notebook-prose": {
+        "displayName": "Notebook prose",
+        "purpose": "Long-form chapter explanation with a 68ch measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Standard button text."
+      },
+      "control-small": {
+        "displayName": "Small control",
+        "purpose": "Small button text."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Preformatted code blocks; local mono variants also describe state and indices."
+      }
+    },
+    "shadows": [
+      {
+        "name": "toast-light",
+        "value": "0 12px 40px #20273512",
+        "purpose": "Light-theme --shadow value used by the toast."
+      },
+      {
+        "name": "toast-dark",
+        "value": "0 12px 40px #0004",
+        "purpose": "Dark-theme --shadow value used by the toast."
+      },
+      {
+        "name": "tutor-drawer",
+        "value": "-15px 0 40px #10182815",
+        "purpose": "Separates the contextual tutor drawer from the workspace."
+      },
+      {
+        "name": "expanded-experiment-scrim",
+        "value": "0 0 0 100vmax #101828aa",
+        "purpose": "Viewport scrim around an expanded experiment."
+      },
+      {
+        "name": "field-focus",
+        "value": "0 0 0 3px var(--accent-wash)",
+        "purpose": "Visible field focus together with an accent border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-transition",
+        "value": "background 0.18s, transform 0.18s",
+        "purpose": "Standard button background and 1px upward hover movement."
+      },
+      {
+        "name": "array-state-transition",
+        "value": "background 0.2s, color 0.2s, border-color 0.2s",
+        "purpose": "Change of active array-cell state."
+      },
+      {
+        "name": "lesson-link-transition",
+        "value": "color 0.15s",
+        "purpose": "Lesson-row title hover."
+      },
+      {
+        "name": "loading-pulse",
+        "value": "pulse 1.5s ease infinite",
+        "purpose": "Loading skeleton; the 50% keyframe sets opacity to 0.45."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none !important; transition: none !important; scroll-behavior: auto !important;",
+        "purpose": "Applied to all elements and pseudo-elements under prefers-reduced-motion: reduce."
+      },
+      {
+        "name": "experiment-playback-intervals",
+        "value": "1500ms, 900ms, 450ms",
+        "purpose": "Explicit playback speed choices; 900ms is the initial interval."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "max-width-1200",
+        "value": "1200px"
+      },
+      {
+        "name": "max-width-1023",
+        "value": "1023px"
+      },
+      {
+        "name": "max-width-767",
+        "value": "767px"
+      },
+      {
+        "name": "min-width-1600",
+        "value": "1600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The accent-filled standard action, including dark theme, hover, focus, and disabled states.",
+      "html": "<button class=\"ds-primary\">Continue learning <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M40 128h176M144 56l72 72-72 72\"/></svg></button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:12px 18px;font:500 13px var(--font-sans);border:0;border-radius:8px;cursor:pointer;white-space:nowrap;transition:background 0.18s,transform 0.18s;background:var(--accent);color:var(--surface);} :host-context([data-theme=\"dark\"]) .ds-primary{color:#11151d;} .ds-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(0.96);} .ds-primary:focus-visible{outline:3px solid var(--accent);outline-offset:4px;} .ds-primary:disabled{cursor:not-allowed;opacity:0.5;} @media(prefers-reduced-motion:reduce){.ds-primary{transition:none!important;}}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A bordered surface action used alongside a primary action or for recovery.",
+      "html": "<button class=\"ds-secondary\">Try again</button>",
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:12px 18px;font:500 13px var(--font-sans);border:0;border-radius:8px;cursor:pointer;white-space:nowrap;transition:background 0.18s,transform 0.18s;background:var(--surface);color:var(--ink);border:1px solid var(--line);} .ds-secondary:hover{background:var(--surface-soft);} .ds-secondary:hover:not(:disabled){transform:translateY(-1px);} .ds-secondary:focus-visible{outline:3px solid var(--accent);outline-offset:4px;} .ds-secondary:disabled{cursor:not-allowed;opacity:0.5;} @media(prefers-reduced-motion:reduce){.ds-secondary{transition:none!important;}}"
+    },
+    {
+      "name": "Bookmark icon button",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "The compact icon action used to save a concept; accent ink also marks its selected state.",
+      "html": "<button class=\"ds-icon\" aria-label=\"Bookmark for later\" aria-pressed=\"false\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M184 32H72a8 8 0 0 0-8 8v184l64-40 64 40V40a8 8 0 0 0-8-8Z\"/></svg></button>",
+      "css": ".ds-icon{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;background:none;color:var(--muted);cursor:pointer;} .ds-icon:hover{color:var(--accent);background:var(--accent-wash);} .ds-icon[aria-pressed=\"true\"]{color:var(--accent);} .ds-icon:focus-visible{outline:3px solid var(--accent);outline-offset:4px;} .ds-icon:disabled{cursor:not-allowed;opacity:0.5;}"
+    },
+    {
+      "name": "Labeled input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "The standard field with surface fill, neutral stroke, and accent focus treatment.",
+      "html": "<label class=\"ds-label\">Your name<input class=\"ds-input\" placeholder=\"Your name\" autocomplete=\"name\"></label>",
+      "css": ".ds-label{display:flex;flex-direction:column;gap:8px;font:500 13px var(--font-sans);color:var(--ink);} .ds-input{font:400 14px var(--font-sans);width:100%;max-width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:11px 13px;outline:none;} .ds-input::placeholder{color:var(--muted);opacity:0.85;} .ds-input:focus,.ds-input:focus-visible{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash);}"
+    },
+    {
+      "name": "Workspace navigation",
+      "kind": "nav",
+      "refersTo": "navigation-item",
+      "description": "Source navigation rows showing default and current-route treatments; the example uses local fragment links.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Workspace navigation\"><a class=\"ds-nav-link\" href=\"#home\">Home</a><a class=\"ds-nav-link\" href=\"#learn\" aria-current=\"page\">Explore concepts<span class=\"ds-nav-count\">24</span></a><a class=\"ds-nav-link\" href=\"#practice\">Practice</a></nav>",
+      "css": ".ds-nav{display:flex;flex-direction:column;gap:5px;font-family:var(--font-sans);} .ds-nav-link{display:flex;align-items:center;gap:12px;min-height:43px;padding:10px 13px;border-radius:7px;color:var(--muted);font-size:12px;font-weight:500;text-decoration:none;} .ds-nav-link:hover{background:var(--surface-soft);color:var(--ink);} .ds-nav-link[aria-current=\"page\"]{background:var(--accent-wash);color:var(--accent);} .ds-nav-link:focus-visible{outline:3px solid var(--accent);outline-offset:4px;} .ds-nav-count{margin-left:auto;font-size:10px;background:var(--surface);padding:2px 5px;border-radius:4px;} @media(max-width:767px){.ds-nav-link{gap:13px;padding:12px;font-size:13px;}}"
+    },
+    {
+      "name": "Informational chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A quiet static label used for short topics or coverage terms.",
+      "html": "<span class=\"ds-chip\">Arrays</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-soft);color:var(--ink);border-radius:5px;padding:5px 9px;font:400 12px var(--font-sans);}"
+    },
+    {
+      "name": "Topic filters",
+      "kind": "chip",
+      "refersTo": "topic-filter",
+      "description": "Interactive topic buttons shown in selected and unselected states.",
+      "html": "<div class=\"ds-filters\"><button class=\"ds-filter\" aria-pressed=\"true\">All topics</button><button class=\"ds-filter\" aria-pressed=\"false\">Arrays</button></div>",
+      "css": ".ds-filters{display:flex;gap:7px;flex-wrap:wrap;padding:23px 0;} .ds-filter{padding:7px 11px;border:1px solid var(--line);border-radius:5px;font:400 10px var(--font-sans);background:var(--surface);color:var(--muted);cursor:pointer;} .ds-filter[aria-pressed=\"true\"]{border-color:var(--accent);color:var(--accent);background:var(--accent-wash);} .ds-filter:focus-visible{outline:3px solid var(--accent);outline-offset:4px;} .ds-filter:disabled{cursor:not-allowed;opacity:0.5;} @media(max-width:767px){.ds-filters{gap:6px;padding:20px 0;} .ds-filter{font-size:9px;padding:7px 9px;}}"
+    },
+    {
+      "name": "Learning path container",
+      "kind": "card",
+      "refersTo": "learning-path",
+      "description": "The source's flat bounded path link, with panel corners and no resting shadow.",
+      "html": "<a class=\"ds-path\" href=\"#path\"><h2>Learning path</h2><p>A sequence of concepts to study and practice.</p><span>Explore path <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M40 128h176M144 56l72 72-72 72\"/></svg></span></a>",
+      "css": ".ds-path{display:block;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:26px;text-decoration:none;font-family:var(--font-sans);} .ds-path h2{font-size:22px;font-weight:600;line-height:1.35;letter-spacing:-0.025em;max-width:16ch;margin:0;} .ds-path p{color:var(--muted);font-size:12px;line-height:1.7;margin:12px 0 26px;} .ds-path>span{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--accent);} .ds-path:focus-visible{outline:3px solid var(--accent);outline-offset:4px;}"
+    },
+    {
+      "name": "Interactive experiment",
+      "kind": "custom",
+      "refersTo": "experiment",
+      "description": "A static style specimen of the source frame, active array-cell treatment, explanation, and playback control. Runtime state is supplied by Java traces in the app.",
+      "html": "<section class=\"ds-experiment\" aria-label=\"Interactive algorithm experiment\"><div class=\"ds-experiment-top\"><span><span class=\"ds-live-dot\"></span>Interactive experiment</span></div><div class=\"ds-experiment-visual\"><div class=\"ds-array-values\"><div class=\"ds-array-item\"><span class=\"ds-array-cell ds-active\">2</span><span class=\"ds-array-index\">0</span></div><div class=\"ds-array-item\"><span class=\"ds-array-cell\">1</span><span class=\"ds-array-index\">1</span></div><div class=\"ds-array-item\"><span class=\"ds-array-cell\">5</span><span class=\"ds-array-index\">2</span></div></div></div><div class=\"ds-step-explanation\"><span class=\"ds-step-number\">01</span><p>Current step explanation.</p></div><div class=\"ds-playback\"><button class=\"ds-play\" aria-label=\"Play animation\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" width=\"18\" height=\"18\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m232 128-176 104V24Z\"/></svg></button></div></section>",
+      "css": ".ds-experiment{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0;font-family:var(--font-sans);} .ds-experiment-top{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 17px;border-bottom:1px solid var(--line);font-size:10px;color:var(--muted);} .ds-experiment-top>span{display:flex;align-items:center;gap:8px;} .ds-live-dot{width:5px;height:5px;background:var(--success);border-radius:50%;} .ds-experiment-visual{min-height:180px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px;} .ds-array-values{display:flex;align-items:center;justify-content:flex-start;gap:9px;max-width:100%;overflow-x:auto;padding:15px 4px 10px;} .ds-array-item{display:flex;flex-direction:column;align-items:center;position:relative;flex-shrink:0;} .ds-array-cell{width:47px;height:51px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:7px;font:400 18px var(--font-mono);color:var(--muted);transition:background 0.2s,color 0.2s,border-color 0.2s;} .ds-array-cell.ds-active{border-color:var(--accent);color:var(--accent);background:var(--accent-wash);} .ds-array-index{font:400 9px var(--font-mono);color:var(--muted);margin-top:12px;} .ds-step-explanation{display:flex;align-items:flex-start;gap:11px;margin:0 18px 12px;padding:13px;background:var(--surface-soft);border-radius:7px;min-height:61px;} .ds-step-number{font:400 10px var(--font-mono);color:var(--accent);border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:4px 5px;} .ds-step-explanation p{font-size:11px;line-height:1.6;color:var(--muted);margin:0;} .ds-playback{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:8px 15px;} .ds-play{height:31px;width:35px;border:0;border-radius:7px;background:var(--accent);color:var(--surface);display:flex;align-items:center;justify-content:center;margin:0 4px;cursor:pointer;} .ds-play:focus-visible{outline:3px solid var(--accent);outline-offset:4px;} .ds-play:disabled{cursor:not-allowed;opacity:0.5;} @media(prefers-reduced-motion:reduce){.ds-array-cell{transition:none!important;}} @media(max-width:767px){.ds-experiment-top{padding:0 13px;font-size:9px;} .ds-experiment-visual{padding:15px 10px;min-height:150px;} .ds-array-values{gap:6px;} .ds-array-cell{width:38px;height:45px;font-size:16px;} .ds-step-explanation{margin:0 12px 12px;padding:11px;} .ds-step-explanation p{font-size:10px;} .ds-playback{padding-inline:10px;gap:5px;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Blue-ink study notebook",
+    "overview": "1on1 is an interactive study notebook: chapter text, working diagrams, marginal context, and saved annotations share a calm, precise, welcoming interface. Neutral surfaces carry the reading and working space; cobalt identifies actions, selection, and the current computational state.\n\nThe approved direction is implemented through code, using Geist Sans and JetBrains Mono with light, dark, and system theme choices. The acknowledged direction seed (`ac92d60e`) remains provenance for the approved notebook direction. The measurements below capture the finished source rather than the provisional seed measurements.",
+    "keyCharacteristics": [
+      "Calm neutral surfaces with a cobalt accent.",
+      "Readable chapter text beside working algorithm diagrams.",
+      "Whitespace, fine separators, and functional frames organize the workspace.",
+      "Shared theme roles, visible focus, and responsive study layouts."
+    ],
+    "rules": [],
+    "dos": [
+      "**Do** use the corresponding light or dark semantic roles together.",
+      "**Do** keep chapter prose readable at its observed measure and line height.",
+      "**Do** show current experiment state with values, indices, explanation, and playback context.",
+      "**Do** retain the visible focus treatments and reduced-motion override.",
+      "**Do** preserve Home's unframed featured lesson and the experiment's functional frame."
+    ],
+    "donts": [
+      "**Don't** apply the provisional seed measurements when the frontmatter or implemented layout supplies a different value.",
+      "**Don't** turn separator-based lesson rows into a grid of framed cards.",
+      "**Don't** use status color as the only explanation of a result.",
+      "**Don't** treat synthesized palette ramps or additional accent colors as implemented tokens."
+    ]
+  }
+}

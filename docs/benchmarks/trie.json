@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "java": "25.0.4.1",
+  "os": "Windows 11",
+  "processors": 32,
+  "repetitions": 5,
+  "method": "trie",
+  "note": "In-process measurements exclude HTTP, database, and network latency. Trie index construction is excluded. Set cover compares quality as well as speed against first-useful selection. Results depend on dataset and hardware.",
+  "rows": [
+    {
+      "baselineMs": 0.1343,
+      "algorithmMs": 0.03204,
+      "size": 1000
+    },
+    {
+      "baselineMs": 1.31244,
+      "algorithmMs": 0.13746,
+      "size": 10000
+    },
+    {
+      "baselineMs": 14.4982,
+      "algorithmMs": 0.06133999999999999,
+      "size": 100000
+    }
+  ],
+  "warmups": 2
+}

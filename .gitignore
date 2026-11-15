@@ -1,0 +1,14 @@
+node_modules/
+dist/
+target/
+.env
+.env.*
+!.env.example
+.cache/
+.data/
+*.log
+.DS_Store
+.impeccable/review/
+playwright-report/
+test-results/
+*.tsbuildinfo
