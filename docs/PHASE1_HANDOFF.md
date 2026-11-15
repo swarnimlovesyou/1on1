@@ -10,7 +10,7 @@ Prerequisites: Node 22.14+, npm, Java 21+, Maven 3.9+, Docker Desktop with its L
 
 ```sh
 # When receiving the bundle, clone it into a new, empty destination:
-git clone /path/to/1on1-phase1.bundle 1on1
+git clone --branch main /path/to/1on1-phase1.bundle 1on1
 cd 1on1
 npm run setup
 npm run doctor
@@ -32,7 +32,7 @@ npm run backup       # Java must be stopped
 
 Web: `http://127.0.0.1:5173`; Java: 8080; Judge0: 2358; Mailpit UI: 8025; SMTP: 1025. App data: `backend/.data`. The primary `infra/local.compose.yaml` contains Judge0/worker, private runner PostgreSQL/Redis and Mailpit; it does not containerize the app. `compose.yaml` is an older optional full-app topology, with different networking and no included judge; it remains unverified.
 
-While the runner blocker remains, explicitly use `npm run dev -- --without-services` and `npm run stop -- --without-services`. This permits learning verification but is not a grading workaround. A configured token is not proof of runner readiness. `doctor` reports service failures separately; its exit status concerns the core native prerequisites.
+While the runner blocker remains, explicitly use `npm run dev:core` and `npm run stop:core`. These aliases avoid PowerShell/npm argument-forwarding differences. This permits learning verification but is not a grading workaround. A configured token is not proof of runner readiness. `doctor` reports service failures separately; its exit status concerns the core native prerequisites.
 
 ## Exact runner blocker
 

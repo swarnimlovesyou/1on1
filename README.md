@@ -26,8 +26,8 @@ Open **http://127.0.0.1:5173/**. Vite forwards `/api` to Java on 8080. H2 data l
 **Current workstation limitation:** Docker Desktop became unresponsive while downloading the official Judge0 image, and its backend log reported virtual-disk I/O errors. Actual Java/Python/C++ grading and Mailpit delivery are not verified. Until the owner restores the engine, start the independent learning platform explicitly:
 
 ```sh
-npm run dev -- --without-services
-npm run stop -- --without-services
+npm run dev:core
+npm run stop:core
 ```
 
 The normal `npm run stop` stops the owned development processes and local containers while retaining data/volumes. `npm run backup` copies the stopped native H2 database into `.cache/backups`; preserve another copy before restoring. Never delete volumes to repair an ordinary setup problem.
