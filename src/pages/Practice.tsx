@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
@@ -199,12 +199,19 @@ export function ProblemPage() {
     [job, setJob] = useState<string>(),
     [resultTab, setResultTab] = useState("Test results"),
     [saved, setSaved] = useState("");
+  const localDrafts = useRef(new Map<string, string>());
+  const draftKey = `${user?.id ?? "guest"}:${id}:${language}`;
+  const editCode = (value: string) => {
+    localDrafts.current.set(draftKey, value);
+    setCode(value);
+    setSaved("Unsaved changes");
+  };
   useEffect(() => {
     if (!progressReady) return;
     const d = progress.drafts.find(
       (d) => d.problem === id && d.language === language,
     );
-    setCode(d?.code ?? starters[language]);
+    setCode(localDrafts.current.get(draftKey) ?? d?.code ?? starters[language]);
     setSaved("");
     setJob(undefined);
   }, [id, language, progressReady, user?.id]);
@@ -452,18 +459,11 @@ export function ProblemPage() {
                 className="code-fallback"
                 aria-label="Code editor"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => editCode(e.target.value)}
               />
             }
           >
-            <CodeEditor
-              value={code}
-              onChange={(v) => {
-                setCode(v);
-                setSaved("Unsaved changes");
-              }}
-              language={language}
-            />
+            <CodeEditor value={code} onChange={editCode} language={language} />
           </Suspense>
           <div className="editor-actions">
             <span>

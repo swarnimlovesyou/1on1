@@ -144,6 +144,11 @@ test("draft and notebook position survive a fresh page load", async ({
   await page.keyboard.press("ControlOrMeta+A");
   await page.keyboard.type("// A persisted Java solution\n");
   await expect(page.getByText("Saved automatically")).toBeVisible();
+  await page.getByLabel("Coding language").selectOption("python");
+  await page.getByLabel("Coding language").selectOption("java");
+  await expect(
+    page.getByText("// A persisted Java solution", { exact: false }).first(),
+  ).toBeVisible();
   await page.reload();
   await expect(
     page.getByText("// A persisted Java solution", { exact: false }).first(),
