@@ -29,7 +29,8 @@ import {
 } from "@phosphor-icons/react";
 import { api, download, resetCsrf } from "../../api";
 import { useApp } from "../../context";
-import type { Note, Plan, User } from "../../types";
+import type { Note, Plan, PlanTask, User } from "../../types";
+import { ReviewsDue } from "../LearningMap";
 import { useLessons, useProblems } from "../Learning";
 import {
   Loading,
@@ -70,6 +71,7 @@ function PlanContent() {
         title="A little direction goes a long way."
         description="Choose what you want to understand. We’ll connect it to a purposeful set of problems."
       />
+      <ReviewsDue />
       <div className="planner-layout">
         <section className="plan-builder">
           <h2>What’s your next chapter?</h2>
@@ -155,42 +157,16 @@ function PlanContent() {
                   Broaden the difficulty filter or add content.
                 </p>
               )}
-              {plan.selected.map((choice, i) => {
-                const p = problems.data?.find((p) => p.id === choice.id);
-                return (
-                  <div key={choice.id} className="plan-question">
-                    {i % plan.perDay === 0 && (
-                      <h3>Day {Math.floor(i / plan.perDay) + 1}</h3>
-                    )}
-                    <Link to={"/practice/" + choice.id}>
-                      <span
-                        className={
-                          progress.solved.includes(choice.id) ? "success" : ""
-                        }
-                      >
-                        {progress.solved.includes(choice.id) ? (
-                          <CheckCircle size={20} />
-                        ) : (
-                          <Code size={20} />
-                        )}
-                      </span>
-                      <div>
-                        <strong>{p?.title ?? choice.id}</strong>
-                        <p>Adds {choice.adds.join(" · ")}</p>
-                      </div>
-                      <ArrowUpRight size={18} />
-                    </Link>
-                  </div>
-                );
-              })}
+              <PlanTasks plan={plan} onChange={setActive} />
               <details className="plan-method">
                 <summary>Why these questions?</summary>
                 <p>
                   Greedy set cover chooses the question adding the most
                   uncovered topics at each step. Ties use stable problem
                   identifiers. It gives a compact approximation rather than a
-                  guaranteed minimum. Daily grouping follows your chosen
-                  question count.
+                  guaranteed minimum. The questions become dated tasks, your
+                  chosen number per day. Re-planning keeps every task you
+                  completed and only re-dates the rest.
                 </p>
               </details>
             </>
@@ -226,6 +202,94 @@ function PlanContent() {
             ))}
         </section>
       )}
+    </>
+  );
+}
+
+/** The plan as dated tasks: tick off, move, or re-plan the unfinished ones from a new start date. */
+function PlanTasks({ plan, onChange }: { plan: Plan; onChange: (p: Plan) => void }) {
+  const { progress, reload, notify } = useApp(),
+    problems = useProblems(),
+    today = new Date().toISOString().slice(0, 10),
+    [from, setFrom] = useState(today),
+    [perDay, setPerDay] = useState(plan.perDay);
+  const saved = (p: Plan, message?: string) => {
+    onChange(p);
+    reload();
+    if (message) notify(message);
+  };
+  const update = useMutation({
+    mutationFn: ({ task, body }: { task: PlanTask; body: { done?: boolean; date?: string } }) =>
+      api<Plan>(`/plans/${plan.id}/tasks/${task.id}`, body, "PATCH"),
+    onSuccess: (p) => saved(p),
+  });
+  const replan = useMutation({
+    mutationFn: () => api<Plan>(`/plans/${plan.id}/regenerate`, { startDate: from, perDay }),
+    onSuccess: (p) => saved(p, "Unfinished work re-planned; completed tasks kept"),
+  });
+  const tasks = plan.tasks ?? [];
+  const days = [...new Set(tasks.map((t) => t.date))];
+  return (
+    <>
+      {!tasks.length && (
+        <p className="inline-alert">
+          This plan was made before plans had dates. Re-plan it to turn its
+          questions into dated tasks.
+        </p>
+      )}
+      {days.map((day) => (
+        <div key={day} className="plan-day">
+          <h3>
+            {day === today ? "Today" : new Date(day + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}
+            {day < today && tasks.some((t) => t.date === day && !t.done) && <span className="chip">overdue</span>}
+          </h3>
+          {tasks
+            .filter((t) => t.date === day)
+            .map((t) => {
+              const p = problems.data?.find((x) => x.id === t.problemId),
+                accepted = progress.solved.includes(t.problemId);
+              return (
+                <div key={t.id} className={"plan-task" + (t.done ? " done" : "")}>
+                  <input
+                    type="checkbox"
+                    checked={t.done}
+                    disabled={update.isPending}
+                    aria-label={(t.done ? "Reopen " : "Mark done: ") + (p?.title ?? t.problemId)}
+                    onChange={() => update.mutate({ task: t, body: { done: !t.done } })}
+                  />
+                  <Link to={"/practice/" + t.problemId}>
+                    <strong>{p?.title ?? t.problemId}</strong>
+                    <small>
+                      Adds {t.adds.join(" · ")}
+                      {accepted && " · accepted by the judge"}
+                    </small>
+                  </Link>
+                  <input
+                    type="date"
+                    value={t.date}
+                    disabled={t.done || update.isPending}
+                    aria-label={"Move " + (p?.title ?? t.problemId)}
+                    onChange={(e) => e.target.value && update.mutate({ task: t, body: { date: e.target.value } })}
+                  />
+                </div>
+              );
+            })}
+        </div>
+      ))}
+      {(update.error || replan.error) && <ErrorState error={update.error ?? replan.error} />}
+      <div className="replan">
+        <label>
+          Re-plan unfinished work from
+          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        </label>
+        <label>
+          Per day
+          <input type="number" min={1} max={10} value={perDay} onChange={(e) => setPerDay(+e.target.value)} />
+        </label>
+        <button className="button" disabled={replan.isPending || !from} onClick={() => replan.mutate()}>
+          <ArrowClockwise size={16} /> {replan.isPending ? "Re-planning…" : "Re-plan"}
+        </button>
+      </div>
     </>
   );
 }
