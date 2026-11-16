@@ -1,4 +1,4 @@
-"""Execute only the eight trusted, repository-authored references. Never a student runner."""
+"""Execute only trusted, repository-authored references on every fixture. Never a student runner."""
 import json
 import os
 from pathlib import Path
@@ -32,9 +32,10 @@ def normalize(value):
 
 with tempfile.TemporaryDirectory(prefix='reference-check-', dir=cache) as directory:
     for problem in content['problems']:
-        if not problem.get('referenceJourney'):
-            continue
         for language in ['python', 'cpp']:
+            if language not in problem.get('references', {}):
+                results.append(dict(problem=problem['id'], language=language, status='missing'))
+                continue
             if language == 'cpp' and not compiler:
                 results.append(dict(problem=problem['id'], language=language, status='not_verified', reason='No local C++ compiler; verify through Judge0.'))
                 continue
@@ -55,4 +56,7 @@ with tempfile.TemporaryDirectory(prefix='reference-check-', dir=cache) as direct
             results.append(dict(problem=problem['id'], language=language, status='passed', fixtures=len(problem['tests'])))
             print(f'{problem["id"]} / {language}: passed {len(problem["tests"])} fixtures')
 (ROOT / '.cache/reference-verification.json').write_text(json.dumps(results, indent=2)+'\n', encoding='utf-8')
+for language in ['python', 'cpp']:
+    statuses = [r['status'] for r in results if r['language'] == language]
+    print(f'{language}: ' + ', '.join(f'{statuses.count(s)} {s}' for s in sorted(set(statuses))))
 print('Trusted reference checks complete. This does not verify Judge0 or student-code isolation.')
