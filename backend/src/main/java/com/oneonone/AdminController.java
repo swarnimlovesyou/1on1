@@ -33,49 +33,23 @@ public class AdminController {
     );
   }
 
+  /** Validation and publication checks without saving, for the editor's preview. */
+  @PostMapping("/content/check")
+  public Map<String, Object> check(@RequestBody Map<String, Object> b) {
+    return ContentChecks.check(b, traces, s::find);
+  }
+
   @PostMapping("/content")
   public Map<String, Object> save(@RequestBody Map<String, Object> b) {
-    String kind = Store.text(b, "kind", ""),
-      id = Store.text(b, "id", "");
-    if (
-      !Set.of("lesson", "problem", "path").contains(kind) ||
-      !id.matches(kind + "-[a-z0-9-]{1,80}")
-    ) throw new IllegalArgumentException(
-      "Choose a lesson, problem or path with a matching stable identifier."
+    var checks = check(b);
+    var errors = Store.items(checks.get("errors"));
+    if (!errors.isEmpty()) throw new IllegalArgumentException(messages("Fix before saving", errors));
+    var publication = Store.items(checks.get("publication"));
+    if (!Boolean.FALSE.equals(b.get("published")) && !publication.isEmpty()) throw new IllegalArgumentException(
+      messages("Not ready to publish; save it as a draft (\"published\": false) or fix", publication)
     );
-    if (
-      Store.text(b, "title", "").isBlank()
-    ) throw new IllegalArgumentException("A title is required.");
-    if (kind.equals("lesson")) {
-      if (
-        Store.text(b, "body", "").isBlank() || !b.containsKey("checkpoint")
-      ) throw new IllegalArgumentException(
-        "Lessons require body text and a checkpoint."
-      );
-      if (b.get("experiment") instanceof Map<?, ?> scene) traces.trace(
-        (Map<String, Object>) scene
-      );
-      else if (
-        !(b.get("teaching") instanceof Map<?, ?> teaching) ||
-        !"specification-only".equals(b.get("interactiveStatus")) ||
-        !(teaching.get("java") instanceof Map<?, ?>) ||
-        !(teaching.get("visualization") instanceof Map<?, ?>)
-      ) throw new IllegalArgumentException(
-        "A lesson needs a supported experiment or an explicit visual specification and Java teaching example."
-      );
-    }
-    if (kind.equals("problem")) {
-      if (
-        Store.items(b.get("tests")).size() < 5 ||
-        Store.items(b.get("tests")).size() > 20 ||
-        Store.text(b, "editorial", "").isBlank() ||
-        Store.text(b, "reference", "").isBlank()
-      ) throw new IllegalArgumentException(
-        "Problems need 5–20 tests, an editorial and a reference solution."
-      );
-    }
     b.put("edited", true);
-    var result = s.put(id, kind, "public", b);
+    var result = s.put(Store.text(b, "id", ""), Store.text(b, "kind", ""), "public", b);
     index.rebuild();
     return result;
   }
@@ -90,5 +64,10 @@ public class AdminController {
     List<String> ids = new ArrayList<>();
     for (var row : rows) ids.add(save(row).get("id").toString());
     return Map.of("imported", ids);
+  }
+
+  static String messages(String lead, List<Map<String, Object>> items) {
+    var parts = items.stream().limit(5).map(i -> i.get("field") + ": " + i.get("message")).toList();
+    return lead + ": " + String.join(" ", parts) + (items.size() > 5 ? " (+" + (items.size() - 5) + " more)" : "");
   }
 }
