@@ -5277,42 +5277,42 @@ section[id] {
 .map-node.due small {
   color: var(--warning);
 }
-.concept-list {
+.concept-map-list {
   display: none;
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.concept-list > li {
+.concept-map-list > li {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
 }
-.concept-list > li > a strong {
+.concept-map-list > li > a strong {
   display: block;
   font-size: 14px;
   font-weight: 500;
 }
-.concept-list > li > a small,
-.concept-list p,
-.concept-list ul {
+.concept-map-list > li > a small,
+.concept-map-list p,
+.concept-map-list ul {
   font-size: 12px;
   color: var(--muted);
 }
-.concept-list p {
+.concept-map-list p {
   margin-top: 6px;
 }
-.concept-list ul {
+.concept-map-list ul {
   margin: 6px 0 0;
   padding-left: 18px;
 }
-.concept-list .state-accepted > a small {
+.concept-map-list .state-accepted > a small {
   color: var(--success);
 }
 @media (max-width: 767px) {
   .concept-map-scroll {
     display: none;
   }
-  .concept-list {
+  .concept-map-list {
     display: block;
   }
 }

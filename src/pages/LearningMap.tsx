@@ -146,7 +146,7 @@ export function ConceptMap() {
           })}
         </div>
       </div>
-      <ol className="concept-list">
+      <ol className="concept-map-list">
         {concepts.map((c) => (
           <li key={c.id} className={"state-" + c.state}>
             <Link to={c.lessonIds[0] ? "/learn/" + c.lessonIds[0] : "/learn"}>
