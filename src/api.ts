@@ -12,6 +12,7 @@ export async function api<T>(
   body?: unknown,
   method?: string,
   signal?: AbortSignal,
+  retried = false,
 ): Promise<T> {
   const verb = method ?? (body === undefined ? "GET" : "POST");
   if (verb !== "GET" && !csrf) {
@@ -34,7 +35,12 @@ export async function api<T>(
   }));
   if (data.csrf) csrf = data.csrf;
   if (!r.ok) {
-    if (r.status === 403) csrf = "";
+    if (r.status === 403) {
+      csrf = "";
+      // on a first visit two session requests can race and leave a token from the other session; one fresh try settles it
+      if (verb !== "GET" && !retried)
+        return api<T>(path, body, method, signal, true);
+    }
     throw new ApiError(
       data.message ?? "The request could not be completed.",
       r.status,

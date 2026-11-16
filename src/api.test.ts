@@ -48,6 +48,26 @@ describe("Java API boundary", () => {
       "quota",
     );
   });
+  it("retries a write once with a fresh token when a first-visit session race made the old one stale", async () => {
+    const fetcher = vi.mocked(fetch);
+    fetcher
+      .mockResolvedValueOnce(new Response(JSON.stringify({ csrf: "stale" })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: "Refresh the page" }), { status: 403 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ csrf: "fresh" })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ steps: [] })));
+    expect(await api("/experiments", { algorithm: "sliding-window" })).toEqual({ steps: [] });
+    expect((fetcher.mock.calls[3][1] as RequestInit).headers).toMatchObject({ "X-CSRF-TOKEN": "fresh" });
+  });
+  it("does not retry a write that is refused twice", async () => {
+    const fetcher = vi.mocked(fetch);
+    fetcher
+      .mockResolvedValueOnce(new Response(JSON.stringify({ csrf: "a" })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: "No" }), { status: 403 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ csrf: "b" })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: "Still no" }), { status: 403 }));
+    await expect(api("/admin/content", {})).rejects.toMatchObject({ status: 403, message: "Still no" });
+    expect(fetcher).toHaveBeenCalledTimes(4);
+  });
   it("obtains the server CSRF token before a mutating request", async () => {
     const fetcher = vi.mocked(fetch);
     fetcher

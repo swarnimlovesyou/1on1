@@ -88,7 +88,7 @@ export function Landing() {
       <main>
         <section className="landing-hero">
           <div>
-            <h1>
+            <h1 className="display">
               Don’t just learn it.
               <br /> <span>Make it click.</span>
             </h1>
@@ -115,9 +115,9 @@ export function Landing() {
               </span>
             </div>
           </div>
-          <div className="landing-experiment">
+          <div className="landing-experiment has-family" style={familyStyle("searching")}>
             <div className="lesson-paper-label">
-              <span className="blue-dot" />A page from your future notebook
+              <span className="family-dot" />A page from your future notebook
               <span>Sliding window</span>
             </div>
             <Experiment scene={sampleScene} compact />

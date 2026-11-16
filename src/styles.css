@@ -3043,16 +3043,17 @@ section[id] {
 }
 .landing-hero h1 {
   font-size: 64px;
-  line-height: 1.12;
-  letter-spacing: -0.04em;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 .landing-hero h1 span {
-  color: var(--accent);
+  color: var(--ink);
 }
 .landing-hero > div > p {
-  font-size: 16px;
+  font-family: var(--font-text);
+  font-size: 19px;
   color: var(--muted);
-  line-height: 1.85;
+  line-height: 1.7;
   margin: 25px 0;
   max-width: 43ch;
 }
@@ -3082,29 +3083,28 @@ section[id] {
   padding: 25px;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  transform: rotate(-1deg);
-}
-.landing-experiment .experiment {
-  transform: rotate(1deg);
 }
 .lesson-paper-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
-  margin-bottom: 23px;
+  margin-bottom: 18px;
+}
+.lesson-paper-label .family-dot {
+  background: var(--family);
 }
 .lesson-paper-label > span:last-child {
   margin-left: auto;
-  font-size: 9px;
+  font-size: 12px;
 }
 .margin-note {
   display: flex;
   gap: 12px;
   align-items: center;
   margin: 22px 0 3px;
-  color: var(--accent);
+  color: var(--family, var(--accent));
   font-size: 11px;
   line-height: 1.8;
 }
