@@ -57,7 +57,57 @@ QUICKSORT_JAVA = '''static void quickSort(int[] a, int lo, int hi) {
     }'''
 
 # The sorting concept's teaching block is about merging; Quicksort shared it and showed merge code.
+MERGESORT_JAVA = '''static void mergeSort(int[] a, int lo, int hi) {
+        if (lo >= hi) return;
+        int mid = (lo + hi) / 2;
+        mergeSort(a, lo, mid);
+        mergeSort(a, mid + 1, hi);
+        int[] out = new int[hi - lo + 1];
+        int i = lo, j = mid + 1, k = 0;
+        while (i <= mid && j <= hi) out[k++] = a[i] <= a[j] ? a[i++] : a[j++];
+        while (i <= mid) out[k++] = a[i++];
+        while (j <= hi) out[k++] = a[j++];
+        System.arraycopy(out, 0, a, lo, out.length);
+    }
+
+    static int[] sorted(int[] a) {
+        int[] copy = a.clone();
+        mergeSort(copy, 0, copy.length - 1);
+        return copy;
+    }'''
+
 LESSON_TEACHING = {
+    # the animation runs the whole top-down sort, not only the merge step the concept teaches
+    'lesson-merge-sort': dict(
+        title='Merge Sort',
+        mentalModel='Split the range in half until each piece holds one value, which is already sorted. Then merge neighbouring pieces, always taking the smaller front value.',
+        invariant='When a merge starts, both halves are sorted; the merged prefix is sorted and holds exactly the values consumed from both halves.',
+        commonMistake='Taking from the right half on equal values breaks stability. The temporary buffer costs O(n) extra space, unlike in-place quicksort.',
+        workedExample='Sort [3,1,2]. The range splits into [3,1] and [2]. [3,1] splits into [3] and [1] and merges to [1,3]. Merging [1,3] with [2] takes 1, then 2, then drains 3, giving [1,2,3].',
+        objectives=['Split a range recursively until each piece is trivially sorted.', 'Merge two sorted halves with two cursors and explain the O(n log n) total.'],
+        complexity=dict(time='O(n log n): log n levels of splitting, O(n) merging per level', space='O(n) merge buffer plus O(log n) call stack', assumptions='Top-down split at mid = (lo + hi) / 2; stable because equal values are taken from the left half.'),
+        java=dict(
+            language='java', className='CurriculumExample', implementation=MERGESORT_JAVA,
+            source='import java.util.*;\nclass CurriculumExample {\n' + MERGESORT_JAVA + '\n}',
+            cases=[
+                dict(expression='Arrays.toString(sorted(new int[]{3,1,2}))', expected='[1, 2, 3]'),
+                dict(expression='Arrays.toString(sorted(new int[]{4,2,7,1,3,6}))', expected='[1, 2, 3, 4, 6, 7]'),
+                dict(expression='Arrays.toString(sorted(new int[]{2,2,1}))', expected='[1, 2, 2]'),
+                dict(expression='Arrays.toString(sorted(new int[]{}))', expected='[]'),
+            ],
+            lineAnnotations=[
+                dict(line=3, explanation='Split at the middle so each half is at most half the range.'),
+                dict(line=8, explanation='Take the smaller front value; on a tie take the left one, which keeps the sort stable.'),
+                dict(line=11, explanation='Copy the merged run back so the caller sees a sorted range.'),
+            ],
+        ),
+        visualization=dict(exampleInput='[3,1,2]', expectedStates=['split [3,1] | [2]', 'split [3] | [1]', 'merge to [1,3]', 'merge with [2]: [1,2,3]']),
+    ),
+    # memoization's animation computes F(8); the shared concept example (F(7)) stays with tabulation
+    'lesson-memoization': dict(
+        workedExample='F(0)=0 and F(1)=1. For n=8, both versions return 21 from the table [0,1,1,2,3,5,8,13,21]. Memoization reaches each state once and then answers repeats from the cache; tabulation fills the same table left to right.',
+        visualization=dict(exampleInput='F(8), base F(0)=0,F(1)=1', expectedStates=['base [0,1]', 'write 1,2,3,5,8,13,21', 'both methods return 21']),
+    ),
     'lesson-quick-sort': dict(
         title='Quicksort',
         mentalModel='Pick a pivot, move every value that is not larger to its left, and the pivot lands in its final sorted place. Each side is then sorted on its own.',

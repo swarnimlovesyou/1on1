@@ -866,7 +866,7 @@
       ],
       "teaching": {
         "id": "concept-sorting",
-        "title": "Sorting and Merging",
+        "title": "Merge Sort",
         "order": 5,
         "prerequisites": [
           "concept-arrays"
@@ -876,41 +876,53 @@
           "lesson-quick-sort"
         ],
         "objectives": [
-          "Merge two ordered sequences using two cursors.",
-          "Explain how merge sort uses this operation after recursive splitting."
+          "Split a range recursively until each piece is trivially sorted.",
+          "Merge two sorted halves with two cursors and explain the O(n log n) total."
         ],
-        "mentalModel": "Two sorted rows let you take the smaller front item each time. Once both fronts are ordered, the chosen value cannot be preceded by a smaller unconsumed value.",
-        "workedExample": "Merge [1,4] and [2,3]: choose 1,2,3, then drain 4. Output [1,2,3,4] is ordered and contains every input occurrence.",
-        "invariant": "The output prefix is sorted and contains exactly the consumed input prefixes.",
-        "commonMistake": "A merge assumes both inputs are sorted. Do not quote O(n) merging as the complexity of sorting arbitrary input. Choosing the left equal key preserves cross-run stability.",
+        "mentalModel": "Split the range in half until each piece holds one value, which is already sorted. Then merge neighbouring pieces, always taking the smaller front value.",
+        "workedExample": "Sort [3,1,2]. The range splits into [3,1] and [2]. [3,1] splits into [3] and [1] and merges to [1,3]. Merging [1,3] with [2] takes 1, then 2, then drains 3, giving [1,2,3].",
+        "invariant": "When a merge starts, both halves are sorted; the merged prefix is sorted and holds exactly the values consumed from both halves.",
+        "commonMistake": "Taking from the right half on equal values breaks stability. The temporary buffer costs O(n) extra space, unlike in-place quicksort.",
         "complexity": {
-          "time": "O(n+m) merge; O(n log n) merge sort",
-          "space": "O(n+m) merge output",
-          "assumptions": "Both merge inputs are nondecreasing; merge-sort child lesson covers splitting."
+          "time": "O(n log n): log n levels of splitting, O(n) merging per level",
+          "space": "O(n) merge buffer plus O(log n) call stack",
+          "assumptions": "Top-down split at mid = (lo + hi) / 2; stable because equal values are taken from the left half."
         },
         "java": {
           "language": "java",
           "className": "CurriculumExample",
-          "implementation": "static int[] merge(int[] a, int[] b) {\n        int[] out = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        while (i < a.length && j < b.length) out[k++] = a[i] <= b[j] ? a[i++] : b[j++];\n        while (i < a.length) out[k++] = a[i++];\n        while (j < b.length) out[k++] = b[j++];\n        return out;\n    }",
-          "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] merge(int[] a, int[] b) {\n        int[] out = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        while (i < a.length && j < b.length) out[k++] = a[i] <= b[j] ? a[i++] : b[j++];\n        while (i < a.length) out[k++] = a[i++];\n        while (j < b.length) out[k++] = b[j++];\n        return out;\n    }\n}",
+          "implementation": "static void mergeSort(int[] a, int lo, int hi) {\n        if (lo >= hi) return;\n        int mid = (lo + hi) / 2;\n        mergeSort(a, lo, mid);\n        mergeSort(a, mid + 1, hi);\n        int[] out = new int[hi - lo + 1];\n        int i = lo, j = mid + 1, k = 0;\n        while (i <= mid && j <= hi) out[k++] = a[i] <= a[j] ? a[i++] : a[j++];\n        while (i <= mid) out[k++] = a[i++];\n        while (j <= hi) out[k++] = a[j++];\n        System.arraycopy(out, 0, a, lo, out.length);\n    }\n\n    static int[] sorted(int[] a) {\n        int[] copy = a.clone();\n        mergeSort(copy, 0, copy.length - 1);\n        return copy;\n    }",
+          "source": "import java.util.*;\nclass CurriculumExample {\nstatic void mergeSort(int[] a, int lo, int hi) {\n        if (lo >= hi) return;\n        int mid = (lo + hi) / 2;\n        mergeSort(a, lo, mid);\n        mergeSort(a, mid + 1, hi);\n        int[] out = new int[hi - lo + 1];\n        int i = lo, j = mid + 1, k = 0;\n        while (i <= mid && j <= hi) out[k++] = a[i] <= a[j] ? a[i++] : a[j++];\n        while (i <= mid) out[k++] = a[i++];\n        while (j <= hi) out[k++] = a[j++];\n        System.arraycopy(out, 0, a, lo, out.length);\n    }\n\n    static int[] sorted(int[] a) {\n        int[] copy = a.clone();\n        mergeSort(copy, 0, copy.length - 1);\n        return copy;\n    }\n}",
           "cases": [
             {
-              "expression": "Arrays.toString(merge(new int[]{1,4},new int[]{2,3}))",
-              "expected": "[1, 2, 3, 4]"
+              "expression": "Arrays.toString(sorted(new int[]{3,1,2}))",
+              "expected": "[1, 2, 3]"
             },
             {
-              "expression": "Arrays.toString(merge(new int[]{},new int[]{1,1}))",
-              "expected": "[1, 1]"
+              "expression": "Arrays.toString(sorted(new int[]{4,2,7,1,3,6}))",
+              "expected": "[1, 2, 3, 4, 6, 7]"
             },
             {
-              "expression": "Arrays.toString(merge(new int[]{},new int[]{}))",
+              "expression": "Arrays.toString(sorted(new int[]{2,2,1}))",
+              "expected": "[1, 2, 2]"
+            },
+            {
+              "expression": "Arrays.toString(sorted(new int[]{}))",
               "expected": "[]"
             }
           ],
           "lineAnnotations": [
             {
-              "line": 4,
-              "explanation": "Compare the two current fronts; advance only the cursor whose value was emitted."
+              "line": 3,
+              "explanation": "Split at the middle so each half is at most half the range."
+            },
+            {
+              "line": 8,
+              "explanation": "Take the smaller front value; on a tie take the left one, which keeps the sort stable."
+            },
+            {
+              "line": 11,
+              "explanation": "Copy the merged run back so the caller sees a sorted range."
             }
           ]
         },
@@ -925,12 +937,12 @@
           "explanation": "Compare the current fronts 4 and 2; choose 2."
         },
         "visualization": {
-          "exampleInput": "left=[1,4], right=[2,3]",
+          "exampleInput": "[3,1,2]",
           "expectedStates": [
-            "out=[1]",
-            "out=[1,2]",
-            "out=[1,2,3]",
-            "out=[1,2,3,4]"
+            "split [3,1] | [2]",
+            "split [3] | [1]",
+            "merge to [1,3]",
+            "merge with [2]: [1,2,3]"
           ],
           "manipulation": "Use duplicate keys and empty runs; keep element identity through merging.",
           "limits": "Sorted runs of up to 16 elements each; splitting and pivot sorting are separate child traces.",
@@ -2320,7 +2332,7 @@
       "minutes": 10,
       "published": true,
       "body": "Imagine exploring a maze with a ball of string. At each fork you pick a corridor and keep unrolling string. When a corridor ends, you wind the string back to the last fork and try the next corridor. You never need a second ball of string, because winding back restores exactly where you were. Backtracking explores every combination of choices the same way: one shared path list, an add before exploring a branch and a remove after it. Generating all subsets is the cleanest example, since each value is either in or out. In the animation, watch the path grow and shrink like the string. Every undo should restore the path to exactly what it was before the matching choice, and every recorded subset is a copy, not the live path.",
-      "invariant": "On entering visit(i), path contains exactly the choices for indices below i.",
+      "invariant": "On entering visit(start), path holds chosen values in increasing index order, all from indices below start.",
       "pitfall": "Missing the undo contaminates sibling branches. Storing path itself makes every result alias one mutable list. Duplicate input values require a separate deduplication policy.",
       "timeComplexity": "O(n × 2^n) including copied subsets",
       "spaceComplexity": "O(n) auxiliary; O(n × 2^n) output",
@@ -2376,8 +2388,8 @@
           "Snapshot a result instead of keeping an alias to the mutable path."
         ],
         "mentalModel": "Walk a decision tree with a reusable path. Choose an item, explore descendants, then undo that choice before trying the next branch.",
-        "workedExample": "For [1,2], include-first traversal records [1,2], [1], [2], []. After recording [1,2], remove 2 before exploring the branch without it.",
-        "invariant": "On entering visit(i), path contains exactly the choices for indices below i.",
+        "workedExample": "For [1,2], visit records [] first, then chooses 1 and records [1], chooses 2 and records [1,2], undoes 2 and then 1, and finally chooses 2 alone and records [2]. Every node of the decision tree is a subset.",
+        "invariant": "On entering visit(start), path holds chosen values in increasing index order, all from indices below start.",
         "commonMistake": "Missing the undo contaminates sibling branches. Storing path itself makes every result alias one mutable list. Duplicate input values require a separate deduplication policy.",
         "complexity": {
           "time": "O(n × 2^n) including copied subsets",
@@ -2387,12 +2399,12 @@
         "java": {
           "language": "java",
           "className": "CurriculumExample",
-          "implementation": "static List<List<Integer>> subsets(int[] a) {\n        List<List<Integer>> out = new ArrayList<>();\n        visit(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n    static void visit(int[] a, int i, List<Integer> path, List<List<Integer>> out) {\n        if (i == a.length) { out.add(new ArrayList<>(path)); return; }\n        path.add(a[i]);\n        visit(a, i + 1, path, out);\n        path.remove(path.size() - 1);\n        visit(a, i + 1, path, out);\n    }",
-          "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<List<Integer>> subsets(int[] a) {\n        List<List<Integer>> out = new ArrayList<>();\n        visit(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n    static void visit(int[] a, int i, List<Integer> path, List<List<Integer>> out) {\n        if (i == a.length) { out.add(new ArrayList<>(path)); return; }\n        path.add(a[i]);\n        visit(a, i + 1, path, out);\n        path.remove(path.size() - 1);\n        visit(a, i + 1, path, out);\n    }\n}",
+          "implementation": "static List<List<Integer>> subsets(int[] a) {\n        List<List<Integer>> out = new ArrayList<>();\n        visit(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n    static void visit(int[] a, int start, List<Integer> path, List<List<Integer>> out) {\n        out.add(new ArrayList<>(path));\n        for (int i = start; i < a.length; i++) {\n            path.add(a[i]);\n            visit(a, i + 1, path, out);\n            path.remove(path.size() - 1);\n        }\n    }",
+          "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<List<Integer>> subsets(int[] a) {\n        List<List<Integer>> out = new ArrayList<>();\n        visit(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n    static void visit(int[] a, int start, List<Integer> path, List<List<Integer>> out) {\n        out.add(new ArrayList<>(path));\n        for (int i = start; i < a.length; i++) {\n            path.add(a[i]);\n            visit(a, i + 1, path, out);\n            path.remove(path.size() - 1);\n        }\n    }\n}",
           "cases": [
             {
               "expression": "subsets(new int[]{1,2})",
-              "expected": "[[1, 2], [1], [2], []]"
+              "expected": "[[], [1], [1, 2], [2]]"
             },
             {
               "expression": "subsets(new int[]{})",
@@ -2400,12 +2412,16 @@
             },
             {
               "expression": "subsets(new int[]{7})",
-              "expected": "[[7], []]"
+              "expected": "[[], [7]]"
+            },
+            {
+              "expression": "subsets(new int[]{1,2,3}).size()",
+              "expected": "8"
             }
           ],
           "lineAnnotations": [
             {
-              "line": 10,
+              "line": 11,
               "explanation": "Undo the last choice so the next sibling receives the parent path."
             }
           ]
@@ -2423,12 +2439,13 @@
         "visualization": {
           "exampleInput": "[1,2]",
           "expectedStates": [
-            "choose 1",
+            "record []",
+            "choose 1: record [1]",
             "choose 2: record [1,2]",
-            "undo 2: record [1]",
-            "undo 1: explore [2],[]"
+            "undo 2, then undo 1",
+            "choose 2: record [2]"
           ],
-          "manipulation": "Toggle an include/exclude branch and watch undo restore the parent state.",
+          "manipulation": "Change the input and watch each undo restore the parent path before the next sibling.",
           "limits": "Distinct values; at most 5 items in existing trace; exponential output explicit.",
           "interactiveStatus": "interactive",
           "scene": {
@@ -2498,7 +2515,7 @@
             "Copying sorts it",
             "Recursion requires sorted output"
           ],
-          "hint": "On entering visit(i), path contains exactly the choices for indices below i."
+          "hint": "On entering visit(start), path holds chosen values in increasing index order, all from indices below start."
         },
         {
           "id": "challenge-backtracking-prediction",
@@ -4100,7 +4117,7 @@
           "Compare top-down caching with bottom-up evaluation and transfer to a new recurrence."
         ],
         "mentalModel": "A dependency graph can revisit the same smaller question. Memoization caches answers when requested; tabulation chooses an order with dependencies already available.",
-        "workedExample": "F(0)=0,F(1)=1. For n=7, both versions return 13 from table [0,1,1,2,3,5,8,13]. Staircase counts and House Robber reuse state thinking but have different meanings and base cases.",
+        "workedExample": "F(0)=0 and F(1)=1. For n=8, both versions return 21 from the table [0,1,1,2,3,5,8,13,21]. Memoization reaches each state once and then answers repeats from the cache; tabulation fills the same table left to right.",
         "invariant": "A cached state is final; a bottom-up state reads only final earlier dependencies.",
         "commonMistake": "Using zero to mean both uncomputed and a valid answer is ambiguous. Memorizing Fibonacci code does not define a state for House Robber; derive take/skip decisions for the prefix instead.",
         "complexity": {
@@ -4153,11 +4170,11 @@
           "explanation": "The recurrence reads both earlier states: 3+5=8."
         },
         "visualization": {
-          "exampleInput": "F(7), base F(0)=0,F(1)=1",
+          "exampleInput": "F(8), base F(0)=0,F(1)=1",
           "expectedStates": [
             "base [0,1]",
-            "write 1,2,3,5,8,13",
-            "both methods return 13"
+            "write 1,2,3,5,8,13,21",
+            "both methods return 21"
           ],
           "manipulation": "Change n, compare repeated calls with cache hits and bottom-up writes.",
           "limits": "n=0..16; do not imply Fibonacci is the complete DP curriculum; practice derives two distinct state models.",
@@ -5586,7 +5603,7 @@
           "Check previously seen values before inserting the current one."
         ],
         "mentalModel": "A set answers whether a value has appeared. A map additionally remembers a value such as the earlier index. Hashing locates a candidate bucket; equality still decides exact membership.",
-        "workedExample": "For [2,1,2], insert 2, then 1. The last 2 is already present, so a duplicate exists. Two equal values at different positions count as repetition.",
+        "workedExample": "For [2,1,6,2,5], duplicate inserts 2, 1 and 6, then finds the second 2 already in seen and returns true. The animation runs frequencies on the same input instead: it keeps going, so 2 ends with count 2 and 1, 6 and 5 with count 1.",
         "invariant": "Before reading position i, seen contains exactly the values at earlier positions.",
         "commonMistake": "Hash lookup is expected constant time under normal assumptions, not a universal worst-case guarantee. A Bloom filter is not a replacement for an exact set.",
         "complexity": {
@@ -5602,6 +5619,10 @@
           "cases": [
             {
               "expression": "duplicate(new int[]{2,1,2})",
+              "expected": "true"
+            },
+            {
+              "expression": "duplicate(new int[]{2,1,6,2,5})",
               "expected": "true"
             },
             {
@@ -5639,11 +5660,13 @@
           "explanation": "Both earlier values have been inserted; the set does not store duplicate entries."
         },
         "visualization": {
-          "exampleInput": "[2,1,2]",
+          "exampleInput": "[2,1,6,2,5]",
           "expectedStates": [
-            "seen={2}",
-            "seen={1,2}",
-            "duplicate 2 found"
+            "2 inserted",
+            "1 inserted",
+            "6 is a different key: inserted",
+            "second 2 found: duplicate, count 2",
+            "5 inserted"
           ],
           "manipulation": "Repeat a value, change it to a new value, and compare membership checks.",
           "limits": "0–32 integers; show exact key equality, not invented hash addresses.",
@@ -6128,7 +6151,7 @@
           "Separate a distinct-character condition from positive-sum conditions."
         ],
         "mentalModel": "Stretch a frame while it remains valid. When a repeated character enters, remove characters from the left until the frame is valid again.",
-        "workedExample": "For \"abca\", the frame grows through a,ab,abc. The next a forces the old a out, leaving bca. The best length stays 3.",
+        "workedExample": "For \"abba\", the frame grows through a and ab. The second b forces both a and the old b out, leaving b. Then a enters to make ba, and the best length stays 2. One removal would not have been enough.",
         "invariant": "After shrinking, all characters in the current frame are distinct.",
         "commonMistake": "Removing only once can leave a repeated character inside the frame. For minimum-length sum windows, positivity is what makes shrinking monotonic; arbitrary negatives break that proof.",
         "complexity": {
@@ -6176,14 +6199,14 @@
           "explanation": "The old b remains, so shrink again until the duplicate is removed."
         },
         "visualization": {
-          "exampleInput": "\"abca\"",
+          "exampleInput": "\"abba\"",
           "expectedStates": [
             "[a],best=1",
             "[ab],best=2",
-            "[abc],best=3",
-            "remove a; [bca],best=3"
+            "b repeats: remove a, then b; [b],best=2",
+            "[ba],best=2"
           ],
-          "manipulation": "Use \"abba\" to expose a single-if shrinking bug.",
+          "manipulation": "Try \"abca\" to see a removal that stops after one character.",
           "limits": "ASCII 0–32 characters; no sum-window claims for negative numbers.",
           "interactiveStatus": "interactive",
           "scene": {
