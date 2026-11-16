@@ -223,6 +223,8 @@ from curriculum_content import apply as apply_curriculum, write_artifacts
 curriculum = apply_curriculum(lessons, paths)
 from visualization_content import enrich as enrich_visualizations
 enrich_visualizations(lessons,curriculum)
+from practice_content import enrich as enrich_practice
+enrich_practice(lessons, problems)
 write_artifacts(curriculum)
 out=ROOT/'backend/src/main/resources/content.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(lessons=lessons,problems=problems,paths=paths),ensure_ascii=False,indent=2),encoding='utf-8')
 print(f'Authored {len(lessons)} lessons, {len(problems)} problems, {sum(len(p["tests"]) for p in problems)} judge fixtures, {len(paths)} paths.')

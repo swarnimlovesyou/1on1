@@ -170,7 +170,82 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-two-pointers-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "At values 1 and 7 with target 9, which cursor moves?",
+          "options": [
+            "Left advances",
+            "Right retreats",
+            "Both move"
+          ],
+          "hint": "Any pair not yet ruled out lies within the current cursor interval."
+        },
+        {
+          "id": "challenge-two-pointers-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Sorted values 1, 2, 3, 4, 6, 7 and target 9. The endpoints sum to 1 + 7 = 8. Which pointer moves?",
+          "options": [
+            "The right pointer moves left",
+            "The left pointer moves right",
+            "Both pointers move"
+          ],
+          "answer": 1,
+          "explanation": "8 is too small. Moving left to a larger value is the only move that can increase the sum.",
+          "hint": "In a sorted array, which move makes the sum larger?"
+        },
+        {
+          "id": "challenge-two-pointers-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "Given a sorted array of 100,000 values, decide whether any two different positions sum to a target, using O(1) extra memory. Which approach fits?",
+          "options": [
+            "Two pointers from both ends: O(n)",
+            "Check every pair: O(n²)",
+            "A hash set of seen values: O(n) time but O(n) memory"
+          ],
+          "answer": 0,
+          "explanation": "Sorting is already given, and the pointers need no extra storage. A hash set also works in O(n) time but breaks the memory limit.",
+          "hint": "Note the extra-memory requirement."
+        },
+        {
+          "id": "challenge-two-pointers-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Target 9 on 4, 2, 7, 1, 3, 6 (sorted first). Fill the table at the first endpoint comparison.",
+          "scene": {
+            "algorithm": "two-pointers",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 9,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 2,
+          "fields": [
+            {
+              "key": "left",
+              "label": "Left index"
+            },
+            {
+              "key": "right",
+              "label": "Right index"
+            },
+            {
+              "key": "sum",
+              "label": "Endpoint sum"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "After sorting the values are 1, 2, 3, 4, 6, 7; indices refer to that sorted order."
+        }
+      ],
+      "linkedProblems": [
+        "problem-zero-tail",
+        "problem-mirror-word"
+      ]
     },
     {
       "id": "lesson-sliding-window",
@@ -619,7 +694,82 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-binary-search-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "If a[mid] is smaller than target, what is the new low in this version?",
+          "options": [
+            "mid",
+            "mid + 1",
+            "low + 1 always"
+          ],
+          "hint": "If the target exists, some occurrence remains in [low,high]."
+        },
+        {
+          "id": "challenge-binary-search-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Searching for 5 in 1, 2, 3, 4, 6, 7: the first midpoint is index 2, holding 3. What happens next?",
+          "options": [
+            "Keep indices 3 to 5: everything up to the midpoint is too small",
+            "Keep indices 0 to 1",
+            "Check index 3 next, one step at a time"
+          ],
+          "answer": 0,
+          "explanation": "3 < 5, and the array is sorted, so the midpoint and everything to its left can be discarded at once.",
+          "hint": "Sorted order lets one comparison rule out a whole half."
+        },
+        {
+          "id": "challenge-binary-search-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must find the smallest index whose value is at least x, in a sorted array of a million values, for many different x. Which approach fits?",
+          "options": [
+            "A linear scan per query: O(n)",
+            "Binary search per query: O(log n)",
+            "A hash map from value to index"
+          ],
+          "answer": 1,
+          "explanation": "Order makes the \"is it at least x\" question monotone, so halving works; a hash map cannot answer \"at least\".",
+          "hint": "Is the answer to \"value ≥ x?\" monotone along the array?"
+        },
+        {
+          "id": "challenge-binary-search-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Searching for 5 in the sorted values 1, 2, 3, 4, 6, 7. Fill the table at the second midpoint inspection.",
+          "scene": {
+            "algorithm": "binary-search",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 5,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 3,
+          "fields": [
+            {
+              "key": "low",
+              "label": "Low index"
+            },
+            {
+              "key": "high",
+              "label": "High index"
+            },
+            {
+              "key": "mid",
+              "label": "Mid index"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "After the first inspection only indices 3 to 5 can contain 5."
+        }
+      ],
+      "linkedProblems": [
+        "problem-rising-subsequence",
+        "problem-ordered-check"
+      ]
     },
     {
       "id": "lesson-merge-sort",
@@ -789,7 +939,82 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-merge-sort-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "Both halves are already sorted",
+            "Both halves have unique values",
+            "The pivot is the maximum"
+          ],
+          "hint": "Before a merge begins, both halves are sorted. The output prefix is sorted and contains the smallest values consumed so far."
+        },
+        {
+          "id": "challenge-merge-sort-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Merge sort is merging the sorted runs [2, 4] and [7]. Which value is copied into the buffer first?",
+          "options": [
+            "7, the largest",
+            "2, the smaller front",
+            "4, the last value of the left run"
+          ],
+          "answer": 1,
+          "explanation": "A merge always copies the smaller of the two unconsumed fronts: 2 is smaller than 7.",
+          "hint": "Only the two fronts are compared at each step."
+        },
+        {
+          "id": "challenge-merge-sort-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must sort 1,000,000 records and keep equal keys in their original order, with an O(n log n) guarantee even on adversarial input. Which approach fits?",
+          "options": [
+            "Quicksort with the last element as pivot",
+            "Merge sort, taking from the left run on ties",
+            "Insertion sort"
+          ],
+          "answer": 1,
+          "explanation": "Merge sort is O(n log n) in every case and stable when ties take the left element; a fixed-pivot quicksort can degrade to O(n²).",
+          "hint": "Two requirements: a worst-case bound and stability."
+        },
+        {
+          "id": "challenge-merge-sort-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Sort 4, 2, 7, 1, 3, 6. Fill the table at the merge that first produces a sorted run of three values.",
+          "scene": {
+            "algorithm": "merge-sort",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 10,
+          "fields": [
+            {
+              "key": "low",
+              "label": "Low index"
+            },
+            {
+              "key": "mid",
+              "label": "Mid index"
+            },
+            {
+              "key": "high",
+              "label": "High index"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The left half is indices 0 to 2; its split point is the mid index."
+        }
+      ],
+      "linkedProblems": [
+        "problem-ordered-parcels",
+        "problem-out-of-order"
+      ]
     },
     {
       "id": "lesson-quick-sort",
@@ -1127,7 +1352,82 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-linked-list-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "What must be saved before overwriting current.next?",
+          "options": [
+            "The original next reference",
+            "Only the current value",
+            "The array length"
+          ],
+          "hint": "prev heads the reversed prefix; current heads the untouched suffix."
+        },
+        {
+          "id": "challenge-linked-list-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Reversing a list in place: why save current.next before changing current.next?",
+          "options": [
+            "So the rest of the list stays reachable after the link is redirected",
+            "Because it makes the list sorted",
+            "To count the nodes"
+          ],
+          "answer": 0,
+          "explanation": "Redirecting current.next to previous would otherwise lose the only path to the unprocessed nodes.",
+          "hint": "After the rewrite, what still points at the next node?"
+        },
+        {
+          "id": "challenge-linked-list-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must reverse a singly linked list of a million nodes using O(1) extra memory. Which approach fits?",
+          "options": [
+            "Copy the values into an array and write them back",
+            "Three references: previous, current, next: O(n), O(1) extra",
+            "Recursion to the end, then relink"
+          ],
+          "answer": 1,
+          "explanation": "The iterative rewrite touches each node once and keeps only three references; recursion uses O(n) stack.",
+          "hint": "Recursion depth counts as memory too."
+        },
+        {
+          "id": "challenge-linked-list-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Reverse the six-node list. Fill the table at the third rewiring step.",
+          "scene": {
+            "algorithm": "linked-list",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 3,
+          "fields": [
+            {
+              "key": "previous",
+              "label": "previous"
+            },
+            {
+              "key": "current",
+              "label": "current"
+            },
+            {
+              "key": "next",
+              "label": "next"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Nodes are numbered 0 to 5 in list order, and previous starts at -1 (null)."
+        }
+      ],
+      "linkedProblems": [
+        "problem-reverse-route",
+        "problem-remove-adjacent"
+      ]
     },
     {
       "id": "lesson-stack",
@@ -1294,7 +1594,78 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-stack-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Push 4, then 2, then 7. Which value pops first?",
+          "options": [
+            "4",
+            "2",
+            "7"
+          ],
+          "hint": "The top is the most recently pushed item that has not been popped."
+        },
+        {
+          "id": "challenge-stack-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Push 4, 2, 7, 1, 3, 6 onto a stack, then pop twice. Which values come out?",
+          "options": [
+            "4 then 2",
+            "6 then 3",
+            "7 then 6"
+          ],
+          "answer": 1,
+          "explanation": "Last in, first out: 6 was pushed last, then 3 before it.",
+          "hint": "The most recent push is always the next pop."
+        },
+        {
+          "id": "challenge-stack-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "For each reading you need the next strictly larger reading to its right, across 100,000 readings. Which approach fits?",
+          "options": [
+            "For each reading, scan to the right: O(n²)",
+            "A stack of readings still waiting for a larger value: O(n)",
+            "Sort the readings"
+          ],
+          "answer": 1,
+          "explanation": "Each index is pushed and popped at most once, so the whole pass is linear.",
+          "hint": "Which earlier readings are still waiting for their answer?"
+        },
+        {
+          "id": "challenge-stack-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Push 4, 2, 7, 1, 3, 6, then pop. Fill the table after the second pop.",
+          "scene": {
+            "algorithm": "stack",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 8,
+          "fields": [
+            {
+              "key": "removed",
+              "label": "Value just popped"
+            },
+            {
+              "key": "size",
+              "label": "Stack size now"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Six values were pushed; two have now left from the top."
+        }
+      ],
+      "linkedProblems": [
+        "problem-next-taller",
+        "problem-parenthesis-depth"
+      ]
     },
     {
       "id": "lesson-queue",
@@ -1465,7 +1836,76 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-queue-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "After addLast(4), addLast(2), what does removeFirst return?",
+          "options": [
+            "2",
+            "4"
+          ],
+          "hint": "The front is the earliest enqueued item that has not been removed."
+        },
+        {
+          "id": "challenge-queue-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Enqueue 4, 2, 7, 1, 3, 6, then dequeue twice. Which values come out?",
+          "options": [
+            "6 then 3",
+            "4 then 2",
+            "7 then 4"
+          ],
+          "answer": 1,
+          "explanation": "First in, first out: 4 arrived first, then 2.",
+          "hint": "The front of the queue is the oldest arrival."
+        },
+        {
+          "id": "challenge-queue-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A printer must serve jobs strictly in arrival order while new jobs keep arriving. Which structure fits?",
+          "options": [
+            "A queue: O(1) enqueue and dequeue",
+            "A stack",
+            "A sorted array"
+          ],
+          "answer": 0,
+          "explanation": "Arrival order is exactly first-in, first-out. A stack would serve the newest job first.",
+          "hint": "Who should be served next: the newest or the oldest job?"
+        },
+        {
+          "id": "challenge-queue-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Enqueue 4, 2, 7, 1, 3, 6, then dequeue. Fill the table after the second dequeue.",
+          "scene": {
+            "algorithm": "queue",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 8,
+          "fields": [
+            {
+              "key": "removed",
+              "label": "Value just dequeued"
+            },
+            {
+              "key": "size",
+              "label": "Queue size now"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The first two arrivals have left from the front."
+        }
+      ],
+      "linkedProblems": [
+        "problem-first-single"
+      ]
     },
     {
       "id": "lesson-recursion",
@@ -1639,7 +2079,74 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-recursion-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "What is still pending when factorial(5) calls factorial(4)?",
+          "options": [
+            "Multiplication by 5",
+            "A second independent input array",
+            "Nothing"
+          ],
+          "hint": "factorial(n) returns n times factorial(n-1), with factorial(0)=1."
+        },
+        {
+          "id": "challenge-recursion-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "factorial(5) has descended to the base case factorial(0) = 1. How many calls are still suspended, waiting for a result?",
+          "options": [
+            "None: the base case returns straight to the first caller",
+            "Five: factorial(1) through factorial(5)",
+            "One: factorial(5)"
+          ],
+          "answer": 1,
+          "explanation": "Every call from factorial(5) down to factorial(1) is paused on the call stack until its smaller result returns.",
+          "hint": "Each call waits for the one it made."
+        },
+        {
+          "id": "challenge-recursion-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A problem is defined in terms of a smaller version of itself, with a simple smallest case, and the depth is at most a few thousand. Which approach fits?",
+          "options": [
+            "Recursion with a base case",
+            "A hash set",
+            "Binary search"
+          ],
+          "answer": 0,
+          "explanation": "The definition itself is recursive; the base case stops it, and the modest depth keeps the call stack safe.",
+          "hint": "What stops the descent?"
+        },
+        {
+          "id": "challenge-recursion-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Compute factorial(5). Fill the table when factorial(3) returns its value.",
+          "scene": {
+            "algorithm": "recursion",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 5,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 10,
+          "fields": [
+            {
+              "key": "returned",
+              "label": "Value returned"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Returns happen in reverse: factorial(0), (1), (2), then (3)."
+        }
+      ],
+      "linkedProblems": [
+        "problem-factorial-lock",
+        "problem-balanced-tree-nodes"
+      ]
     },
     {
       "id": "lesson-backtracking",
@@ -1807,7 +2314,78 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-backtracking-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Why copy path when recording a subset?",
+          "options": [
+            "Later undo operations mutate path",
+            "Copying sorts it",
+            "Recursion requires sorted output"
+          ],
+          "hint": "On entering visit(i), path contains exactly the choices for indices below i."
+        },
+        {
+          "id": "challenge-backtracking-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Generating subsets of 4, 2, 7, …: the current path is [4, 2, 7]. After exploring everything below it, what must happen before trying [4, 2, 1]?",
+          "options": [
+            "Undo the choice of 7",
+            "Keep 7 and add 1",
+            "Start again from an empty subset"
+          ],
+          "answer": 0,
+          "explanation": "Undoing restores the parent path [4, 2], so the next branch starts from the right state.",
+          "hint": "Every choice is undone before its sibling is tried."
+        },
+        {
+          "id": "challenge-backtracking-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "List every way to choose items from 20 so that the chosen weights sum to exactly 50. Which approach fits?",
+          "options": [
+            "Backtracking: choose, explore, undo, and prune sums over 50",
+            "Sorting",
+            "One linear scan"
+          ],
+          "answer": 0,
+          "explanation": "The answer is a set of combinations, so they must be explored; pruning skips branches that are already over 50.",
+          "hint": "The output is many combinations, not one number."
+        },
+        {
+          "id": "challenge-backtracking-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Generate subsets of 4, 2, 7, 1, 3, 6. Fill the table immediately after the first three values have been chosen.",
+          "scene": {
+            "algorithm": "backtracking",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 4,
+          "fields": [
+            {
+              "key": "depth",
+              "label": "Depth"
+            },
+            {
+              "key": "subset",
+              "label": "Current subset"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Type the subset as comma-separated values, in the order they were chosen."
+        }
+      ],
+      "linkedProblems": [
+        "problem-subset-count",
+        "problem-binary-ones"
+      ]
     },
     {
       "id": "lesson-bst",
@@ -2293,7 +2871,77 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-tree-traversal-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Does inorder traversal sort every binary tree?",
+          "options": [
+            "Yes",
+            "Only if the tree satisfies the BST ordering property"
+          ],
+          "hint": "inorder(node) processes every node in left subtree, then node, then right subtree."
+        },
+        {
+          "id": "challenge-tree-traversal-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "In-order traversal of the tree built from 4, 2, 7, 1, 3, 6: which node is emitted first?",
+          "options": [
+            "4, the root",
+            "1, the leftmost node",
+            "6"
+          ],
+          "answer": 1,
+          "explanation": "In-order visits the whole left subtree before a node, so the leftmost node, 1, comes first.",
+          "hint": "Left subtree, node, right subtree."
+        },
+        {
+          "id": "challenge-tree-traversal-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You need the keys of a binary search tree in sorted order. Which traversal gives that directly?",
+          "options": [
+            "Pre-order",
+            "In-order",
+            "Level-order"
+          ],
+          "answer": 1,
+          "explanation": "In a BST every left key is smaller and every right key larger, so left-node-right emits them in sorted order.",
+          "hint": "Combine the BST rule with the traversal order."
+        },
+        {
+          "id": "challenge-tree-traversal-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "In-order traversal of 4, 2, 7, 1, 3, 6. Fill the table when node 3 is emitted.",
+          "scene": {
+            "algorithm": "tree-traversal",
+            "input": "4,2,7,1,3,6",
+            "target": 3,
+            "words": "inorder"
+          },
+          "traceStep": 8,
+          "fields": [
+            {
+              "key": "visiting",
+              "label": "Node emitted"
+            },
+            {
+              "key": "output",
+              "label": "Output so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Type the output as comma-separated values."
+        }
+      ],
+      "linkedProblems": [
+        "problem-bst-inorder",
+        "problem-tree-height"
+      ]
     },
     {
       "id": "lesson-heap",
@@ -2460,7 +3108,77 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-heap-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Is every sibling pair ordered in a max-heap?",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "hint": "Every parent is at least as large as its children."
+        },
+        {
+          "id": "challenge-heap-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "A max heap holds 4 and 2. You insert 7 at the next free position. What happens?",
+          "options": [
+            "7 stays where it was added",
+            "7 swaps with its parent 4 and becomes the root",
+            "The whole array is re-sorted"
+          ],
+          "answer": 1,
+          "explanation": "7 is larger than its parent 4, so it bubbles up; only the path from the new leaf to the root can break heap order.",
+          "hint": "Compare the new value with its parent only."
+        },
+        {
+          "id": "challenge-heap-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A stream of 1,000,000 tasks arrives and you repeatedly need the most urgent one. Which structure fits?",
+          "options": [
+            "A sorted array: O(n) per insert",
+            "A binary heap: O(log n) insert, O(1) peek at the top",
+            "A queue in arrival order"
+          ],
+          "answer": 1,
+          "explanation": "A heap keeps only the order the question needs: the top. A sorted array pays to keep everything ordered.",
+          "hint": "Which order is actually needed: everything, or just the top?"
+        },
+        {
+          "id": "challenge-heap-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Insert 4, 2, 7, 1, 3, 6 into a max heap. Fill the table once 7 has been inserted and bubbled up.",
+          "scene": {
+            "algorithm": "heap",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 6,
+          "fields": [
+            {
+              "key": "maximum",
+              "label": "Current maximum"
+            },
+            {
+              "key": "inserted",
+              "label": "Value just inserted"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The root of a max heap is always its maximum."
+        }
+      ],
+      "linkedProblems": [
+        "problem-heap-root",
+        "problem-lower-middle"
+      ]
     },
     {
       "id": "lesson-bfs",
@@ -2893,7 +3611,81 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-dfs-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Does finding a vertex first with DFS prove the shortest route?",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "hint": "Every active frame represents a discovered vertex whose outgoing neighbours are not yet fully explored."
+        },
+        {
+          "id": "challenge-dfs-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Depth-first search from vertex 0 has just entered vertex 1. Which vertex does it explore next?",
+          "options": [
+            "Another neighbour of 0, before going deeper",
+            "1's first undiscovered neighbour",
+            "It returns to 0 immediately"
+          ],
+          "answer": 1,
+          "explanation": "DFS follows the newest branch as far as it goes before backtracking to older ones.",
+          "hint": "Depth first: go further before going wider."
+        },
+        {
+          "id": "challenge-dfs-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You need an order for 50,000 tasks where some tasks must finish before others, and the dependencies form no cycle. Which approach fits?",
+          "options": [
+            "Depth-first search, recording each vertex as it finishes, then reversing: O(V + E)",
+            "Breadth-first search distances",
+            "Sorting tasks by name"
+          ],
+          "answer": 0,
+          "explanation": "A vertex finishes only after everything it leads to; the reversed finishing order respects every dependency.",
+          "hint": "When does DFS finish a vertex relative to its descendants?"
+        },
+        {
+          "id": "challenge-dfs-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "DFS from vertex 0 in the six-vertex graph. Fill the table when vertex 2 discovers neighbour 3.",
+          "scene": {
+            "algorithm": "dfs",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 6,
+          "fields": [
+            {
+              "key": "visiting",
+              "label": "Vertex being explored"
+            },
+            {
+              "key": "discovered",
+              "label": "Neighbour just discovered"
+            },
+            {
+              "key": "frontier",
+              "label": "Open frames, bottom to top"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The open frames are the path of vertices entered but not yet finished. Type them comma-separated."
+        }
+      ],
+      "linkedProblems": [
+        "problem-island-groups",
+        "problem-dependency-order"
+      ]
     },
     {
       "id": "lesson-dijkstra",
@@ -3175,7 +3967,78 @@
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-memoization-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "Repeated subproblem evaluation",
+            "All recursion automatically",
+            "The need for a correct recurrence"
+          ],
+          "hint": "A cached state is correct once all dependencies have been computed correctly. The recursive structure remains visible."
+        },
+        {
+          "id": "challenge-memoization-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Memoized F(8) has already computed and cached F(5). Later, a call needs F(5) again. What happens?",
+          "options": [
+            "F(5) is recomputed from scratch",
+            "The cached F(5) is returned without recursing",
+            "F(4) and F(3) are recomputed but not F(5)"
+          ],
+          "answer": 1,
+          "explanation": "Once a state is cached, every later request is a lookup; that is what turns exponential work into linear work.",
+          "hint": "What does the cache hold, and when is it checked?"
+        },
+        {
+          "id": "challenge-memoization-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A recursive solution keeps asking for the same smaller states, but it is not obvious which order would compute them bottom-up. Which approach fits?",
+          "options": [
+            "Memoization: keep the recursion, cache each state",
+            "Plain recursion",
+            "Sort the states first"
+          ],
+          "answer": 0,
+          "explanation": "Memoization keeps the natural top-down recursion and still solves each state once.",
+          "hint": "The recursion is already correct; only the repetition is the problem."
+        },
+        {
+          "id": "challenge-memoization-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Memoized F(8). Fill the table when F(3) returns its value.",
+          "scene": {
+            "algorithm": "memoization",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 8,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 15,
+          "fields": [
+            {
+              "key": "n",
+              "label": "State returned"
+            },
+            {
+              "key": "result",
+              "label": "Value returned"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "F(0) = 0, F(1) = 1, F(2) = 1."
+        }
+      ],
+      "linkedProblems": [
+        "problem-small-coins",
+        "problem-nonadjacent-stops"
+      ]
     },
     {
       "id": "lesson-tabulation",
@@ -3682,7 +4545,10 @@
         "answer": 1,
         "explanation": "There are 4 choices for each of two indices: 4 × 4 = 16."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-triangular-total",
+        "problem-pair-energy"
+      ],
       "title": "Time and Space Complexity",
       "subtitle": "Time and Space Complexity",
       "conceptId": "concept-complexity",
@@ -3815,7 +4681,70 @@
         "input": "8",
         "target": 8
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-complexity-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "A square nested loop visits every pair for n=4. How many visits?",
+          "options": [
+            "8",
+            "16",
+            "4"
+          ],
+          "hint": "The operation counter increases once for each visit of the selected loop body."
+        },
+        {
+          "id": "challenge-complexity-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "With n = 8, a single scan makes 8 visits. How many visits does the square nested loop make?",
+          "options": [
+            "16: two loops means twice the work",
+            "64: every outer visit runs the full inner loop",
+            "8: nesting does not add visits"
+          ],
+          "answer": 1,
+          "explanation": "The inner loop runs n times for each of the n outer iterations: 8 × 8 = 64 visits.",
+          "hint": "Count how many times the inner body runs for one outer iteration, then multiply."
+        },
+        {
+          "id": "challenge-complexity-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "An input doubles from 50,000 to 100,000 values and the running time roughly quadruples. Which loop shape explains that?",
+          "options": [
+            "A single scan: O(n)",
+            "A square nested loop: O(n²)",
+            "Repeated halving: O(log n)"
+          ],
+          "answer": 1,
+          "explanation": "Doubling n quadruples n². A scan would only double; halving would add about one iteration.",
+          "hint": "Compare (2n)² with n², 2n with n, and log(2n) with log n."
+        },
+        {
+          "id": "challenge-complexity-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Fill the table after the nested loop has counted row 1 of the ordered pairs (n = 8).",
+          "scene": {
+            "algorithm": "complexity",
+            "seed": 42,
+            "input": "8",
+            "target": 8
+          },
+          "traceStep": 10,
+          "fields": [
+            {
+              "key": "pairs",
+              "label": "Pair visits so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Rows 0 and 1 have each contributed n visits."
+        }
+      ]
     },
     {
       "id": "lesson-arrays",
@@ -3845,7 +4774,10 @@
         "answer": 1,
         "explanation": "Only the first two slots have been consumed: 2 + 1 = 3."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-silent-sensors",
+        "problem-longest-run"
+      ],
       "title": "Arrays",
       "subtitle": "Arrays",
       "conceptId": "concept-arrays",
@@ -3978,7 +4910,74 @@
         "input": "2,1,5",
         "target": 0
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-arrays-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "After visiting indices 0 and 1 of [2,1,5], what is total?",
+          "options": [
+            "2",
+            "3",
+            "8"
+          ],
+          "hint": "Before index i, total equals the sum of a[0..i)."
+        },
+        {
+          "id": "challenge-arrays-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Summing 2, 1, 5 left to right: what is the running total after reading index 1?",
+          "options": [
+            "2",
+            "3",
+            "8"
+          ],
+          "answer": 1,
+          "explanation": "Only indices 0 and 1 have been read: 2 + 1 = 3. Index 2 has not been consumed yet.",
+          "hint": "The running total covers exactly the slots read so far."
+        },
+        {
+          "id": "challenge-arrays-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must report how many readings equal zero in one pass and may not change the input. Which approach fits?",
+          "options": [
+            "Sort first, then count the zeros: O(n log n)",
+            "Scan once with a counter: O(n), O(1) extra",
+            "Try every pair of positions: O(n²)"
+          ],
+          "answer": 1,
+          "explanation": "Each slot is inspected once by index; nothing about the question needs order or pairs.",
+          "hint": "Ask whether the answer depends on order, pairs, or just each value on its own."
+        },
+        {
+          "id": "challenge-arrays-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Fill the table immediately after slot 1 has been read.",
+          "scene": {
+            "algorithm": "arrays",
+            "seed": 42,
+            "input": "2,1,5",
+            "target": 0
+          },
+          "traceStep": 2,
+          "fields": [
+            {
+              "key": "i",
+              "label": "Index just read"
+            },
+            {
+              "key": "total",
+              "label": "Running total"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Indices start at zero, and the total includes every slot read so far."
+        }
+      ]
     },
     {
       "id": "lesson-strings",
@@ -4008,7 +5007,10 @@
         "answer": 1,
         "explanation": "The final character is t; append it first."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-vowel-count",
+        "problem-digit-total"
+      ],
       "title": "Strings",
       "subtitle": "Strings",
       "conceptId": "concept-strings",
@@ -4143,7 +5145,75 @@
         "target": 0,
         "words": "cat"
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-strings-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "After reading index 2 of \"cat\", what is in the output buffer?",
+          "options": [
+            "c",
+            "t",
+            "cat"
+          ],
+          "hint": "After k iterations, the buffer contains the final k characters in reverse order."
+        },
+        {
+          "id": "challenge-strings-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Reversing \"cat\" into a separate output buffer, reading from the end: what is the output after two characters?",
+          "options": [
+            "\"ca\"",
+            "\"ta\"",
+            "\"at\""
+          ],
+          "answer": 1,
+          "explanation": "Reading starts at index 2 (\"t\"), then index 1 (\"a\"): the buffer holds \"ta\".",
+          "hint": "The source is read backwards; the output is written forwards."
+        },
+        {
+          "id": "challenge-strings-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must check whether a line of text reads the same backwards, without building any extra string. Which approach fits?",
+          "options": [
+            "Two indices moving inwards from both ends: O(n)",
+            "Sort the characters and compare: O(n log n)",
+            "Compare every pair of characters: O(n²)"
+          ],
+          "answer": 0,
+          "explanation": "Each outer pair is compared once; sorting would throw away the order a palindrome depends on.",
+          "hint": "A palindrome compares position i with position n-1-i."
+        },
+        {
+          "id": "challenge-strings-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Reverse \"cat\". Fill the table after the second character has been copied.",
+          "scene": {
+            "algorithm": "strings",
+            "seed": 42,
+            "input": "",
+            "target": 0,
+            "words": "cat"
+          },
+          "traceStep": 2,
+          "fields": [
+            {
+              "key": "index",
+              "label": "Source index just read"
+            },
+            {
+              "key": "output",
+              "label": "Output so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The first copy read index 2. Type the output without quotes."
+        }
+      ]
     },
     {
       "id": "lesson-hashing",
@@ -4178,7 +5248,10 @@
         "answer": 1,
         "explanation": "Both earlier values have been inserted; the set does not store duplicate entries."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-distinct-stations",
+        "problem-equal-pairs"
+      ],
       "title": "Hash Maps and Sets",
       "subtitle": "Hash Maps and Sets",
       "conceptId": "concept-hashing",
@@ -4321,7 +5394,78 @@
         "input": "2,1,6,2,5",
         "target": 0
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-hashing-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Before processing the final 2 in [2,1,2], which values are in seen?",
+          "options": [
+            "{2}",
+            "{1,2}",
+            "{}"
+          ],
+          "hint": "Before reading position i, seen contains exactly the values at earlier positions."
+        },
+        {
+          "id": "challenge-hashing-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Counting 2, 1, 6, 2, 5 in a hash map: what happens when the second 2 arrives?",
+          "options": [
+            "A second entry for 2 is created",
+            "The existing entry for 2 goes from count 1 to 2",
+            "It is ignored because 2 and 6 share a bucket"
+          ],
+          "answer": 1,
+          "explanation": "Equality finds the existing key, so its count is incremented; sharing a bucket with 6 never merges different keys.",
+          "hint": "Buckets only narrow the search; equality decides whether a key already exists."
+        },
+        {
+          "id": "challenge-hashing-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You need the number of distinct readings among 100,000 values, in any order. Which approach fits?",
+          "options": [
+            "A hash set: O(n) expected",
+            "Compare each value with all earlier ones: O(n²)",
+            "Binary search in the unsorted input: O(n log n)"
+          ],
+          "answer": 0,
+          "explanation": "Each value is inserted once and repeats are absorbed. Binary search needs sorted data.",
+          "hint": "Think about what must be remembered about values already seen."
+        },
+        {
+          "id": "challenge-hashing-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Count 2, 1, 6, 2, 5. Fill the table immediately after the second 2 has been counted.",
+          "scene": {
+            "algorithm": "hashing",
+            "seed": 42,
+            "input": "2,1,6,2,5",
+            "target": 0
+          },
+          "traceStep": 8,
+          "fields": [
+            {
+              "key": "key",
+              "label": "Key just counted"
+            },
+            {
+              "key": "count",
+              "label": "Its count"
+            },
+            {
+              "key": "unique",
+              "label": "Distinct keys so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Three different keys (2, 1, 6) had been inserted before the repeat."
+        }
+      ]
     },
     {
       "id": "lesson-prefix-sums",
@@ -4355,7 +5499,10 @@
         "answer": 1,
         "explanation": "Subtract the sum before boundary 1 from the sum before boundary 3."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-running-altitude",
+        "problem-balance-position"
+      ],
       "title": "Prefix Sums",
       "subtitle": "Prefix Sums",
       "conceptId": "concept-prefix-sums",
@@ -4501,7 +5648,79 @@
         "target": 0,
         "words": "1,3"
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-prefix-sums-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "For prefix=[0,2,3,8], which expression gives a[1..3)?",
+          "options": [
+            "8-3",
+            "8-2",
+            "3-2"
+          ],
+          "hint": "prefix[i] equals the sum of the first i values; prefix[0] is zero."
+        },
+        {
+          "id": "challenge-prefix-sums-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Prefix sums of 2, 1, 5 are 0, 2, 3, 8. What is the sum of the readings from boundary 1 to boundary 3?",
+          "options": [
+            "8 - 2 = 6",
+            "3 - 0 = 3",
+            "8 + 2 = 10"
+          ],
+          "answer": 0,
+          "explanation": "The range sum is prefix[right] - prefix[left]: 8 - 2 = 6, which is 1 + 5.",
+          "hint": "A range sum is the difference of two prefix values, not their sum."
+        },
+        {
+          "id": "challenge-prefix-sums-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You will answer 50,000 range-sum queries over a fixed list of 100,000 values. Which approach fits?",
+          "options": [
+            "Add the range from scratch for each query: O(n) per query",
+            "Build prefix sums once: O(n), then O(1) per query",
+            "Sort the values first"
+          ],
+          "answer": 1,
+          "explanation": "One pass builds every prefix; each query then costs one subtraction.",
+          "hint": "The data never changes, so work done once can serve every query."
+        },
+        {
+          "id": "challenge-prefix-sums-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Values 2, 1, 5 and the query from boundary 1 to boundary 3. Fill the table at the final query step.",
+          "scene": {
+            "algorithm": "prefix-sums",
+            "seed": 42,
+            "input": "2,1,5",
+            "target": 0,
+            "words": "1,3"
+          },
+          "traceStep": 4,
+          "fields": [
+            {
+              "key": "left",
+              "label": "Left boundary"
+            },
+            {
+              "key": "right",
+              "label": "Right boundary"
+            },
+            {
+              "key": "result",
+              "label": "Range sum"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "prefix = 0, 2, 3, 8. Subtract the value at the left boundary from the value at the right boundary."
+        }
+      ]
     },
     {
       "id": "lesson-variable-window",
@@ -4536,7 +5755,10 @@
         "answer": 1,
         "explanation": "The old b remains, so shrink again until the duplicate is removed."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-longest-unique",
+        "problem-distinct-windows"
+      ],
       "title": "Variable-Size Sliding Window",
       "subtitle": "Variable-Size Sliding Window",
       "conceptId": "concept-variable-window",
@@ -4677,7 +5899,78 @@
         "target": 0,
         "words": "abba"
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-variable-window-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "When the second b arrives in \"abba\", is removing only the first a enough?",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "hint": "After shrinking, all characters in the current frame are distinct."
+        },
+        {
+          "id": "challenge-variable-window-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Longest stretch without a repeated letter in \"abba\": the window holds \"ab\" when the second \"b\" arrives. What must happen?",
+          "options": [
+            "Shrink from the left until no letter repeats",
+            "Restart the window at the next letter",
+            "Accept the repeat and grow anyway"
+          ],
+          "answer": 0,
+          "explanation": "Removing from the left restores the rule while keeping as much of the window as possible; the best length so far is still 2.",
+          "hint": "The window shrinks only as much as the rule requires."
+        },
+        {
+          "id": "challenge-variable-window-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "Find the length of the longest substring with no repeated character in a 100,000-character string. Which approach fits?",
+          "options": [
+            "Check every substring: O(n²) or worse",
+            "A window that grows right and shrinks left, with a set: O(n)",
+            "Sort the characters"
+          ],
+          "answer": 1,
+          "explanation": "Each character enters and leaves the window at most once.",
+          "hint": "Count how many times each index can enter and leave the window."
+        },
+        {
+          "id": "challenge-variable-window-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "In \"abba\", fill the table once the second \"b\" (index 2) has forced the window to shrink until no letter repeats.",
+          "scene": {
+            "algorithm": "variable-window",
+            "seed": 42,
+            "input": "",
+            "target": 0,
+            "words": "abba"
+          },
+          "traceStep": 4,
+          "fields": [
+            {
+              "key": "left",
+              "label": "Left index"
+            },
+            {
+              "key": "right",
+              "label": "Right index"
+            },
+            {
+              "key": "best",
+              "label": "Best length so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Both letters at the front must leave before the window holds only the new \"b\"."
+        }
+      ]
     },
     {
       "id": "lesson-intervals",
@@ -4711,7 +6004,10 @@
         "answer": 0,
         "explanation": "Both contain 2, so the merged interval is [1,3]."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-minimum-gap",
+        "problem-distinct-sorted"
+      ],
       "title": "Intervals",
       "subtitle": "Intervals",
       "conceptId": "concept-intervals",
@@ -4843,7 +6139,69 @@
         "input": "1,3,2,6,8,10",
         "target": 0
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-intervals-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "With closed endpoints, do [1,2] and [2,3] merge?",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "hint": "Output segments are disjoint and cover exactly the processed input intervals."
+        },
+        {
+          "id": "challenge-intervals-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Merging [1,3], [2,6] and [8,10] after sorting by start: what happens to [2,6]?",
+          "options": [
+            "It starts a new interval",
+            "It extends [1,3] to [1,6]",
+            "It is dropped as a duplicate"
+          ],
+          "answer": 1,
+          "explanation": "2 ≤ 3, so the intervals overlap; the merged end becomes max(3, 6) = 6.",
+          "hint": "Compare the new start with the end of the last merged interval."
+        },
+        {
+          "id": "challenge-intervals-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You have 50,000 meeting times as start-end pairs in no order and must report the busy periods. Which approach fits?",
+          "options": [
+            "Sort by start, then sweep and merge: O(n log n)",
+            "Compare every pair: O(n²)",
+            "Sort by length"
+          ],
+          "answer": 0,
+          "explanation": "Once sorted by start, only the last merged interval can overlap the next one.",
+          "hint": "What does sorting by start guarantee about which interval can overlap next?"
+        },
+        {
+          "id": "challenge-intervals-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Merge [1,3], [2,6], [8,10]. Fill the table immediately after [2,6] has been processed.",
+          "scene": {
+            "algorithm": "intervals",
+            "seed": 42,
+            "input": "1,3,2,6,8,10",
+            "target": 0
+          },
+          "traceStep": 3,
+          "fields": [
+            {
+              "key": "merged",
+              "label": "Merged intervals so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "An overlapping interval extends the last one rather than adding a new one."
+        }
+      ]
     },
     {
       "id": "lesson-matrices",
@@ -4875,7 +6233,10 @@
         "answer": 0,
         "explanation": "Swap the row and column coordinates."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-left-rotation",
+        "problem-adjacent-rise"
+      ],
       "title": "Matrices and Grid Coordinates",
       "subtitle": "Matrices and Grid Coordinates",
       "conceptId": "concept-matrices",
@@ -5012,7 +6373,74 @@
         "input": "1,2,3,4,5,6",
         "target": 3
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-matrices-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Where does source cell (1,2) go during transpose?",
+          "options": [
+            "(2,1)",
+            "(1,2)",
+            "(0,1)"
+          ],
+          "hint": "Every copied source cell a[r][c] appears at out[c][r]."
+        },
+        {
+          "id": "challenge-matrices-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Transposing a 2 × 3 matrix: where does the value at row 1, column 0 go?",
+          "options": [
+            "Row 1, column 0",
+            "Row 0, column 1",
+            "Row 2, column 1"
+          ],
+          "answer": 1,
+          "explanation": "A transpose swaps the two indices: (r, c) goes to (c, r), so (1, 0) goes to (0, 1).",
+          "hint": "Swap the row and column numbers."
+        },
+        {
+          "id": "challenge-matrices-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must rotate a square image 90° clockwise. Which description fits?",
+          "options": [
+            "Transpose, then reverse each row",
+            "Sort every row",
+            "Reverse the order of rows only"
+          ],
+          "answer": 0,
+          "explanation": "Transposing turns rows into columns; reversing each row then gives the clockwise rotation.",
+          "hint": "Try it on a 2 × 2 example: [[1,2],[3,4]] should become [[3,1],[4,2]]."
+        },
+        {
+          "id": "challenge-matrices-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Transpose the 2 × 3 matrix 1 2 3 / 4 5 6. Fill the table at the copy of source cell (1, 0).",
+          "scene": {
+            "algorithm": "matrices",
+            "seed": 42,
+            "input": "1,2,3,4,5,6",
+            "target": 3
+          },
+          "traceStep": 4,
+          "fields": [
+            {
+              "key": "output row",
+              "label": "Output row"
+            },
+            {
+              "key": "output column",
+              "label": "Output column"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The transpose maps (r, c) to (c, r)."
+        }
+      ]
     },
     {
       "id": "lesson-graphs",
@@ -5047,7 +6475,10 @@
         "answer": 1,
         "explanation": "Store 1 under 0 and 0 under 1, unless using a different explicitly documented representation."
       },
-      "linkedProblems": [],
+      "linkedProblems": [
+        "problem-incoming-links",
+        "problem-outgoing-links"
+      ],
       "title": "Graph Representation",
       "subtitle": "Graph Representation",
       "conceptId": "concept-graphs",
@@ -5186,7 +6617,78 @@
         "input": "0,1,0,2,2,3",
         "target": 4
       },
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-graphs-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "For an undirected edge between 0 and 1, which rows need entries?",
+          "options": [
+            "Only row 0",
+            "Rows 0 and 1",
+            "No rows"
+          ],
+          "hint": "Every supplied directed edge u→v contributes v to exactly the outgoing row for u."
+        },
+        {
+          "id": "challenge-graphs-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "A directed graph has 4 vertices and edges 0→1, 0→2, 2→3. Which row of the adjacency list holds the edge 2→3?",
+          "options": [
+            "Vertex 3's row",
+            "Vertex 2's row",
+            "Both rows"
+          ],
+          "answer": 1,
+          "explanation": "A directed edge is stored in its source row only; vertex 3 does not point back to 2.",
+          "hint": "Directed edges belong to the vertex they leave."
+        },
+        {
+          "id": "challenge-graphs-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A sparse graph has 100,000 vertices and 200,000 edges, and you will visit every vertex's neighbours. Which representation fits?",
+          "options": [
+            "An adjacency matrix: O(V²) memory",
+            "Adjacency lists: O(V + E) memory",
+            "One sorted list of all edges"
+          ],
+          "answer": 1,
+          "explanation": "Lists store only the edges that exist; a 100,000 × 100,000 matrix would be about 10 billion cells.",
+          "hint": "Compare V² with V + E for these numbers."
+        },
+        {
+          "id": "challenge-graphs-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Store edges 0→1, 0→2, 2→3 for 4 vertices. Fill the table after the second edge has been stored.",
+          "scene": {
+            "algorithm": "graphs",
+            "seed": 42,
+            "input": "0,1,0,2,2,3",
+            "target": 4
+          },
+          "traceStep": 2,
+          "fields": [
+            {
+              "key": "from",
+              "label": "Source vertex"
+            },
+            {
+              "key": "to",
+              "label": "Target vertex"
+            },
+            {
+              "key": "edges",
+              "label": "Edges stored"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Edges are stored in the order given."
+        }
+      ]
     }
   ],
   "problems": [
