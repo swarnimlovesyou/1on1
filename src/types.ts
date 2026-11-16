@@ -181,6 +181,7 @@ export interface Note {
   title: string;
   text: string;
   lesson: string;
+  problem?: string;
   reviewed: boolean;
   createdAt: string;
 }
@@ -218,6 +219,8 @@ export interface MapConcept {
   challenges: { passed: number; total: number };
   problems: { accepted: number; total: number };
   evidence: string[];
+  notes: NoteLink[];
+  missed?: MissedChallenge;
   review?: { stage: number; dueOn: string | null; due: boolean; lastOutcome: string; reviews: number };
 }
 export interface ReviewDue {
@@ -227,6 +230,18 @@ export interface ReviewDue {
   overdueDays: number;
   lastOutcome: string;
   lessonId: string | null;
+  notes: NoteLink[];
+  missed?: MissedChallenge;
+}
+export interface NoteLink {
+  id: string;
+  title: string;
+}
+/** The most recent challenge the learner missed and has not passed since. */
+export interface MissedChallenge {
+  challengeId: string;
+  lessonId: string;
+  title: string;
 }
 export interface NextAction {
   kind: "review" | "task" | "learn" | "practice" | "done";

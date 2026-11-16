@@ -5,6 +5,7 @@ import { api } from "../api";
 import type { CoachNudge, CoachView } from "../types";
 import { useApp } from "../context";
 import { Loading, ErrorState } from "./Shared";
+import LinkedNotes from "./LinkedNotes";
 
 const kindLabel: Record<CoachNudge["kind"], string> = {
   question: "A question first",
@@ -184,6 +185,7 @@ export default function CoachPanel({
           onSaved={update}
         />
       )}
+      <LinkedNotes problem={problem} />
     </div>
   );
 }

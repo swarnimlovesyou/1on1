@@ -213,6 +213,10 @@ function NotesContent() {
                   <Link to={"/learn/" + n.lesson}>
                     Back to concept <ArrowUpRight size={14} />
                   </Link>
+                ) : n.problem ? (
+                  <Link to={"/practice/" + n.problem}>
+                    Back to problem <ArrowUpRight size={14} />
+                  </Link>
                 ) : (
                   <span>Personal thought</span>
                 )}

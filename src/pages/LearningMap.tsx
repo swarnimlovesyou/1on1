@@ -190,7 +190,11 @@ export function ReviewsDue() {
         1, then 3, then 7 days. A miss brings it back tomorrow.
       </p>
       {due.map((r) => (
-        <Link key={r.conceptId} to={r.lessonId ? "/learn/" + r.lessonId : "/learn"} className="review-row">
+        <Link
+          key={r.conceptId}
+          to={r.missed ? `/learn/${r.missed.lessonId}#checkpoint` : r.lessonId ? "/learn/" + r.lessonId : "/learn"}
+          className="review-row"
+        >
           <ClockCounterClockwise size={19} />
           <span>
             <strong>{r.title}</strong>
@@ -199,7 +203,9 @@ export function ReviewsDue() {
                 ? `Due ${r.overdueDays} day${r.overdueDays === 1 ? "" : "s"} ago`
                 : "Due today"}
               {r.lastOutcome === "missed" ? " · missed last time" : ""}
+              {r.notes.length > 0 && ` · ${r.notes.length} note${r.notes.length === 1 ? "" : "s"} of yours`}
             </small>
+            {r.missed && <small>Retry “{r.missed.title}”</small>}
           </span>
           <ArrowRight size={16} />
         </Link>

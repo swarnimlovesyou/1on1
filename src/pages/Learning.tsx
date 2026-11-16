@@ -39,6 +39,7 @@ import {
 import Experiment from "../components/Experiment";
 import Tutor from "../components/Tutor";
 import ChallengeCard from "../components/ChallengeCard";
+import LinkedNotes from "../components/LinkedNotes";
 import { ConceptMap, NextActionCard, ReviewsDue, useLearningMap } from "./LearningMap";
 const sampleScene: Scene = {
   algorithm: "sliding-window",
@@ -859,6 +860,7 @@ export function NotebookPage() {
               Save thought <BookmarkSimple size={15} />
             </button>
           </div>
+          <LinkedNotes lesson={l.id} />
         </section>
         <section id="practice">
           <h2>Understanding loves a little practice.</h2>

@@ -253,6 +253,7 @@ export default function Tutor({
                           title: "A note from 1on1",
                           text: m.text,
                           lesson: lesson ?? "",
+                          ...(!lesson && problem ? { problem } : {}),
                           ...(m.scene ? { experiment: m.scene } : {}),
                         });
                         reload();
