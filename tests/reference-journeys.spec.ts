@@ -209,9 +209,10 @@ test("tutor history recovers from a failed load and stays scoped to its lesson",
   ).toBeVisible();
   await page.goto("/learn/lesson-bst");
   await page.getByRole("button", { name: "Ask 1on1" }).click();
+  // the new lesson's conversation starts empty, with its own suggestions (usable once AI is configured)
   await expect(
-    page.getByRole("button", { name: "Give me a hint without the solution" }),
-  ).toBeEnabled();
+    page.getByRole("button", { name: "Give me a hint for this lesson's challenge" }),
+  ).toBeVisible();
   await expect(
     page.getByText("My saved frontier question", { exact: true }),
   ).toHaveCount(0);

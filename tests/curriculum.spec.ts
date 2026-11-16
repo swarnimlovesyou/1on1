@@ -29,8 +29,9 @@ test("all core notebooks expose real curriculum content and canonical references
     await expect(
       page.getByRole("heading", { name: lesson.title, exact: true, level: 1 }),
     ).toBeVisible();
+    // a lesson may teach its own code when its animation runs more than the concept's example (Merge Sort)
     await expect(page.locator("#code pre")).toContainText(
-      concept.java.implementation.split("\n")[0],
+      (lesson.teaching?.java ?? concept.java).implementation.split("\n")[0],
     );
     await expect(
       page
