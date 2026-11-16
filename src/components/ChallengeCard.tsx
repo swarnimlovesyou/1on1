@@ -18,11 +18,14 @@ export default function ChallengeCard({
   const [choice, setChoice] = useState<number>();
   const [fields, setFields] = useState<Record<string, string>>({});
   const [hint, setHint] = useState(false);
+  // opening the hint before answering is review evidence: a hinted success repeats its interval
+  const [hintSeen, setHintSeen] = useState(false);
   const mutation = useMutation({
     mutationFn: (answer: unknown) =>
       api<AttemptResult>(`/challenges/${challenge.id}/attempts`, {
         answer,
         requestId: crypto.randomUUID(),
+        hintUsed: hintSeen,
       }),
     onSuccess: () => {
       if (user) reload();
@@ -130,7 +133,10 @@ export default function ChallengeCard({
         </button>
         <button
           className="hint-link"
-          onClick={() => setHint(!hint)}
+          onClick={() => {
+            setHint(!hint);
+            setHintSeen(true);
+          }}
           aria-expanded={hint}
         >
           <Lightbulb size={17} />

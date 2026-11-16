@@ -184,6 +184,15 @@ export interface Note {
   reviewed: boolean;
   createdAt: string;
 }
+export interface PlanTask {
+  id: string;
+  kind: "problem";
+  problemId: string;
+  adds: string[];
+  date: string;
+  done: boolean;
+  doneAt: string | null;
+}
 export interface Plan {
   id: string;
   title: string;
@@ -192,6 +201,45 @@ export interface Plan {
   uncovered: string[];
   perDay: number;
   method: string;
+  /** Dated tasks; plans made before tasks existed have none until re-planned. */
+  tasks?: PlanTask[];
+  startDate?: string;
+}
+export type EvidenceState = "new" | "explored" | "passed" | "accepted";
+export interface MapConcept {
+  id: string;
+  title: string;
+  order: number;
+  prerequisites: string[];
+  lessonIds: string[];
+  problemIds: string[];
+  state: EvidenceState;
+  explored: boolean;
+  challenges: { passed: number; total: number };
+  problems: { accepted: number; total: number };
+  evidence: string[];
+  review?: { stage: number; dueOn: string | null; due: boolean; lastOutcome: string; reviews: number };
+}
+export interface ReviewDue {
+  conceptId: string;
+  title: string;
+  dueOn: string;
+  overdueDays: number;
+  lastOutcome: string;
+  lessonId: string | null;
+}
+export interface NextAction {
+  kind: "review" | "task" | "learn" | "practice" | "done";
+  title: string;
+  reason: string;
+  href: string;
+  conceptId: string | null;
+}
+export interface LearningMap {
+  today: string;
+  concepts: MapConcept[];
+  reviewsDue: ReviewDue[];
+  nextAction: NextAction;
 }
 export interface Submission {
   id: string;
