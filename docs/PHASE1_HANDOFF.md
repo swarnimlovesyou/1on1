@@ -1,5 +1,7 @@
 # Phase 1 handoff — 16 November 2026
 
+**Later curriculum checkpoint:** the owner brought curriculum content forward. Start with [CURRICULUM.md](CURRICULUM.md) and [CURRICULUM_VALIDATION.md](CURRICULUM_VALIDATION.md) for the current 24 concepts / 33 notebooks. This Phase 1 record and its bundle describe the earlier foundation; its test counts/catalogue counts are historical. Practice and UI/UX remain Phase 2; the skill-tree UI is undecided.
+
 **Delivered:** the native application foundation and four expanded reference journeys. **Open gate:** actual Judge0 execution under Docker Desktop. Phase 1 must not be presented as fully accepted until that gate passes. Phases 2 and 3 remain assigned to the two incoming teammates in [the approved plan](IMPLEMENTATION_PLAN.md).
 
 No push or public deployment has been performed. Existing documentation changes were retained. The source checkpoint is a foundation checkpoint, not a declaration that every feature in [FEATURES.md](FEATURES.md) is finished.

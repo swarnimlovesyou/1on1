@@ -49,20 +49,28 @@ public class StudyController {
     @RequestBody StudyContext context
   ) {
     String user = AuthController.user(auth);
-    store.owned(lesson, "public");
+    var source = store.owned(lesson, "public");
     if (
       !lesson.equals(context.lesson()) ||
       context.version() != 1 ||
-      context.scene() == null ||
-      !lesson.equals("lesson-" + context.scene().algorithm())
+      (context.scene() != null &&
+        !lesson.equals("lesson-" + context.scene().algorithm()))
     ) throw new IllegalArgumentException(
       "Save a matching lesson and experiment."
     );
-    var trace = traces.trace(context.scene().toMap());
-    if (
-      context.step() < 0 ||
-      context.step() >= Store.items(trace.get("steps")).size()
-    ) throw new IllegalArgumentException("Choose a step in this experiment.");
+    if (context.scene() == null) {
+      if (
+        source.get("experiment") != null || context.step() != 0
+      ) throw new IllegalArgumentException(
+        "Save an experiment for interactive lessons; reading-only lessons use step zero."
+      );
+    } else {
+      var trace = traces.trace(context.scene().toMap());
+      if (
+        context.step() < 0 ||
+        context.step() >= Store.items(trace.get("steps")).size()
+      ) throw new IllegalArgumentException("Choose a step in this experiment.");
+    }
     if (
       context.section() == null ||
       !context.section().matches("[a-zA-Z0-9_-]{1,80}") ||
@@ -71,7 +79,7 @@ public class StudyController {
     var data = new LinkedHashMap<String, Object>();
     data.put("version", 1);
     data.put("lesson", lesson);
-    data.put("scene", context.scene().toMap());
+    if (context.scene() != null) data.put("scene", context.scene().toMap());
     data.put("step", context.step());
     data.put("section", context.section());
     data.put("codeRevision", Objects.toString(context.codeRevision(), ""));

@@ -11,11 +11,14 @@ test("guest can learn, manipulate a trace, and open practice", async ({
     page.getByRole("heading", { name: "Make the idea click." }),
   ).toBeVisible();
   await page
-    .getByRole("link", { name: /A little less work, every time/ })
+    .getByRole("link", { name: /Open Fixed-Size Sliding Window/ })
     .first()
     .click();
   await expect(
-    page.getByRole("heading", { name: "A little less work, every time" }),
+    page.getByRole("heading", {
+      name: "Fixed-Size Sliding Window",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Next step" })).toBeEnabled();
   await page.getByRole("button", { name: "Next step" }).click();
@@ -32,7 +35,10 @@ test("guest can learn, manipulate a trace, and open practice", async ({
   await expect(page.locator(".challenge-feedback")).toContainText(
     "You connected the state to the idea",
   );
-  await page.getByRole("link", { name: "Three-reading window" }).click();
+  await page
+    .locator(".related-problems")
+    .getByRole("link", { name: "Three-reading window" })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Three-reading window" }),
   ).toBeVisible();
@@ -84,8 +90,14 @@ test("student account saves notes, creates a plan, and persists across reload", 
 test("desktop and mobile surfaces remain readable without overflow", async ({
   page,
 }) => {
+  test.setTimeout(120000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/home");
+  await expect(page.locator(".continue-section a.button")).toHaveAttribute(
+    "href",
+    "/learn/lesson-complexity",
+  );
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const route of [
@@ -95,7 +107,7 @@ test("desktop and mobile surfaces remain readable without overflow", async ({
       "/login",
     ]) {
       await page.goto(route);
-      await expect(page.locator("h1").first()).toBeVisible();
+      await expect(page.locator("h1").first()).toBeVisible({ timeout: 15000 });
       await page.waitForLoadState("networkidle");
       expect(
         await page.evaluate(

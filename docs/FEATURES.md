@@ -4,6 +4,10 @@ Last updated: 15 November 2026.
 
 This document captures the product ideas and decisions agreed with the owner. It describes the intended platform, not a claim that these features are complete. Phase 1 now provides four expanded reference journeys and shared foundations; the full catalogue, review/notebook and advanced tools still require the assigned later phases. Actual Gemini passed, while Docker Desktop blocks actual Judge0 verification. See [PHASE1_HANDOFF.md](PHASE1_HANDOFF.md), [the three-phase plan](IMPLEMENTATION_PLAN.md) and [VALIDATION.md](VALIDATION.md) for current status.
 
+## Curriculum scope update
+
+The owner moved the core curriculum into current work: 24 concepts, 33 notebooks including retained child/advanced lessons, and 1–2 selected question applications per concept. Practice implementation and UI/UX remain Phase 2. The skill-tree interface will be decided after curriculum review. See [the implemented curriculum](CURRICULUM.md).
+
 ## Product direction
 
 **Make it click.** Help learners internalize DSA by manipulating visual models, connecting them to minimal code, recognizing patterns, solving problems, and revisiting mistakes.

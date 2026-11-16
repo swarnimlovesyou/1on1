@@ -30,3 +30,8 @@ Understand before memorizing. Experiments show the real computed steps. Keep stu
 
 ## Accessibility & Inclusion
 Keyboard-operable controls, visible focus, reduced motion, accessible static trace descriptions, responsive mobile layouts.
+
+
+## Curriculum revision — 16 November 2026
+
+The current curriculum has 24 core concepts and 33 notebooks including retained child/advanced lessons. Teach visual concept, minimal Java and 1–2 selected question applications. Use exact topic names and explicit prerequisites. Distinguish authored/verified content from interactive renderer readiness; nine new topics currently have worked visual specifications. Practice implementation and UI/UX refinement remain Phase 2. Decide skill-tree UI timing after curriculum review. Canonical source: docs/CURRICULUM.md and the versioned curriculum resource.

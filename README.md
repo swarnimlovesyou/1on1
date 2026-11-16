@@ -57,7 +57,7 @@ Initial usage limits are 30 AI requests and 50 execution actions per user per UT
 
 ## What is implemented
 
-- Catalogue of 24 lessons and three paths. Sliding window, BST, BFS and tabulation are the four expanded reference journeys; the remaining lessons need the Phase 2 depth and animation pass.
+- Versioned curriculum of **24 core concepts**, 47 canonical application references and three paths, taught as visual model → minimal Java → questions. The catalogue retains all old IDs and now contains **33 notebooks**, including child and advanced lessons. Nine new concepts have worked state specifications rather than an unrelated interactive scene. See [the curriculum](docs/CURRICULUM.md) and [validation](docs/CURRICULUM_VALIDATION.md).
 - 60 original problems across arrays, strings, hashing, sliding windows, sorting, recursion, trees, heaps, graphs, and DP; 442 public/hidden judge fixtures. All 60 Java references pass; the eight problems linked to the reference journeys also have verified Python/C++ references.
 - Version 2 Java traces with stable IDs and semantic operations; reusable playback/renderers, meaningful motion in the four reference journeys, exact seeking, editable inputs/seed, synchronized pseudocode and text transcripts.
 - Java-graded prediction, pattern, manipulation and dry-run challenges; answer keys omitted from initial public content. Contextual Gemini help, real SSE streaming, validated AI experiments and private conversation history. Explanation/visualization/streaming verified live.

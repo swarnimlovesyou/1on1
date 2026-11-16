@@ -99,7 +99,9 @@ export default function SceneCanvas({
                   : i === Number(step.variables.visiting)
                     ? "current"
                     : frontier
-                      ? "queued"
+                      ? step.variables.mode === "dfs"
+                        ? "on path"
+                        : "queued"
                       : visited
                         ? "visited"
                         : "unseen"}

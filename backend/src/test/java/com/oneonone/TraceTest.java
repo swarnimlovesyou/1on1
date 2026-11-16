@@ -138,4 +138,29 @@ class TraceTest {
     );
     assertTrue(Store.items(trace.get("steps")).size() < 1000);
   }
+
+  @Test
+  void dfsFinishesOneBranchBeforeEnteringItsNextSibling() {
+    var trace = engine.trace(
+      Map.of("algorithm", "dfs", "input", "4,2,7,1,3,6")
+    );
+    var steps = Store.items(trace.get("steps"));
+    var entries = new ArrayList<Integer>();
+    var returns = new ArrayList<Integer>();
+    for (var step : steps) {
+      var vars = (Map<String, Object>) step.get("variables");
+      if (step.get("text").toString().startsWith("Enter vertex")) entries.add(
+        ((Number) vars.get("visiting")).intValue()
+      );
+      if (vars.containsKey("returning")) returns.add(
+        ((Number) vars.get("returning")).intValue()
+      );
+    }
+    assertEquals(List.of(0, 1, 2, 3, 4, 5), entries);
+    assertEquals(List.of(5, 4, 3, 2, 1, 0), returns);
+    assertEquals(
+      List.of(0, 1, 2, 3, 4, 5),
+      ((Map<?, ?>) trace.get("result")).get("array")
+    );
+  }
 }

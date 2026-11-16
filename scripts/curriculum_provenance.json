@@ -1,0 +1,613 @@
+{
+  "retrievedAt": "2026-11-16",
+  "sources": [
+    {
+      "id": "company-csv",
+      "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+      "company": "Amazon",
+      "path": "Amazon/5. All.csv",
+      "fileUrl": "https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/2b71796266751b4736a7ef180efb6847879166ee/Amazon/5.%20All.csv",
+      "matchingSelectedQuestions": 42,
+      "method": "Canonical URL matched in the pinned CSV; frequency/acceptance fields are not imported."
+    },
+    {
+      "id": "company-2026",
+      "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+      "company": "Amazon",
+      "path": "amazon/all.csv",
+      "fileUrl": "https://raw.githubusercontent.com/snehasishroy/leetcode-companywise-interview-questions/e095c259cfd036e3ddb6886e84d7075c2faac477/amazon/all.csv",
+      "matchingSelectedQuestions": 42,
+      "method": "Canonical URL matched in the pinned CSV; frequency/acceptance fields are not imported."
+    }
+  ],
+  "observations": {
+    "leetcode-1480": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-121": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-14": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-28": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-217": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-1": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-88": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-912": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-303": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-560": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-125": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-167": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-643": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-3": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-209": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-704": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-35": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-56": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-57": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-867": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-54": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-206": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-21": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-20": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-155": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-933": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-232": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-78": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-39": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-104": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-94": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-700": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-98": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-703": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-1046": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-1791": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-102": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-994": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-200": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-733": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-70": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ],
+    "leetcode-198": [
+      {
+        "sourceId": "company-csv",
+        "company": "Amazon",
+        "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+        "file": "Amazon/5. All.csv"
+      },
+      {
+        "sourceId": "company-2026",
+        "company": "Amazon",
+        "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+        "file": "amazon/all.csv"
+      }
+    ]
+  }
+}

@@ -2,6 +2,10 @@
 
 Approved delivery plan. Phase 1 belongs to the current owner with Codex; Phases 2 and 3 belong to the two incoming teammates, working sequentially. There are no assumed dates or specialisations. The [feature catalogue](FEATURES.md) defines product scope; [Phase 1 handoff](PHASE1_HANDOFF.md) records implementation status and unresolved gates.
 
+## Curriculum scope amendment — 16 November 2026
+
+The owner moved core curriculum work into the current workstream. The approved 24-concept curriculum is now implemented as content, prerequisite metadata and question assignments; see [CURRICULUM.md](CURRICULUM.md). There are 33 retained/additive notebooks, including child lessons and the advanced branch. Phase 2 retains practice implementation, UI/UX refinement, renderer expansion and review/notebook work. The skill-tree UI is a separate decision after curriculum review. The earlier phase descriptions below remain the baseline, subject to this amendment.
+
 ## Delivery approach
 
 Build a working foundation first, then expand the learning experience, then add advanced tools. Each phase includes a refinement pass. Owners may improve layouts, diagrams, animations, explanations and the Blob without replacing dependable contracts or agreed features. Optional enhancements follow the required exit gate; larger ideas go into the backlog.

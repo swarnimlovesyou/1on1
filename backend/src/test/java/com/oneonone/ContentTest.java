@@ -18,7 +18,7 @@ class ContentTest {
     var data = new ObjectMapper().readValue(resource, Map.class);
     var problems = Store.items(data.get("problems"));
     assertEquals(60, problems.size());
-    assertEquals(24, Store.items(data.get("lessons")).size());
+    assertEquals(33, Store.items(data.get("lessons")).size());
     Path dir = Files.createTempDirectory("1on1-references");
     List<String> sources = new ArrayList<>();
     for (int i = 0; i < problems.size(); i++) {

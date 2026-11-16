@@ -52,7 +52,17 @@ public class AdminController {
       ) throw new IllegalArgumentException(
         "Lessons require body text and a checkpoint."
       );
-      traces.trace((Map<String, Object>) b.get("experiment"));
+      if (b.get("experiment") instanceof Map<?, ?> scene) traces.trace(
+        (Map<String, Object>) scene
+      );
+      else if (
+        !(b.get("teaching") instanceof Map<?, ?> teaching) ||
+        !"specification-only".equals(b.get("interactiveStatus")) ||
+        !(teaching.get("java") instanceof Map<?, ?>) ||
+        !(teaching.get("visualization") instanceof Map<?, ?>)
+      ) throw new IllegalArgumentException(
+        "A lesson needs a supported experiment or an explicit visual specification and Java teaching example."
+      );
     }
     if (kind.equals("problem")) {
       if (

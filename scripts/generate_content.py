@@ -219,5 +219,8 @@ for i,t in enumerate(tasks):
 paths=[dict(id='path-foundations',kind='path',title='Build your foundations',description='Start with movement, order, and the structures that make programs work.',lessons=[x['id'] for x in lessons[:9]],color='blue'),dict(id='path-core',kind='path',title='Think in structures',description='Connect trees, graphs, and dynamic programming through working experiments.',lessons=[x['id'] for x in lessons[9:20]],color='green'),dict(id='path-interview',kind='path',title='Reason beyond the obvious',description='Make tradeoffs explicit with text indexes, approximation, and randomized algorithms.',lessons=[x['id'] for x in lessons[20:]],color='orange')]
 from reference_content import enrich
 enrich(lessons, problems)
+from curriculum_content import apply as apply_curriculum, write_artifacts
+curriculum = apply_curriculum(lessons, paths)
+write_artifacts(curriculum)
 out=ROOT/'backend/src/main/resources/content.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(lessons=lessons,problems=problems,paths=paths),ensure_ascii=False,indent=2),encoding='utf-8')
 print(f'Authored {len(lessons)} lessons, {len(problems)} problems, {sum(len(p["tests"]) for p in problems)} judge fixtures, {len(paths)} paths.')

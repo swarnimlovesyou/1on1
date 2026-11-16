@@ -41,6 +41,10 @@ public class ChallengeService {
 
   public static Map<String, Object> publicLesson(Map<String, Object> lesson) {
     var out = new LinkedHashMap<>(lesson);
+    if (lesson.get("teaching") instanceof Map<?, ?> teaching) out.put(
+      "teaching",
+      CurriculumController.publicConcept((Map<String, Object>) teaching)
+    );
     var publicChallenges = authored(lesson)
       .stream()
       .map(challenge -> {

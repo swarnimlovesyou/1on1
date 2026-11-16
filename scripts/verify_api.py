@@ -15,7 +15,8 @@ def req(path,data=None,status=200,token=None):
     except urllib.error.HTTPError as e:
         body=e.read().decode();assert e.code==status,(path,e.code,status,body)
         return json.loads(body)
-lessons=req('/lessons');problems=req('/problems');assert len(lessons)==24 and len(problems)==60
+lessons=req('/lessons');problems=req('/problems');assert len(lessons)==33 and len(problems)==60
+curriculum=req('/curriculum');assert curriculum['version']==1 and len(curriculum['concepts'])==24 and len(curriculum['questions'])==47
 assert all('tests' not in p and 'reference' not in p for p in problems)
 req('/progress',status=401)
 token=req('/auth/session')['csrf']

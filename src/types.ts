@@ -41,7 +41,7 @@ export interface AttemptResult {
 export interface StudyContext {
   version: 1;
   lesson: string;
-  scene: Scene;
+  scene?: Scene;
   step: number;
   section: string;
   codeRevision: string;
@@ -66,13 +66,88 @@ export interface Lesson {
   timeComplexity: string;
   spaceComplexity: string;
   code: string[];
-  experiment: Scene;
+  experiment?: Scene;
+  teaching?: CurriculumConcept;
+  conceptId?: string;
+  branch?: "core" | "advanced";
+  interactiveStatus?: "existing-limited" | "specification-only";
   checkpoint: {
     question: string;
     options: string[];
     id: string;
   };
   prerequisites: string[];
+}
+export interface CurriculumApplication {
+  questionId: string;
+  role: "introduction" | "transfer";
+  connection: string;
+  additionalPrerequisites: string[];
+  perspective: string;
+}
+export interface CurriculumConcept {
+  id: string;
+  title: string;
+  order: number;
+  prerequisites: string[];
+  lessonIds: string[];
+  objectives: string[];
+  mentalModel: string;
+  workedExample: string;
+  invariant: string;
+  commonMistake: string;
+  complexity: { time: string; space: string; assumptions: string };
+  java: {
+    language: "java";
+    implementation: string;
+    source: string;
+    lineAnnotations: { line: number; explanation: string }[];
+  };
+  visualization: {
+    exampleInput: string;
+    expectedStates: string[];
+    manipulation: string;
+    limits: string;
+    interactiveStatus: string;
+    gaps: string[];
+    scene?: Scene;
+  };
+  applications: CurriculumApplication[];
+  contentStatus: "authored";
+  practiceStatus: "planned-phase-2";
+}
+export interface QuestionReference {
+  id: string;
+  title: string;
+  kind: "external-reference" | "original-exercise" | "local-problem-reference";
+  canonicalUrl: string | null;
+  localProblemId?: string | null;
+  conceptTags: string[];
+  progressiveHints: string[];
+  approachOutline: string;
+  provenance: { sourceIds: string[]; selectionBasis: string };
+}
+export interface CurriculumManifest {
+  version: 1;
+  title: string;
+  conceptCount: number;
+  flow: string[];
+  concepts: CurriculumConcept[];
+  questions: QuestionReference[];
+  sources: {
+    id: string;
+    url?: string | null;
+    retrievedAt: string;
+    revision?: string | null;
+    snapshotDate?: string | null;
+    use: string;
+  }[];
+  advancedBranch: {
+    lessonId: string;
+    title: string;
+    prerequisites: string[];
+  }[];
+  delivery: { skillTreeUi: string; practice: string; uiUx: string };
 }
 export interface Problem {
   id: string;

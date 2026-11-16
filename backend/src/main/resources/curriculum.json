@@ -1,0 +1,4530 @@
+{
+  "version": 1,
+  "title": "1on1 Core Curriculum",
+  "conceptCount": 24,
+  "flow": [
+    "visual-concept",
+    "minimal-java",
+    "question-applications"
+  ],
+  "sources": [
+    {
+      "id": "handbook",
+      "url": "https://www.techinterviewhandbook.org/algorithms/study-cheatsheet/",
+      "retrievedAt": "2026-11-16",
+      "use": "Concept coverage, constraints and edge cases."
+    },
+    {
+      "id": "grind75",
+      "url": "https://www.techinterviewhandbook.org/grind75/faq",
+      "retrievedAt": "2026-11-16",
+      "use": "Pattern progression; prerequisite knowledge before mixed practice."
+    },
+    {
+      "id": "company-csv",
+      "url": "https://github.com/liquidslr/leetcode-company-wise-problems",
+      "fileUrl": "https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/2b71796266751b4736a7ef180efb6847879166ee/Amazon/5.%20All.csv",
+      "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+      "retrievedAt": "2026-11-16",
+      "snapshotDate": null,
+      "dateNote": "README states 2025-06-01; repository About states 2025-10-20. Freshness is ambiguous.",
+      "use": "Inspected title/topic metadata as a supporting relevance signal. No frequency aggregation or employer verification.",
+      "company": "Amazon",
+      "path": "Amazon/5. All.csv",
+      "matchingSelectedQuestions": 42,
+      "method": "Canonical URL matched in the pinned CSV; frequency/acceptance fields are not imported."
+    },
+    {
+      "id": "company-2026",
+      "url": "https://github.com/snehasishroy/leetcode-companywise-interview-questions",
+      "fileUrl": "https://raw.githubusercontent.com/snehasishroy/leetcode-companywise-interview-questions/e095c259cfd036e3ddb6886e84d7075c2faac477/amazon/all.csv",
+      "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+      "snapshotDate": "2026-07-12",
+      "retrievedAt": "2026-11-16",
+      "use": "Secondary inspected schema/snapshot; no assumption of independent frequency evidence.",
+      "company": "Amazon",
+      "path": "amazon/all.csv",
+      "matchingSelectedQuestions": 42,
+      "method": "Canonical URL matched in the pinned CSV; frequency/acceptance fields are not imported."
+    },
+    {
+      "id": "leetcode-canonical",
+      "url": "https://leetcode.com/problemset/",
+      "retrievedAt": "2026-11-16",
+      "use": "Canonical external question IDs/links; availability checked by learner at source; not a statement import."
+    },
+    {
+      "id": "1on1-original",
+      "url": null,
+      "retrievedAt": "2026-11-16",
+      "use": "Original authored teaching exercises and existing local problem."
+    }
+  ],
+  "concepts": [
+    {
+      "id": "concept-complexity",
+      "title": "Time and Space Complexity",
+      "order": 1,
+      "prerequisites": [],
+      "lessonIds": [
+        "lesson-complexity"
+      ],
+      "objectives": [
+        "Count repeated operations rather than guessing from syntax.",
+        "Separate input storage, auxiliary space and output size."
+      ],
+      "mentalModel": "Treat a loop as a counter of work. Doubling the input doubles a full scan, roughly quadruples a square nested loop, and adds about one iteration to repeated halving.",
+      "workedExample": "For n=8, a scan performs 8 visits, a square nested loop performs 64 visits, and repeated integer halving visits 8,4,2,1: 4 iterations. These counts describe the defined operations, not elapsed milliseconds.",
+      "invariant": "The operation counter increases once for each visit of the selected loop body.",
+      "commonMistake": "Two nested loops are not automatically quadratic: their bounds and dependencies determine the count. Big-O is a growth bound, not an exact runtime.",
+      "complexity": {
+        "time": "O(n), O(n²), O(log n) for the three loops",
+        "space": "O(1) auxiliary",
+        "assumptions": "n >= 0; counting loop-body visits, excluding printing."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static long[] counts(int n) {\n        if (n < 0) throw new IllegalArgumentException(\"n must be nonnegative\");\n        long scan = 0, square = 0, halves = 0;\n        for (int i = 0; i < n; i++) scan++;\n        for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) square++;\n        for (int x = n; x > 0; x /= 2) halves++;\n        return new long[]{scan, square, halves};\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic long[] counts(int n) {\n        if (n < 0) throw new IllegalArgumentException(\"n must be nonnegative\");\n        long scan = 0, square = 0, halves = 0;\n        for (int i = 0; i < n; i++) scan++;\n        for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) square++;\n        for (int x = n; x > 0; x /= 2) halves++;\n        return new long[]{scan, square, halves};\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(counts(8))",
+            "expected": "[8, 64, 4]"
+          },
+          {
+            "expression": "Arrays.toString(counts(0))",
+            "expected": "[0, 0, 0]"
+          },
+          {
+            "expression": "Arrays.toString(counts(1))",
+            "expected": "[1, 1, 1]"
+          },
+          {
+            "expression": "counts(-1)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Each halving iteration reduces the remaining scale; contrast its count with the two earlier loops."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "A square nested loop visits every pair for n=4. How many visits?",
+        "options": [
+          "8",
+          "16",
+          "4"
+        ],
+        "answer": 1,
+        "explanation": "There are 4 choices for each of two indices: 4 × 4 = 16."
+      },
+      "visualization": {
+        "exampleInput": "n=8",
+        "expectedStates": [
+          "scan: 8",
+          "square: 64",
+          "halving: 8 → 4 → 2 → 1"
+        ],
+        "manipulation": "Change n to 4 or 16 and predict the counters before comparing.",
+        "limits": "Nonnegative n; teaching counter only, not a runtime profiler.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "original-operation-counts",
+          "role": "introduction",
+          "connection": "Apply counters to actual loop bodies.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "original-growth-comparison",
+          "role": "transfer",
+          "connection": "Change input scale and compare growth.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-arrays",
+      "title": "Arrays",
+      "order": 2,
+      "prerequisites": [
+        "concept-complexity"
+      ],
+      "lessonIds": [
+        "lesson-arrays"
+      ],
+      "objectives": [
+        "Read and update by index.",
+        "Traverse an array while maintaining a running result."
+      ],
+      "mentalModel": "An array is a numbered row of slots. Index i selects a position, not a value; duplicate values still occupy different slots.",
+      "workedExample": "For [2,1,5], visit indices 0,1,2. The running total becomes 2,3,8. An empty row has total 0.",
+      "invariant": "Before index i, total equals the sum of a[0..i).",
+      "commonMistake": "The last valid index is length-1. Iterating with i <= length reads beyond the array. Integer sums may overflow; use long for the accumulator.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(1) auxiliary",
+        "assumptions": "Non-null int array; sum accumulated in long."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static long sum(int[] a) {\n        long total = 0;\n        for (int i = 0; i < a.length; i++) total += a[i];\n        return total;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic long sum(int[] a) {\n        long total = 0;\n        for (int i = 0; i < a.length; i++) total += a[i];\n        return total;\n    }\n}",
+        "cases": [
+          {
+            "expression": "sum(new int[]{2,1,5})",
+            "expected": "8"
+          },
+          {
+            "expression": "sum(new int[]{})",
+            "expected": "0"
+          },
+          {
+            "expression": "sum(new int[]{-2,-2})",
+            "expected": "-4"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 3,
+            "explanation": "Consume one slot; the accumulator now includes that slot."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "After visiting indices 0 and 1 of [2,1,5], what is total?",
+        "options": [
+          "2",
+          "3",
+          "8"
+        ],
+        "answer": 1,
+        "explanation": "Only the first two slots have been consumed: 2 + 1 = 3."
+      },
+      "visualization": {
+        "exampleInput": "[2,1,5]",
+        "expectedStates": [
+          "i=0,total=2",
+          "i=1,total=3",
+          "i=2,total=8"
+        ],
+        "manipulation": "Edit a slot or repeat a value; predict which intermediate sums change.",
+        "limits": "Empty to 32 integers; values have stable slot identities.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-1480",
+          "role": "introduction",
+          "connection": "Record the sum at every position.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-121",
+          "role": "transfer",
+          "connection": "Replace a total with a minimum-so-far decision.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-strings",
+      "title": "Strings",
+      "order": 3,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-strings"
+      ],
+      "objectives": [
+        "Traverse characters and distinguish positions from substrings.",
+        "Build a result without repeatedly copying an immutable string."
+      ],
+      "mentalModel": "A string is an indexed sequence of text units. Reading does not mutate it; build changed text in a separate buffer.",
+      "workedExample": "Read \"cat\" from indices 2,1,0 and append t,a,c to produce \"tac\". The original string remains \"cat\".",
+      "invariant": "After k iterations, the buffer contains the final k characters in reverse order.",
+      "commonMistake": "Java char indexes UTF-16 code units, not all user-perceived characters. This introductory example is restricted to ASCII; it is not a Unicode grapheme reverser.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(n) output",
+        "assumptions": "ASCII teaching input; StringBuilder avoids repeated string concatenation."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static String reverse(String s) {\n        StringBuilder out = new StringBuilder();\n        for (int i = s.length() - 1; i >= 0; i--) out.append(s.charAt(i));\n        return out.toString();\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic String reverse(String s) {\n        StringBuilder out = new StringBuilder();\n        for (int i = s.length() - 1; i >= 0; i--) out.append(s.charAt(i));\n        return out.toString();\n    }\n}",
+        "cases": [
+          {
+            "expression": "reverse(\"cat\")",
+            "expected": "tac"
+          },
+          {
+            "expression": "reverse(\"\")",
+            "expected": ""
+          },
+          {
+            "expression": "reverse(\"aab\")",
+            "expected": "baa"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 3,
+            "explanation": "Append the highlighted source character; the original string stays unchanged."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "After reading index 2 of \"cat\", what is in the output buffer?",
+        "options": [
+          "c",
+          "t",
+          "cat"
+        ],
+        "answer": 1,
+        "explanation": "The final character is t; append it first."
+      },
+      "visualization": {
+        "exampleInput": "\"cat\"",
+        "expectedStates": [
+          "read 2: t",
+          "read 1: ta",
+          "read 0: tac"
+        ],
+        "manipulation": "Change the string and track source index separately from output length.",
+        "limits": "ASCII, 0–32 characters; Unicode expansion is separate.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-14",
+          "role": "introduction",
+          "connection": "Compare the same character position across strings.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-28",
+          "role": "transfer",
+          "connection": "Extend traversal to matching a candidate substring.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-hashing",
+      "title": "Hash Maps and Sets",
+      "order": 4,
+      "prerequisites": [
+        "concept-arrays",
+        "concept-strings"
+      ],
+      "lessonIds": [
+        "lesson-hashing"
+      ],
+      "objectives": [
+        "Use a set for exact membership and a map for key-associated state.",
+        "Check previously seen values before inserting the current one."
+      ],
+      "mentalModel": "A set answers whether a value has appeared. A map additionally remembers a value such as the earlier index. Hashing locates a candidate bucket; equality still decides exact membership.",
+      "workedExample": "For [2,1,2], insert 2, then 1. The last 2 is already present, so a duplicate exists. Two equal values at different positions count as repetition.",
+      "invariant": "Before reading position i, seen contains exactly the values at earlier positions.",
+      "commonMistake": "Hash lookup is expected constant time under normal assumptions, not a universal worst-case guarantee. A Bloom filter is not a replacement for an exact set.",
+      "complexity": {
+        "time": "Expected O(n)",
+        "space": "O(n) auxiliary",
+        "assumptions": "Java HashSet exact integer membership; expected hashing behaviour."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static boolean duplicate(int[] a) {\n        Set<Integer> seen = new HashSet<>();\n        for (int value : a) if (!seen.add(value)) return true;\n        return false;\n    }\nstatic Map<Integer,Integer> frequencies(int[] a) {\n    Map<Integer,Integer> counts=new LinkedHashMap<>();\n    for(int value:a) counts.merge(value,1,Integer::sum);\n    return counts;\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic boolean duplicate(int[] a) {\n        Set<Integer> seen = new HashSet<>();\n        for (int value : a) if (!seen.add(value)) return true;\n        return false;\n    }\nstatic Map<Integer,Integer> frequencies(int[] a) {\n    Map<Integer,Integer> counts=new LinkedHashMap<>();\n    for(int value:a) counts.merge(value,1,Integer::sum);\n    return counts;\n}\n}",
+        "cases": [
+          {
+            "expression": "duplicate(new int[]{2,1,2})",
+            "expected": "true"
+          },
+          {
+            "expression": "duplicate(new int[]{})",
+            "expected": "false"
+          },
+          {
+            "expression": "duplicate(new int[]{-1,0,1})",
+            "expected": "false"
+          },
+          {
+            "expression": "frequencies(new int[]{2,1,2})",
+            "expected": "{2=2, 1=1}"
+          },
+          {
+            "expression": "frequencies(new int[]{})",
+            "expected": "{}"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 3,
+            "explanation": "A failed insertion means exact membership was already present."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Before processing the final 2 in [2,1,2], which values are in seen?",
+        "options": [
+          "{2}",
+          "{1,2}",
+          "{}"
+        ],
+        "answer": 1,
+        "explanation": "Both earlier values have been inserted; the set does not store duplicate entries."
+      },
+      "visualization": {
+        "exampleInput": "[2,1,2]",
+        "expectedStates": [
+          "seen={2}",
+          "seen={1,2}",
+          "duplicate 2 found"
+        ],
+        "manipulation": "Repeat a value, change it to a new value, and compare membership checks.",
+        "limits": "0–32 integers; show exact key equality, not invented hash addresses.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-217",
+          "role": "introduction",
+          "connection": "Use membership to detect repetition.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1",
+          "role": "transfer",
+          "connection": "Associate each earlier value with its index.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-sorting",
+      "title": "Sorting and Merging",
+      "order": 5,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-merge-sort",
+        "lesson-quick-sort"
+      ],
+      "objectives": [
+        "Merge two ordered sequences using two cursors.",
+        "Explain how merge sort uses this operation after recursive splitting."
+      ],
+      "mentalModel": "Two sorted rows let you take the smaller front item each time. Once both fronts are ordered, the chosen value cannot be preceded by a smaller unconsumed value.",
+      "workedExample": "Merge [1,4] and [2,3]: choose 1,2,3, then drain 4. Output [1,2,3,4] is ordered and contains every input occurrence.",
+      "invariant": "The output prefix is sorted and contains exactly the consumed input prefixes.",
+      "commonMistake": "A merge assumes both inputs are sorted. Do not quote O(n) merging as the complexity of sorting arbitrary input. Choosing the left equal key preserves cross-run stability.",
+      "complexity": {
+        "time": "O(n+m) merge; O(n log n) merge sort",
+        "space": "O(n+m) merge output",
+        "assumptions": "Both merge inputs are nondecreasing; merge-sort child lesson covers splitting."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] merge(int[] a, int[] b) {\n        int[] out = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        while (i < a.length && j < b.length) out[k++] = a[i] <= b[j] ? a[i++] : b[j++];\n        while (i < a.length) out[k++] = a[i++];\n        while (j < b.length) out[k++] = b[j++];\n        return out;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] merge(int[] a, int[] b) {\n        int[] out = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        while (i < a.length && j < b.length) out[k++] = a[i] <= b[j] ? a[i++] : b[j++];\n        while (i < a.length) out[k++] = a[i++];\n        while (j < b.length) out[k++] = b[j++];\n        return out;\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(merge(new int[]{1,4},new int[]{2,3}))",
+            "expected": "[1, 2, 3, 4]"
+          },
+          {
+            "expression": "Arrays.toString(merge(new int[]{},new int[]{1,1}))",
+            "expected": "[1, 1]"
+          },
+          {
+            "expression": "Arrays.toString(merge(new int[]{},new int[]{}))",
+            "expected": "[]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 4,
+            "explanation": "Compare the two current fronts; advance only the cursor whose value was emitted."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Merging [1,4] and [2,3], which value follows the first 1?",
+        "options": [
+          "4",
+          "2",
+          "3"
+        ],
+        "answer": 1,
+        "explanation": "Compare the current fronts 4 and 2; choose 2."
+      },
+      "visualization": {
+        "exampleInput": "left=[1,4], right=[2,3]",
+        "expectedStates": [
+          "out=[1]",
+          "out=[1,2]",
+          "out=[1,2,3]",
+          "out=[1,2,3,4]"
+        ],
+        "manipulation": "Use duplicate keys and empty runs; keep element identity through merging.",
+        "limits": "Sorted runs of up to 16 elements each; splitting and pivot sorting are separate child traces.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "merge-sort",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Current child traces cover whole sorting, not the two-run merge lesson input. Splits and per-merge cursor moves need refinement."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-88",
+          "role": "introduction",
+          "connection": "Merge while preserving unread input.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-912",
+          "role": "transfer",
+          "connection": "Combine merging with recursive divide-and-conquer.",
+          "additionalPrerequisites": [
+            "concept-recursion"
+          ],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-prefix-sums",
+      "title": "Prefix Sums",
+      "order": 6,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-prefix-sums"
+      ],
+      "objectives": [
+        "Build an exclusive-prefix table.",
+        "Answer a half-open range sum using two stored values."
+      ],
+      "mentalModel": "Store the sum before every boundary. The sum between two boundaries is the later prefix minus the earlier prefix.",
+      "workedExample": "For [2,1,5], prefix=[0,2,3,8]. The range [1,3) sums to prefix[3]-prefix[1]=8-2=6.",
+      "invariant": "prefix[i] equals the sum of the first i values; prefix[0] is zero.",
+      "commonMistake": "Mixing inclusive and exclusive endpoints causes off-by-one errors. Prefix sums work with negative values; a positive-only shrinking window is a different technique.",
+      "complexity": {
+        "time": "O(n) build; O(1) per range query",
+        "space": "O(n) table",
+        "assumptions": "0 <= left <= right <= n; long sums."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static long[] prefix(int[] a) {\n        long[] p = new long[a.length + 1];\n        for (int i = 0; i < a.length; i++) p[i + 1] = p[i] + a[i];\n        return p;\n    }\n    static long range(long[] p, int left, int right) {\n        if (left < 0 || left > right || right >= p.length) throw new IllegalArgumentException();\n        return p[right] - p[left];\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic long[] prefix(int[] a) {\n        long[] p = new long[a.length + 1];\n        for (int i = 0; i < a.length; i++) p[i + 1] = p[i] + a[i];\n        return p;\n    }\n    static long range(long[] p, int left, int right) {\n        if (left < 0 || left > right || right >= p.length) throw new IllegalArgumentException();\n        return p[right] - p[left];\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(prefix(new int[]{2,1,5}))",
+            "expected": "[0, 2, 3, 8]"
+          },
+          {
+            "expression": "range(prefix(new int[]{2,1,5}),1,3)",
+            "expected": "6"
+          },
+          {
+            "expression": "range(prefix(new int[]{}),0,0)",
+            "expected": "0"
+          },
+          {
+            "expression": "range(prefix(new int[]{-2,3}),0,2)",
+            "expected": "1"
+          },
+          {
+            "expression": "range(prefix(new int[]{1}),0,2)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 3,
+            "explanation": "The next boundary stores the previous prefix plus one new input value."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "For prefix=[0,2,3,8], which expression gives a[1..3)?",
+        "options": [
+          "8-3",
+          "8-2",
+          "3-2"
+        ],
+        "answer": 1,
+        "explanation": "Subtract the sum before boundary 1 from the sum before boundary 3."
+      },
+      "visualization": {
+        "exampleInput": "a=[2,1,5], range=[1,3)",
+        "expectedStates": [
+          "p=[0]",
+          "p=[0,2]",
+          "p=[0,2,3]",
+          "p=[0,2,3,8]; query=6"
+        ],
+        "manipulation": "Move either query boundary and compare the highlighted original range.",
+        "limits": "0–32 integers; half-open endpoints; long accumulation.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-303",
+          "role": "introduction",
+          "connection": "Reuse preprocessing across range queries.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-560",
+          "role": "transfer",
+          "connection": "Combine prefix differences with hash-map counts.",
+          "additionalPrerequisites": [
+            "concept-hashing"
+          ],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-two-pointers",
+      "title": "Two Pointers",
+      "order": 7,
+      "prerequisites": [
+        "concept-strings",
+        "concept-sorting"
+      ],
+      "lessonIds": [
+        "lesson-two-pointers"
+      ],
+      "objectives": [
+        "Use ordering to discard impossible pairs.",
+        "Move one pointer with a reason rather than enumerating every pair."
+      ],
+      "mentalModel": "Place a cursor at each end of a sorted row. If their sum is too small, moving the right cursor left cannot help; advance the left cursor instead.",
+      "workedExample": "Sorted [1,2,3,4,6,7], target=9: 1+7=8, so advance left. Then 2+7=9. The answer exists at two distinct positions.",
+      "invariant": "Any pair not yet ruled out lies within the current cursor interval.",
+      "commonMistake": "The ordering argument fails for unsorted input. Sort first when permitted and count that cost; sorted positions are not original indices.",
+      "complexity": {
+        "time": "O(n) search after sorting",
+        "space": "O(1) search auxiliary",
+        "assumptions": "Input is already sorted; long pair sum avoids int overflow."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static boolean pair(int[] sorted, long target) {\n        int left = 0, right = sorted.length - 1;\n        while (left < right) {\n            long sum = (long) sorted[left] + sorted[right];\n            if (sum == target) return true;\n            if (sum < target) left++; else right--;\n        }\n        return false;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic boolean pair(int[] sorted, long target) {\n        int left = 0, right = sorted.length - 1;\n        while (left < right) {\n            long sum = (long) sorted[left] + sorted[right];\n            if (sum == target) return true;\n            if (sum < target) left++; else right--;\n        }\n        return false;\n    }\n}",
+        "cases": [
+          {
+            "expression": "pair(new int[]{1,2,3,4,6,7},9)",
+            "expected": "true"
+          },
+          {
+            "expression": "pair(new int[]{4},8)",
+            "expected": "false"
+          },
+          {
+            "expression": "pair(new int[]{2,2},4)",
+            "expected": "true"
+          },
+          {
+            "expression": "pair(new int[]{},0)",
+            "expected": "false"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Move the cursor justified by sorted order and the comparison."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "At values 1 and 7 with target 9, which cursor moves?",
+        "options": [
+          "Left advances",
+          "Right retreats",
+          "Both move"
+        ],
+        "answer": 0,
+        "explanation": "The sum is too small. Only advancing the left value can increase it in a sorted interval."
+      },
+      "visualization": {
+        "exampleInput": "sorted=[1,2,3,4,6,7], target=9",
+        "expectedStates": [
+          "left=0,right=5,sum=8",
+          "left=1,right=5,sum=9"
+        ],
+        "manipulation": "Change target or repeat a value; distinguish sorted positions from original indices.",
+        "limits": "Sorted integers; distinct positions; preparation cost shown separately.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "two-pointers",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 9,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Numeric sorted-pair trace only; string normalization and palindrome visuals are not implemented."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-125",
+          "role": "introduction",
+          "connection": "Move inward while applying text normalization.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-167",
+          "role": "transfer",
+          "connection": "Use sorted sums to discard pairs.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-fixed-window",
+      "title": "Fixed-Size Sliding Window",
+      "order": 8,
+      "prerequisites": [
+        "concept-arrays",
+        "concept-prefix-sums"
+      ],
+      "lessonIds": [
+        "lesson-sliding-window"
+      ],
+      "objectives": [
+        "Reuse a fixed-length contiguous sum.",
+        "Handle all-negative inputs and reject invalid window sizes."
+      ],
+      "mentalModel": "A frame holds k adjacent values. Move it right by subtracting the outgoing value and adding the incoming one.",
+      "workedExample": "For [2,1,5,1,3,2] and k=3, the full-window sums are 8,7,9,6. The largest is 9.",
+      "invariant": "The rolling sum equals the last min(k,right+1) values; compare with best only after a full window exists.",
+      "commonMistake": "Initializing best to zero breaks all-negative arrays. This fixed-size sum supports negative values; variable-size sum shrinking needs extra assumptions.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(1) auxiliary",
+        "assumptions": "1 <= k <= n; long accumulated sums."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static long bestWindow(int[] a, int k) {\n        if (k < 1 || k > a.length) throw new IllegalArgumentException();\n        long sum = 0, best = Long.MIN_VALUE;\n        for (int right = 0; right < a.length; right++) {\n            sum += a[right];\n            if (right >= k) sum -= a[right - k];\n            if (right >= k - 1) best = Math.max(best, sum);\n        }\n        return best;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic long bestWindow(int[] a, int k) {\n        if (k < 1 || k > a.length) throw new IllegalArgumentException();\n        long sum = 0, best = Long.MIN_VALUE;\n        for (int right = 0; right < a.length; right++) {\n            sum += a[right];\n            if (right >= k) sum -= a[right - k];\n            if (right >= k - 1) best = Math.max(best, sum);\n        }\n        return best;\n    }\n}",
+        "cases": [
+          {
+            "expression": "bestWindow(new int[]{2,1,5,1,3,2},3)",
+            "expected": "9"
+          },
+          {
+            "expression": "bestWindow(new int[]{-4,-2,-3},2)",
+            "expected": "-5"
+          },
+          {
+            "expression": "bestWindow(new int[]{7},1)",
+            "expected": "7"
+          },
+          {
+            "expression": "bestWindow(new int[]{},0)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Remove the outgoing value once the frame would exceed k elements."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "A window sum of 8 loses 2 and gains 1. What is the next sum?",
+        "options": [
+          "7",
+          "9",
+          "8"
+        ],
+        "answer": 0,
+        "explanation": "Reuse the previous total: 8 - 2 + 1 = 7."
+      },
+      "visualization": {
+        "exampleInput": "[2,1,5,1,3,2], k=3",
+        "expectedStates": [
+          "[2,1,5]:8",
+          "[1,5,1]:7",
+          "[5,1,3]:9",
+          "[1,3,2]:6"
+        ],
+        "manipulation": "Edit input or k, then predict incoming/outgoing values.",
+        "limits": "1–32 integers; 1 <= k <= n; existing interactive window trace.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "sliding-window",
+          "input": "2,1,5,1,3,2",
+          "target": 3,
+          "seed": 42
+        },
+        "gaps": [
+          "Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-643",
+          "role": "introduction",
+          "connection": "Convert a best fixed-length sum into an average.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "original-window-sum",
+          "role": "transfer",
+          "connection": "Use the existing original numeric-window problem.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-variable-window",
+      "title": "Variable-Size Sliding Window",
+      "order": 9,
+      "prerequisites": [
+        "concept-hashing",
+        "concept-fixed-window"
+      ],
+      "lessonIds": [
+        "lesson-variable-window"
+      ],
+      "objectives": [
+        "Grow and shrink a contiguous range to restore a condition.",
+        "Separate a distinct-character condition from positive-sum conditions."
+      ],
+      "mentalModel": "Stretch a frame while it remains valid. When a repeated character enters, remove characters from the left until the frame is valid again.",
+      "workedExample": "For \"abca\", the frame grows through a,ab,abc. The next a forces the old a out, leaving bca. The best length stays 3.",
+      "invariant": "After shrinking, all characters in the current frame are distinct.",
+      "commonMistake": "Removing only once can leave a repeated character inside the frame. For minimum-length sum windows, positivity is what makes shrinking monotonic; arbitrary negatives break that proof.",
+      "complexity": {
+        "time": "Expected O(n)",
+        "space": "O(min(n, alphabet size))",
+        "assumptions": "ASCII example; each character enters/leaves at most once."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int longestDistinct(String s) {\n        Set<Character> window = new HashSet<>();\n        int left = 0, best = 0;\n        for (int right = 0; right < s.length(); right++) {\n            char incoming = s.charAt(right);\n            while (window.contains(incoming)) window.remove(s.charAt(left++));\n            window.add(incoming);\n            best = Math.max(best, right - left + 1);\n        }\n        return best;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int longestDistinct(String s) {\n        Set<Character> window = new HashSet<>();\n        int left = 0, best = 0;\n        for (int right = 0; right < s.length(); right++) {\n            char incoming = s.charAt(right);\n            while (window.contains(incoming)) window.remove(s.charAt(left++));\n            window.add(incoming);\n            best = Math.max(best, right - left + 1);\n        }\n        return best;\n    }\n}",
+        "cases": [
+          {
+            "expression": "longestDistinct(\"abca\")",
+            "expected": "3"
+          },
+          {
+            "expression": "longestDistinct(\"abba\")",
+            "expected": "2"
+          },
+          {
+            "expression": "longestDistinct(\"\")",
+            "expected": "0"
+          },
+          {
+            "expression": "longestDistinct(\"aaaa\")",
+            "expected": "1"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Restore validity by removing as many left values as needed."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "When the second b arrives in \"abba\", is removing only the first a enough?",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "answer": 1,
+        "explanation": "The old b remains, so shrink again until the duplicate is removed."
+      },
+      "visualization": {
+        "exampleInput": "\"abca\"",
+        "expectedStates": [
+          "[a],best=1",
+          "[ab],best=2",
+          "[abc],best=3",
+          "remove a; [bca],best=3"
+        ],
+        "manipulation": "Use \"abba\" to expose a single-if shrinking bug.",
+        "limits": "ASCII 0–32 characters; no sum-window claims for negative numbers.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-3",
+          "role": "introduction",
+          "connection": "Maintain distinct characters with a membership structure.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-209",
+          "role": "transfer",
+          "connection": "Use positive values to justify sum-based shrinking.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-binary-search",
+      "title": "Binary Search",
+      "order": 10,
+      "prerequisites": [
+        "concept-sorting"
+      ],
+      "lessonIds": [
+        "lesson-binary-search"
+      ],
+      "objectives": [
+        "Maintain an inclusive candidate interval.",
+        "Guarantee progress and distinguish exact search from insertion boundaries."
+      ],
+      "mentalModel": "A comparison with the middle of an ordered row discards a whole impossible half.",
+      "workedExample": "In [1,2,3,4,6,7], target 5: mid=2 gives 3, mid=4 gives 6, then mid=3 gives 4. The interval becomes empty and returns -1.",
+      "invariant": "If the target exists, some occurrence remains in [low,high].",
+      "commonMistake": "Using low=mid or high=mid in this inclusive version can stop progress. Exact-match search may return any duplicate occurrence; lower-bound search answers a different question.",
+      "complexity": {
+        "time": "O(log n)",
+        "space": "O(1) auxiliary",
+        "assumptions": "Sorted nondecreasing array; mid uses low+(high-low)/2."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int search(int[] a, int target) {\n        int low = 0, high = a.length - 1;\n        while (low <= high) {\n            int mid = low + (high - low) / 2;\n            if (a[mid] == target) return mid;\n            if (a[mid] < target) low = mid + 1; else high = mid - 1;\n        }\n        return -1;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int search(int[] a, int target) {\n        int low = 0, high = a.length - 1;\n        while (low <= high) {\n            int mid = low + (high - low) / 2;\n            if (a[mid] == target) return mid;\n            if (a[mid] < target) low = mid + 1; else high = mid - 1;\n        }\n        return -1;\n    }\n}",
+        "cases": [
+          {
+            "expression": "search(new int[]{1,2,3,4,6,7},5)",
+            "expected": "-1"
+          },
+          {
+            "expression": "search(new int[]{},1)",
+            "expected": "-1"
+          },
+          {
+            "expression": "search(new int[]{2},2)",
+            "expected": "0"
+          },
+          {
+            "expression": "search(new int[]{1,2,2},2)",
+            "expected": "1"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Discard mid along with the impossible half, guaranteeing progress."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "If a[mid] is smaller than target, what is the new low in this version?",
+        "options": [
+          "mid",
+          "mid + 1",
+          "low + 1 always"
+        ],
+        "answer": 1,
+        "explanation": "mid has been ruled out, so advance past it."
+      },
+      "visualization": {
+        "exampleInput": "sorted=[1,2,3,4,6,7], target=5",
+        "expectedStates": [
+          "low=0,high=5,mid=2",
+          "low=3,high=5,mid=4",
+          "low=3,high=3,mid=3",
+          "low=4,high=3: absent"
+        ],
+        "manipulation": "Try present, absent and duplicated values; show sorting as preparation.",
+        "limits": "0–32 sorted values; current trace accepts nonempty teaching input.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "binary-search",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 5,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-704",
+          "role": "introduction",
+          "connection": "Find an exact target.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-35",
+          "role": "transfer",
+          "connection": "Return the first valid insertion boundary.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-intervals",
+      "title": "Intervals",
+      "order": 11,
+      "prerequisites": [
+        "concept-sorting"
+      ],
+      "lessonIds": [
+        "lesson-intervals"
+      ],
+      "objectives": [
+        "Sort intervals by start and merge overlaps.",
+        "State whether touching endpoints count as overlap."
+      ],
+      "mentalModel": "Lay closed segments on a number line. Sorted starts let you extend the latest output segment or begin a separate one.",
+      "workedExample": "For [1,3],[2,6],[8,10], the second segment overlaps the first and extends its end to 6. Result: [1,6],[8,10].",
+      "invariant": "Output segments are disjoint and cover exactly the processed input intervals.",
+      "commonMistake": "For closed intervals [1,2] and [2,3], equality means overlap. Half-open intervals need a different convention. Never mutate caller intervals accidentally while merging.",
+      "complexity": {
+        "time": "O(n log n)",
+        "space": "O(n) copy/output",
+        "assumptions": "Valid closed [start,end] pairs; endpoints may touch; caller input preserved."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[][] mergeIntervals(int[][] input) {\n        int[][] a = Arrays.stream(input).map(int[]::clone).toArray(int[][]::new);\n        Arrays.sort(a, Comparator.comparingInt(x -> x[0]));\n        List<int[]> out = new ArrayList<>();\n        for (int[] next : a) {\n            if (out.isEmpty() || out.get(out.size()-1)[1] < next[0]) out.add(next);\n            else out.get(out.size()-1)[1] = Math.max(out.get(out.size()-1)[1], next[1]);\n        }\n        return out.toArray(int[][]::new);\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[][] mergeIntervals(int[][] input) {\n        int[][] a = Arrays.stream(input).map(int[]::clone).toArray(int[][]::new);\n        Arrays.sort(a, Comparator.comparingInt(x -> x[0]));\n        List<int[]> out = new ArrayList<>();\n        for (int[] next : a) {\n            if (out.isEmpty() || out.get(out.size()-1)[1] < next[0]) out.add(next);\n            else out.get(out.size()-1)[1] = Math.max(out.get(out.size()-1)[1], next[1]);\n        }\n        return out.toArray(int[][]::new);\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.deepToString(mergeIntervals(new int[][]{{1,3},{2,6},{8,10}}))",
+            "expected": "[[1, 6], [8, 10]]"
+          },
+          {
+            "expression": "Arrays.deepToString(mergeIntervals(new int[][]{{1,2},{2,3}}))",
+            "expected": "[[1, 3]]"
+          },
+          {
+            "expression": "Arrays.deepToString(mergeIntervals(new int[][]{}))",
+            "expected": "[]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 7,
+            "explanation": "Extend the latest merged end; preserve earlier disjoint output."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "With closed endpoints, do [1,2] and [2,3] merge?",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "answer": 0,
+        "explanation": "Both contain 2, so the merged interval is [1,3]."
+      },
+      "visualization": {
+        "exampleInput": "[1,3],[2,6],[8,10]",
+        "expectedStates": [
+          "sort by start",
+          "extend [1,3] to [1,6]",
+          "append [8,10]"
+        ],
+        "manipulation": "Move endpoints and compare touching, nested and disjoint segments.",
+        "limits": "0–16 valid closed intervals; distinguish endpoint convention.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-56",
+          "role": "introduction",
+          "connection": "Merge overlaps after ordering starts.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-57",
+          "role": "transfer",
+          "connection": "Exploit an already ordered disjoint collection.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-matrices",
+      "title": "Matrices and Grid Coordinates",
+      "order": 12,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-matrices"
+      ],
+      "objectives": [
+        "Distinguish row and column dimensions.",
+        "Map a cell (r,c) to (c,r) during transpose."
+      ],
+      "mentalModel": "A rectangular matrix is a row of rows. Coordinates identify both a row and a column; a transpose swaps their roles.",
+      "workedExample": "Transpose [[1,2,3],[4,5,6]] into [[1,4],[2,5],[3,6]]. The input is 2×3 and the output is 3×2.",
+      "invariant": "Every copied source cell a[r][c] appears at out[c][r].",
+      "commonMistake": "Using row count for both dimensions only works for square inputs. Reject ragged rows for this rectangular operation.",
+      "complexity": {
+        "time": "O(rows × columns)",
+        "space": "O(rows × columns) output",
+        "assumptions": "Rectangular non-null rows; zero rows produce an empty matrix."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[][] transpose(int[][] a) {\n        int rows = a.length, cols = rows == 0 ? 0 : a[0].length;\n        for (int[] row : a) if (row.length != cols) throw new IllegalArgumentException(\"ragged matrix\");\n        int[][] out = new int[cols][rows];\n        for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) out[c][r] = a[r][c];\n        return out;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[][] transpose(int[][] a) {\n        int rows = a.length, cols = rows == 0 ? 0 : a[0].length;\n        for (int[] row : a) if (row.length != cols) throw new IllegalArgumentException(\"ragged matrix\");\n        int[][] out = new int[cols][rows];\n        for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) out[c][r] = a[r][c];\n        return out;\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.deepToString(transpose(new int[][]{{1,2,3},{4,5,6}}))",
+            "expected": "[[1, 4], [2, 5], [3, 6]]"
+          },
+          {
+            "expression": "Arrays.deepToString(transpose(new int[][]{}))",
+            "expected": "[]"
+          },
+          {
+            "expression": "Arrays.deepToString(transpose(new int[][]{{7}}))",
+            "expected": "[[7]]"
+          },
+          {
+            "expression": "transpose(new int[][]{{1},{2,3}})",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 5,
+            "explanation": "Move one value to the swapped row/column coordinates."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Where does source cell (1,2) go during transpose?",
+        "options": [
+          "(2,1)",
+          "(1,2)",
+          "(0,1)"
+        ],
+        "answer": 0,
+        "explanation": "Swap the row and column coordinates."
+      },
+      "visualization": {
+        "exampleInput": "[[1,2,3],[4,5,6]]",
+        "expectedStates": [
+          "(0,0) → (0,0)",
+          "(0,1) → (1,0)",
+          "(1,2) → (2,1)"
+        ],
+        "manipulation": "Use a non-square grid and follow one cell into the output.",
+        "limits": "Rectangular grid up to 6×6; ragged input explicitly invalid.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-867",
+          "role": "introduction",
+          "connection": "Swap coordinate roles.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-54",
+          "role": "transfer",
+          "connection": "Maintain four changing traversal boundaries.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-linked-lists",
+      "title": "Linked Lists",
+      "order": 13,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-linked-list"
+      ],
+      "objectives": [
+        "Follow node references rather than adjacent indexes.",
+        "Reverse links without losing the unprocessed suffix."
+      ],
+      "mentalModel": "Each node holds a value and a reference to the next node. Move arrows, not values, when reversing the chain.",
+      "workedExample": "For 4→2→7→1→3→6, first save 2, point 4 to null, then continue from 2. The final head is 6 and the chain is 6→3→1→7→2→4.",
+      "invariant": "prev heads the reversed prefix; current heads the untouched suffix.",
+      "commonMistake": "Overwriting current.next before saving it loses access to the remaining nodes. Equal values still have distinct node identities.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(1) auxiliary",
+        "assumptions": "Acyclic singly linked list; null is an empty list."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static Node reverseList(Node current) {\n        Node prev = null;\n        while (current != null) {\n            Node next = current.next;\n            current.next = prev;\n            prev = current;\n            current = next;\n        }\n        return prev;\n    }\n    static class Node {\n    int value; Node next;\n    Node(int value, Node next) { this.value = value; this.next = next; }\n}\nstatic Node list(int... a) {\n    Node head = null;\n    for (int i = a.length - 1; i >= 0; i--) head = new Node(a[i], head);\n    return head;\n}\nstatic String values(Node head) {\n    List<Integer> out = new ArrayList<>();\n    for (Node p = head; p != null; p = p.next) out.add(p.value);\n    return out.toString();\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic Node reverseList(Node current) {\n        Node prev = null;\n        while (current != null) {\n            Node next = current.next;\n            current.next = prev;\n            prev = current;\n            current = next;\n        }\n        return prev;\n    }\n    static class Node {\n    int value; Node next;\n    Node(int value, Node next) { this.value = value; this.next = next; }\n}\nstatic Node list(int... a) {\n    Node head = null;\n    for (int i = a.length - 1; i >= 0; i--) head = new Node(a[i], head);\n    return head;\n}\nstatic String values(Node head) {\n    List<Integer> out = new ArrayList<>();\n    for (Node p = head; p != null; p = p.next) out.add(p.value);\n    return out.toString();\n}\n}",
+        "cases": [
+          {
+            "expression": "values(reverseList(list(4,2,7,1,3,6)))",
+            "expected": "[6, 3, 1, 7, 2, 4]"
+          },
+          {
+            "expression": "values(reverseList(null))",
+            "expected": "[]"
+          },
+          {
+            "expression": "values(reverseList(list(2,1,2)))",
+            "expected": "[2, 1, 2]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 5,
+            "explanation": "Rewire the current node after saving its original successor."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "What must be saved before overwriting current.next?",
+        "options": [
+          "The original next reference",
+          "Only the current value",
+          "The array length"
+        ],
+        "answer": 0,
+        "explanation": "Keep the unprocessed suffix reachable before changing the link."
+      },
+      "visualization": {
+        "exampleInput": "4→2→7→1→3→6",
+        "expectedStates": [
+          "prev=null,current=4",
+          "4→null; current=2",
+          "2→4→null; current=7",
+          "head=6: 6→3→1→7→2→4"
+        ],
+        "manipulation": "Use duplicate values and track node IDs while reversing arrows.",
+        "limits": "Acyclic list; no cyclic-list claims; existing renderer needs arrow-state refinement.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "linked-list",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Java links preserve identity; the legacy renderer still needs to display every rewired arrow."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-206",
+          "role": "introduction",
+          "connection": "Reverse arrows iteratively.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-21",
+          "role": "transfer",
+          "connection": "Combine node references with merging.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-stacks",
+      "title": "Stacks",
+      "order": 14,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-stack"
+      ],
+      "objectives": [
+        "Use last-in, first-out operations.",
+        "Handle an empty structure before removing an element."
+      ],
+      "mentalModel": "A stack is a pile with one accessible end. The last item placed on top is the first removed.",
+      "workedExample": "Push 4,2,7,1,3,6. Pop returns 6,3,1,7,2,4. Values below the top retain their relative order.",
+      "invariant": "The top is the most recently pushed item that has not been popped.",
+      "commonMistake": "A queue removes from the opposite end. Check emptiness before pop; use a Deque rather than treating sorted order as stack order.",
+      "complexity": {
+        "time": "O(n) for n pushes and pops; amortized O(1) per deque operation",
+        "space": "O(n) structure",
+        "assumptions": "ArrayDeque used as an implementation, not an assessed algorithm replacement."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<Integer> popOrder(int[] a) {\n        Deque<Integer> stack = new ArrayDeque<>();\n        for (int value : a) stack.push(value);\n        List<Integer> out = new ArrayList<>();\n        while (!stack.isEmpty()) out.add(stack.pop());\n        return out;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<Integer> popOrder(int[] a) {\n        Deque<Integer> stack = new ArrayDeque<>();\n        for (int value : a) stack.push(value);\n        List<Integer> out = new ArrayList<>();\n        while (!stack.isEmpty()) out.add(stack.pop());\n        return out;\n    }\n}",
+        "cases": [
+          {
+            "expression": "popOrder(new int[]{4,2,7,1,3,6})",
+            "expected": "[6, 3, 1, 7, 2, 4]"
+          },
+          {
+            "expression": "popOrder(new int[]{})",
+            "expected": "[]"
+          },
+          {
+            "expression": "popOrder(new int[]{2,2})",
+            "expected": "[2, 2]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 5,
+            "explanation": "Remove the newest remaining value from the top."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Push 4, then 2, then 7. Which value pops first?",
+        "options": [
+          "4",
+          "2",
+          "7"
+        ],
+        "answer": 2,
+        "explanation": "The last pushed value, 7, is on top."
+      },
+      "visualization": {
+        "exampleInput": "push [4,2,7,1,3,6]",
+        "expectedStates": [
+          "top=4",
+          "top=6 after pushes",
+          "pop 6,3,1,7,2,4"
+        ],
+        "manipulation": "Interleave pushes and pops; attempt a pop only after checking emptiness.",
+        "limits": "0–32 values; top and empty state explicit.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "stack",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Push/pop trace exists; bracket matching and per-depth minimum visuals remain future applications."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-20",
+          "role": "introduction",
+          "connection": "Match the most recent unfinished opening.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-155",
+          "role": "transfer",
+          "connection": "Attach a minimum summary to each depth.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-queues",
+      "title": "Queues and Deques",
+      "order": 15,
+      "prerequisites": [
+        "concept-arrays",
+        "concept-stacks"
+      ],
+      "lessonIds": [
+        "lesson-queue"
+      ],
+      "objectives": [
+        "Use first-in, first-out processing.",
+        "Distinguish a queue discipline from a deque container."
+      ],
+      "mentalModel": "Join at the back and leave from the front. A deque supports both ends, so the operations you choose determine FIFO or LIFO behavior.",
+      "workedExample": "Enqueue 4,2,7,1,3,6 at the back. Removing from the front returns 4,2,7,1,3,6.",
+      "invariant": "The front is the earliest enqueued item that has not been removed.",
+      "commonMistake": "Using removeLast after addLast turns a deque into a stack. BFS depends on FIFO; substituting the wrong removal changes exploration order.",
+      "complexity": {
+        "time": "O(n) total; amortized O(1) per deque operation",
+        "space": "O(n) structure",
+        "assumptions": "Explicit addLast/removeFirst; empty removal guarded."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<Integer> queueOrder(int[] a) {\n        Deque<Integer> queue = new ArrayDeque<>();\n        for (int value : a) queue.addLast(value);\n        List<Integer> out = new ArrayList<>();\n        while (!queue.isEmpty()) out.add(queue.removeFirst());\n        return out;\n    }\nstatic List<Integer> bothEnds() {\n    Deque<Integer> deque=new ArrayDeque<>();\n    deque.addLast(2); deque.addFirst(1);\n    return List.of(deque.removeFirst(),deque.removeLast());\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<Integer> queueOrder(int[] a) {\n        Deque<Integer> queue = new ArrayDeque<>();\n        for (int value : a) queue.addLast(value);\n        List<Integer> out = new ArrayList<>();\n        while (!queue.isEmpty()) out.add(queue.removeFirst());\n        return out;\n    }\nstatic List<Integer> bothEnds() {\n    Deque<Integer> deque=new ArrayDeque<>();\n    deque.addLast(2); deque.addFirst(1);\n    return List.of(deque.removeFirst(),deque.removeLast());\n}\n}",
+        "cases": [
+          {
+            "expression": "queueOrder(new int[]{4,2,7,1,3,6})",
+            "expected": "[4, 2, 7, 1, 3, 6]"
+          },
+          {
+            "expression": "queueOrder(new int[]{})",
+            "expected": "[]"
+          },
+          {
+            "expression": "queueOrder(new int[]{2,2})",
+            "expected": "[2, 2]"
+          },
+          {
+            "expression": "bothEnds()",
+            "expected": "[1, 2]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 5,
+            "explanation": "Remove the earliest queued value from the front."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "After addLast(4), addLast(2), what does removeFirst return?",
+        "options": [
+          "2",
+          "4"
+        ],
+        "answer": 1,
+        "explanation": "4 has waited longest at the front."
+      },
+      "visualization": {
+        "exampleInput": "enqueue [4,2,7,1,3,6]",
+        "expectedStates": [
+          "front=4",
+          "back=6 after enqueues",
+          "dequeue 4,2,7,1,3,6"
+        ],
+        "manipulation": "Switch removal end and explain why the behavior becomes LIFO.",
+        "limits": "0–32 values; show front/back and FIFO ordering.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "queue",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "FIFO is supported; deque operations at both ends and the two-stack implementation are specifications only."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-933",
+          "role": "introduction",
+          "connection": "Discard expired timestamps from the front.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-232",
+          "role": "transfer",
+          "connection": "Compose FIFO behavior from two LIFO structures.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-recursion",
+      "title": "Recursion and the Call Stack",
+      "order": 16,
+      "prerequisites": [
+        "concept-stacks"
+      ],
+      "lessonIds": [
+        "lesson-recursion"
+      ],
+      "objectives": [
+        "Define a base case and a smaller subproblem.",
+        "Distinguish a suspended frame from a returned value."
+      ],
+      "mentalModel": "A function leaves a frame on the call stack while a smaller call runs. Returning resumes that exact frame with its own local state.",
+      "workedExample": "factorial(5) waits for factorial(4), down to factorial(0)=1. Unwinding returns 1,2,6,24,120. Each multiplication happens after the smaller call returns.",
+      "invariant": "factorial(n) returns n times factorial(n-1), with factorial(0)=1.",
+      "commonMistake": "A missing base case or a call that does not reduce the problem can recurse indefinitely. The call stack consumes space even when no explicit array is allocated.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(n) call stack",
+        "assumptions": "0 <= n <= 10 for this bounded example; array-sum application uses the same base/reduction structure."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static long factorial(int n) {\n        if (n < 0 || n > 10) throw new IllegalArgumentException();\n        if (n == 0) return 1;\n        return n * factorial(n - 1);\n    }\n    static long sumFrom(int[] a, int i) {\n        if (i == a.length) return 0;\n        return a[i] + sumFrom(a, i + 1);\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic long factorial(int n) {\n        if (n < 0 || n > 10) throw new IllegalArgumentException();\n        if (n == 0) return 1;\n        return n * factorial(n - 1);\n    }\n    static long sumFrom(int[] a, int i) {\n        if (i == a.length) return 0;\n        return a[i] + sumFrom(a, i + 1);\n    }\n}",
+        "cases": [
+          {
+            "expression": "factorial(5)",
+            "expected": "120"
+          },
+          {
+            "expression": "factorial(0)",
+            "expected": "1"
+          },
+          {
+            "expression": "sumFrom(new int[]{2,1,5},0)",
+            "expected": "8"
+          },
+          {
+            "expression": "sumFrom(new int[]{},0)",
+            "expected": "0"
+          },
+          {
+            "expression": "factorial(-1)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 4,
+            "explanation": "Suspend this frame, then multiply by its own n when the smaller call returns."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "What is still pending when factorial(5) calls factorial(4)?",
+        "options": [
+          "Multiplication by 5",
+          "A second independent input array",
+          "Nothing"
+        ],
+        "answer": 0,
+        "explanation": "The caller frame must multiply the returned result by its own n=5."
+      },
+      "visualization": {
+        "exampleInput": "factorial(5)",
+        "expectedStates": [
+          "call 5,4,3,2,1,0",
+          "base returns 1",
+          "unwind 1,2,6,24,120"
+        ],
+        "manipulation": "Change n and follow frame-local n separately from returned result.",
+        "limits": "n=0..10; show base frame and unwind; no arbitrary own-code tracing.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "recursion",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 5,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Base frame and returned values need a dedicated frame view; existing authored trace is not own-code tracing."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "original-recursive-sum",
+          "role": "introduction",
+          "connection": "Replace a loop with a base case and smaller suffix.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-206",
+          "role": "transfer",
+          "connection": "Revisit reversal recursively; compare extra stack use.",
+          "additionalPrerequisites": [],
+          "perspective": "recursive reversal"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-backtracking",
+      "title": "Backtracking",
+      "order": 17,
+      "prerequisites": [
+        "concept-recursion"
+      ],
+      "lessonIds": [
+        "lesson-backtracking"
+      ],
+      "objectives": [
+        "Explore choices recursively and restore shared state.",
+        "Snapshot a result instead of keeping an alias to the mutable path."
+      ],
+      "mentalModel": "Walk a decision tree with a reusable path. Choose an item, explore descendants, then undo that choice before trying the next branch.",
+      "workedExample": "For [1,2], include-first traversal records [1,2], [1], [2], []. After recording [1,2], remove 2 before exploring the branch without it.",
+      "invariant": "On entering visit(i), path contains exactly the choices for indices below i.",
+      "commonMistake": "Missing the undo contaminates sibling branches. Storing path itself makes every result alias one mutable list. Duplicate input values require a separate deduplication policy.",
+      "complexity": {
+        "time": "O(n × 2^n) including copied subsets",
+        "space": "O(n) auxiliary; O(n × 2^n) output",
+        "assumptions": "Distinct input values; bounded teaching subset size."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<List<Integer>> subsets(int[] a) {\n        List<List<Integer>> out = new ArrayList<>();\n        visit(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n    static void visit(int[] a, int i, List<Integer> path, List<List<Integer>> out) {\n        if (i == a.length) { out.add(new ArrayList<>(path)); return; }\n        path.add(a[i]);\n        visit(a, i + 1, path, out);\n        path.remove(path.size() - 1);\n        visit(a, i + 1, path, out);\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<List<Integer>> subsets(int[] a) {\n        List<List<Integer>> out = new ArrayList<>();\n        visit(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n    static void visit(int[] a, int i, List<Integer> path, List<List<Integer>> out) {\n        if (i == a.length) { out.add(new ArrayList<>(path)); return; }\n        path.add(a[i]);\n        visit(a, i + 1, path, out);\n        path.remove(path.size() - 1);\n        visit(a, i + 1, path, out);\n    }\n}",
+        "cases": [
+          {
+            "expression": "subsets(new int[]{1,2})",
+            "expected": "[[1, 2], [1], [2], []]"
+          },
+          {
+            "expression": "subsets(new int[]{})",
+            "expected": "[[]]"
+          },
+          {
+            "expression": "subsets(new int[]{7})",
+            "expected": "[[7], []]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 10,
+            "explanation": "Undo the last choice so the next sibling receives the parent path."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Why copy path when recording a subset?",
+        "options": [
+          "Later undo operations mutate path",
+          "Copying sorts it",
+          "Recursion requires sorted output"
+        ],
+        "answer": 0,
+        "explanation": "Each recorded subset must remain independent of later path changes."
+      },
+      "visualization": {
+        "exampleInput": "[1,2]",
+        "expectedStates": [
+          "choose 1",
+          "choose 2: record [1,2]",
+          "undo 2: record [1]",
+          "undo 1: explore [2],[]"
+        ],
+        "manipulation": "Toggle an include/exclude branch and watch undo restore the parent state.",
+        "limits": "Distinct values; at most 5 items in existing trace; exponential output explicit.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "backtracking",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Existing bounded trace records choices; branch-tree layout and undo transitions need refinement."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-78",
+          "role": "introduction",
+          "connection": "Enumerate include/exclude choices.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-39",
+          "role": "transfer",
+          "connection": "Add a target, candidate reuse and duplicate-order control.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-binary-trees",
+      "title": "Binary Trees and Traversal",
+      "order": 18,
+      "prerequisites": [
+        "concept-linked-lists",
+        "concept-recursion"
+      ],
+      "lessonIds": [
+        "lesson-tree-traversal"
+      ],
+      "objectives": [
+        "Distinguish a general binary tree from a BST.",
+        "Visit a tree in inorder or compute height from child results."
+      ],
+      "mentalModel": "A binary tree node has up to two child references. Traversal chooses when to visit the node relative to those children; no ordering property is required.",
+      "workedExample": "For root 4 with left subtree 2(1,3) and right subtree 7(6,null), inorder visits [1,2,3,4,6,7] and height is 3 nodes. This example is ordered, but arbitrary binary trees need not be.",
+      "invariant": "inorder(node) processes every node in left subtree, then node, then right subtree.",
+      "commonMistake": "Inorder output is sorted only for a valid BST. Define whether height counts nodes or edges; the empty tree has height 0 in this lesson.",
+      "complexity": {
+        "time": "O(n)",
+        "space": "O(h) call stack, plus O(n) output",
+        "assumptions": "Acyclic tree; height counts nodes; existing interactive child demonstrates level order, not inorder."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<Integer> inorder(Tree root) {\n        List<Integer> out = new ArrayList<>(); walk(root, out); return out;\n    }\n    static void walk(Tree node, List<Integer> out) {\n        if (node == null) return;\n        walk(node.left, out); out.add(node.value); walk(node.right, out);\n    }\n    static int height(Tree node) {\n        return node == null ? 0 : 1 + Math.max(height(node.left), height(node.right));\n    }\n    static class Tree {\n    int value; Tree left, right;\n    Tree(int value, Tree left, Tree right) { this.value=value; this.left=left; this.right=right; }\n}\nstatic Tree sample() {\n    return new Tree(4, new Tree(2,new Tree(1,null,null),new Tree(3,null,null)),new Tree(7,new Tree(6,null,null),null));\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<Integer> inorder(Tree root) {\n        List<Integer> out = new ArrayList<>(); walk(root, out); return out;\n    }\n    static void walk(Tree node, List<Integer> out) {\n        if (node == null) return;\n        walk(node.left, out); out.add(node.value); walk(node.right, out);\n    }\n    static int height(Tree node) {\n        return node == null ? 0 : 1 + Math.max(height(node.left), height(node.right));\n    }\n    static class Tree {\n    int value; Tree left, right;\n    Tree(int value, Tree left, Tree right) { this.value=value; this.left=left; this.right=right; }\n}\nstatic Tree sample() {\n    return new Tree(4, new Tree(2,new Tree(1,null,null),new Tree(3,null,null)),new Tree(7,new Tree(6,null,null),null));\n}\n}",
+        "cases": [
+          {
+            "expression": "inorder(sample())",
+            "expected": "[1, 2, 3, 4, 6, 7]"
+          },
+          {
+            "expression": "height(sample())",
+            "expected": "3"
+          },
+          {
+            "expression": "inorder(null)",
+            "expected": "[]"
+          },
+          {
+            "expression": "height(null)",
+            "expected": "0"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Return from the left subtree, then visit the node before descending right."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Does inorder traversal sort every binary tree?",
+        "options": [
+          "Yes",
+          "Only if the tree satisfies the BST ordering property"
+        ],
+        "answer": 1,
+        "explanation": "Traversal follows links; it does not rearrange arbitrary node values."
+      },
+      "visualization": {
+        "exampleInput": "4 with children 2(1,3),7(6,null)",
+        "expectedStates": [
+          "walk left:1,2,3",
+          "visit root:4",
+          "walk right:6,7"
+        ],
+        "manipulation": "Change a value without rewiring links to see why general inorder need not be sorted.",
+        "limits": "Small acyclic tree; inorder specification separate from the existing level-order renderer.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "tree-traversal",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Existing child renderer uses BST insertion and level-order traversal. It cannot accept arbitrary binary trees or demonstrate the specified inorder traversal yet."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-104",
+          "role": "introduction",
+          "connection": "Combine child results into a depth.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-94",
+          "role": "transfer",
+          "connection": "Choose the visit position relative to children.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-bst",
+      "title": "Binary Search Trees",
+      "order": 19,
+      "prerequisites": [
+        "concept-binary-search",
+        "concept-binary-trees"
+      ],
+      "lessonIds": [
+        "lesson-bst"
+      ],
+      "objectives": [
+        "Insert/search using subtree ordering.",
+        "Explain why an unbalanced BST may degrade to linear height."
+      ],
+      "mentalModel": "Each node splits the remaining keys: every left key is smaller and every right key is larger. Follow that decision at each level.",
+      "workedExample": "Insert [8,3,10,1,6,14,4,7,13]. Inorder becomes [1,3,4,6,7,8,10,13,14]; inserting 6 again leaves the tree unchanged.",
+      "invariant": "For every node, all left descendants are smaller and all right descendants are larger.",
+      "commonMistake": "Checking only immediate children does not validate a whole BST. Sorted insertion can produce a chain; O(log n) requires a height assumption.",
+      "complexity": {
+        "time": "O(h) per insertion/search; worst O(n)",
+        "space": "O(h) recursive stack; O(n) stored nodes",
+        "assumptions": "Distinct keys; duplicates ignored; no balancing in this lesson."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static Tree insert(Tree node, int value) {\n        if (node == null) return new Tree(value,null,null);\n        if (value < node.value) node.left = insert(node.left,value);\n        else if (value > node.value) node.right = insert(node.right,value);\n        return node;\n    }\n    static List<Integer> ordered(int... a) {\n        Tree root=null; for (int value:a) root=insert(root,value);\n        List<Integer> out=new ArrayList<>(); collect(root,out); return out;\n    }\n    static void collect(Tree n,List<Integer> out) {\n        if(n==null)return; collect(n.left,out);out.add(n.value);collect(n.right,out);\n    }\n    static class Tree {\n    int value; Tree left, right;\n    Tree(int value, Tree left, Tree right) { this.value=value; this.left=left; this.right=right; }\n}\nstatic Tree sample() {\n    return new Tree(4, new Tree(2,new Tree(1,null,null),new Tree(3,null,null)),new Tree(7,new Tree(6,null,null),null));\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic Tree insert(Tree node, int value) {\n        if (node == null) return new Tree(value,null,null);\n        if (value < node.value) node.left = insert(node.left,value);\n        else if (value > node.value) node.right = insert(node.right,value);\n        return node;\n    }\n    static List<Integer> ordered(int... a) {\n        Tree root=null; for (int value:a) root=insert(root,value);\n        List<Integer> out=new ArrayList<>(); collect(root,out); return out;\n    }\n    static void collect(Tree n,List<Integer> out) {\n        if(n==null)return; collect(n.left,out);out.add(n.value);collect(n.right,out);\n    }\n    static class Tree {\n    int value; Tree left, right;\n    Tree(int value, Tree left, Tree right) { this.value=value; this.left=left; this.right=right; }\n}\nstatic Tree sample() {\n    return new Tree(4, new Tree(2,new Tree(1,null,null),new Tree(3,null,null)),new Tree(7,new Tree(6,null,null),null));\n}\n}",
+        "cases": [
+          {
+            "expression": "ordered(8,3,10,1,6,14,4,7,13)",
+            "expected": "[1, 3, 4, 6, 7, 8, 10, 13, 14]"
+          },
+          {
+            "expression": "ordered(2,2,1)",
+            "expected": "[1, 2]"
+          },
+          {
+            "expression": "ordered()",
+            "expected": "[]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 3,
+            "explanation": "Compare with this node and descend into the only possible insertion subtree."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "After 8,3,10, where does 6 go?",
+        "options": [
+          "Left of 3",
+          "Right of 3",
+          "Right of 10"
+        ],
+        "answer": 1,
+        "explanation": "6 is below 8 but above 3, so it becomes the right child of 3."
+      },
+      "visualization": {
+        "exampleInput": "insert [8,3,10,1,6,14,4,7,13]",
+        "expectedStates": [
+          "root 8",
+          "3 left,10 right",
+          "6 right of 3",
+          "13 left of 14"
+        ],
+        "manipulation": "Insert sorted or repeated keys; follow comparisons and stable node IDs.",
+        "limits": "1–32 input keys; equal keys ignored; no balancing guarantee.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "bst",
+          "input": "8,3,10,1,6,14,4,7,13",
+          "target": 3,
+          "seed": 42
+        },
+        "gaps": [
+          "Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-700",
+          "role": "introduction",
+          "connection": "Discard one subtree after each comparison.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-98",
+          "role": "transfer",
+          "connection": "Propagate ancestor bounds to every descendant.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-heaps",
+      "title": "Heaps and Priority Queues",
+      "order": 20,
+      "prerequisites": [
+        "concept-sorting",
+        "concept-binary-trees"
+      ],
+      "lessonIds": [
+        "lesson-heap"
+      ],
+      "objectives": [
+        "Maintain parent/child heap order.",
+        "Distinguish the maximum at the root from a fully sorted array."
+      ],
+      "mentalModel": "A complete tree fits in an array: parent of i is (i-1)/2. In a max-heap, a new value moves up until its parent is at least as large.",
+      "workedExample": "Insert [4,2,7,1,3,6]. After 7 enters, it swaps with 4; the final heap is [7,3,6,1,2,4]. Only parent-child order is guaranteed.",
+      "invariant": "Every parent is at least as large as its children.",
+      "commonMistake": "A heap is not a sorted array, and Java PriorityQueue defaults to a min-heap. A top-k problem needs a deliberate choice of min/max orientation.",
+      "complexity": {
+        "time": "O(log n) per insertion; O(n log n) repeated insertion",
+        "space": "O(n) heap storage",
+        "assumptions": "Custom max-heap insertion shown; bottom-up O(n) heap building is a later extension."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<Integer> heap(int[] a) {\n        List<Integer> h=new ArrayList<>();\n        for(int value:a) {\n            h.add(value); int i=h.size()-1;\n            while(i>0) {\n                int parent=(i-1)/2;\n                if(h.get(parent)>=h.get(i)) break;\n                Collections.swap(h,parent,i); i=parent;\n            }\n        }\n        return h;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<Integer> heap(int[] a) {\n        List<Integer> h=new ArrayList<>();\n        for(int value:a) {\n            h.add(value); int i=h.size()-1;\n            while(i>0) {\n                int parent=(i-1)/2;\n                if(h.get(parent)>=h.get(i)) break;\n                Collections.swap(h,parent,i); i=parent;\n            }\n        }\n        return h;\n    }\n}",
+        "cases": [
+          {
+            "expression": "heap(new int[]{4,2,7,1,3,6})",
+            "expected": "[7, 3, 6, 1, 2, 4]"
+          },
+          {
+            "expression": "heap(new int[]{})",
+            "expected": "[]"
+          },
+          {
+            "expression": "heap(new int[]{2,2})",
+            "expected": "[2, 2]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 8,
+            "explanation": "Move a newly inserted value up one level while preserving the other heap entries."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Is every sibling pair ordered in a max-heap?",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "answer": 1,
+        "explanation": "The invariant constrains parents and children, not sibling order."
+      },
+      "visualization": {
+        "exampleInput": "insert [4,2,7,1,3,6]",
+        "expectedStates": [
+          "[4]",
+          "[4,2]",
+          "[7,2,4]",
+          "[7,3,6,1,2,4]"
+        ],
+        "manipulation": "Insert a new maximum and observe every parent comparison/swap.",
+        "limits": "0–32 values; existing trace records completed insertions, intermediate bubble swaps remain a renderer/trace gap.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "heap",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Trace shows completed insertions; capture/render every sift comparison and swap plus extraction before claiming full heap coverage."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-703",
+          "role": "introduction",
+          "connection": "Use a min-heap to retain the k largest stream values.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1046",
+          "role": "transfer",
+          "connection": "Use a max-heap for repeated largest-pair removal.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-graphs",
+      "title": "Graph Representation",
+      "order": 21,
+      "prerequisites": [
+        "concept-hashing",
+        "concept-matrices"
+      ],
+      "lessonIds": [
+        "lesson-graphs"
+      ],
+      "objectives": [
+        "Build an adjacency list including isolated vertices.",
+        "Distinguish directed edges, undirected edges and edge weights."
+      ],
+      "mentalModel": "A graph names vertices and stores their connections. An adjacency list gives every vertex a row of outgoing neighbours, including an empty row for an isolated vertex.",
+      "workedExample": "For n=4 and directed edges 0→1,0→2,2→3, adjacency is [[1,2],[],[3],[]]. Making this undirected also requires the reverse connection for each edge.",
+      "invariant": "Every supplied directed edge u→v contributes v to exactly the outgoing row for u.",
+      "commonMistake": "Forgetting isolated vertices changes n. A matrix costs O(V²) storage, while a list stores O(V+E). Parallel edges and self loops require an explicit policy.",
+      "complexity": {
+        "time": "O(V+E) build",
+        "space": "O(V+E)",
+        "assumptions": "Vertices 0..n-1; directed edges; preserve parallel edges and self loops."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<List<Integer>> adjacency(int n, int[][] edges) {\n    if(n<0)throw new IllegalArgumentException();\n    List<List<Integer>> graph=new ArrayList<>();\n    for(int i=0;i<n;i++)graph.add(new ArrayList<>());\n    for(int[] e:edges) {\n        if(e.length!=2 || e[0]<0 || e[0]>=n || e[1]<0 || e[1]>=n)throw new IllegalArgumentException();\n        graph.get(e[0]).add(e[1]);\n    }\n    return graph;\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<List<Integer>> adjacency(int n, int[][] edges) {\n    if(n<0)throw new IllegalArgumentException();\n    List<List<Integer>> graph=new ArrayList<>();\n    for(int i=0;i<n;i++)graph.add(new ArrayList<>());\n    for(int[] e:edges) {\n        if(e.length!=2 || e[0]<0 || e[0]>=n || e[1]<0 || e[1]>=n)throw new IllegalArgumentException();\n        graph.get(e[0]).add(e[1]);\n    }\n    return graph;\n}\n}",
+        "cases": [
+          {
+            "expression": "adjacency(4,new int[][]{{0,1},{0,2},{2,3}})",
+            "expected": "[[1, 2], [], [3], []]"
+          },
+          {
+            "expression": "adjacency(2,new int[][]{})",
+            "expected": "[[], []]"
+          },
+          {
+            "expression": "adjacency(1,new int[][]{{0,0},{0,0}})",
+            "expected": "[[0, 0]]"
+          },
+          {
+            "expression": "adjacency(0,new int[][]{})",
+            "expected": "[]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 7,
+            "explanation": "Add one directed outgoing neighbour without losing isolated rows."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "For an undirected edge between 0 and 1, which rows need entries?",
+        "options": [
+          "Only row 0",
+          "Rows 0 and 1",
+          "No rows"
+        ],
+        "answer": 1,
+        "explanation": "Store 1 under 0 and 0 under 1, unless using a different explicitly documented representation."
+      },
+      "visualization": {
+        "exampleInput": "V=4; edges 0→1,0→2,2→3",
+        "expectedStates": [
+          "create four empty rows",
+          "row 0=[1,2]",
+          "row 2=[3]; rows 1,3 stay empty"
+        ],
+        "manipulation": "Toggle directedness or add an isolated vertex, self loop or parallel edge.",
+        "limits": "0–8 vertices and up to 16 edges; explicit graph-input renderer not yet implemented.",
+        "interactiveStatus": "specification-only",
+        "scene": null,
+        "gaps": [
+          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "original-adjacency-list",
+          "role": "introduction",
+          "connection": "Translate edges into a concrete representation.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1791",
+          "role": "transfer",
+          "connection": "Exploit a promised star structure and compare degree counts.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-bfs",
+      "title": "Breadth-First Search",
+      "order": 22,
+      "prerequisites": [
+        "concept-queues",
+        "concept-graphs"
+      ],
+      "lessonIds": [
+        "lesson-bfs"
+      ],
+      "objectives": [
+        "Use FIFO to explore by edge-distance layers.",
+        "Mark discovery on enqueue so a vertex is queued once."
+      ],
+      "mentalModel": "A queue holds the discovered frontier. Removing the oldest vertex finishes the nearer layer before later discoveries.",
+      "workedExample": "For the teaching graph with edges i→i+1 and i→i+2 where valid, start from 0. Queue [0] becomes [1,2], then [2,3], then [3,4]. Distances are [0,1,1,2,2,3].",
+      "invariant": "When first enqueued, distance[v] is the minimum number of unweighted edges from the source.",
+      "commonMistake": "Visited-on-removal can enqueue the same vertex many times. BFS does not minimize arbitrary weighted costs; unreachable vertices retain -1.",
+      "complexity": {
+        "time": "O(V+E) with adjacency lists",
+        "space": "O(V) auxiliary",
+        "assumptions": "Unweighted directed graph; valid source; neighbour order follows input."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] distances(List<List<Integer>> graph,int source) {\n        int[] distance=new int[graph.size()]; Arrays.fill(distance,-1);\n        Deque<Integer> queue=new ArrayDeque<>(); queue.addLast(source); distance[source]=0;\n        while(!queue.isEmpty()) {\n            int u=queue.removeFirst();\n            for(int v:graph.get(u)) if(distance[v]==-1) {\n                distance[v]=distance[u]+1; queue.addLast(v);\n            }\n        }\n        return distance;\n    }\n    static List<List<Integer>> adjacency(int n, int[][] edges) {\n    if(n<0)throw new IllegalArgumentException();\n    List<List<Integer>> graph=new ArrayList<>();\n    for(int i=0;i<n;i++)graph.add(new ArrayList<>());\n    for(int[] e:edges) {\n        if(e.length!=2 || e[0]<0 || e[0]>=n || e[1]<0 || e[1]>=n)throw new IllegalArgumentException();\n        graph.get(e[0]).add(e[1]);\n    }\n    return graph;\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] distances(List<List<Integer>> graph,int source) {\n        int[] distance=new int[graph.size()]; Arrays.fill(distance,-1);\n        Deque<Integer> queue=new ArrayDeque<>(); queue.addLast(source); distance[source]=0;\n        while(!queue.isEmpty()) {\n            int u=queue.removeFirst();\n            for(int v:graph.get(u)) if(distance[v]==-1) {\n                distance[v]=distance[u]+1; queue.addLast(v);\n            }\n        }\n        return distance;\n    }\n    static List<List<Integer>> adjacency(int n, int[][] edges) {\n    if(n<0)throw new IllegalArgumentException();\n    List<List<Integer>> graph=new ArrayList<>();\n    for(int i=0;i<n;i++)graph.add(new ArrayList<>());\n    for(int[] e:edges) {\n        if(e.length!=2 || e[0]<0 || e[0]>=n || e[1]<0 || e[1]>=n)throw new IllegalArgumentException();\n        graph.get(e[0]).add(e[1]);\n    }\n    return graph;\n}\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(distances(adjacency(6,new int[][]{{0,1},{0,2},{1,2},{1,3},{2,3},{2,4},{3,4},{3,5},{4,5}}),0))",
+            "expected": "[0, 1, 1, 2, 2, 3]"
+          },
+          {
+            "expression": "Arrays.toString(distances(adjacency(3,new int[][]{{0,0},{0,1},{0,1},{1,0}}),0))",
+            "expected": "[0, 1, -1]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 7,
+            "explanation": "Record discovery and distance before enqueueing, preventing duplicate queue entries."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Why mark a vertex discovered when it enters the queue?",
+        "options": [
+          "To prevent repeated enqueueing",
+          "To sort vertex IDs",
+          "To ignore all edges"
+        ],
+        "answer": 0,
+        "explanation": "Another parent can encounter it before it is removed; early discovery prevents duplicates."
+      },
+      "visualization": {
+        "exampleInput": "generated 6-vertex graph; source 0",
+        "expectedStates": [
+          "queue=[0]",
+          "expand 0:queue=[1,2]",
+          "expand 1:queue=[2,3]",
+          "distance=[0,1,1,2,2,3]"
+        ],
+        "manipulation": "Compare queue and discovery state; change generated input length.",
+        "limits": "Current trace generates a directed graph and ignores displayed weights for BFS; explicit adjacency/grid input is future work.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "bfs",
+          "input": "4,2,7,1,3,6",
+          "target": 3,
+          "seed": 42
+        },
+        "gaps": [
+          "Generated graph only; explicit graphs, cycles, disconnected vertices and multi-source grid input need renderer/input expansion.",
+          "The current trace records processing order; shortest-edge distances are verified in the Java example but are not yet displayed per vertex."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-102",
+          "role": "introduction",
+          "connection": "Reuse FIFO for nodes grouped by depth.",
+          "additionalPrerequisites": [
+            "concept-binary-trees"
+          ],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-994",
+          "role": "transfer",
+          "connection": "Use simultaneous grid sources and layer-based minutes.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-dfs",
+      "title": "Depth-First Search",
+      "order": 23,
+      "prerequisites": [
+        "concept-recursion",
+        "concept-graphs"
+      ],
+      "lessonIds": [
+        "lesson-dfs"
+      ],
+      "objectives": [
+        "Explore a branch before returning to its parent.",
+        "Use a visited set to handle cycles and a forest to cover disconnected components."
+      ],
+      "mentalModel": "Keep the current path on the call stack. Enter an unvisited neighbour, finish its descendants, then return to try the next neighbour.",
+      "workedExample": "With neighbours in ascending order on the generated six-vertex graph, DFS enters 0,1,2,3,4,5 before unwinding. Changing neighbour order can produce a different valid DFS.",
+      "invariant": "Every active frame represents a discovered vertex whose outgoing neighbours are not yet fully explored.",
+      "commonMistake": "DFS does not guarantee shortest paths. Mark before descending to break cycles. Pre-marking every sibling before exploring one can produce a traversal that is not recursive DFS.",
+      "complexity": {
+        "time": "O(V+E)",
+        "space": "O(V) visited/call stack",
+        "assumptions": "Small teaching graphs; outer loop covers disconnected components; recursion may overflow on deep real graphs."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<Integer> dfs(List<List<Integer>> graph) {\n        boolean[] seen=new boolean[graph.size()]; List<Integer> out=new ArrayList<>();\n        for(int u=0;u<graph.size();u++) if(!seen[u]) explore(graph,u,seen,out);\n        return out;\n    }\n    static void explore(List<List<Integer>> graph,int u,boolean[] seen,List<Integer> out) {\n        seen[u]=true; out.add(u);\n        for(int v:graph.get(u)) if(!seen[v]) explore(graph,v,seen,out);\n    }\n    static List<List<Integer>> adjacency(int n, int[][] edges) {\n    if(n<0)throw new IllegalArgumentException();\n    List<List<Integer>> graph=new ArrayList<>();\n    for(int i=0;i<n;i++)graph.add(new ArrayList<>());\n    for(int[] e:edges) {\n        if(e.length!=2 || e[0]<0 || e[0]>=n || e[1]<0 || e[1]>=n)throw new IllegalArgumentException();\n        graph.get(e[0]).add(e[1]);\n    }\n    return graph;\n}",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<Integer> dfs(List<List<Integer>> graph) {\n        boolean[] seen=new boolean[graph.size()]; List<Integer> out=new ArrayList<>();\n        for(int u=0;u<graph.size();u++) if(!seen[u]) explore(graph,u,seen,out);\n        return out;\n    }\n    static void explore(List<List<Integer>> graph,int u,boolean[] seen,List<Integer> out) {\n        seen[u]=true; out.add(u);\n        for(int v:graph.get(u)) if(!seen[v]) explore(graph,v,seen,out);\n    }\n    static List<List<Integer>> adjacency(int n, int[][] edges) {\n    if(n<0)throw new IllegalArgumentException();\n    List<List<Integer>> graph=new ArrayList<>();\n    for(int i=0;i<n;i++)graph.add(new ArrayList<>());\n    for(int[] e:edges) {\n        if(e.length!=2 || e[0]<0 || e[0]>=n || e[1]<0 || e[1]>=n)throw new IllegalArgumentException();\n        graph.get(e[0]).add(e[1]);\n    }\n    return graph;\n}\n}",
+        "cases": [
+          {
+            "expression": "dfs(adjacency(6,new int[][]{{0,1},{0,2},{1,2},{1,3},{2,3},{2,4},{3,4},{3,5},{4,5}}))",
+            "expected": "[0, 1, 2, 3, 4, 5]"
+          },
+          {
+            "expression": "dfs(adjacency(4,new int[][]{{0,1},{1,0},{2,2}}))",
+            "expected": "[0, 1, 2, 3]"
+          },
+          {
+            "expression": "dfs(adjacency(0,new int[][]{}))",
+            "expected": "[]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 8,
+            "explanation": "Suspend this frame and fully explore one unvisited neighbour before trying the next."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Does finding a vertex first with DFS prove the shortest route?",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "answer": 1,
+        "explanation": "DFS follows a branch without maintaining distance layers."
+      },
+      "visualization": {
+        "exampleInput": "generated 6-vertex graph, ascending neighbours",
+        "expectedStates": [
+          "enter 0",
+          "descend 1,2,3,4,5",
+          "exit 5,4,3,2,1,0"
+        ],
+        "manipulation": "Step through entry and return; compare recursive path with BFS frontier.",
+        "limits": "Up to 8 generated vertices; trace visits source component, full-code forest also handles disconnected graphs.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "dfs",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 3,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Generated graph only; explicit graphs and a visible call-frame stack remain Phase 2 work."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-200",
+          "role": "introduction",
+          "connection": "Count components across a full grid scan.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-733",
+          "role": "transfer",
+          "connection": "Recolour only the start component with early visited marking.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-dynamic-programming",
+      "title": "Dynamic Programming: Memoization and Tabulation",
+      "order": 24,
+      "prerequisites": [
+        "concept-prefix-sums",
+        "concept-recursion"
+      ],
+      "lessonIds": [
+        "lesson-memoization",
+        "lesson-tabulation"
+      ],
+      "objectives": [
+        "Define state, base cases and dependencies before coding.",
+        "Compare top-down caching with bottom-up evaluation and transfer to a new recurrence."
+      ],
+      "mentalModel": "A dependency graph can revisit the same smaller question. Memoization caches answers when requested; tabulation chooses an order with dependencies already available.",
+      "workedExample": "F(0)=0,F(1)=1. For n=7, both versions return 13 from table [0,1,1,2,3,5,8,13]. Staircase counts and House Robber reuse state thinking but have different meanings and base cases.",
+      "invariant": "A cached state is final; a bottom-up state reads only final earlier dependencies.",
+      "commonMistake": "Using zero to mean both uncomputed and a valid answer is ambiguous. Memorizing Fibonacci code does not define a state for House Robber; derive take/skip decisions for the prefix instead.",
+      "complexity": {
+        "time": "O(n) per Fibonacci version",
+        "space": "O(n) table; top-down also O(n) call stack",
+        "assumptions": "n=0..16; examples keep table for visibility; final-value rolling storage can use O(1)."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int fibMemo(int n) {\n        Integer[] memo=new Integer[n+1]; return solve(n,memo);\n    }\n    static int solve(int n,Integer[] memo) {\n        if(n<2)return n;\n        if(memo[n]==null)memo[n]=solve(n-1,memo)+solve(n-2,memo);\n        return memo[n];\n    }\n    static int fibTable(int n) {\n        int[] dp=new int[n+1]; if(n>0)dp[1]=1;\n        for(int i=2;i<=n;i++)dp[i]=dp[i-1]+dp[i-2];\n        return dp[n];\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int fibMemo(int n) {\n        Integer[] memo=new Integer[n+1]; return solve(n,memo);\n    }\n    static int solve(int n,Integer[] memo) {\n        if(n<2)return n;\n        if(memo[n]==null)memo[n]=solve(n-1,memo)+solve(n-2,memo);\n        return memo[n];\n    }\n    static int fibTable(int n) {\n        int[] dp=new int[n+1]; if(n>0)dp[1]=1;\n        for(int i=2;i<=n;i++)dp[i]=dp[i-1]+dp[i-2];\n        return dp[n];\n    }\n}",
+        "cases": [
+          {
+            "expression": "fibMemo(7)",
+            "expected": "13"
+          },
+          {
+            "expression": "fibTable(7)",
+            "expected": "13"
+          },
+          {
+            "expression": "fibMemo(0)",
+            "expected": "0"
+          },
+          {
+            "expression": "fibTable(1)",
+            "expected": "1"
+          },
+          {
+            "expression": "fibMemo(16)==fibTable(16)",
+            "expected": "true"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 11,
+            "explanation": "Read two final dependencies and store the destination state exactly once."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "If F(4)=3 and F(5)=5, what is F(6)?",
+        "options": [
+          "5",
+          "8",
+          "13"
+        ],
+        "answer": 1,
+        "explanation": "The recurrence reads both earlier states: 3+5=8."
+      },
+      "visualization": {
+        "exampleInput": "F(7), base F(0)=0,F(1)=1",
+        "expectedStates": [
+          "base [0,1]",
+          "write 1,2,3,5,8,13",
+          "both methods return 13"
+        ],
+        "manipulation": "Change n, compare repeated calls with cache hits and bottom-up writes.",
+        "limits": "n=0..16; do not imply Fibonacci is the complete DP curriculum; practice derives two distinct state models.",
+        "interactiveStatus": "existing-limited",
+        "scene": {
+          "algorithm": "memoization",
+          "input": "4, 2, 7, 1, 3, 6",
+          "target": 8,
+          "words": "tree, trie, try, track"
+        },
+        "gaps": [
+          "Fibonacci is supported; staircase and take/skip practice require their own state explanations and future interactive scenes."
+        ]
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-70",
+          "role": "introduction",
+          "connection": "Derive route-count states and correct bases.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-198",
+          "role": "transfer",
+          "connection": "Derive maximum-value prefix states with take/skip choices.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    }
+  ],
+  "questions": [
+    {
+      "id": "leetcode-1480",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1480",
+      "title": "Running Sum of 1D Array",
+      "canonicalUrl": "https://leetcode.com/problems/running-sum-of-1d-array/",
+      "conceptTags": [
+        "concept-arrays",
+        "concept-prefix-sums"
+      ],
+      "progressiveHints": [
+        "Write the total after each position.",
+        "The next total reuses the previous one.",
+        "Scan left to right, add the current value, and record the running total."
+      ],
+      "approachOutline": "Scan left to right, add the current value, and record the running total.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-121",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "121",
+      "title": "Best Time to Buy and Sell Stock",
+      "canonicalUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+      "conceptTags": [
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "A sale must come after its purchase.",
+        "Remember the lowest earlier price.",
+        "Track the minimum price seen and the best later-price difference; retain zero if no profitable trade exists."
+      ],
+      "approachOutline": "Track the minimum price seen and the best later-price difference; retain zero if no profitable trade exists.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-14",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "14",
+      "title": "Longest Common Prefix",
+      "canonicalUrl": "https://leetcode.com/problems/longest-common-prefix/",
+      "conceptTags": [
+        "concept-strings",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Compare the same position across strings.",
+        "Stop at a mismatch or the shortest length.",
+        "Scan characters of the first string while every other string matches; return the matched prefix."
+      ],
+      "approachOutline": "Scan characters of the first string while every other string matches; return the matched prefix.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-28",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "28",
+      "title": "Find the Index of the First Occurrence in a String",
+      "canonicalUrl": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/",
+      "conceptTags": [
+        "concept-strings"
+      ],
+      "progressiveHints": [
+        "Try each possible starting position.",
+        "A mismatch rules out that start, not every later start.",
+        "Use a bounded nested comparison as the introductory solution; separate this baseline from later KMP optimization."
+      ],
+      "approachOutline": "Use a bounded nested comparison as the introductory solution; separate this baseline from later KMP optimization.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-217",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "217",
+      "title": "Contains Duplicate",
+      "canonicalUrl": "https://leetcode.com/problems/contains-duplicate/",
+      "conceptTags": [
+        "concept-hashing",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "What must you remember from earlier positions?",
+        "A set stores membership without storing counts.",
+        "Scan once and return when insertion finds an already present value; otherwise no duplicate exists."
+      ],
+      "approachOutline": "Scan once and return when insertion finds an already present value; otherwise no duplicate exists.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1",
+      "title": "Two Sum",
+      "canonicalUrl": "https://leetcode.com/problems/two-sum/",
+      "conceptTags": [
+        "concept-hashing",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "For a value x, which partner completes the target?",
+        "Look for target-x among earlier positions.",
+        "Check a value-to-index map before inserting the current index, so an element cannot pair with itself."
+      ],
+      "approachOutline": "Check a value-to-index map before inserting the current index, so an element cannot pair with itself.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-88",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "88",
+      "title": "Merge Sorted Array",
+      "canonicalUrl": "https://leetcode.com/problems/merge-sorted-array/",
+      "conceptTags": [
+        "concept-sorting",
+        "concept-two-pointers",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Writing at the front can overwrite unread values.",
+        "The spare slots are at the back.",
+        "Compare the largest remaining values and fill the destination backwards, then copy any remaining second-array values."
+      ],
+      "approachOutline": "Compare the largest remaining values and fill the destination backwards, then copy any remaining second-array values.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-912",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "912",
+      "title": "Sort an Array",
+      "canonicalUrl": "https://leetcode.com/problems/sort-an-array/",
+      "conceptTags": [
+        "concept-sorting",
+        "concept-recursion"
+      ],
+      "progressiveHints": [
+        "Separate ordering into smaller ordered pieces.",
+        "Merge two sorted halves with two cursors.",
+        "Implement merge sort with a reusable temporary buffer; prove the merge invariant and include the O(n log n) total work."
+      ],
+      "approachOutline": "Implement merge sort with a reusable temporary buffer; prove the merge invariant and include the O(n log n) total work.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-303",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "303",
+      "title": "Range Sum Query - Immutable",
+      "canonicalUrl": "https://leetcode.com/problems/range-sum-query-immutable/",
+      "conceptTags": [
+        "concept-prefix-sums",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Repeated queries should reuse preprocessing.",
+        "Store a zero before the first value.",
+        "Build exclusive prefixes and convert the problem’s inclusive right endpoint to prefix[right+1]-prefix[left]."
+      ],
+      "approachOutline": "Build exclusive prefixes and convert the problem’s inclusive right endpoint to prefix[right+1]-prefix[left].",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-560",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "560",
+      "title": "Subarray Sum Equals K",
+      "canonicalUrl": "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "conceptTags": [
+        "concept-prefix-sums",
+        "concept-hashing"
+      ],
+      "progressiveHints": [
+        "Write a subarray sum as a difference of prefixes.",
+        "Count earlier prefixes equal to currentPrefix-k.",
+        "Seed prefix frequency zero with one occurrence; query before incrementing the current prefix frequency. This handles negative values."
+      ],
+      "approachOutline": "Seed prefix frequency zero with one occurrence; query before incrementing the current prefix frequency. This handles negative values.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-125",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "125",
+      "title": "Valid Palindrome",
+      "canonicalUrl": "https://leetcode.com/problems/valid-palindrome/",
+      "conceptTags": [
+        "concept-strings",
+        "concept-two-pointers"
+      ],
+      "progressiveHints": [
+        "Only relevant characters need comparison.",
+        "Skip non-alphanumeric characters at either end.",
+        "Move opposing cursors inward, compare normalized characters and stop at the first mismatch under the statement’s character rules."
+      ],
+      "approachOutline": "Move opposing cursors inward, compare normalized characters and stop at the first mismatch under the statement’s character rules.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-167",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "167",
+      "title": "Two Sum II - Input Array Is Sorted",
+      "canonicalUrl": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
+      "conceptTags": [
+        "concept-two-pointers",
+        "concept-sorting"
+      ],
+      "progressiveHints": [
+        "Use the ordering instead of trying every pair.",
+        "A small sum needs a larger left value.",
+        "Compare endpoint sums and move exactly the cursor justified by the comparison; convert indices to the required output convention."
+      ],
+      "approachOutline": "Compare endpoint sums and move exactly the cursor justified by the comparison; convert indices to the required output convention.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-643",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "643",
+      "title": "Maximum Average Subarray I",
+      "canonicalUrl": "https://leetcode.com/problems/maximum-average-subarray-i/",
+      "conceptTags": [
+        "concept-fixed-window",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Every candidate contains the same number of values.",
+        "Maximizing average is equivalent to maximizing its fixed-size sum.",
+        "Maintain the k-value sum and best sum, then divide by k using floating-point arithmetic."
+      ],
+      "approachOutline": "Maintain the k-value sum and best sum, then divide by k using floating-point arithmetic.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-3",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "3",
+      "title": "Longest Substring Without Repeating Characters",
+      "canonicalUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+      "conceptTags": [
+        "concept-variable-window",
+        "concept-hashing",
+        "concept-strings"
+      ],
+      "progressiveHints": [
+        "A valid frame contains each character at most once.",
+        "Shrink until the incoming character is absent.",
+        "Maintain a set or latest-position map and update the longest valid contiguous length after restoring the invariant."
+      ],
+      "approachOutline": "Maintain a set or latest-position map and update the longest valid contiguous length after restoring the invariant.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-209",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "209",
+      "title": "Minimum Size Subarray Sum",
+      "canonicalUrl": "https://leetcode.com/problems/minimum-size-subarray-sum/",
+      "conceptTags": [
+        "concept-variable-window",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "The positivity constraint makes sums grow when extending.",
+        "Once valid, shrink while the target remains satisfied.",
+        "Extend right and repeatedly remove left values while sum>=target, recording minimum length; return the stated no-solution result."
+      ],
+      "approachOutline": "Extend right and repeatedly remove left values while sum>=target, recording minimum length; return the stated no-solution result.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-704",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "704",
+      "title": "Binary Search",
+      "canonicalUrl": "https://leetcode.com/problems/binary-search/",
+      "conceptTags": [
+        "concept-binary-search",
+        "concept-sorting"
+      ],
+      "progressiveHints": [
+        "Which half can contain the target?",
+        "Every comparison must shrink the interval.",
+        "Use inclusive low/high boundaries and mid±1 updates; return an index on equality or -1 when the interval empties."
+      ],
+      "approachOutline": "Use inclusive low/high boundaries and mid±1 updates; return an index on equality or -1 when the interval empties.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-35",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "35",
+      "title": "Search Insert Position",
+      "canonicalUrl": "https://leetcode.com/problems/search-insert-position/",
+      "conceptTags": [
+        "concept-binary-search",
+        "concept-sorting"
+      ],
+      "progressiveHints": [
+        "Find the first position whose value is at least target.",
+        "Keep a boundary even when equality is not found.",
+        "Use a lower-bound search over [low,high); the final boundary is the insertion position and may equal the length."
+      ],
+      "approachOutline": "Use a lower-bound search over [low,high); the final boundary is the insertion position and may equal the length.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-56",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "56",
+      "title": "Merge Intervals",
+      "canonicalUrl": "https://leetcode.com/problems/merge-intervals/",
+      "conceptTags": [
+        "concept-intervals",
+        "concept-sorting"
+      ],
+      "progressiveHints": [
+        "Unordered starts obscure which segment comes next.",
+        "After sorting, only the latest merged interval can overlap.",
+        "Sort by start, extend the current end for overlaps and append a new segment for disjoint intervals; state endpoint rules."
+      ],
+      "approachOutline": "Sort by start, extend the current end for overlaps and append a new segment for disjoint intervals; state endpoint rules.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-57",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "57",
+      "title": "Insert Interval",
+      "canonicalUrl": "https://leetcode.com/problems/insert-interval/",
+      "conceptTags": [
+        "concept-intervals",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "The input is already sorted and disjoint.",
+        "There are before, overlapping and after regions.",
+        "Copy intervals strictly before the new one, merge the overlapping range, then append the untouched suffix."
+      ],
+      "approachOutline": "Copy intervals strictly before the new one, merge the overlapping range, then append the untouched suffix.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-867",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "867",
+      "title": "Transpose Matrix",
+      "canonicalUrl": "https://leetcode.com/problems/transpose-matrix/",
+      "conceptTags": [
+        "concept-matrices",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "A source row becomes a destination column.",
+        "The output dimensions must swap.",
+        "Allocate columns×rows output and copy input[r][c] to output[c][r]; test a rectangular example."
+      ],
+      "approachOutline": "Allocate columns×rows output and copy input[r][c] to output[c][r]; test a rectangular example.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-54",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "54",
+      "title": "Spiral Matrix",
+      "canonicalUrl": "https://leetcode.com/problems/spiral-matrix/",
+      "conceptTags": [
+        "concept-matrices",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Track the unvisited rectangular boundaries.",
+        "Each side traversal consumes one boundary.",
+        "Walk top, right, bottom and left while shrinking bounds; recheck bounds before the final two sides to avoid duplicates."
+      ],
+      "approachOutline": "Walk top, right, bottom and left while shrinking bounds; recheck bounds before the final two sides to avoid duplicates.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-206",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "206",
+      "title": "Reverse Linked List",
+      "canonicalUrl": "https://leetcode.com/problems/reverse-linked-list/",
+      "conceptTags": [
+        "concept-linked-lists",
+        "concept-recursion"
+      ],
+      "progressiveHints": [
+        "Preserve access to the suffix before changing an arrow.",
+        "Track previous, current and saved next.",
+        "Iteratively reverse one link at a time; later revisit recursively by reversing the suffix and reconnecting the former head."
+      ],
+      "approachOutline": "Iteratively reverse one link at a time; later revisit recursively by reversing the suffix and reconnecting the former head.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-21",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "21",
+      "title": "Merge Two Sorted Lists",
+      "canonicalUrl": "https://leetcode.com/problems/merge-two-sorted-lists/",
+      "conceptTags": [
+        "concept-linked-lists",
+        "concept-sorting"
+      ],
+      "progressiveHints": [
+        "The smaller head can be chosen permanently.",
+        "A dummy head simplifies the first append.",
+        "Advance the chosen list and tail, then attach the remaining suffix; maintain sorted output and do not create cycles."
+      ],
+      "approachOutline": "Advance the chosen list and tail, then attach the remaining suffix; maintain sorted output and do not create cycles.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-20",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "20",
+      "title": "Valid Parentheses",
+      "canonicalUrl": "https://leetcode.com/problems/valid-parentheses/",
+      "conceptTags": [
+        "concept-stacks",
+        "concept-strings"
+      ],
+      "progressiveHints": [
+        "The latest unmatched opening must close first.",
+        "An unexpected closing bracket can fail immediately.",
+        "Push opening brackets; each closing bracket must match the current top. Accept only when the stack is empty at the end."
+      ],
+      "approachOutline": "Push opening brackets; each closing bracket must match the current top. Accept only when the stack is empty at the end.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-155",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "155",
+      "title": "Min Stack",
+      "canonicalUrl": "https://leetcode.com/problems/min-stack/",
+      "conceptTags": [
+        "concept-stacks"
+      ],
+      "progressiveHints": [
+        "The minimum must recover after a pop.",
+        "Store the minimum at each depth, not just one global minimum.",
+        "Keep a parallel minimum stack or value/minimum pair so push, pop, top and minimum have constant-time state updates."
+      ],
+      "approachOutline": "Keep a parallel minimum stack or value/minimum pair so push, pop, top and minimum have constant-time state updates.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-933",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "933",
+      "title": "Number of Recent Calls",
+      "canonicalUrl": "https://leetcode.com/problems/number-of-recent-calls/",
+      "conceptTags": [
+        "concept-queues"
+      ],
+      "progressiveHints": [
+        "Calls older than the time window can be discarded.",
+        "Increasing timestamps put expired entries at the front.",
+        "Append the new timestamp, remove entries strictly older than the inclusive lower bound, and report queue size."
+      ],
+      "approachOutline": "Append the new timestamp, remove entries strictly older than the inclusive lower bound, and report queue size.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-232",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "232",
+      "title": "Implement Queue using Stacks",
+      "canonicalUrl": "https://leetcode.com/problems/implement-queue-using-stacks/",
+      "conceptTags": [
+        "concept-queues",
+        "concept-stacks"
+      ],
+      "progressiveHints": [
+        "Moving a stack into another reverses its order.",
+        "Do not transfer while the output stack still has items.",
+        "Push to an input stack; refill the output stack only when empty. Each element transfers once, giving amortized O(1) operations."
+      ],
+      "approachOutline": "Push to an input stack; refill the output stack only when empty. Each element transfers once, giving amortized O(1) operations.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-78",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "78",
+      "title": "Subsets",
+      "canonicalUrl": "https://leetcode.com/problems/subsets/",
+      "conceptTags": [
+        "concept-backtracking",
+        "concept-recursion"
+      ],
+      "progressiveHints": [
+        "Each distinct input item has an include/exclude choice.",
+        "Undo a choice before visiting its sibling.",
+        "Explore both choices recursively and snapshot paths into output; include the empty subset and account for output size."
+      ],
+      "approachOutline": "Explore both choices recursively and snapshot paths into output; include the empty subset and account for output size.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-39",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "39",
+      "title": "Combination Sum",
+      "canonicalUrl": "https://leetcode.com/problems/combination-sum/",
+      "conceptTags": [
+        "concept-backtracking",
+        "concept-recursion"
+      ],
+      "progressiveHints": [
+        "Track the remaining target and the lowest allowed candidate index.",
+        "Reusing an index allows repeated use without reordered duplicates.",
+        "Explore candidates from a nondecreasing index, recurse with a reduced remainder and undo the choice; positive candidates justify pruning."
+      ],
+      "approachOutline": "Explore candidates from a nondecreasing index, recurse with a reduced remainder and undo the choice; positive candidates justify pruning.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-104",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "104",
+      "title": "Maximum Depth of Binary Tree",
+      "canonicalUrl": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+      "conceptTags": [
+        "concept-binary-trees",
+        "concept-recursion"
+      ],
+      "progressiveHints": [
+        "What depth should an empty subtree return?",
+        "Combine two already solved child depths.",
+        "Return zero for null and one plus the larger child depth otherwise; specify that depth counts nodes."
+      ],
+      "approachOutline": "Return zero for null and one plus the larger child depth otherwise; specify that depth counts nodes.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-94",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "94",
+      "title": "Binary Tree Inorder Traversal",
+      "canonicalUrl": "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+      "conceptTags": [
+        "concept-binary-trees",
+        "concept-recursion",
+        "concept-stacks"
+      ],
+      "progressiveHints": [
+        "Place the node visit between its child traversals.",
+        "A stack can hold the deferred ancestors.",
+        "Traverse left, visit node, traverse right; implement recursively first, then an explicit stack as an extension."
+      ],
+      "approachOutline": "Traverse left, visit node, traverse right; implement recursively first, then an explicit stack as an extension.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-700",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "700",
+      "title": "Search in a Binary Search Tree",
+      "canonicalUrl": "https://leetcode.com/problems/search-in-a-binary-search-tree/",
+      "conceptTags": [
+        "concept-bst",
+        "concept-binary-search"
+      ],
+      "progressiveHints": [
+        "Compare target to the current key.",
+        "One whole subtree is impossible after each comparison.",
+        "Follow left for smaller targets and right for larger ones, returning the matching node or null; cost depends on height."
+      ],
+      "approachOutline": "Follow left for smaller targets and right for larger ones, returning the matching node or null; cost depends on height.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-98",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "98",
+      "title": "Validate Binary Search Tree",
+      "canonicalUrl": "https://leetcode.com/problems/validate-binary-search-tree/",
+      "conceptTags": [
+        "concept-bst",
+        "concept-binary-trees",
+        "concept-recursion"
+      ],
+      "progressiveHints": [
+        "Immediate child comparisons do not constrain all descendants.",
+        "Carry strict lower and upper bounds down the tree.",
+        "Each key must lie inside its inherited bounds; narrow the upper bound on the left and lower bound on the right, using safe bound types."
+      ],
+      "approachOutline": "Each key must lie inside its inherited bounds; narrow the upper bound on the left and lower bound on the right, using safe bound types.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-703",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "703",
+      "title": "Kth Largest Element in a Stream",
+      "canonicalUrl": "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
+      "conceptTags": [
+        "concept-heaps",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "You only need to retain the k largest values so far.",
+        "The smallest retained value is the kth largest.",
+        "Maintain a min-heap of at most k values, remove its minimum when oversized and report the root under the API’s input guarantees."
+      ],
+      "approachOutline": "Maintain a min-heap of at most k values, remove its minimum when oversized and report the root under the API’s input guarantees.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1046",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1046",
+      "title": "Last Stone Weight",
+      "canonicalUrl": "https://leetcode.com/problems/last-stone-weight/",
+      "conceptTags": [
+        "concept-heaps"
+      ],
+      "progressiveHints": [
+        "Each round needs the two current largest values.",
+        "Sorting from scratch repeats work.",
+        "Use a max-heap, remove two largest weights and insert their nonzero difference; return zero for an empty result."
+      ],
+      "approachOutline": "Use a max-heap, remove two largest weights and insert their nonzero difference; return zero for an empty result.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1791",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1791",
+      "title": "Find Center of Star Graph",
+      "canonicalUrl": "https://leetcode.com/problems/find-center-of-star-graph/",
+      "conceptTags": [
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "Use the promise that this graph is a star.",
+        "The first two edges already share the centre.",
+        "Return their common endpoint; also explain the degree-counting representation-based solution and why the star guarantee is essential."
+      ],
+      "approachOutline": "Return their common endpoint; also explain the degree-counting representation-based solution and why the star guarantee is essential.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-102",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "102",
+      "title": "Binary Tree Level Order Traversal",
+      "canonicalUrl": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+      "conceptTags": [
+        "concept-bfs",
+        "concept-binary-trees",
+        "concept-queues"
+      ],
+      "progressiveHints": [
+        "The queue orders nodes by discovery depth.",
+        "Capture the current queue size before processing a level.",
+        "Process exactly that many nodes into one output row and enqueue their children for the next row; handle a null root."
+      ],
+      "approachOutline": "Process exactly that many nodes into one output row and enqueue their children for the next row; handle a null root.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-994",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "994",
+      "title": "Rotting Oranges",
+      "canonicalUrl": "https://leetcode.com/problems/rotting-oranges/",
+      "conceptTags": [
+        "concept-bfs",
+        "concept-matrices",
+        "concept-queues"
+      ],
+      "progressiveHints": [
+        "All initially rotten cells are simultaneous sources.",
+        "A BFS layer represents one minute, not one cell.",
+        "Queue all sources, mark fresh neighbours when enqueued, track minutes by layers and detect fresh cells left unreachable."
+      ],
+      "approachOutline": "Queue all sources, mark fresh neighbours when enqueued, track minutes by layers and detect fresh cells left unreachable.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-200",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "200",
+      "title": "Number of Islands",
+      "canonicalUrl": "https://leetcode.com/problems/number-of-islands/",
+      "conceptTags": [
+        "concept-dfs",
+        "concept-graphs",
+        "concept-matrices"
+      ],
+      "progressiveHints": [
+        "One traversal consumes one connected land component.",
+        "Start a traversal only at unvisited land.",
+        "Scan the grid; each new land seed increments the count and floods its four-neighbour component using DFS or BFS."
+      ],
+      "approachOutline": "Scan the grid; each new land seed increments the count and floods its four-neighbour component using DFS or BFS.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-733",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "733",
+      "title": "Flood Fill",
+      "canonicalUrl": "https://leetcode.com/problems/flood-fill/",
+      "conceptTags": [
+        "concept-dfs",
+        "concept-matrices"
+      ],
+      "progressiveHints": [
+        "Only the starting colour’s connected component changes.",
+        "If the replacement equals the starting colour, return early.",
+        "Visit matching four-neighbour cells and mark them before exploring neighbours; preserve disconnected matching regions."
+      ],
+      "approachOutline": "Visit matching four-neighbour cells and mark them before exploring neighbours; preserve disconnected matching regions.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-70",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "70",
+      "title": "Climbing Stairs",
+      "canonicalUrl": "https://leetcode.com/problems/climbing-stairs/",
+      "conceptTags": [
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "Define a state as the number of routes to a step.",
+        "The final move comes from one or two steps below.",
+        "Use ways[0]=1 and the appropriate first-step base, then sum predecessor counts; explain why this differs from Fibonacci’s state interpretation."
+      ],
+      "approachOutline": "Use ways[0]=1 and the appropriate first-step base, then sum predecessor counts; explain why this differs from Fibonacci’s state interpretation.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-198",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "198",
+      "title": "House Robber",
+      "canonicalUrl": "https://leetcode.com/problems/house-robber/",
+      "conceptTags": [
+        "concept-dynamic-programming",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Define best for a prefix of houses.",
+        "For the last house, either skip it or take it and skip its neighbour.",
+        "Use best[i]=max(best[i-1], value[i-1]+best[i-2]) with empty-prefix base zero; optionally roll two previous results."
+      ],
+      "approachOutline": "Use best[i]=max(best[i-1], value[i-1]+best[i-2]) with empty-prefix base zero; optionally roll two previous results.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75",
+          "company-2026"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null,
+        "companyObservations": [
+          {
+            "sourceId": "company-csv",
+            "company": "Amazon",
+            "revision": "2b71796266751b4736a7ef180efb6847879166ee",
+            "file": "Amazon/5. All.csv"
+          },
+          {
+            "sourceId": "company-2026",
+            "company": "Amazon",
+            "revision": "e095c259cfd036e3ddb6886e84d7075c2faac477",
+            "file": "amazon/all.csv"
+          }
+        ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "original-operation-counts",
+      "kind": "original-exercise",
+      "platform": "1on1",
+      "title": "Count Loop Operations",
+      "canonicalUrl": null,
+      "conceptTags": [
+        "concept-complexity"
+      ],
+      "progressiveHints": [
+        "Choose exactly which operation is counted.",
+        "Count a single pass, then all ordered index pairs.",
+        "For n=8 the two counters are 8 and 64."
+      ],
+      "approachOutline": "Derive n and n² body counts and separate those counts from measured machine time.",
+      "provenance": {
+        "sourceIds": [
+          "1on1-original"
+        ],
+        "selectionBasis": "Original teaching exercise; no company attribution."
+      },
+      "implementationStatus": "planned-phase-2",
+      "localProblemId": null
+    },
+    {
+      "id": "original-growth-comparison",
+      "kind": "original-exercise",
+      "platform": "1on1",
+      "title": "Compare Linear and Halving Growth",
+      "canonicalUrl": null,
+      "conceptTags": [
+        "concept-complexity"
+      ],
+      "progressiveHints": [
+        "Write the visited halving values.",
+        "Compare n=8 and n=16.",
+        "Halving iterations rise from 4 to 5 while a full scan doubles."
+      ],
+      "approachOutline": "Track integer halving until zero; explain the logarithmic count including its boundary case n=0.",
+      "provenance": {
+        "sourceIds": [
+          "1on1-original"
+        ],
+        "selectionBasis": "Original teaching exercise; no company attribution."
+      },
+      "implementationStatus": "planned-phase-2",
+      "localProblemId": null
+    },
+    {
+      "id": "original-recursive-sum",
+      "kind": "original-exercise",
+      "platform": "1on1",
+      "title": "Recursive Array Sum",
+      "canonicalUrl": null,
+      "conceptTags": [
+        "concept-recursion",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "What is the sum of an empty suffix?",
+        "Advance the index to reduce the remaining problem.",
+        "Return a[i]+sumFrom(a,i+1), with zero at i==length."
+      ],
+      "approachOutline": "Use one stack frame per remaining element, showing both returned sum and O(n) stack use.",
+      "provenance": {
+        "sourceIds": [
+          "1on1-original"
+        ],
+        "selectionBasis": "Original teaching exercise; no company attribution."
+      },
+      "implementationStatus": "planned-phase-2",
+      "localProblemId": null
+    },
+    {
+      "id": "original-adjacency-list",
+      "kind": "original-exercise",
+      "platform": "1on1",
+      "title": "Build an Adjacency List",
+      "canonicalUrl": null,
+      "conceptTags": [
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "Allocate a row for every vertex.",
+        "Add each directed edge to its source row.",
+        "Keep isolated vertices, self loops and parallel edges visible."
+      ],
+      "approachOutline": "Construct outgoing lists, validate vertex identifiers, then demonstrate how an undirected representation adds reverse entries.",
+      "provenance": {
+        "sourceIds": [
+          "1on1-original"
+        ],
+        "selectionBasis": "Original teaching exercise; no company attribution."
+      },
+      "implementationStatus": "planned-phase-2",
+      "localProblemId": null
+    },
+    {
+      "id": "original-window-sum",
+      "kind": "local-problem-reference",
+      "platform": "1on1",
+      "title": "Three-reading window",
+      "canonicalUrl": null,
+      "conceptTags": [
+        "concept-fixed-window",
+        "concept-arrays"
+      ],
+      "progressiveHints": [
+        "Adjacent windows share k-1 readings.",
+        "Subtract the outgoing reading and add the incoming reading.",
+        "Compare full windows only; initialize below all valid sums."
+      ],
+      "approachOutline": "For this existing problem k=3: reuse a three-value sum and keep the largest full-window result, including all-negative inputs.",
+      "provenance": {
+        "sourceIds": [
+          "1on1-original"
+        ],
+        "selectionBasis": "Original teaching exercise; no company attribution."
+      },
+      "implementationStatus": "existing",
+      "localProblemId": "problem-three-window"
+    }
+  ],
+  "advancedBranch": [
+    {
+      "lessonId": "lesson-avl",
+      "title": "AVL Trees",
+      "prerequisites": [
+        "concept-bst"
+      ]
+    },
+    {
+      "lessonId": "lesson-trie",
+      "title": "Tries",
+      "prerequisites": [
+        "concept-hashing",
+        "concept-strings"
+      ]
+    },
+    {
+      "lessonId": "lesson-dijkstra",
+      "title": "Dijkstra's Algorithm",
+      "prerequisites": [
+        "concept-bfs",
+        "concept-heaps"
+      ]
+    },
+    {
+      "lessonId": "lesson-max-flow",
+      "title": "Maximum Flow: Edmonds–Karp",
+      "prerequisites": [
+        "concept-bfs"
+      ]
+    },
+    {
+      "lessonId": "lesson-set-cover",
+      "title": "Greedy Set Cover",
+      "prerequisites": [
+        "concept-hashing"
+      ]
+    },
+    {
+      "lessonId": "lesson-quickselect",
+      "title": "Randomized Quickselect",
+      "prerequisites": [
+        "concept-sorting"
+      ]
+    },
+    {
+      "lessonId": "lesson-bloom-filter",
+      "title": "Bloom Filters",
+      "prerequisites": [
+        "concept-hashing"
+      ]
+    }
+  ],
+  "delivery": {
+    "skillTreeUi": "decision-after-curriculum-review",
+    "practice": "phase-2",
+    "uiUx": "phase-2"
+  }
+}

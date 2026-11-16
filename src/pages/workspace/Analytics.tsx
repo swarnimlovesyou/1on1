@@ -79,10 +79,10 @@ function AnalyticsContent() {
       />
       <div className="progress-summary">
         <div>
-          <span>Concepts explored</span>
+          <span>Notebooks explored</span>
           <strong>
             {progress.completed.length}
-            <small> / 24</small>
+            <small> / {lessons.data?.length ?? "…"}</small>
           </strong>
         </div>
         <div>

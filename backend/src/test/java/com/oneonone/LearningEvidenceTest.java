@@ -317,4 +317,119 @@ class LearningEvidenceTest {
     assertEquals(initial.get(0).id(), last.entities().getLast().id());
     assertEquals(initial.size(), last.links().size());
   }
+
+  @Test
+  void readingOnlyContextIsOwnedAndDoesNotInventAnExperimentOrActivity() {
+    var study = new StudyController(store, traces, challenges, progress);
+    var auth =
+      new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+        "alice",
+        "unused",
+        List.of()
+      );
+    var saved = study.save(
+      auth,
+      "lesson-arrays",
+      new Contracts.StudyContext(1, "lesson-arrays", null, 0, "code", "")
+    );
+    assertFalse(saved.containsKey("scene"));
+    assertEquals("code", study.get(auth, "lesson-arrays").get("section"));
+    assertEquals(Map.of(), progress.summary("alice").get("activity"));
+    assertThrows(IllegalArgumentException.class, () ->
+      study.save(
+        auth,
+        "lesson-bfs",
+        new Contracts.StudyContext(1, "lesson-bfs", null, 0, "idea", "")
+      )
+    );
+    var bob =
+      new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+        "bob",
+        "unused",
+        List.of()
+      );
+    assertThrows(
+      org.springframework.web.server.ResponseStatusException.class,
+      () -> study.get(bob, "lesson-arrays")
+    );
+  }
+
+  @Test
+  void curriculumSeedUpdatePreservesEditedLessonsAndPrivateLearningRecords() throws Exception {
+    var lesson = new LinkedHashMap<>(store.get("lesson-two-pointers"));
+    lesson.put("edited", true);
+    lesson.put("title", "My edited lesson");
+    store.put("lesson-two-pointers", "lesson", "public", lesson);
+    store.put(
+      "note-retained",
+      "note",
+      "alice",
+      Map.of("text", "My own explanation")
+    );
+    store.put(
+      "draft-retained",
+      "draft",
+      "alice",
+      Map.of("code", "// saved draft")
+    );
+    progress.update(
+      "alice",
+      Map.of("completed", List.of("lesson-two-pointers"))
+    );
+    progress.accepted("alice", "problem-three-window", "submission-retained");
+    var context = store.put(
+      "study-retained",
+      "study-context",
+      "alice",
+      Map.of(
+        "version",
+        1,
+        "lesson",
+        "lesson-bfs",
+        "step",
+        3,
+        "scene",
+        Map.of(
+          "algorithm",
+          "bfs",
+          "input",
+          "4,2,7,1,3,6",
+          "target",
+          3,
+          "seed",
+          42
+        )
+      )
+    );
+    var seed = new ContentSeed(
+      store,
+      new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
+    );
+    seed.demo = false;
+    seed.adminEmail = "";
+    seed.adminPassword = "";
+    seed.run();
+    assertEquals(
+      "My edited lesson",
+      store.get("lesson-two-pointers").get("title")
+    );
+    assertEquals(
+      "My own explanation",
+      store.owned("note-retained", "alice").get("text")
+    );
+    assertEquals(
+      "// saved draft",
+      store.owned("draft-retained", "alice").get("code")
+    );
+    assertEquals(
+      List.of("lesson-two-pointers"),
+      progress.summary("alice").get("completed")
+    );
+    assertEquals(33, store.list("lesson", "public").size());
+    assertEquals(context, store.owned("study-retained", "alice"));
+    assertEquals(
+      List.of("problem-three-window"),
+      progress.summary("alice").get("solved")
+    );
+  }
 }

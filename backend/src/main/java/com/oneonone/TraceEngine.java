@@ -962,6 +962,20 @@ public class TraceEngine {
       }
       return;
     }
+    if (alg.equals("dfs")) {
+      var seen = new boolean[n];
+      var frames = new ArrayList<Integer>();
+      int[] count = { 0 };
+      depthFirst(r, g, 0, seen, frames, count);
+      r.extra.put("activeEdge", "");
+      r.step(
+        "Return from the source: every reachable vertex was explored.",
+        4,
+        List.of(),
+        Map.of("visited", count[0], "frontier", List.of(), "mode", "dfs")
+      );
+      return;
+    }
     boolean[] seen = new boolean[n];
     Deque<Integer> q = new ArrayDeque<>();
     q.add(0);
@@ -997,6 +1011,56 @@ public class TraceEngine {
       4,
       List.of(),
       Map.of("visited", order, "frontier", List.of())
+    );
+  }
+
+  void depthFirst(
+    Run r,
+    int[][] graph,
+    int u,
+    boolean[] seen,
+    List<Integer> frames,
+    int[] count
+  ) {
+    seen[u] = true;
+    r.a.set(u, count[0]++);
+    frames.add(u);
+    r.step(
+      "Enter vertex " + u + "; keep its frame while exploring descendants.",
+      0,
+      List.of(u),
+      Map.of("visiting", u, "frontier", List.copyOf(frames), "mode", "dfs")
+    );
+    for (int v = 0; v < graph.length; v++) if (graph[u][v] > 0 && !seen[v]) {
+      r.extra.put("activeEdge", "edge-" + u + "-" + v);
+      r.step(
+        "Descend to neighbour " +
+          v +
+          " before trying another neighbour of " +
+          u +
+          ".",
+        2,
+        List.of(u, v),
+        Map.of(
+          "visiting",
+          u,
+          "discovered",
+          v,
+          "frontier",
+          List.copyOf(frames),
+          "mode",
+          "dfs"
+        )
+      );
+      depthFirst(r, graph, v, seen, frames, count);
+    }
+    frames.removeLast();
+    r.extra.put("activeEdge", "");
+    r.step(
+      "Finish vertex " + u + " and return to its parent frame.",
+      4,
+      List.of(u),
+      Map.of("returning", u, "frontier", List.copyOf(frames), "mode", "dfs")
     );
   }
 }

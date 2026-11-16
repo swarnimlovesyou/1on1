@@ -1,3 +1,9 @@
+# Current curriculum checkpoint — 16 November 2026
+
+The curriculum-first revision is recorded in [CURRICULUM_VALIDATION.md](CURRICULUM_VALIDATION.md): 24 core concepts, 33 retained/additive notebooks, 47 question records, 88 Java teaching cases, 56 Java tests, nine frontend tests, real HTTP checks and all 15 browser scenarios observed passing across the full run and focused follow-up. Skill-tree UI is undecided; practice and UI/UX remain Phase 2. The previous foundation records below are historical and do not include this later curriculum content.
+
+---
+
 # Validation record — 16 November 2026
 
 This records the Phase 1 foundation. The earlier 15 November record is retained below as historical evidence; its live-provider gaps and counts are superseded here.

@@ -23,7 +23,13 @@ import {
 } from "@phosphor-icons/react";
 import { api } from "../api";
 import { useApp } from "../context";
-import type { Lesson, Path, Problem, Scene } from "../types";
+import type {
+  Lesson,
+  Path,
+  Problem,
+  Scene,
+  CurriculumManifest,
+} from "../types";
 import {
   Loading,
   ErrorState,
@@ -130,7 +136,7 @@ export function Landing() {
             {[
               [
                 "See the idea",
-                "24 notebooks with experiments you can actually change.",
+                "24 core concepts, with worked visual models and supported interactive examples.",
               ],
               [
                 "Make it yours",
@@ -175,7 +181,8 @@ export function Home() {
     return <ErrorState error={lessons.error} retry={() => lessons.refetch()} />;
   const current =
     lessons.data?.find((l) => l.id === progress.resumeLesson) ??
-    lessons.data?.find((l) => l.id === "lesson-sliding-window");
+    lessons.data?.find((l) => l.branch === "core") ??
+    lessons.data?.[0];
   return (
     <>
       <div className="home-title">
@@ -208,14 +215,21 @@ export function Home() {
             <ArrowRight size={18} />
           </Link>
         </div>
-        <Experiment scene={current?.experiment ?? sampleScene} compact />
+        {current?.experiment ? (
+          <Experiment scene={current.experiment} compact />
+        ) : (
+          <div className="lesson-block">
+            <h3>Follow the worked example</h3>
+            <p>{current?.teaching?.workedExample}</p>
+          </div>
+        )}
       </section>
       <div className="learning-pulse">
         <span>
           <span className="pulse-symbol">
             <CheckCircle size={19} />
           </span>
-          <strong>{progress.completed.length}</strong> concepts explored
+          <strong>{progress.completed.length}</strong> notebooks explored
         </span>
         <span>
           <Code size={19} />
@@ -270,7 +284,7 @@ export function Home() {
                 </span>
                 <div>
                   <h3>{p.title}</h3>
-                  <p>{p.lessons.length} connected concepts</p>
+                  <p>{p.lessons.length} connected notebooks</p>
                   <div className="progress-line">
                     <span
                       style={{
@@ -349,7 +363,7 @@ export function Library() {
         action={
           <span className="collection-count">
             <BooksCount />
-            24 concepts to explore
+            {lessons.data?.length ?? 0} notebooks to explore
           </span>
         }
       />
@@ -416,7 +430,7 @@ export function Library() {
           </div>
           <div className="library-list-header">
             <span>THE NOTEBOOK COLLECTION</span>
-            <span>{rows?.length} concepts</span>
+            <span>{rows?.length} notebooks</span>
           </div>
           <div className="concept-list">
             {rows?.map((l) => (
@@ -489,6 +503,10 @@ export function NotebookPage() {
   const { id } = useParams(),
     { user, progress, progressReady, notify, reload } = useApp();
   const [sceneParams] = useSearchParams();
+  const curriculum = useQuery({
+    queryKey: ["curriculum"],
+    queryFn: () => api<CurriculumManifest>("/curriculum"),
+  });
   const query = useQuery({
       queryKey: ["lesson", id],
       queryFn: () => api<Lesson>("/lessons/" + id),
@@ -527,7 +545,8 @@ export function NotebookPage() {
   });
   const lastResume = useRef("");
   useEffect(() => {
-    if (!user || !query.data || !contextScene) return;
+    if (!user || !query.data || (!contextScene && query.data.experiment))
+      return;
     const context = {
       version: 1,
       lesson: id,
@@ -591,6 +610,7 @@ export function NotebookPage() {
         {[
           ["idea", "The idea"],
           ["experiment", "See it in action"],
+          ["code", "Connect it to code"],
           ["pattern", "The pattern"],
           ["checkpoint", "Check your intuition"],
           ["practice", "Make it stick"],
@@ -623,6 +643,38 @@ export function NotebookPage() {
         <section id="idea">
           <h2>The idea</h2>
           <p className="lesson-prose">{l.body}</p>
+          {l.teaching && (
+            <>
+              <h3>What you will learn</h3>
+              <ul>
+                {l.teaching.objectives.map((objective) => (
+                  <li key={objective}>{objective}</li>
+                ))}
+              </ul>
+              {!!l.teaching.prerequisites.length && (
+                <p>
+                  Recommended first:{" "}
+                  {l.teaching.prerequisites.map((cid, index) => {
+                    const concept = curriculum.data?.concepts.find(
+                      (c) => c.id === cid,
+                    );
+                    return (
+                      <span key={cid}>
+                        {index > 0 ? ", " : ""}
+                        {concept ? (
+                          <Link to={"/learn/" + concept.lessonIds[0]}>
+                            {concept.title}
+                          </Link>
+                        ) : (
+                          cid.replace("concept-", "").replaceAll("-", " ")
+                        )}
+                      </span>
+                    );
+                  })}
+                </p>
+              )}
+            </>
+          )}
           {l.blocks
             ?.filter((block) => block.id === "worked")
             .map((block) => (
@@ -636,7 +688,11 @@ export function NotebookPage() {
           <div className="section-heading">
             <div>
               <h2>What if you could see it?</h2>
-              <p>Step through slowly. Then make it your own.</p>
+              <p>
+                {scene
+                  ? "Step through slowly. Then make it your own."
+                  : "Follow the state changes in this worked model."}
+              </p>
             </div>
             <Tutor
               lesson={l.id}
@@ -645,24 +701,64 @@ export function NotebookPage() {
               onScene={setActiveScene}
             />
           </div>
-          <Experiment
-            key={l.id}
-            scene={scene}
-            initialStep={
-              activeScene
-                ? 0
-                : (savedContext?.step ??
-                  (progress.resumeLesson === l.id
-                    ? (progress.resumeStep ?? 0)
-                    : 0))
-            }
-            code={l.code}
-            onStep={(s, index) => {
-              setStep(index);
-              setContextScene(s);
-            }}
-          />
+          {scene ? (
+            <Experiment
+              key={l.id}
+              scene={scene}
+              initialStep={
+                activeScene
+                  ? 0
+                  : (savedContext?.step ??
+                    (progress.resumeLesson === l.id
+                      ? (progress.resumeStep ?? 0)
+                      : 0))
+              }
+              code={l.code}
+              onStep={(s, index) => {
+                setStep(index);
+                setContextScene(s);
+              }}
+            />
+          ) : (
+            l.teaching && (
+              <div className="lesson-block">
+                <h3>{l.teaching.visualization.exampleInput}</h3>
+                <ol>
+                  {l.teaching.visualization.expectedStates.map(
+                    (state, index) => (
+                      <li key={index}>{state}</li>
+                    ),
+                  )}
+                </ol>
+                <p>{l.teaching.visualization.manipulation}</p>
+                <p className="muted">
+                  This worked example is read-only. An interactive canvas for
+                  this concept is not available yet.
+                </p>
+              </div>
+            )
+          )}
         </section>
+        {l.teaching && (
+          <section id="code">
+            <h2>Minimal Java: {l.teaching.title}</h2>
+            <p className="lesson-prose">{l.teaching.workedExample}</p>
+            <pre className="reference-code">
+              {l.teaching.java.implementation}
+            </pre>
+            {l.teaching.java.lineAnnotations.map((annotation) => (
+              <p key={annotation.line}>
+                <strong>Line {annotation.line}:</strong>{" "}
+                {annotation.explanation}
+              </p>
+            ))}
+            <p>
+              <strong>Time:</strong> {l.teaching.complexity.time}.{" "}
+              <strong>Space:</strong> {l.teaching.complexity.space}.
+            </p>
+            <p className="muted">{l.teaching.complexity.assumptions}</p>
+          </section>
+        )}
         <section id="pattern">
           <h2>The pattern to hold onto</h2>
           <div className="insight">
@@ -745,6 +841,68 @@ export function NotebookPage() {
         </section>
         <section id="practice">
           <h2>Understanding loves a little practice.</h2>
+          {l.teaching && (
+            <>
+              <h3>Apply this concept</h3>
+              {curriculum.isPending ? (
+                <p role="status">Loading selected questions…</p>
+              ) : curriculum.error ? (
+                <ErrorState
+                  error={curriculum.error}
+                  retry={() => curriculum.refetch()}
+                />
+              ) : (
+                l.teaching.applications.map((app) => {
+                  const question = curriculum.data?.questions.find(
+                    (q) => q.id === app.questionId,
+                  );
+                  if (!question) return null;
+                  return (
+                    <div className="lesson-block" key={app.questionId}>
+                      <h4>
+                        {question.canonicalUrl ? (
+                          <a
+                            href={question.canonicalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {question.title} <ArrowUpRight size={15} />
+                          </a>
+                        ) : question.localProblemId ? (
+                          <Link to={"/practice/" + question.localProblemId}>
+                            {question.title}
+                          </Link>
+                        ) : (
+                          question.title
+                        )}
+                      </h4>
+                      <p>{app.connection}</p>
+                      {!!app.additionalPrerequisites.length && (
+                        <p className="muted">
+                          Also learn:{" "}
+                          {app.additionalPrerequisites
+                            .map(
+                              (cid) =>
+                                curriculum.data?.concepts.find(
+                                  (c) => c.id === cid,
+                                )?.title ?? cid,
+                            )
+                            .join(", ")}
+                          .
+                        </p>
+                      )}
+                      {!question.canonicalUrl && !question.localProblemId && (
+                        <p className="muted">
+                          Guided exercise: {question.approachOutline}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+              <h3>Existing in-app practice</h3>
+            </>
+          )}
           <div className="related-problems">
             {related?.map((p) => (
               <Link key={p.id} to={"/practice/" + p.id}>

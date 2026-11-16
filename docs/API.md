@@ -109,3 +109,16 @@ V1 remains unchanged. Additive V2 introduces `challenge_attempts`, `learning_eve
 - ADMIN GET `/admin/content`: authored records and daily usage totals.
 - ADMIN POST `/admin/content`: stable `id`, matching `kind` (`lesson`, `problem`, `path`), title and type-specific fields. Problem publication requires 5–20 fixtures, editorial and reference. Lessons require a valid experiment and checkpoint.
 - ADMIN POST `/admin/import`: up to 100 structured records. Use the editor's JSON file import/paste workflow. Records are validated individually; earlier successful records are not rolled back if a later record fails, so correct and retry failed records by stable ID.
+
+
+## Core curriculum — version 1
+
+Public GET `/curriculum` returns the authored manifest: version, 24 concepts, flow, sources, 47 canonical question references, advanced branch and delivery boundaries. Each concept has a stable ID, exact title, order, prerequisite concept IDs, existing/additive lesson IDs, objectives, mental model, worked example, invariant, mistake, Java implementation/line annotations, complexity, visualization specification/readiness/gaps and two ordered applications. Applications identify their introduction/transfer role and any additional prerequisites. External references include canonical platform URLs; original exercises/local problem references stay distinct.
+
+All 42 external question URLs were matched against the two pinned Amazon CSV snapshots recorded in the source provenance. That is source membership, not independent company confirmation or an interview probability. Frequency and acceptance fields are not imported. Gold checkpoint answers and Java verification cases are stripped from public curriculum/lesson responses. The authored resource and tests retain them for server grading and verification.
+
+`GET /lessons` now returns 33 notebooks: the original 24 plus nine foundational additions. New optional fields include `conceptId`, `curriculumOrder`, `branch`, `objectives`, `teaching`, `contentStatus` and `interactiveStatus`. A lesson may omit `experiment` when its matching scene is not implemented. Such a lesson supplies an explicit worked visual specification and code; no unrelated fallback scene is used. Existing lesson IDs and experiments remain compatible.
+
+StudyContext version 1 now permits an omitted/null scene **only for a lesson without an experiment**, at step zero. Its reading section and code revision remain owned and persisted. Existing interactive lessons still require matching validated scene input and a real step. No relational migration or data reset is needed; metadata and study records use the existing document storage.
+
+The manifest is authored through `scripts/curriculum_content.py`, not an administrator form. Existing administrator-edited lesson bodies remain preserved by seeding and may differ from the canonical curriculum overview. The existing admin endpoint accepts an explicitly specification-only lesson with teaching code/visual metadata; Phase 2 owns richer forms and publication checks. No tree endpoint, new grading integration or company filter is introduced.

@@ -11,7 +11,7 @@ export default function ChallengeCard({
   scene,
 }: {
   challenge: Challenge;
-  scene: Scene;
+  scene?: Scene;
 }) {
   const { user, reload, progress } = useApp();
   const reduced = useReducedMotion();
@@ -32,10 +32,11 @@ export default function ChallengeCard({
     (attempt) => attempt.challengeId === challenge.id && attempt.correct,
   );
   const ready =
-    challenge.kind === "manipulation" ||
-    (challenge.kind === "dry-run"
-      ? challenge.fields?.every((field) => fields[field.key]?.trim())
-      : choice !== undefined);
+    challenge.kind === "manipulation"
+      ? !!scene
+      : challenge.kind === "dry-run"
+        ? challenge.fields?.every((field) => fields[field.key]?.trim())
+        : choice !== undefined;
   return (
     <section className="learning-challenge" aria-labelledby={challenge.id}>
       <div className="challenge-heading">
@@ -99,8 +100,9 @@ export default function ChallengeCard({
       {challenge.kind === "manipulation" && (
         <p className="challenge-input-summary">
           Use the experiment above, select “Update experiment”, then check that
-          input here. Current input: <code>{scene.input}</code> · target / n /
-          k: {scene.target}
+          input here. Current input:{" "}
+          <code>{scene?.input ?? "No experiment available"}</code> · target / n
+          / k: {scene?.target}
         </p>
       )}
       <div className="challenge-actions">
