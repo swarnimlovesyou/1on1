@@ -79,7 +79,7 @@ concept('strings', 'Strings', ['arrays'], ['strings'],
 concept('hashing', 'Hash Maps and Sets', ['arrays','strings'], ['hashing'],
     ['Use a set for exact membership and a map for key-associated state.', 'Check previously seen values before inserting the current one.'],
     'A set answers whether a value has appeared. A map additionally remembers a value such as the earlier index. Hashing locates a candidate bucket; equality still decides exact membership.',
-    'For [2,1,2], insert 2, then 1. The last 2 is already present, so a duplicate exists. Two equal values at different positions count as repetition.',
+    'For [2,1,6,2,5], duplicate inserts 2, 1 and 6, then finds the second 2 already in seen and returns true. The animation runs frequencies on the same input instead: it keeps going, so 2 ends with count 2 and 1, 6 and 5 with count 1.',
     'Before reading position i, seen contains exactly the values at earlier positions.',
     'Hash lookup is expected constant time under normal assumptions, not a universal worst-case guarantee. A Bloom filter is not a replacement for an exact set.',
     dict(time='Expected O(n)', space='O(n) auxiliary', assumptions='Java HashSet exact integer membership; expected hashing behaviour.'),
@@ -87,9 +87,9 @@ concept('hashing', 'Hash Maps and Sets', ['arrays','strings'], ['hashing'],
         Set<Integer> seen = new HashSet<>();
         for (int value : a) if (!seen.add(value)) return true;
         return false;
-    }''', [('duplicate(new int[]{2,1,2})','true'), ('duplicate(new int[]{})','false'), ('duplicate(new int[]{-1,0,1})','false')],
+    }''', [('duplicate(new int[]{2,1,2})','true'), ('duplicate(new int[]{2,1,6,2,5})','true'), ('duplicate(new int[]{})','false'), ('duplicate(new int[]{-1,0,1})','false')],
     ('Before processing the final 2 in [2,1,2], which values are in seen?', ['{2}','{1,2}','{}'],1,'Both earlier values have been inserted; the set does not store duplicate entries.'),
-    ('[2,1,2]', ['seen={2}','seen={1,2}','duplicate 2 found'], 'Repeat a value, change it to a new value, and compare membership checks.', '0–32 integers; show exact key equality, not invented hash addresses.'))
+    ('[2,1,6,2,5]', ['2 inserted','1 inserted','6 is a different key: inserted','second 2 found: duplicate, count 2','5 inserted'], 'Repeat a value, change it to a new value, and compare membership checks.', '0–32 integers; show exact key equality, not invented hash addresses.'))
 
 concept('sorting', 'Sorting and Merging', ['arrays'], ['merge-sort','quick-sort'],
     ['Merge two ordered sequences using two cursors.', 'Explain how merge sort uses this operation after recursive splitting.'],
@@ -170,7 +170,7 @@ concept('fixed-window', 'Fixed-Size Sliding Window', ['arrays','prefix-sums'], [
 concept('variable-window', 'Variable-Size Sliding Window', ['hashing','fixed-window'], ['variable-window'],
     ['Grow and shrink a contiguous range to restore a condition.', 'Separate a distinct-character condition from positive-sum conditions.'],
     'Stretch a frame while it remains valid. When a repeated character enters, remove characters from the left until the frame is valid again.',
-    'For "abca", the frame grows through a,ab,abc. The next a forces the old a out, leaving bca. The best length stays 3.',
+    'For "abba", the frame grows through a and ab. The second b forces both a and the old b out, leaving b. Then a enters to make ba, and the best length stays 2. One removal would not have been enough.',
     'After shrinking, all characters in the current frame are distinct.',
     'Removing only once can leave a repeated character inside the frame. For minimum-length sum windows, positivity is what makes shrinking monotonic; arbitrary negatives break that proof.',
     dict(time='Expected O(n)', space='O(min(n, alphabet size))', assumptions='ASCII example; each character enters/leaves at most once.'),
@@ -186,7 +186,7 @@ concept('variable-window', 'Variable-Size Sliding Window', ['hashing','fixed-win
         return best;
     }''', [('longestDistinct("abca")','3'), ('longestDistinct("abba")','2'), ('longestDistinct("")','0'), ('longestDistinct("aaaa")','1')],
     ('When the second b arrives in "abba", is removing only the first a enough?', ['Yes','No'],1,'The old b remains, so shrink again until the duplicate is removed.'),
-    ('"abca"', ['[a],best=1','[ab],best=2','[abc],best=3','remove a; [bca],best=3'], 'Use "abba" to expose a single-if shrinking bug.', 'ASCII 0–32 characters; no sum-window claims for negative numbers.'))
+    ('"abba"', ['[a],best=1','[ab],best=2','b repeats: remove a, then b; [b],best=2','[ba],best=2'], 'Try "abca" to see a removal that stops after one character.', 'ASCII 0–32 characters; no sum-window claims for negative numbers.'))
 
 concept('binary-search', 'Binary Search', ['sorting'], ['binary-search'],
     ['Maintain an inclusive candidate interval.', 'Guarantee progress and distinguish exact search from insertion boundaries.'],
@@ -337,8 +337,8 @@ concept('recursion', 'Recursion and the Call Stack', ['stacks'], ['recursion'],
 concept('backtracking', 'Backtracking', ['recursion'], ['backtracking'],
     ['Explore choices recursively and restore shared state.', 'Snapshot a result instead of keeping an alias to the mutable path.'],
     'Walk a decision tree with a reusable path. Choose an item, explore descendants, then undo that choice before trying the next branch.',
-    'For [1,2], include-first traversal records [1,2], [1], [2], []. After recording [1,2], remove 2 before exploring the branch without it.',
-    'On entering visit(i), path contains exactly the choices for indices below i.',
+    'For [1,2], visit records [] first, then chooses 1 and records [1], chooses 2 and records [1,2], undoes 2 and then 1, and finally chooses 2 alone and records [2]. Every node of the decision tree is a subset.',
+    'On entering visit(start), path holds chosen values in increasing index order, all from indices below start.',
     'Missing the undo contaminates sibling branches. Storing path itself makes every result alias one mutable list. Duplicate input values require a separate deduplication policy.',
     dict(time='O(n × 2^n) including copied subsets', space='O(n) auxiliary; O(n × 2^n) output', assumptions='Distinct input values; bounded teaching subset size.'),
     '''static List<List<Integer>> subsets(int[] a) {
@@ -346,15 +346,16 @@ concept('backtracking', 'Backtracking', ['recursion'], ['backtracking'],
         visit(a, 0, new ArrayList<>(), out);
         return out;
     }
-    static void visit(int[] a, int i, List<Integer> path, List<List<Integer>> out) {
-        if (i == a.length) { out.add(new ArrayList<>(path)); return; }
-        path.add(a[i]);
-        visit(a, i + 1, path, out);
-        path.remove(path.size() - 1);
-        visit(a, i + 1, path, out);
-    }''', [('subsets(new int[]{1,2})','[[1, 2], [1], [2], []]'), ('subsets(new int[]{})','[[]]'), ('subsets(new int[]{7})','[[7], []]')],
+    static void visit(int[] a, int start, List<Integer> path, List<List<Integer>> out) {
+        out.add(new ArrayList<>(path));
+        for (int i = start; i < a.length; i++) {
+            path.add(a[i]);
+            visit(a, i + 1, path, out);
+            path.remove(path.size() - 1);
+        }
+    }''', [('subsets(new int[]{1,2})','[[], [1], [1, 2], [2]]'), ('subsets(new int[]{})','[[]]'), ('subsets(new int[]{7})','[[], [7]]'), ('subsets(new int[]{1,2,3}).size()','8')],
     ('Why copy path when recording a subset?', ['Later undo operations mutate path','Copying sorts it','Recursion requires sorted output'],0,'Each recorded subset must remain independent of later path changes.'),
-    ('[1,2]', ['choose 1','choose 2: record [1,2]','undo 2: record [1]','undo 1: explore [2],[]'], 'Toggle an include/exclude branch and watch undo restore the parent state.', 'Distinct values; at most 5 items in existing trace; exponential output explicit.'))
+    ('[1,2]', ['record []','choose 1: record [1]','choose 2: record [1,2]','undo 2, then undo 1','choose 2: record [2]'], 'Change the input and watch each undo restore the parent path before the next sibling.', 'Distinct values; at most 5 items in existing trace; exponential output explicit.'))
 
 TREE = '''static class Tree {
     int value; Tree left, right;

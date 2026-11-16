@@ -222,15 +222,15 @@ Approach: Use a bounded nested comparison as the introductory solution; separate
 
 A set answers whether a value has appeared. A map additionally remembers a value such as the earlier index. Hashing locates a candidate bucket; equality still decides exact membership.
 
-For [2,1,2], insert 2, then 1. The last 2 is already present, so a duplicate exists. Two equal values at different positions count as repetition.
+For [2,1,6,2,5], duplicate inserts 2, 1 and 6, then finds the second 2 already in seen and returns true. The animation runs frequencies on the same input instead: it keeps going, so 2 ends with count 2 and 1, 6 and 5 with count 1.
 
 **Invariant:** Before reading position i, seen contains exactly the values at earlier positions.
 
 **Watch out:** Hash lookup is expected constant time under normal assumptions, not a universal worst-case guarantee. A Bloom filter is not a replacement for an exact set.
 
-**Visual specification:** [2,1,2]
+**Visual specification:** [2,1,6,2,5]
 
-seen={2} → seen={1,2} → duplicate 2 found
+2 inserted → 1 inserted → 6 is a different key: inserted → second 2 found: duplicate, count 2 → 5 inserted
 
 **Manipulation:** Repeat a value, change it to a new value, and compare membership checks.
 
@@ -568,17 +568,17 @@ Approach: For this existing problem k=3: reuse a three-value sum and keep the la
 
 Stretch a frame while it remains valid. When a repeated character enters, remove characters from the left until the frame is valid again.
 
-For "abca", the frame grows through a,ab,abc. The next a forces the old a out, leaving bca. The best length stays 3.
+For "abba", the frame grows through a and ab. The second b forces both a and the old b out, leaving b. Then a enters to make ba, and the best length stays 2. One removal would not have been enough.
 
 **Invariant:** After shrinking, all characters in the current frame are distinct.
 
 **Watch out:** Removing only once can leave a repeated character inside the frame. For minimum-length sum windows, positivity is what makes shrinking monotonic; arbitrary negatives break that proof.
 
-**Visual specification:** "abca"
+**Visual specification:** "abba"
 
-[a],best=1 → [ab],best=2 → [abc],best=3 → remove a; [bca],best=3
+[a],best=1 → [ab],best=2 → b repeats: remove a, then b; [b],best=2 → [ba],best=2
 
-**Manipulation:** Use "abba" to expose a single-if shrinking bug.
+**Manipulation:** Try "abca" to see a removal that stops after one character.
 
 **Limits:** ASCII 0–32 characters; no sum-window claims for negative numbers.
 
@@ -1137,17 +1137,17 @@ Approach: Iteratively reverse one link at a time; later revisit recursively by r
 
 Walk a decision tree with a reusable path. Choose an item, explore descendants, then undo that choice before trying the next branch.
 
-For [1,2], include-first traversal records [1,2], [1], [2], []. After recording [1,2], remove 2 before exploring the branch without it.
+For [1,2], visit records [] first, then chooses 1 and records [1], chooses 2 and records [1,2], undoes 2 and then 1, and finally chooses 2 alone and records [2]. Every node of the decision tree is a subset.
 
-**Invariant:** On entering visit(i), path contains exactly the choices for indices below i.
+**Invariant:** On entering visit(start), path holds chosen values in increasing index order, all from indices below start.
 
 **Watch out:** Missing the undo contaminates sibling branches. Storing path itself makes every result alias one mutable list. Duplicate input values require a separate deduplication policy.
 
 **Visual specification:** [1,2]
 
-choose 1 → choose 2: record [1,2] → undo 2: record [1] → undo 1: explore [2],[]
+record [] → choose 1: record [1] → choose 2: record [1,2] → undo 2, then undo 1 → choose 2: record [2]
 
-**Manipulation:** Toggle an include/exclude branch and watch undo restore the parent state.
+**Manipulation:** Change the input and watch each undo restore the parent path before the next sibling.
 
 **Limits:** Distinct values; at most 5 items in existing trace; exponential output explicit.
 
@@ -1163,12 +1163,13 @@ static List<List<Integer>> subsets(int[] a) {
         visit(a, 0, new ArrayList<>(), out);
         return out;
     }
-    static void visit(int[] a, int i, List<Integer> path, List<List<Integer>> out) {
-        if (i == a.length) { out.add(new ArrayList<>(path)); return; }
-        path.add(a[i]);
-        visit(a, i + 1, path, out);
-        path.remove(path.size() - 1);
-        visit(a, i + 1, path, out);
+    static void visit(int[] a, int start, List<Integer> path, List<List<Integer>> out) {
+        out.add(new ArrayList<>(path));
+        for (int i = start; i < a.length; i++) {
+            path.add(a[i]);
+            visit(a, i + 1, path, out);
+            path.remove(path.size() - 1);
+        }
     }
 ```
 
@@ -1180,7 +1181,7 @@ static List<List<Integer>> subsets(int[] a) {
 
 ### Question applications — Phase 2
 
-Code line 10: Undo the last choice so the next sibling receives the parent path.
+Code line 11: Undo the last choice so the next sibling receives the parent path.
 
 **Introduction: [Subsets](https://leetcode.com/problems/subsets/).** Enumerate include/exclude choices.
 
