@@ -45,7 +45,10 @@ Inputs allow 1–32 integers in -10000..10000. Search/pair targets can be negati
 - GET/POST `/notes`: list or create/update owned thoughts. Fields: `title`, `text`, `lesson`, optional `id`, `reviewed`, validated `experiment`. Text: 1–20000 characters.
 - DELETE `/notes/{id}`: removes an owned note.
 - PUT `/drafts/{problem}`: `{language,code}`; one owned draft per problem/language. Returned `codeRevision` is SHA-256 of language + newline + source.
-- POST `/plans`: `{title,topics,difficulty,perDay}`; returns selected `{id,adds}` entries, uncovered topics, grouping and method. Requires 1–50 topic names. Difficulty is `All`, `Easy`, `Medium` or `Hard`.
+- POST `/plans`: `{title,topics,difficulty,perDay,startDate?}`; greedy set cover selects problems, which become dated `tasks` (`{id,kind,problemId,adds,date,done,doneAt}`, `perDay` per day from `startDate`, default today UTC). Also returns `selected` `{id,adds}`, uncovered topics and method. Requires 1–50 topic names. Difficulty is `All`, `Easy`, `Medium` or `Hard`.
+- PATCH `/plans/{id}/tasks/{taskId}`: `{done?: boolean, date?: "YYYY-MM-DD"}` completes, reopens or moves one task (dates within a year of today). Owner only.
+- POST `/plans/{id}/regenerate`: `{startDate?, perDay?}` keeps every completed task unchanged (date included), re-selects only what completed work does not already cover, and dates it from `startDate`. Plans made before tasks existed gain tasks this way.
+- GET `/learning-map` (guests allowed): the 24 concepts in prerequisite order (Kahn's algorithm, ties by authored order), each with `state` (`new`, `explored`, `passed`, `accepted`), separate `challenges {passed,total}` and `problems {accepted,total}` counts, `evidence` sentences and, once graded, `review {stage,dueOn,due,lastOutcome,reviews}`; plus `reviewsDue` (most overdue first) and one `nextAction {kind,title,reason,href,conceptId}`: due review → today's plan task → next concept whose prerequisites have passed evidence → an unaccepted linked problem. Review schedules are replayed from attempts and accepted credits: 1, 3, then 7 days after successes; a miss returns the next day and restarts; a hinted success (hint opened, or success after a same-day miss) repeats its interval; successes before the due date do not move it. Attempts accept an optional `hintUsed` boolean.
 
 ## Judge boundary
 
