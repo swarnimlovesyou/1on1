@@ -65,6 +65,25 @@ class PracticeContentTest {
   }
 
   @Test
+  void everyCoreLessonExplainsWhyItWorksWithoutRepeatingItself() {
+    for (var lesson : core) {
+      String id = lesson.get("id").toString();
+      var teaching = (Map<String, Object>) lesson.get("teaching");
+      var blocks = Store.items(lesson.get("blocks"));
+      assertEquals(List.of("worked", "invariant", "tradeoff"), blocks.stream().map(b -> b.get("id")).toList(), id);
+      for (var b : blocks) assertTrue(Store.text(b, "text", "").length() >= 200, id + " " + b.get("id") + " is too thin");
+      String body = Store.text(lesson, "body", "");
+      assertTrue(body.length() >= 300, id + " opening is too thin");
+      assertNotEquals(Store.text(teaching, "mentalModel", ""), body, id + " opening repeats the mental model");
+      // the page already shows workedExample under the Java code
+      assertNotEquals(Store.text(teaching, "workedExample", ""), Store.text(blocks.getFirst(), "text", ""), id + " repeats the code section's example");
+      var notes = (Map<?, ?>) lesson.get("prerequisiteNotes");
+      assertNotNull(notes, id + " has no prerequisite reasons");
+      assertEquals(new HashSet<>(Store.strings(teaching.get("prerequisites"))), notes.keySet(), id);
+    }
+  }
+
+  @Test
   void everyDryRunPointsAtARealTraceStepAndGradesFromIt() {
     int checked = 0;
     for (var lesson : core) for (var c : ChallengeService.authored(lesson)) {

@@ -88,7 +88,15 @@ class CurriculumTest {
 
   @Test
   void javaTeachingExamplesCompileAndPassDocumentedNormalAndBoundaryCases() throws Exception {
-    var concepts = Store.items(resource("curriculum.json").get("concepts"));
+    // every concept's example, plus any lesson that teaches its own code (Quicksort inside Sorting and Merging)
+    var concepts = new ArrayList<>(Store.items(resource("curriculum.json").get("concepts")));
+    var conceptJava = new HashMap<Object, Object>();
+    for (var c : concepts) conceptJava.put(c.get("id"), c.get("java"));
+    for (var lesson : Store.items(resource("content.json").get("lessons"))) if (
+      lesson.get("teaching") instanceof Map<?, ?> teaching &&
+      !Objects.equals(teaching.get("java"), conceptJava.get(teaching.get("id")))
+    ) concepts.add(Map.of("id", lesson.get("id"), "java", teaching.get("java")));
+    assertTrue(concepts.size() > 24, "the Quicksort lesson's own example is compiled too");
     Path testRoot = Path.of("target").toAbsolutePath().normalize();
     Path directory = Files.createTempDirectory(testRoot, "curriculum-");
     try {
@@ -124,7 +132,7 @@ class CurriculumTest {
           null,
           args.toArray(String[]::new)
         ),
-        "All 24 complete Java examples must compile"
+        "Every complete Java teaching example must compile"
       );
       try (
         var loader = new URLClassLoader(new URL[] { directory.toUri().toURL() })
