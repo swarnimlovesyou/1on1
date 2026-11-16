@@ -404,9 +404,10 @@ export function ProblemPage() {
                 {language !== "java" &&
                   !editorial.data?.references?.[language] && (
                     <p className="muted">
-                      This problem currently has a Java reference. You can still
-                      submit your own {language === "cpp" ? "C++" : "Python"}{" "}
-                      solution.
+                      There is no {language === "cpp" ? "C++" : "Python"}{" "}
+                      reference for this problem yet, so the Java one is shown.
+                      You can still submit your own{" "}
+                      {language === "cpp" ? "C++" : "Python"} solution.
                     </p>
                   )}
                 <pre className="reference-code">
