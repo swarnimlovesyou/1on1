@@ -13,13 +13,16 @@ public class LearningController {
   final TraceEngine traces;
   final ProgressService progress;
   final ChallengeService challenges;
+  final PlanService plans;
 
   public LearningController(
     Store s,
     TraceEngine t,
     ProgressService progress,
-    ChallengeService challenges
+    ChallengeService challenges,
+    PlanService plans
   ) {
+    this.plans = plans;
     this.progress = progress;
     this.challenges = challenges;
     this.s = s;
@@ -147,51 +150,34 @@ public class LearningController {
     );
   }
 
+  /** {title,topics,difficulty,perDay,startDate?}: set cover picks the problems, then they become dated tasks. */
   @PostMapping("/plans")
   public Map<String, Object> plan(
     Authentication a,
     @RequestBody Map<String, Object> b
   ) {
-    String u = AuthController.user(a);
-    Set<String> goals = new TreeSet<>(Store.strings(b.get("topics")));
-    if (
-      goals.isEmpty() || goals.size() > 50
-    ) throw new IllegalArgumentException("Select between 1 and 50 topics.");
-    String difficulty = Store.text(b, "difficulty", "All");
-    var state = s.find("state-" + u).orElse(Map.of());
-    Set<String> solved = new HashSet<>(
-      Store.strings(progress.summary(u).get("solved"))
-    );
-    var candidates = s
-      .list("problem", "public")
-      .stream()
-      .filter(
-        p ->
-          !Boolean.FALSE.equals(p.get("published")) &&
-          !solved.contains(p.get("id")) &&
-          (difficulty.equals("All") || difficulty.equals(p.get("difficulty")))
-      )
-      .map(p ->
-        new SetCover.Candidate(
-          p.get("id").toString(),
-          new HashSet<>(Store.strings(p.get("topics")))
-        )
-      )
-      .toList();
-    var result = new SetCover().select(goals, candidates);
-    int perDay = Math.min(
-      10,
-      Math.max(1, Integer.parseInt(Store.text(b, "perDay", "2")))
-    );
-    Map<String, Object> data = new LinkedHashMap<>();
-    data.put("title", Store.text(b, "title", "My practice plan"));
-    data.put("topics", goals);
-    data.put("selected", result.selected());
-    data.put("uncovered", result.uncovered());
-    data.put("perDay", perDay);
-    data.put("method", "Greedy set-cover approximation");
-    data.put("createdAt", java.time.Instant.now().toString());
-    return s.put("plan-" + UUID.randomUUID(), "plan", u, data);
+    return plans.create(AuthController.user(a), b);
+  }
+
+  /** {startDate?, perDay?}: completed tasks stay as they are; the rest is re-planned from startDate. */
+  @PostMapping("/plans/{id}/regenerate")
+  public Map<String, Object> regenerate(
+    Authentication a,
+    @PathVariable String id,
+    @RequestBody Map<String, Object> b
+  ) {
+    return plans.regenerate(AuthController.user(a), id, b);
+  }
+
+  /** {done?: boolean, date?: "YYYY-MM-DD"}: complete, reopen or move one task. */
+  @PatchMapping("/plans/{id}/tasks/{task}")
+  public Map<String, Object> task(
+    Authentication a,
+    @PathVariable String id,
+    @PathVariable String task,
+    @RequestBody Map<String, Object> b
+  ) {
+    return plans.updateTask(AuthController.user(a), id, task, b);
   }
 
   @GetMapping("/cohorts")
