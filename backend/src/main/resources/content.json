@@ -1284,6 +1284,81 @@
         }
       ],
       "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-quick-sort-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "It can repeatedly split very unevenly",
+            "It never compares values",
+            "It needs an adjacency matrix"
+          ],
+          "hint": "The partition boundary separates values already classified as small from those not yet examined. The pivot reaches a valid final position after partitioning."
+        },
+        {
+          "id": "challenge-quick-sort-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Partitioning 4, 2, 7, 1, 3 around pivot 6: 4 and 2 are already left of the boundary at index 2. The scan now reaches 7. What happens?",
+          "options": [
+            "7 stays where it is and the boundary does not move",
+            "7 swaps to the boundary",
+            "The pivot swaps with 7"
+          ],
+          "answer": 0,
+          "explanation": "7 is larger than the pivot, so it belongs on the right; only values at most the pivot move to the boundary.",
+          "hint": "Compare the scanned value with the pivot, not with its neighbours."
+        },
+        {
+          "id": "challenge-quick-sort-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You need the 10th smallest of a million unsorted readings, and sorting all of them is too slow. Which idea fits?",
+          "options": [
+            "Partition around a pivot and continue only into the side that holds rank 10",
+            "Merge sort everything, then index",
+            "Binary search the unsorted readings"
+          ],
+          "answer": 0,
+          "explanation": "After a partition the pivot sits at its final rank, so only one side can contain rank 10: that is quickselect, expected O(n).",
+          "hint": "A partition fixes one value at its final position."
+        },
+        {
+          "id": "challenge-quick-sort-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Sort 4, 2, 7, 1, 3, 6. Fill the table when the scan first compares 3 with pivot 6.",
+          "scene": {
+            "algorithm": "quick-sort",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 6,
+          "fields": [
+            {
+              "key": "pivot",
+              "label": "Pivot"
+            },
+            {
+              "key": "boundary",
+              "label": "Boundary index"
+            },
+            {
+              "key": "scan",
+              "label": "Scan index"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "1 has already swapped past 7, so the boundary moved once more after the scan met 7."
+        }
+      ],
+      "linkedProblems": [
+        "problem-lower-middle",
+        "problem-minimum-gap"
+      ],
       "prerequisiteNotes": {
         "concept-arrays": "Partitioning swaps values in place by index, so you need to read and swap array positions with confidence."
       }
@@ -4581,7 +4656,11 @@
       },
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "prerequisiteNotes": {
+        "concept-prefix-sums": "A table filled left to right from earlier entries is the same habit as building prefix sums.",
+        "concept-recursion": "The recurrence you tabulate is the recursive definition, evaluated bottom-up instead of by calls."
+      }
     },
     {
       "id": "lesson-trie",

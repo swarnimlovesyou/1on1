@@ -29,6 +29,10 @@ REFERENCE_PREREQUISITES = {
         'concept-binary-search': 'Each comparison discards one side, the same halving idea applied to a linked structure.',
         'concept-binary-trees': 'Insertion and search walk left and right child links, and in-order traversal reads the keys back.',
     },
+    'lesson-tabulation': {
+        'concept-prefix-sums': 'A table filled left to right from earlier entries is the same habit as building prefix sums.',
+        'concept-recursion': 'The recurrence you tabulate is the recursive definition, evaluated bottom-up instead of by calls.',
+    },
     'lesson-bfs': {
         'concept-queues': 'The FIFO queue is what makes nearer vertices finish before farther ones.',
         'concept-graphs': 'BFS walks adjacency lists, so you need to read a vertex\'s outgoing edges.',
