@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
-  Sparkle,
   ArrowUp,
   X,
   BookmarkSimple,
   ArrowRight,
 } from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import BlobMark, { type BlobState } from "./BlobMark";
 import { api, streamTutor } from "../api";
 import type { Scene } from "../types";
 import { useApp } from "../context";
@@ -45,6 +45,34 @@ export default function Tutor({
       { role: string; text: string; scene?: Scene }[]
     >([]);
   const contextId = lesson ?? problem ?? "workspace";
+  const system = useQuery({
+    queryKey: ["system"],
+    queryFn: () => api<{ ai: boolean }>("/system"),
+    staleTime: 60_000,
+  });
+  // known before the learner types, so they aren't left to discover it from an error
+  const aiOff = system.data?.ai === false;
+  const [level, setLevel] = useState(0);
+  // questions that fit where the learner is; hint-style ones start the graduated ladder at level 1
+  const suggestions: { text: string; level: number }[] = lesson
+    ? [
+        { text: `Explain step ${step + 1} in simpler terms`, level: 0 },
+        { text: "What must stay true at this step, and why?", level: 0 },
+        { text: "Give me a hint for this lesson's challenge", level: 1 },
+      ]
+    : problem
+      ? [
+          { text: "Give me a hint without the solution", level: 1 },
+          submission
+            ? { text: "Why might my last run have failed?", level: 1 }
+            : { text: "Is my plan on the right track?", level: 0 },
+          { text: "What edge case am I missing?", level: 0 },
+        ]
+      : [
+          { text: "Explain a concept I'm stuck on", level: 0 },
+          { text: "Give me a hint without the solution", level: 1 },
+          { text: "What should I practise next?", level: 0 },
+        ];
   const hydrated = useRef(false),
     savedConversation = useRef(""),
     abort = useRef<AbortController | undefined>(undefined);
@@ -97,9 +125,16 @@ export default function Tutor({
     return () => clearTimeout(timer);
   }, [messages, contextId, user?.id]);
   const mutation = useMutation({
-    mutationFn: async (message: string) => {
+    mutationFn: async ({
+      message,
+      level,
+    }: {
+      message: string;
+      level: number;
+    }) => {
       const request = {
         message,
+        ...(level ? { level } : {}),
         mode,
         lesson,
         experiment,
@@ -133,19 +168,31 @@ export default function Tutor({
       setMessages((m) => [...m, { role: "tutor", ...data }]);
     },
   });
-  const send = (message: string) => {
-    if (!message.trim() || mutation.isPending || !user || !historyReady) return;
+  const send = (message: string, nextLevel = 0) => {
+    if (!message.trim() || mutation.isPending || !user || !historyReady || aiOff)
+      return;
     setDraftAnswer("");
     setStopped(false);
+    setLevel(nextLevel);
     setMessages((m) => [...m, { role: "you", text: message }]);
     setText("");
-    mutation.mutate(message);
+    mutation.mutate({ message, level: nextLevel });
   };
+  const blob: BlobState = aiOff
+    ? "offline"
+    : mutation.isPending
+      ? "thinking"
+      : mutation.isError
+        ? "error"
+        : messages.at(-1)?.role === "tutor"
+          ? "answered"
+          : "idle";
+  const lastIsAnswer = messages.at(-1)?.role === "tutor" && !mutation.isPending;
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <button className="button tutor-button">
-          <Sparkle size={18} weight="duotone" />
+          <BlobMark state={blob} size={20} />
           Ask 1on1
         </button>
       </Dialog.Trigger>
@@ -153,9 +200,7 @@ export default function Tutor({
         <Dialog.Overlay className="overlay" />
         <Dialog.Content className="tutor-drawer">
           <div className="drawer-heading">
-            <span className="tutor-mark">
-              <Sparkle size={23} weight="duotone" />
-            </span>
+            <BlobMark key={blob + messages.length} state={blob} />
             <div>
               <Dialog.Title>Your thinking partner.</Dialog.Title>
               <Dialog.Description>
@@ -180,6 +225,13 @@ export default function Tutor({
               Visualize an idea
             </button>
           </div>
+          {aiOff && (
+            <p className="inline-alert tutor-offline" role="status">
+              The AI tutor isn’t set up on this server, so it can’t answer
+              right now. The authored hints, the Coach tab and every challenge
+              still work, and your saved conversation is still here.
+            </p>
+          )}
           <div className="chat-messages">
             {user && !historyReady && !historyError && (
               <p role="status">Loading your conversation…</p>
@@ -202,17 +254,13 @@ export default function Tutor({
                   I can explain the step you’re looking at, help you find a bug,
                   or turn a concept into an experiment.
                 </p>
-                {[
-                  "Explain the current step in simpler terms",
-                  "Give me a hint without the solution",
-                  "What edge case am I missing?",
-                ].map((s) => (
+                {suggestions.map((s) => (
                   <button
-                    key={s}
-                    onClick={() => send(s)}
-                    disabled={!user || !historyReady}
+                    key={s.text}
+                    onClick={() => send(s.text, s.level)}
+                    disabled={!user || !historyReady || aiOff}
                   >
-                    {s}
+                    {s.text}
                     <ArrowRight size={16} />
                   </button>
                 ))}
@@ -291,6 +339,35 @@ export default function Tutor({
               </p>
             )}
           </div>
+          {lastIsAnswer && level > 0 && level < 4 && !aiOff && (
+            <button
+              className="button secondary small still-stuck"
+              onClick={() =>
+                send("I'm still stuck. A bit more help, please.", level + 1)
+              }
+            >
+              Still stuck? More help ({level + 1} of 4)
+            </button>
+          )}
+          {lastIsAnswer && level === 4 && (
+            <p className="tutor-footnote">
+              That’s as far as hints go. Ask for the full solution if you want
+              it, or try the step yourself first.
+            </p>
+          )}
+          {!!messages.length && !mutation.isPending && !aiOff && (
+            <div className="tutor-chips">
+              {suggestions.map((s) => (
+                <button
+                  key={s.text}
+                  onClick={() => send(s.text, s.level)}
+                  disabled={!user || !historyReady}
+                >
+                  {s.text}
+                </button>
+              ))}
+            </div>
+          )}
           {mutation.isPending && (
             <button
               className="button secondary small"
@@ -328,7 +405,11 @@ export default function Tutor({
               className="send-button"
               aria-label="Send question"
               disabled={
-                !text.trim() || mutation.isPending || !user || !historyReady
+                !text.trim() ||
+                mutation.isPending ||
+                !user ||
+                !historyReady ||
+                aiOff
               }
             >
               <ArrowUp size={20} />

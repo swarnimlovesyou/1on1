@@ -5770,3 +5770,116 @@ section[id] {
   border: 1px solid var(--line);
   border-radius: 7px;
 }
+
+/* the Blob: posture shows what the tutor is doing; motion is subtle and optional */
+.blob-mark {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.blob-mark svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.drawer-heading .blob-mark {
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--accent-wash);
+}
+.blob-body {
+  fill: var(--accent);
+  transform-origin: 20px 34px;
+}
+.blob-eyes ellipse {
+  fill: var(--surface);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.blob-mouth {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.blob-mark.idle .blob-body {
+  animation: blob-breathe 4s ease-in-out infinite;
+}
+.blob-mark.thinking .blob-body {
+  animation: blob-wobble 1.4s ease-in-out infinite;
+}
+.blob-mark.thinking .blob-eyes {
+  animation: blob-look 1.4s ease-in-out infinite;
+}
+.blob-mark.answered .blob-body {
+  animation: blob-hop 0.5s ease-out 1;
+}
+.blob-mark.error .blob-body {
+  transform: rotate(-6deg);
+}
+.blob-mark.error .blob-mouth {
+  transform: scaleY(-1);
+}
+.blob-mark.offline .blob-body {
+  fill: var(--muted);
+}
+.blob-mark.offline .blob-eyes ellipse {
+  transform: scaleY(0.25);
+}
+@keyframes blob-breathe {
+  50% {
+    transform: scale(1.03, 0.98);
+  }
+}
+@keyframes blob-wobble {
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes blob-look {
+  25% {
+    transform: translateX(-1.5px);
+  }
+  75% {
+    transform: translateX(1.5px);
+  }
+}
+@keyframes blob-hop {
+  40% {
+    transform: translateY(-3px) scale(1.02, 0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blob-mark .blob-body,
+  .blob-mark .blob-eyes {
+    animation: none !important;
+  }
+}
+.tutor-offline {
+  margin: 12px 22px 0;
+}
+.tutor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 20px 0;
+}
+.tutor-chips button {
+  font-size: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+}
+.tutor-chips button:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.still-stuck {
+  margin: 10px 20px 0;
+  align-self: flex-start;
+}
