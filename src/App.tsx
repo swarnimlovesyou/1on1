@@ -77,6 +77,12 @@ export default function App() {
     queryFn: () => api<{ user: User | null; csrf: string }>("/auth/session"),
   });
   const user = session.data?.user ?? null;
+  // fetched once for the whole app (the tutor reads it to say up front when AI is unavailable)
+  useQuery({
+    queryKey: ["system"],
+    queryFn: () => api<{ ai: boolean }>("/system"),
+    staleTime: 60_000,
+  });
   const pq = useQuery({
     queryKey: ["progress", user?.id],
     queryFn: () => api<Progress>("/progress"),

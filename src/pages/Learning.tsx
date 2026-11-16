@@ -556,6 +556,8 @@ export function NotebookPage() {
     onError: (e) => notify(e.message),
   });
   const lastResume = useRef("");
+  // the saved position seeds the experiment once per lesson; later saves must not reset what the learner is editing
+  const openedScene = useRef<{ lesson?: string; scene?: Scene }>({});
   useEffect(() => {
     if (!user || !query.data || (!contextScene && query.data.experiment))
       return;
@@ -594,8 +596,10 @@ export function NotebookPage() {
   const l = query.data,
     savedContext = progress.studyContexts?.find(
       (context) => context.lesson === l.id,
-    ),
-    scene = activeScene ?? savedContext?.scene ?? l.experiment,
+    );
+  if (openedScene.current.lesson !== l.id)
+    openedScene.current = { lesson: l.id, scene: savedContext?.scene };
+  const scene = activeScene ?? openedScene.current.scene ?? l.experiment,
     completed = progress.completed.includes(l.id);
   const related = problems.data
     ?.filter((p) =>
