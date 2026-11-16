@@ -144,7 +144,7 @@ class NotebookTest {
     var drafted = notebook.draftCards("alice", id, 1);
     assertFalse(drafted.isEmpty());
     var card = drafted.getFirst();
-    assertTrue(card.get("front").toString().startsWith("What is "), card.toString());
+    assertEquals("What is a queue?", card.get("front"), card.toString());
     assertEquals(1, ((Number) card.get("page")).intValue());
     assertEquals("text", card.get("draftedBy"));
 
@@ -165,6 +165,10 @@ class NotebookTest {
   void definitionsAndPassagesAreSplitSensibly() {
     assertEquals(2, NotebookService.definitions("A queue is a first-in first-out structure. Stacks are last-in first-out structures.").size());
     assertTrue(NotebookService.definitions("no definitions here at all").isEmpty());
+    var d = NotebookService.definitions("A queue is a first-in first-out structure. Each vertex is marked when it is first seen. It is a very useful idea.");
+    assertEquals(1, d.size(), "statements about 'each vertex' or 'it' are not definitions");
+    assertEquals("What is a queue?", d.getFirst()[0]);
+    assertTrue(NotebookService.definitions("The root is reached first by every search path.").isEmpty(), "passive verb");
     String words = String.join(" ", Collections.nCopies(300, "w"));
     var p = NotebookService.passages(words);
     assertEquals(3, p.size(), "120-word windows every 90 words");

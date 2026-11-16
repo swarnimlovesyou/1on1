@@ -45,6 +45,10 @@ public class NotebookService {
     "(?:^|(?<=[.!?]\\s))([A-Z][A-Za-z0-9 ()'-]{2,60}?) (is|are|means|refers to|describes) ([^.!?]{12,280}[.!?])"
   );
 
+  private static final Set<String> NOT_A_TERM = Set.of(
+    "each", "every", "this", "that", "these", "those", "it", "they", "some", "all", "any", "there", "here", "such", "one"
+  );
+
   public record Passage(String sourceId, String title, int page, String text, float score) {}
 
   final Store store;
@@ -287,7 +291,10 @@ public class NotebookService {
     Matcher m = DEFINITION.matcher(text);
     while (m.find() && out.size() < 6) {
       String term = m.group(1).strip();
-      if (term.split(" ").length > 6) continue;
+      String first = term.split(" ")[0], predicate = m.group(3).strip().split("[ ,]")[0];
+      // "Each vertex is marked…" is a statement, not a definition: skip determiner subjects and passive verbs
+      if (term.split(" ").length > 6 || NOT_A_TERM.contains(first.toLowerCase(Locale.ROOT)) || predicate.endsWith("ed")) continue;
+      if (List.of("A", "An", "The").contains(first)) term = first.toLowerCase(Locale.ROOT) + term.substring(first.length());
       out.add(new String[] { (m.group(2).equals("are") ? "What are " : "What is ") + term + "?", m.group(0).strip() });
     }
     return out;
