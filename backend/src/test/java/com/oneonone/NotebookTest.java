@@ -40,7 +40,8 @@ class NotebookTest {
     }
     store = new Store(db);
     var progress = new ProgressService(store);
-    var tutor = new TutorService(store, new TraceEngine(), new ExecutionService(store, progress));
+    var execution = new ExecutionService(store, progress);
+    var tutor = new TutorService(store, new TraceEngine(), execution, new CoachService(store, execution));
     tutor.key = ""; // no model: search-only answers and cards drafted from the text
     tutor.model = "gemini-3.1-flash-lite";
     notebook = new NotebookService(store, tutor);

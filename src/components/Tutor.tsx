@@ -17,6 +17,7 @@ export default function Tutor({
   problem,
   experiment,
   step = 0,
+  language,
   code,
   submission,
   onScene,
@@ -25,6 +26,7 @@ export default function Tutor({
   problem?: string;
   experiment?: Scene;
   step?: number;
+  language?: string;
   code?: string;
   submission?: string;
   onScene?: (s: Scene) => void;
@@ -102,6 +104,8 @@ export default function Tutor({
         lesson,
         experiment,
         step,
+        problem,
+        language,
         code,
         submission,
         history: messages
