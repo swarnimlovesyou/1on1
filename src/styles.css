@@ -1492,10 +1492,10 @@ section[id] {
   margin-left: auto;
 }
 .study-notebook > h1 {
-  font-size: 43px;
+  font-size: 40px;
   max-width: 19ch;
-  letter-spacing: -0.04em;
-  line-height: 1.16;
+  line-height: 1.1;
+  margin-top: 8px;
 }
 .notebook-facts {
   display: flex;
@@ -1816,7 +1816,8 @@ section[id] {
   margin: 25px 0;
 }
 .problem-heading h1 {
-  font-size: 29px;
+  font-size: 30px;
+  margin-top: 6px;
 }
 .problem-heading > div:last-child {
   display: flex;
@@ -5913,7 +5914,10 @@ section[id] {
   letter-spacing: -0.015em;
 }
 .prose,
-.lesson-prose {
+.lesson-prose,
+.statement-body .prose,
+.study-notebook .lesson-prose {
+  color: var(--ink);
   font-family: var(--font-text);
   font-size: 17px;
   line-height: 1.75;
@@ -5952,4 +5956,21 @@ section[id] {
 .next-copy small .family-mark {
   margin-right: 6px;
   vertical-align: 1px;
+}
+
+/* the page's family colours the subject: the trace highlight and its frame */
+.has-family .experiment {
+  --accent: var(--family);
+  --accent-wash: var(--family-wash);
+  background: var(--surface-soft);
+  border-color: transparent;
+}
+.study-notebook > .family-mark,
+.problem-heading .family-mark {
+  color: var(--family);
+}
+@media (max-width: 767px) {
+  .study-notebook > h1 {
+    font-size: 30px;
+  }
 }

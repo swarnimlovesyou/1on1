@@ -47,3 +47,8 @@ export function familyOfProblem(topics: string[]): FamilyId {
 export function familyVar(id: FamilyId): string {
   return `var(--family-${id})`;
 }
+
+/** Inline style that gives a page root its family colour; `.has-family` descendants (the experiment) read it. */
+export function familyStyle(id: FamilyId): Record<string, string> {
+  return { "--family": familyVar(id), "--family-wash": `var(--family-${id}-wash)` };
+}

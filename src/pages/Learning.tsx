@@ -41,7 +41,7 @@ import Tutor from "../components/Tutor";
 import ChallengeCard from "../components/ChallengeCard";
 import LinkedNotes from "../components/LinkedNotes";
 import FamilyMark from "../components/FamilyMark";
-import { FAMILIES, familyOfLesson, type FamilyId } from "../families";
+import { FAMILIES, familyOfLesson, familyStyle, type FamilyId } from "../families";
 import { ConceptMap, NextActionCard, ReviewsDue, useLearningMap } from "./LearningMap";
 const sampleScene: Scene = {
   algorithm: "sliding-window",
@@ -666,14 +666,15 @@ export function NotebookPage() {
           <p>You can change the input, break an assumption, and start again.</p>
         </div>
       </aside>
-      <article className="study-notebook">
+      <article className="study-notebook has-family" style={familyStyle(familyOfLesson(l))}>
+        <FamilyMark family={familyOfLesson(l)} label />
         <div className="notebook-breadcrumb">
           <span>{l.topics[0]}</span>
           <ArrowRight size={13} />
           {l.subtitle}
           <Bookmark id={l.id} />
         </div>
-        <h1>{l.title}</h1>
+        <h1 className="display">{l.title}</h1>
         <div className="notebook-facts">
           <span>
             <Clock size={15} />

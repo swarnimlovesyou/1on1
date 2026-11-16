@@ -1,3 +1,5 @@
+import FamilyMark from "../components/FamilyMark";
+import { familyOfProblem, familyStyle } from "../families";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -290,9 +292,10 @@ export function ProblemPage() {
         <ArrowLeft size={16} />
         Back to practice
       </Link>
-      <div className="problem-heading">
+      <div className="problem-heading has-family" style={familyStyle(familyOfProblem(p.topics))}>
         <div>
-          <h1>{p.title}</h1>
+          <FamilyMark family={familyOfProblem(p.topics)} label />
+          <h1 className="display">{p.title}</h1>
           <div className="problem-title-meta">
             <span className={"difficulty " + p.difficulty.toLowerCase()}>
               {p.difficulty}
@@ -318,7 +321,7 @@ export function ProblemPage() {
           />
         </div>
       </div>
-      <div className="coding-workspace">
+      <div className="coding-workspace has-family" style={familyStyle(familyOfProblem(p.topics))}>
         <section className="problem-statement">
           <div className="tabs">
             {["Description", "Hints", "Coach", "Editorial"].map((t) => (
@@ -334,7 +337,7 @@ export function ProblemPage() {
           <div className="statement-body">
             {tab === "Description" ? (
               <>
-                <p>{p.description}</p>
+                <p className="prose">{p.description}</p>
                 <h3>Input</h3>
                 <p>{p.inputFormat}</p>
                 <h3>Output</h3>
@@ -400,7 +403,7 @@ export function ProblemPage() {
             ) : (
               <>
                 <h3>One way to reason about it</h3>
-                <p className="preserve-lines">{editorial.data?.editorial}</p>
+                <p className="preserve-lines prose">{editorial.data?.editorial}</p>
                 <h3>
                   {(editorial.data?.references?.[language]
                     ? language

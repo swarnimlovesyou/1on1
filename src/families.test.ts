@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { familyOfLesson, familyOfProblem, familyVar, FAMILIES } from "./families";
+import { familyOfLesson, familyOfProblem, familyStyle, familyVar, FAMILIES } from "./families";
 
 describe("algorithm families", () => {
   it("maps every core concept to its family", () => {
@@ -47,6 +47,7 @@ describe("algorithm families", () => {
 
   it("names the CSS colour and labels every family", () => {
     expect(familyVar("graphs")).toBe("var(--family-graphs)");
+    expect(familyStyle("trees")).toEqual({ "--family": "var(--family-trees)", "--family-wash": "var(--family-trees-wash)" });
     expect(FAMILIES.searching.label).toBe("Searching and sorting");
     expect(Object.keys(FAMILIES)).toEqual(["foundations", "searching", "linear", "recursion", "trees", "graphs"]);
   });
