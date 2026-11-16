@@ -146,6 +146,7 @@ export function Practice() {
                   )}
                 </td>
                 <td>
+                  <FamilyMark family={familyOfProblem(p.topics)} />
                   <Link to={"/practice/" + p.id}>{p.title}</Link>
                   <small className="problem-index">
                     {String(p.order).padStart(2, "0")}

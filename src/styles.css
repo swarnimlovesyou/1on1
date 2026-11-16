@@ -20,9 +20,9 @@
   --line: #E7E3DA;
   --accent: #2F4A6E;
   --accent-wash: #E8EDF3;
-  --success: #17704F;
-  --warning: #8A5A12;
-  --error: #B03A3A;
+  --success: #40761A;
+  --warning: #7D6A00;
+  --error: #A8325A;
   --family-foundations: #3F5873;
   --family-foundations-wash: #E9EDF2;
   --family-searching: #2E6B5E;
@@ -50,9 +50,9 @@
   --line: #33363C;
   --accent: #A9BEDC;
   --accent-wash: #232B37;
-  --success: #6CC9A3;
-  --warning: #E0B465;
-  --error: #F09A92;
+  --success: #9CCB6B;
+  --warning: #E8CF5C;
+  --error: #F28FAE;
   --family-foundations: #9DB4CC;
   --family-foundations-wash: #232A33;
   --family-searching: #7CC2B0;
@@ -259,7 +259,7 @@ section[id] {
   transform: translateY(-1px);
 }
 .primary {
-  background: var(--accent);
+  background: var(--ink);
   color: var(--surface);
 }
 :root[data-theme="dark"] .primary {
@@ -286,7 +286,7 @@ section[id] {
   gap: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--accent);
+  color: var(--ink);
 }
 .text-link:hover {
   text-decoration: underline;
@@ -5973,4 +5973,8 @@ section[id] {
   .study-notebook > h1 {
     font-size: 30px;
   }
+}
+.problem-table td .family-mark {
+  margin-right: 8px;
+  vertical-align: 1px;
 }
