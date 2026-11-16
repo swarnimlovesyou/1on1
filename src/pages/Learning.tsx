@@ -40,6 +40,8 @@ import Experiment from "../components/Experiment";
 import Tutor from "../components/Tutor";
 import ChallengeCard from "../components/ChallengeCard";
 import LinkedNotes from "../components/LinkedNotes";
+import FamilyMark from "../components/FamilyMark";
+import { FAMILIES, familyOfLesson, type FamilyId } from "../families";
 import { ConceptMap, NextActionCard, ReviewsDue, useLearningMap } from "./LearningMap";
 const sampleScene: Scene = {
   algorithm: "sliding-window",
@@ -361,6 +363,57 @@ export function Library() {
       (tab !== "Saved for later" || progress.bookmarks.includes(l.id)) &&
       (!q || search.data?.some((r) => r.id === l.id)),
   );
+  // with no filter the collection reads as a book: one section per algorithm family
+  const FAMILY_IDS = Object.keys(FAMILIES) as FamilyId[];
+  const grouped =
+    !!rows?.length &&
+    tab === "All concepts" &&
+    topic === "All topics" &&
+    !path &&
+    !q;
+  const renderRow = (l: Lesson) => (
+          <article className="concept-row" key={l.id}>
+            <span className="concept-order">
+              {String(l.order).padStart(2, "0")}
+            </span>
+            <Link to={"/learn/" + l.id} className="concept-main">
+              <span className="concept-topic">
+                <FamilyMark family={familyOfLesson(l)} />
+                {l.topics[0]}
+                <span> / </span>
+                {l.subtitle}
+              </span>
+              <h2>{l.title}</h2>
+              <p>{l.body.slice(0, 118)}…</p>
+              <div className="concept-meta">
+                <span>
+                  <Clock size={14} />
+                  {l.minutes} min
+                </span>
+                <span>{l.difficulty}</span>
+                <span className="concept-complexity">
+                  {l.timeComplexity}
+                </span>
+              </div>
+            </Link>
+            <div className="concept-actions">
+              {progress.completed.includes(l.id) && (
+                <span className="complete-badge">
+                  <CheckCircle size={17} />
+                  Explored
+                </span>
+              )}
+              <Bookmark id={l.id} />
+              <Link
+                aria-label={"Open " + l.title}
+                className="open-concept"
+                to={"/learn/" + l.id}
+              >
+                <ArrowUpRight size={21} />
+              </Link>
+            </div>
+          </article>
+  );
   return (
     <>
       <PageHeading
@@ -440,53 +493,24 @@ export function Library() {
             ))}
           </div>
           <div className="library-list-header">
-            <span>THE NOTEBOOK COLLECTION</span>
+            <span>The notebook collection</span>
             <span>{rows?.length} notebooks</span>
           </div>
-          <div className="concept-list">
-            {rows?.map((l) => (
-              <article className="concept-row" key={l.id}>
-                <span className="concept-order">
-                  {String(l.order).padStart(2, "0")}
-                </span>
-                <Link to={"/learn/" + l.id} className="concept-main">
-                  <span className="concept-topic">
-                    {l.topics[0]}
-                    <span> / </span>
-                    {l.subtitle}
-                  </span>
-                  <h2>{l.title}</h2>
-                  <p>{l.body.slice(0, 118)}…</p>
-                  <div className="concept-meta">
-                    <span>
-                      <Clock size={14} />
-                      {l.minutes} min
-                    </span>
-                    <span>{l.difficulty}</span>
-                    <span className="concept-complexity">
-                      {l.timeComplexity}
-                    </span>
-                  </div>
-                </Link>
-                <div className="concept-actions">
-                  {progress.completed.includes(l.id) && (
-                    <span className="complete-badge">
-                      <CheckCircle size={17} />
-                      Explored
-                    </span>
-                  )}
-                  <Bookmark id={l.id} />
-                  <Link
-                    aria-label={"Open " + l.title}
-                    className="open-concept"
-                    to={"/learn/" + l.id}
-                  >
-                    <ArrowUpRight size={21} />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+          {grouped ? (
+            FAMILY_IDS.map((family) => {
+              const members = rows!.filter((l) => familyOfLesson(l) === family);
+              return members.length ? (
+                <section key={family} className="family-group">
+                  <h2 className="family-heading">
+                    <FamilyMark family={family} label />
+                  </h2>
+                  <div className="concept-list">{members.map(renderRow)}</div>
+                </section>
+              ) : null;
+            })
+          ) : (
+            <div className="concept-list">{rows?.map(renderRow)}</div>
+          )}
           {!rows?.length && (
             <div className="empty">
               <BookOpen size={35} />

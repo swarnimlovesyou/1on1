@@ -1,3 +1,5 @@
+import FamilyMark from "../components/FamilyMark";
+import { familyOfLesson } from "../families";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
@@ -52,7 +54,12 @@ export function NextActionCard({ action }: { action: NextAction }) {
         <Icon size={22} />
       </span>
       <span className="next-copy">
-        <small>Your next step</small>
+        <small>
+          {action.conceptId && (
+            <FamilyMark family={familyOfLesson({ id: "", conceptId: action.conceptId })} />
+          )}
+          Your next step
+        </small>
         <strong>{action.title}</strong>
         <span>{action.reason}</span>
       </span>
@@ -136,7 +143,10 @@ export function ConceptMap() {
                 style={{ left: p.x, top: p.y, width: W, height: H }}
                 title={c.evidence.join(" ")}
               >
-                <strong>{c.title}</strong>
+                <strong>
+                  <FamilyMark family={familyOfLesson({ id: c.lessonIds[0] ?? "", conceptId: c.id })} />
+                  {c.title}
+                </strong>
                 <small>
                   {STATE_LABEL[c.state]}
                   {c.review?.due ? " · review due" : ""}
@@ -150,7 +160,10 @@ export function ConceptMap() {
         {concepts.map((c) => (
           <li key={c.id} className={"state-" + c.state}>
             <Link to={c.lessonIds[0] ? "/learn/" + c.lessonIds[0] : "/learn"}>
-              <strong>{c.title}</strong>
+              <strong>
+                <FamilyMark family={familyOfLesson({ id: c.lessonIds[0] ?? "", conceptId: c.id })} />
+                {c.title}
+              </strong>
               <small>
                 {STATE_LABEL[c.state]}
                 {c.review?.due ? " · review due" : ""}
@@ -197,7 +210,10 @@ export function ReviewsDue() {
         >
           <ClockCounterClockwise size={19} />
           <span>
-            <strong>{r.title}</strong>
+            <strong>
+              <FamilyMark family={familyOfLesson({ id: r.lessonId ?? "", conceptId: r.conceptId })} />
+              {r.title}
+            </strong>
             <small>
               {r.overdueDays > 0
                 ? `Due ${r.overdueDays} day${r.overdueDays === 1 ? "" : "s"} ago`

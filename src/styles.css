@@ -5933,3 +5933,23 @@ section[id] {
   background: currentColor;
   flex-shrink: 0;
 }
+.family-group + .family-group {
+  margin-top: 28px;
+}
+.family-heading {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 10px 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+.family-heading .family-mark {
+  font-size: 13px;
+}
+.concept-topic .family-mark,
+.map-node strong .family-mark,
+.concept-map-list strong .family-mark,
+.review-row strong .family-mark,
+.next-copy small .family-mark {
+  margin-right: 6px;
+  vertical-align: 1px;
+}
