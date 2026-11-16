@@ -38,6 +38,7 @@ import {
   Gate,
 } from "../../components/Shared";
 import Experiment from "../../components/Experiment";
+import { RevisionCards, Sources } from "./DocumentNotebook";
 export function Notes() {
   return (
     <Gate>
@@ -90,7 +91,7 @@ function NotesContent() {
       />
       <div className="library-toolbar">
         <div className="tabs">
-          {["My thoughts", "Saved for later", "To revisit"].map((t) => (
+          {["My thoughts", "My sources", "Revision cards", "Saved for later", "To revisit"].map((t) => (
             <button
               className={tab === t ? "active" : ""}
               key={t}
@@ -151,7 +152,11 @@ function NotesContent() {
           {save.error && <ErrorState error={save.error} />}
         </form>
       )}
-      {tab === "Saved for later" ? (
+      {tab === "My sources" ? (
+        <Sources />
+      ) : tab === "Revision cards" ? (
+        <RevisionCards />
+      ) : tab === "Saved for later" ? (
         <div className="lesson-rows">
           {bookmarked.map((b) => (
             <Link
