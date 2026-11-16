@@ -1439,7 +1439,9 @@ public class TraceEngine {
     r.setArray(new ArrayList<>(Collections.nCopies(n, -1)));
     r.steps.clear();
     r.step(
-      "Start at vertex 0. A frontier holds discovered vertices waiting for work.",
+      alg.equals("dfs")
+        ? "Start at vertex 0. The call stack will hold the path of vertices whose neighbours are still being explored."
+        : "Start at vertex 0. A frontier holds discovered vertices waiting for work.",
       0,
       List.of(0),
       Map.of("visiting", 0, "frontier", List.of(0))
