@@ -13,9 +13,9 @@
       "difficulty": "Foundations",
       "minutes": 8,
       "published": true,
-      "body": "Place a cursor at each end of a sorted row. If their sum is too small, moving the right cursor left cannot help; advance the left cursor instead.",
+      "body": "Picture two people at opposite ends of a shelf of books sorted by price, looking for two books that together cost exactly your budget. If the pair is too cheap, the person at the cheap end steps inward, because even the most expensive remaining book could not lift that cheap one to the budget. If the pair is too expensive, the person at the expensive end steps inward. Each comparison rules out a whole set of pairs at once, so you never test most of the n(n-1)/2 possible pairs. In the animation, watch which cursor moves after each comparison and ask which pairs that move has ruled out. Also notice the first step: the input arrives unsorted and is sorted before the search starts, which is a separate cost.",
       "invariant": "Any pair not yet ruled out lies within the current cursor interval.",
-      "pitfall": "The ordering argument fails for unsorted input. Sort first when permitted and count that cost; sorted positions are not original indices.",
+      "pitfall": "Moving the wrong cursor. If the sum is too small and you move right inward, you throw away the partner most likely to help and can skip the answer. Too small moves left, too large moves right. On unsorted input neither move is justified, so sort first and count that cost.",
       "timeComplexity": "O(n) search after sorting",
       "spaceComplexity": "O(1) search auxiliary",
       "code": [
@@ -165,8 +165,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Sorted [1,2,3,4,6,7], target=9: 1+7=8, so advance left. Then 2+7=9. The answer exists at two distinct positions.",
+          "title": "Sort first, then two sums",
+          "text": "The input arrives as 4, 2, 7, 1, 3, 6, so the first step sorts it into 1, 2, 3, 4, 6, 7. Now left = 0 points at 1 and right = 5 points at 7. Their sum is 8, below the target 9. Since 7 is the largest value left, no partner can rescue 1, so left moves to 1. The cursors now point at 2 and 7, the sum is 9, and the search stops with the pair 2 + 7. Only two sums were computed. Every pair containing 1 was ruled out by a single comparison, and right never had to move. The answer refers to positions in the sorted array, not to where 2 and 7 sat in the original input.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Why a discarded value never mattered",
+          "text": "Before every comparison, any pair that sums to the target lies between left and right inclusive. It starts true because the cursors cover the whole sorted array. When the sum is too small, sorted[left] plus the largest remaining value is still short, so sorted[left] plus any smaller value is short too, and dropping left loses no answer. When the sum is too large, sorted[right] plus the smallest remaining value already overshoots, so dropping right is safe. Each step shrinks the interval by one and keeps the claim true. When left meets right, no pair of distinct positions remains, so returning false is correct.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Where the linear cost comes from",
+          "text": "Each loop iteration either returns or moves one cursor one place inward, and the gap between them starts at n - 1. So the search makes at most n - 1 comparisons: O(n) time, with O(1) extra space for two indexes and a sum. That bound assumes the input is already sorted. If it is not, sorting costs O(n log n) and dominates; for one query on unsorted data, a hash set of values seen so far gives O(n) expected time without sorting, at the cost of O(n) space. Two pointers reports sorted positions, so keep each value's original index alongside it if the problem asks for indices. The sum is computed as a long so adding two large int values cannot overflow.",
           "lines": []
         }
       ],
@@ -245,7 +259,11 @@
       "linkedProblems": [
         "problem-zero-tail",
         "problem-mirror-word"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-strings": "Strings use the same indexed positions, and checking a palindrome is the same inward walk from both ends.",
+        "concept-sorting": "The discard rule relies on sorted order, so you need to know what sorting costs and that it changes positions."
+      }
     },
     {
       "id": "lesson-sliding-window",
@@ -521,7 +539,11 @@
       },
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "prerequisiteNotes": {
+        "concept-arrays": "A window is a run of adjacent indexes, so you need constant-time access by position.",
+        "concept-prefix-sums": "Both reuse a running total; the window adds one value and removes one instead of recomputing."
+      }
     },
     {
       "id": "lesson-binary-search",
@@ -536,9 +558,9 @@
       "difficulty": "Foundations",
       "minutes": 12,
       "published": true,
-      "body": "A comparison with the middle of an ordered row discards a whole impossible half.",
+      "body": "Think of guessing a number between 1 and 100 when someone tells you higher or lower. A good guess sits in the middle, because whichever answer comes back, half of the possibilities disappear. Binary search does the same with a sorted array: one comparison with the middle value tells you which half cannot contain the target. That turns a search through n values into about log2 n comparisons, the difference between a million checks and about twenty. In the animation, keep your eye on the interval between low and high rather than on mid. Each step should shrink it, and the search ends either on a match or when the interval is empty.",
       "invariant": "If the target exists, some occurrence remains in [low,high].",
-      "pitfall": "Using low=mid or high=mid in this inclusive version can stop progress. Exact-match search may return any duplicate occurrence; lower-bound search answers a different question.",
+      "pitfall": "Writing low = mid or high = mid in this inclusive version. When the interval has two elements, mid equals low, so low = mid leaves the interval unchanged and the loop never ends. Test any variant on a two-element array with the target absent.",
       "timeComplexity": "O(log n)",
       "spaceComplexity": "O(1) auxiliary",
       "code": [
@@ -689,8 +711,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "In [1,2,3,4,6,7], target 5: mid=2 gives 3, mid=4 gives 6, then mid=3 gives 4. The interval becomes empty and returns -1.",
+          "title": "Searching for a missing 5",
+          "text": "The input 4, 2, 7, 1, 3, 6 is first sorted to 1, 2, 3, 4, 6, 7, and the target is 5. The interval starts at low = 0, high = 5. The middle index is 2, holding 3. Since 3 is less than 5, the target can only be to the right, so low becomes 3. Now mid = 4 holds 6, which is too large, so high becomes 3. The interval is the single index 3, holding 4, still too small, so low becomes 4. With low = 4 and high = 3 the interval is empty, and the search returns -1. Three comparisons settled it, and the last two pinned the gap between 4 and 6, exactly where 5 would have to be.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The interval always holds the answer",
+          "text": "If the target is in the array, some copy of it sits between low and high inclusive. At the start the interval is the whole array, so this is true. When a[mid] < target, every index up to mid holds a value no larger than a[mid], so none of them can be the target and low = mid + 1 is safe. When a[mid] > target, the same argument applies to everything from mid upward, so high = mid - 1 is safe. Because mid itself is always excluded, the interval shrinks every iteration and the loop must end. If it ends with low > high, the interval is empty, and the invariant says the target was never there.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Why halving gives log n",
+          "text": "Each iteration removes at least half of the remaining interval, so after k steps at most n / 2^k candidates are left. The loop stops once that drops below one, which takes about log2 n iterations: O(log n) time. Space is O(1) because only low, high and mid are stored. The catch is the sorted precondition. Sorting once costs O(n log n), which pays off only when you search the same data many times; for a single lookup in unsorted data a linear scan is cheaper. Computing mid as low + (high - low) / 2 avoids int overflow on huge arrays. With duplicates, this version returns whichever match it hits first, not necessarily the first occurrence.",
           "lines": []
         }
       ],
@@ -769,7 +805,10 @@
       "linkedProblems": [
         "problem-rising-subsequence",
         "problem-ordered-check"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-sorting": "Binary search is only valid on sorted input, and the sort it depends on usually costs more than the search."
+      }
     },
     {
       "id": "lesson-merge-sort",
@@ -784,9 +823,9 @@
       "difficulty": "Foundations",
       "minutes": 14,
       "published": true,
-      "body": "Merge sort splits an interval into halves until each piece has at most one value. A single value is already sorted. The merge phase combines two sorted pieces by repeatedly taking their smaller next value.",
+      "body": "Imagine sorting a tall stack of exam papers with a friend. You split the stack, each of you sorts half, and then you merge: look at the top paper of each sorted pile and take whichever comes first, again and again. Merge sort applies that split recursively until every pile holds one paper, which is sorted by definition. All of the real work happens in the merges. Each merge only compares the two front items, because in a sorted pile nothing behind the front can come earlier. In the animation, notice that splitting changes nothing in the array; values only move when a merge commits its buffer back. Watch the buffer fill one value at a time and count how many values each level of merging touches.",
       "invariant": "Before a merge begins, both halves are sorted. The output prefix is sorted and contains the smallest values consumed so far.",
-      "pitfall": "Merging needs temporary storage. Choosing the left item on equal keys preserves stability. The animation shows completed merges rather than hiding the work in a library sort.",
+      "pitfall": "Comparing with < instead of <= when the fronts are equal. The output is still sorted, but equal keys from the right run jump ahead of those from the left, so the sort stops being stable. Also check the two drain loops: when one run empties, the rest of the other must still be copied, or values silently disappear.",
       "timeComplexity": "O(n log n)",
       "spaceComplexity": "O(n)",
       "code": [
@@ -934,8 +973,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Merge [1,4] and [2,3]: choose 1,2,3, then drain 4. Output [1,2,3,4] is ordered and contains every input occurrence.",
+          "title": "From pairs to the final merge",
+          "text": "The input 4, 2, 7, 1, 3, 6 is split at mid = 2 into indexes 0 to 2 and 3 to 5, and the left part is split again until 4 and 2 stand alone. Their merge takes 2, then 4, and the array becomes 2, 4, 7, 1, 3, 6. Merging 2, 4 with 7 takes all three in order and changes nothing. The right part repeats the pattern: 1 and 3 merge in order, then 1, 3 merges with 6, again unchanged. A merge still runs when values are already in order; the algorithm cannot know that without comparing. The final merge fills a buffer of 6 values from the fronts of 2, 4, 7 and 1, 3, 6, taking 1, 2, 3, 4, 6, then draining 7, and the array becomes 1, 2, 3, 4, 6, 7.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The buffer prefix is already final",
+          "text": "During a merge, the buffer holds the smallest values consumed so far, in sorted order, and the unconsumed parts of both runs are still sorted. Each step compares only a[i] and b[j]. Every other unconsumed value sits behind one of those fronts, so it is at least as large as a front. The smaller front is therefore the smallest value left anywhere, and appending it keeps the buffer sorted. When one run empties, the rest of the other run is no smaller than anything in the buffer, so copying it in order is safe. A single value is sorted, and every merge combines two runs that smaller merges already sorted, so the top merge produces a fully sorted array.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Where n log n comes from",
+          "text": "Halving the interval each time gives about log2 n levels of splitting. On each level the merges together touch every value once, so each level costs O(n) and the whole sort costs O(n log n). That holds for every input, sorted or reversed, which is the main reason to choose merge sort over quicksort: no bad cases. The price is the O(n) buffer each merge writes into; heapsort or quicksort sort in place instead. Taking from the left run on ties, the <= in merge, keeps equal values in their original order, so the sort is stable. For very small arrays insertion sort is often faster in practice. Merge sort also suits linked lists and data too large for memory, where sequential merging is cheap.",
           "lines": []
         }
       ],
@@ -1014,7 +1067,10 @@
       "linkedProblems": [
         "problem-ordered-parcels",
         "problem-out-of-order"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "Merging copies values by index into a new array, and each split works on a range of array positions."
+      }
     },
     {
       "id": "lesson-quick-sort",
@@ -1029,9 +1085,9 @@
       "difficulty": "Foundations",
       "minutes": 8,
       "published": true,
-      "body": "Quicksort partitions values around a pivot. Values no larger than the pivot move to the left; larger ones remain on the right. Once the pivot is placed, recursively organize each side.",
+      "body": "Picture lining people up by height using one person as a reference. Everyone shorter or equal steps to the left, everyone taller to the right. The reference person is now standing exactly where they belong in the final line, even though neither group is sorted yet. Quicksort repeats this on each group. The step that does the work is the partition: one scan with a boundary that marks the end of the small values found so far. In the animation, watch the boundary. It advances only when a scanned value is no larger than the pivot, and a value moves only when it has to jump over a larger one. After each partition, check that the pivot never moves again.",
       "invariant": "The partition boundary separates values already classified as small from those not yet examined. The pivot reaches a valid final position after partitioning.",
-      "pitfall": "A fixed last-element pivot can produce quadratic behavior on sorted data. This lesson deliberately exposes that behavior; the randomized-selection lesson shows random pivots.",
+      "pitfall": "Recursing on a range that still includes the placed pivot. The range may not shrink and the recursion never ends. Also expect a last-element pivot to degrade to quadratic time on input that is already sorted: every partition then places only the largest value.",
       "timeComplexity": "Average O(n log n), worst O(n²)",
       "spaceComplexity": "Average O(log n) call stack",
       "code": [
@@ -1073,7 +1129,7 @@
       ],
       "teaching": {
         "id": "concept-sorting",
-        "title": "Sorting and Merging",
+        "title": "Quicksort",
         "order": 5,
         "prerequisites": [
           "concept-arrays"
@@ -1083,41 +1139,57 @@
           "lesson-quick-sort"
         ],
         "objectives": [
-          "Merge two ordered sequences using two cursors.",
-          "Explain how merge sort uses this operation after recursive splitting."
+          "Partition a range around a pivot with one left-to-right scan.",
+          "Explain why a bad pivot sequence costs O(n²) while balanced splits cost O(n log n)."
         ],
-        "mentalModel": "Two sorted rows let you take the smaller front item each time. Once both fronts are ordered, the chosen value cannot be preceded by a smaller unconsumed value.",
-        "workedExample": "Merge [1,4] and [2,3]: choose 1,2,3, then drain 4. Output [1,2,3,4] is ordered and contains every input occurrence.",
-        "invariant": "The output prefix is sorted and contains exactly the consumed input prefixes.",
-        "commonMistake": "A merge assumes both inputs are sorted. Do not quote O(n) merging as the complexity of sorting arbitrary input. Choosing the left equal key preserves cross-run stability.",
+        "mentalModel": "Pick a pivot, move every value that is not larger to its left, and the pivot lands in its final sorted place. Each side is then sorted on its own.",
+        "workedExample": "Sort [3,1,2] with pivot 2. Scanning 3 leaves it in place because it is larger. Scanning 1 swaps it to the boundary, giving [1,3,2]. Swapping the pivot into the boundary gives [1,2,3]; the sides [1] and [3] are already sorted.",
+        "invariant": "During a partition, everything left of the boundary is at most the pivot and everything between the boundary and the scan is larger.",
+        "commonMistake": "Forgetting to exclude the placed pivot from both recursive calls loops forever on equal values. A last-element pivot on already sorted input gives the O(n²) worst case.",
         "complexity": {
-          "time": "O(n+m) merge; O(n log n) merge sort",
-          "space": "O(n+m) merge output",
-          "assumptions": "Both merge inputs are nondecreasing; merge-sort child lesson covers splitting."
+          "time": "Average O(n log n); worst O(n²) when every pivot is the smallest or largest value",
+          "space": "O(log n) average call stack; O(n) in the worst case",
+          "assumptions": "Last-element pivot (Lomuto partition), sorting in place; not stable."
         },
         "java": {
           "language": "java",
           "className": "CurriculumExample",
-          "implementation": "static int[] merge(int[] a, int[] b) {\n        int[] out = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        while (i < a.length && j < b.length) out[k++] = a[i] <= b[j] ? a[i++] : b[j++];\n        while (i < a.length) out[k++] = a[i++];\n        while (j < b.length) out[k++] = b[j++];\n        return out;\n    }",
-          "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] merge(int[] a, int[] b) {\n        int[] out = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        while (i < a.length && j < b.length) out[k++] = a[i] <= b[j] ? a[i++] : b[j++];\n        while (i < a.length) out[k++] = a[i++];\n        while (j < b.length) out[k++] = b[j++];\n        return out;\n    }\n}",
+          "implementation": "static void quickSort(int[] a, int lo, int hi) {\n        if (lo >= hi) return;\n        int pivot = a[hi], boundary = lo;\n        for (int i = lo; i < hi; i++) {\n            if (a[i] <= pivot) {\n                int t = a[i]; a[i] = a[boundary]; a[boundary] = t;\n                boundary++;\n            }\n        }\n        int t = a[hi]; a[hi] = a[boundary]; a[boundary] = t;\n        quickSort(a, lo, boundary - 1);\n        quickSort(a, boundary + 1, hi);\n    }\n\n    static int[] sorted(int[] a) {\n        int[] copy = a.clone();\n        quickSort(copy, 0, copy.length - 1);\n        return copy;\n    }",
+          "source": "import java.util.*;\nclass CurriculumExample {\nstatic void quickSort(int[] a, int lo, int hi) {\n        if (lo >= hi) return;\n        int pivot = a[hi], boundary = lo;\n        for (int i = lo; i < hi; i++) {\n            if (a[i] <= pivot) {\n                int t = a[i]; a[i] = a[boundary]; a[boundary] = t;\n                boundary++;\n            }\n        }\n        int t = a[hi]; a[hi] = a[boundary]; a[boundary] = t;\n        quickSort(a, lo, boundary - 1);\n        quickSort(a, boundary + 1, hi);\n    }\n\n    static int[] sorted(int[] a) {\n        int[] copy = a.clone();\n        quickSort(copy, 0, copy.length - 1);\n        return copy;\n    }\n}",
           "cases": [
             {
-              "expression": "Arrays.toString(merge(new int[]{1,4},new int[]{2,3}))",
+              "expression": "Arrays.toString(sorted(new int[]{3,1,2}))",
+              "expected": "[1, 2, 3]"
+            },
+            {
+              "expression": "Arrays.toString(sorted(new int[]{2,2,1,2}))",
+              "expected": "[1, 2, 2, 2]"
+            },
+            {
+              "expression": "Arrays.toString(sorted(new int[]{1,2,3,4}))",
               "expected": "[1, 2, 3, 4]"
             },
             {
-              "expression": "Arrays.toString(merge(new int[]{},new int[]{1,1}))",
-              "expected": "[1, 1]"
-            },
-            {
-              "expression": "Arrays.toString(merge(new int[]{},new int[]{}))",
+              "expression": "Arrays.toString(sorted(new int[]{}))",
               "expected": "[]"
             }
           ],
           "lineAnnotations": [
             {
-              "line": 4,
-              "explanation": "Compare the two current fronts; advance only the cursor whose value was emitted."
+              "line": 3,
+              "explanation": "The last value of the range is the pivot; boundary marks where the next small value goes."
+            },
+            {
+              "line": 5,
+              "explanation": "Values at most the pivot are swapped to the boundary, so the left part stays small."
+            },
+            {
+              "line": 10,
+              "explanation": "Swapping the pivot to the boundary puts it in its final sorted position."
+            },
+            {
+              "line": 11,
+              "explanation": "Both recursive calls exclude the placed pivot, so every call shrinks the range."
             }
           ]
         },
@@ -1132,12 +1204,12 @@
           "explanation": "Compare the current fronts 4 and 2; choose 2."
         },
         "visualization": {
-          "exampleInput": "left=[1,4], right=[2,3]",
+          "exampleInput": "[3,1,2], pivot 2",
           "expectedStates": [
-            "out=[1]",
-            "out=[1,2]",
-            "out=[1,2,3]",
-            "out=[1,2,3,4]"
+            "scan 3: larger, stays",
+            "scan 1: swap to boundary, [1,3,2]",
+            "place pivot, [1,2,3]",
+            "sides [1] and [3] are already sorted"
           ],
           "manipulation": "Use duplicate keys and empty runs; keep element identity through merging.",
           "limits": "Sorted runs of up to 16 elements each; splitting and pivot sorting are separate child traces.",
@@ -1180,12 +1252,29 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Merge [1,4] and [2,3]: choose 1,2,3, then drain 4. Output [1,2,3,4] is ordered and contains every input occurrence.",
+          "title": "Three partitions sort the row",
+          "text": "With 4, 2, 7, 1, 3, 6 the last value, 6, is the first pivot. 4 and 2 are no larger, so the boundary passes over them without moving anything. 7 is larger and stays put. Then 1 swaps with 7, giving 4, 2, 1, 7, 3, 6, and 3 swaps with 7, giving 4, 2, 1, 3, 7, 6. The pivot swaps into index 4: 4, 2, 1, 3, 6, 7. The right side holds only 7, so it is done. The left side uses pivot 3: 4 stays, 2 and then 1 swap past it, and 3 lands at index 2, giving 2, 1, 3, 4, 6, 7. Finally pivot 1 lands at index 0 and the row is 1, 2, 3, 4, 6, 7. Each partition placed its pivot for good.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "What the boundary guarantees",
+          "text": "During a partition, every value left of the boundary is no larger than the pivot, every value between the boundary and the scan position is larger, and everything past the scan is unexamined. A small value found by the scan swaps to the boundary and the boundary advances, so both regions stay correct. When the scan reaches the pivot, swapping the pivot to the boundary puts every smaller-or-equal value on its left and every larger value on its right. That is exactly its sorted position, so it never moves again. Each recursive call works on a strictly smaller range, and a range of zero or one value is already sorted, so the process ends with every value placed.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Why the pivot decides the cost",
+          "text": "One partition scans its range once, so it costs time proportional to the range. If pivots split ranges roughly in half, there are about log n levels and each level scans about n values in total: O(n log n) on average. If the pivot is always the largest or smallest value, as a last-element pivot is on sorted input, each partition peels off one value, giving n levels and O(n²) comparisons. Recursion depth is the space cost: O(log n) on average, up to n frames in the bad case. A random pivot makes the bad case unlikely; choose merge sort when you need a guaranteed bound or stability, since quicksort is not stable. It is often fastest in practice because it sorts in place.",
           "lines": []
         }
       ],
-      "traceRevision": 3
+      "traceRevision": 3,
+      "prerequisiteNotes": {
+        "concept-arrays": "Partitioning swaps values in place by index, so you need to read and swap array positions with confidence."
+      }
     },
     {
       "id": "lesson-linked-list",
@@ -1200,9 +1289,9 @@
       "difficulty": "Foundations",
       "minutes": 10,
       "published": true,
-      "body": "Each node holds a value and a reference to the next node. Move arrows, not values, when reversing the chain.",
+      "body": "Think of a scavenger hunt where each clue tells you where the next one is hidden. You cannot jump to the fifth clue; you have to follow the chain from the start. A singly linked list works the same way: each node stores a value and a reference to the next node, and the list is reachable only through its head. Inserting or removing next to a node you already hold is cheap, because you only rewrite references, but reaching a position is slow. Reversing the list is the classic exercise because it forces you to rewrite every arrow without losing your grip on the rest of the chain. In the animation, watch the three markers for previous, current and next, and notice that the values never move. Only the arrows change direction.",
       "invariant": "prev heads the reversed prefix; current heads the untouched suffix.",
-      "pitfall": "Overwriting current.next before saving it loses access to the remaining nodes. Equal values still have distinct node identities.",
+      "pitfall": "Writing current.next = prev before saving current.next. The moment that arrow changes, the rest of the list is unreachable and the loop stops after one node. A related slip is returning current instead of prev: when the loop ends, current is always null.",
       "timeComplexity": "O(n)",
       "spaceComplexity": "O(1) auxiliary",
       "code": [
@@ -1347,8 +1436,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For 4→2→7→1→3→6, first save 2, point 4 to null, then continue from 2. The final head is 6 and the chain is 6→3→1→7→2→4.",
+          "title": "Six link flips, one per node",
+          "text": "The chain is 4, 2, 7, 1, 3, 6, and previous starts as null, shown as -1. In the first step current is the node holding 4. Its next node, 2, is saved first, then the arrow from 4 is pointed at null, and the markers advance so previous is 4 and current is 2. The same three moves repeat: 2 now points back to 4, then 7 back to 2, then 1 to 7, then 3 to 1. In the sixth step current is 6, the old tail; the saved next is null, 6 is pointed at 3, and current falls off the end. previous now holds 6, which is returned as the new head, and following the arrows gives 6, 3, 1, 7, 2, 4.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Two lists that never overlap",
+          "text": "At the top of every loop iteration the nodes form two separate lists. prev heads the part already reversed, which runs backwards from the most recent node to the original head and ends in null. current heads the untouched remainder, still linked in its original direction. No node belongs to both and none is lost. One iteration moves exactly one node from the front of the remainder to the front of the reversed part. Saving current.next before overwriting it is what keeps the remainder reachable. When current becomes null the remainder is empty, so prev heads the whole list, reversed.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Linear time, constant extra space",
+          "text": "The loop visits each node once and does a fixed amount of work there: one read and three reference writes. That gives O(n) time. The only extra storage is the three references prev, current and next, whatever the length, so the auxiliary space is O(1). A recursive reversal is shorter to write but uses one stack frame per node, O(n) space, and can overflow on long lists. Copying values into an array and writing them back also works but costs O(n) space and surprises anyone holding a reference to a particular node. Check the edges: an empty list returns null, and a one-node list returns itself. On a list with a cycle the loop never ends.",
           "lines": []
         }
       ],
@@ -1427,7 +1530,10 @@
       "linkedProblems": [
         "problem-reverse-route",
         "problem-remove-adjacent"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "Contrasting with arrays shows what a list gives up: no index jumps, so reaching a node means following links."
+      }
     },
     {
       "id": "lesson-stack",
@@ -1442,9 +1548,9 @@
       "difficulty": "Foundations",
       "minutes": 12,
       "published": true,
-      "body": "A stack is a pile with one accessible end. The last item placed on top is the first removed.",
+      "body": "Think of a stack of plates. You add a plate to the top and take a plate from the top; the ones underneath wait until everything above them is gone. That rule, last in first out, fits every situation where the most recent unfinished thing must be finished first: undo history, matching brackets, returning from nested function calls and depth-first search. A stack never lets you look inside or reorder it, and that restriction is what makes it useful, because the top always tells you what to handle next. In the animation, the values go in one order and come out in the opposite order. Notice that the first value pushed stays at the bottom until everything above it has been popped.",
       "invariant": "The top is the most recently pushed item that has not been popped.",
-      "pitfall": "A queue removes from the opposite end. Check emptiness before pop; use a Deque rather than treating sorted order as stack order.",
+      "pitfall": "Popping without checking isEmpty first. On an empty ArrayDeque, pop throws an exception, and the bug usually means an earlier step pushed too little or popped too much. In bracket matching, a closing bracket with nothing on the stack is an answer to report, not a crash.",
       "timeComplexity": "O(n) for n pushes and pops; amortized O(1) per deque operation",
       "spaceComplexity": "O(n) structure",
       "code": [
@@ -1589,8 +1695,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Push 4,2,7,1,3,6. Pop returns 6,3,1,7,2,4. Values below the top retain their relative order.",
+          "title": "Six pushes, then six pops",
+          "text": "The values 4, 2, 7, 1, 3, 6 are pushed one at a time, and the size climbs from 1 to 6 with each new value landing on top. When the last push finishes, 6 is on top and 4 is at the bottom. Popping then removes 6 first, leaving 4, 2, 7, 1, 3. The next pops remove 3, then 1, then 7, then 2, each time taking whatever is on top. The last pop removes 4, and the stack is empty with size 0. The pop order 6, 3, 1, 7, 2, 4 is the push order reversed. Nothing was sorted or compared; the order came entirely from when each value arrived.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The top is the newest survivor",
+          "text": "At every moment the top of the stack is the value pushed most recently among those not yet popped, and the values below it are in push order from the bottom up. A push puts the new value above the old top, which keeps that true. A pop removes the top and exposes the value pushed immediately before it, which is now the newest survivor. Because each operation touches only the top, the rest of the stack is never disturbed. That is why popping everything returns the exact reverse of the push order, and why a stack can remember where you were in nested work: the innermost open item is always on top.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Constant work at one end",
+          "text": "Each push and pop touches only the top, so it does a fixed amount of work. ArrayDeque keeps its values in a resizable array; when the array is full it copies everything into a larger one, which is occasionally O(n) but averages out to O(1) per operation. Pushing and popping n values therefore costs O(n) time, and holding them costs O(n) space. ArrayDeque behind the Deque interface is the usual choice in Java. Check isEmpty before pop, because pop on an empty ArrayDeque throws an exception rather than returning a value. If you need the oldest item first instead of the newest, you want a queue.",
           "lines": []
         }
       ],
@@ -1665,7 +1785,10 @@
       "linkedProblems": [
         "problem-next-taller",
         "problem-parenthesis-depth"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "ArrayDeque keeps the stack in an array that grows when full, which explains the amortized O(1) cost."
+      }
     },
     {
       "id": "lesson-queue",
@@ -1680,7 +1803,7 @@
       "difficulty": "Foundations",
       "minutes": 14,
       "published": true,
-      "body": "Join at the back and leave from the front. A deque supports both ends, so the operations you choose determine FIFO or LIFO behavior.",
+      "body": "A queue is the line at a ticket counter. People join at the back and are served from the front, so whoever has waited longest goes next. That first in, first out rule is what you want when order of arrival must be respected: print jobs, requests to a server, and the frontier in breadth-first search, where vertices must be processed in the order they were discovered. Java's ArrayDeque can act as a queue or a stack depending on which ends you use, so the discipline lives in your choice of methods, not in the container. In the animation, compare this with the stack lesson: the same six values go in, but they come out in the same order rather than reversed.",
       "invariant": "The front is the earliest enqueued item that has not been removed.",
       "pitfall": "Using removeLast after addLast turns a deque into a stack. BFS depends on FIFO; substituting the wrong removal changes exploration order.",
       "timeComplexity": "O(n) total; amortized O(1) per deque operation",
@@ -1831,8 +1954,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Enqueue 4,2,7,1,3,6 at the back. Removing from the front returns 4,2,7,1,3,6.",
+          "title": "First in is first out",
+          "text": "The values 4, 2, 7, 1, 3, 6 are added at the back one at a time, and the size grows from 1 to 6. The front is 4 the whole time because nothing has left yet. The first removal takes 4 from the front and leaves 2, 7, 1, 3, 6. The next removals take 2, then 7, then 1, then 3, and the final one takes 6, leaving the queue empty with size 0. The removal order 4, 2, 7, 1, 3, 6 matches the arrival order exactly. Had the same values been taken from the back instead, they would have come out reversed, which is the stack's behaviour.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The front waited longest",
+          "text": "At every moment the front of the queue is the earliest-added value that has not been removed, and the values behind it are in arrival order. addLast puts a new value behind everything already waiting, so it cannot overtake anyone. removeFirst takes the front, which exposes the next-oldest value. Neither operation changes the relative order of the values in between. This is why breadth-first search finds fewest-edge distances: every vertex at distance d is enqueued before any vertex at distance d + 1, so the queue hands them out layer by layer.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Two ends, both constant time",
+          "text": "ArrayDeque keeps its values in a circular array with a head index and a tail index. Adding at the back and removing from the front each move one index, so they cost O(1); when the array fills, it is copied into a larger one, which averages out to O(1) per operation. Processing n values therefore takes O(n) time and up to O(n) space while they wait. An ArrayList used as a queue is a common slow alternative, because removing index 0 shifts every remaining element and makes each removal O(n). If items should leave by priority rather than arrival, use a priority queue. Check isEmpty before removeFirst, which throws on an empty deque.",
           "lines": []
         }
       ],
@@ -1905,7 +2042,11 @@
       ],
       "linkedProblems": [
         "problem-first-single"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "ArrayDeque stores the queue in a circular array, so knowing how arrays grow explains the amortized O(1) cost.",
+        "concept-stacks": "A queue is easiest to understand next to a stack: the same container, the opposite removal end, the opposite order."
+      }
     },
     {
       "id": "lesson-recursion",
@@ -1920,7 +2061,7 @@
       "difficulty": "Foundations",
       "minutes": 8,
       "published": true,
-      "body": "A function leaves a frame on the call stack while a smaller call runs. Returning resumes that exact frame with its own local state.",
+      "body": "Picture a line of people passing a question along: each person asks the next one an easier version and waits, notes in hand, until the answer comes back. The last person can answer without asking anyone. Then the answers travel back, and each person finishes their own part using the answer they received. A recursive function works this way. Each call gets its own frame on the call stack, holding its own copy of n, and stays paused until the smaller call returns. Every recursive function needs a base case that answers directly and a call that moves toward it. In the animation, the column of frames is the call stack. Notice that it grows first with no multiplying at all, and every multiplication happens while the stack shrinks.",
       "invariant": "factorial(n) returns n times factorial(n-1), with factorial(0)=1.",
       "pitfall": "A missing base case or a call that does not reduce the problem can recurse indefinitely. The call stack consumes space even when no explicit array is allocated.",
       "timeComplexity": "O(n)",
@@ -2074,8 +2215,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "factorial(5) waits for factorial(4), down to factorial(0)=1. Unwinding returns 1,2,6,24,120. Each multiplication happens after the smaller call returns.",
+          "title": "Five frames wait for the base case",
+          "text": "The animation computes factorial(5). The first call cannot answer yet, so it pauses and calls factorial(4), which pauses and calls factorial(3), and so on. After five calls the stack holds frames for 5, 4, 3, 2 and 1, and the call for 0 is pushed on top. That call hits the base case and returns 1 without recursing. Its frame is popped, and the frame for 1 resumes: 1 times 1 is 1. Each paused frame then resumes in turn, newest first: 2 times 1 gives 2, 3 times 2 gives 6, 4 times 6 gives 24, and 5 times 24 gives 120. The stack is empty again and the result is 120.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Each frame trusts the smaller call",
+          "text": "factorial(n) returns n times factorial(n - 1), and factorial(0) returns 1. To see that every call returns the right answer, argue by induction on n. The base case is correct by definition. If factorial(n - 1) returns (n - 1)!, then n times it is n!, so factorial(n) is correct too. Termination comes from the argument shrinking by one each call, so it must reach 0. While a call is paused, its local n is safe in its own frame; the smaller calls get their own frames and cannot overwrite it. That is why the frame for 5 still multiplies by 5 after four deeper calls have come and gone.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Paying for the waiting frames",
+          "text": "factorial(n) makes n + 1 calls, each doing one comparison and at most one multiplication, so the time is O(n). The space is also O(n), not because of any array but because up to n + 1 frames are alive at once on the call stack. That stack is limited, and very deep recursion crashes with a stack overflow. A loop that multiplies 1 through n gives the same answer in O(1) space, and Java does not optimise tail calls, so for a simple linear recursion like this a loop is the safer choice. Recursion pays off when the problem branches, as in trees and backtracking. The Java rejects negative n, which has no base case to reach, and caps n at 10 to keep the example small.",
           "lines": []
         }
       ],
@@ -2146,7 +2301,10 @@
       "linkedProblems": [
         "problem-factorial-lock",
         "problem-balanced-tree-nodes"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-stacks": "Each call pushes a frame and each return pops one, so the call stack follows the same last-in, first-out rule."
+      }
     },
     {
       "id": "lesson-backtracking",
@@ -2161,7 +2319,7 @@
       "difficulty": "Intermediate",
       "minutes": 10,
       "published": true,
-      "body": "Walk a decision tree with a reusable path. Choose an item, explore descendants, then undo that choice before trying the next branch.",
+      "body": "Imagine exploring a maze with a ball of string. At each fork you pick a corridor and keep unrolling string. When a corridor ends, you wind the string back to the last fork and try the next corridor. You never need a second ball of string, because winding back restores exactly where you were. Backtracking explores every combination of choices the same way: one shared path list, an add before exploring a branch and a remove after it. Generating all subsets is the cleanest example, since each value is either in or out. In the animation, watch the path grow and shrink like the string. Every undo should restore the path to exactly what it was before the matching choice, and every recorded subset is a copy, not the live path.",
       "invariant": "On entering visit(i), path contains exactly the choices for indices below i.",
       "pitfall": "Missing the undo contaminates sibling branches. Storing path itself makes every result alias one mutable list. Duplicate input values require a separate deduplication policy.",
       "timeComplexity": "O(n × 2^n) including copied subsets",
@@ -2309,8 +2467,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For [1,2], include-first traversal records [1,2], [1], [2], []. After recording [1,2], remove 2 before exploring the branch without it.",
+          "title": "Following the path through the trace",
+          "text": "The trace begins by recording the empty path. It then chooses values in input order and records each path on the way down: 4, then 4, 2, then 4, 2, 7, then 4, 2, 7, 1, then 4, 2, 7, 1, 3. Nothing is left to add, so it undoes 3 and then 1, returning to 4, 2, 7, and records 4, 2, 7, 3. Undoing 3 and 7 brings it back to 4, 2, which leads to 4, 2, 1, then 4, 2, 1, 3, then 4, 2, 3. Removing 2 leaves 4, and the next branch is 4, 7. A long stretch continues the same way. Near the end the path visits 7, 3, then 1 and 1, 3, then 3 alone, and the final undo leaves it empty. This trace uses only the first five values, so 6 never joins the path.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Undo restores the parent exactly",
+          "text": "Whenever a call starts, the shared path holds exactly the choices made on the way from the root of the decision tree to this call, and nothing else. Each call that adds a value removes that same value before it returns, so the path is handed back to its caller unchanged. That is what lets siblings share one list: the second branch starts from the same path the first branch started from. In the Java, visit(i) is entered with path holding the chosen values among indices below i, so when i reaches a.length the path is one complete subset and a copy goes into out. Each subset matches one root-to-leaf route, so none is missed or repeated.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Exponential output, linear working space",
+          "text": "With n distinct values there are 2^n subsets, because each value is independently in or out. You cannot do better than producing all of them, and copying each one costs up to n, so the time is O(n × 2^n). The working space is small: the path holds at most n values and the recursion is at most n + 1 calls deep, so O(n) auxiliary space. The output itself is O(n × 2^n). That growth is why backtracking suits only small n; at 30 values there are over a billion subsets. If you need only a count or the best subset, look for pruning or dynamic programming instead. With duplicate values this code produces repeated subsets, so sort and skip equal siblings when that matters.",
           "lines": []
         }
       ],
@@ -2385,7 +2557,10 @@
       "linkedProblems": [
         "problem-subset-count",
         "problem-binary-ones"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-recursion": "Each choice is a recursive call, and returning from it is the moment the path must be restored."
+      }
     },
     {
       "id": "lesson-bst",
@@ -2650,7 +2825,11 @@
       },
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "prerequisiteNotes": {
+        "concept-binary-search": "Each comparison discards one side, the same halving idea applied to a linked structure.",
+        "concept-binary-trees": "Insertion and search walk left and right child links, and in-order traversal reads the keys back."
+      }
     },
     {
       "id": "lesson-avl",
@@ -2715,7 +2894,7 @@
       "difficulty": "Intermediate",
       "minutes": 8,
       "published": true,
-      "body": "A binary tree node has up to two child references. Traversal chooses when to visit the node relative to those children; no ordering property is required.",
+      "body": "A family tree has a person at the top and branches below, and there is no single obvious order to read it in. Tree traversal gives you rules for that order. The recursive shape is always the same: handle the left subtree, the node itself and the right subtree, and the three classic orders differ only in where the node goes. Preorder visits the node first, inorder in the middle, postorder last. Inorder matters most for binary search trees, where it reads values in sorted order, but the rule itself knows nothing about values; it only follows links. In the animation, watch frames open and close. A node is emitted only after its whole left subtree has finished, and its frame stays open until its right subtree is done too.",
       "invariant": "inorder(node) processes every node in left subtree, then node, then right subtree.",
       "pitfall": "Inorder output is sorted only for a valid BST. Define whether height counts nodes or edges; the empty tree has height 0 in this lesson.",
       "timeComplexity": "O(n)",
@@ -2866,8 +3045,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For root 4 with left subtree 2(1,3) and right subtree 7(6,null), inorder visits [1,2,3,4,6,7] and height is 3 nodes. This example is ordered, but arbitrary binary trees need not be.",
+          "title": "Left, node, right on this tree",
+          "text": "The input 4, 2, 7, 1, 3, 6 is read as level-order slots: 4 is the root, 2 and 7 are its children, 1 and 3 hang under 2, and 6 is the left child of 7. The walk enters 4, then 2, then 1. Node 1 has no left child, so it emits 1 and returns. Back in 2, the left side is done, so it emits 2, then enters 3, emits 3 and returns. Node 2 returns to 4, which emits 4 and turns right. It enters 7, then 6, emits 6 and returns. Node 7 emits 7, has no right child, and returns, and finally 4 returns. The output is 1, 2, 3, 4, 6, 7. It is sorted because this tree happens to satisfy the search-tree ordering, not because inorder sorts anything.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "A subtree finishes before moving on",
+          "text": "When walk returns from a node, out has gained exactly the values of that node's subtree, in inorder, and nothing else. For an empty subtree this holds trivially, because walk returns at once. For a real node, the first recursive call adds its whole left subtree in order, then out.add places the node, then the second call adds the right subtree. Each subtree is smaller, so the claim follows by induction from the leaves up, and calling walk on the root lists every node exactly once. The order depends only on the shape of the links. If the tree also has the search-tree property, that order is sorted.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Linear time, height-deep stack",
+          "text": "walk is called once for each node and once for each null child, and a tree with n nodes has n + 1 null links, so there are 2n + 1 calls doing constant work each: O(n) time. The space that matters is the call stack, which holds one frame per node on the current root-to-leaf path, so O(h) where h is the height. For a balanced tree h is about log n; for a tree that degenerates into a chain h is n, and a deep enough chain can overflow the stack. An explicit stack in a loop avoids that limit, and level order needs a queue instead. The output list adds O(n). height uses the same pattern and counts nodes, so the empty tree has height 0.",
           "lines": []
         }
       ],
@@ -2941,7 +3134,11 @@
       "linkedProblems": [
         "problem-bst-inorder",
         "problem-tree-height"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-linked-lists": "A tree node is a linked-list node with two next references, so following and null-checking links carries over.",
+        "concept-recursion": "walk calls itself on each child and resumes the parent's frame afterwards, which is the suspended-frame idea."
+      }
     },
     {
       "id": "lesson-heap",
@@ -2956,7 +3153,7 @@
       "difficulty": "Intermediate",
       "minutes": 10,
       "published": true,
-      "body": "A complete tree fits in an array: parent of i is (i-1)/2. In a max-heap, a new value moves up until its parent is at least as large.",
+      "body": "Think of a company org chart where every manager earns more than the people who report directly to them. You can see the top earner at a glance, but nothing tells you whether someone in one department earns more than someone in another. A max-heap keeps exactly that weak order: every parent is at least as large as its children, so the maximum is always at the root. Because the tree is complete, it packs into an array with no gaps. That partial order is cheaper to maintain than full sorting, which is why heaps power priority queues. In the animation, follow the newly inserted value. It only ever moves up its own path toward the root, and it stops at the first parent that is at least as large.",
       "invariant": "Every parent is at least as large as its children.",
       "pitfall": "A heap is not a sorted array, and Java PriorityQueue defaults to a min-heap. A top-k problem needs a deliberate choice of min/max orientation.",
       "timeComplexity": "O(log n) per insertion; O(n log n) repeated insertion",
@@ -3103,8 +3300,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Insert [4,2,7,1,3,6]. After 7 enters, it swaps with 4; the final heap is [7,3,6,1,2,4]. Only parent-child order is guaranteed.",
+          "title": "Six insertions, three swaps",
+          "text": "Inserting 4 makes it the root. 2 lands at index 1; its parent at index 0 holds 4, which is larger, so nothing moves. 7 lands at index 2, its parent 4 is smaller, so they swap and the array is 7, 2, 4 with 7 at the root. 1 lands at index 3 under 2 and stays. 3 lands at index 4, beats its parent 2 at index 1 and swaps up, giving 7, 3, 4, 1, 2; the next comparison with 7 stops it. Finally 6 lands at index 5, beats its parent 4 at index 2 and swaps, giving 7, 3, 6, 1, 2, 4, and 7 stops it again. The root is the maximum, but the array is not sorted in either direction.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Only one path can break",
+          "text": "Before each insertion, every parent in the array is at least as large as its children. Adding a value at the end can break that rule in one place only: between the new value and its parent. If the parent is at least as large, the heap is valid and the loop breaks. If not, swapping fixes that pair, and the value that moves down was already the parent of that position, so it is still at least as large as anything below it. The only possible violation has moved one level up the same path. Repeating this ends at a large-enough parent or at index 0, and either way the whole array is a valid heap again, with the maximum at the root.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Height bounds every insertion",
+          "text": "A complete tree with n nodes has height about log2 n, and an inserted value climbs at most that many levels, comparing and maybe swapping once per level. So one insertion costs O(log n), and inserting n values one by one costs O(n log n). The array holds every value once, O(n) space, with no child references because index arithmetic replaces them. Use a heap when you repeatedly need the current maximum while values keep arriving. If you need everything in order once, sort instead; searching a heap for an arbitrary value is O(n). Building a heap bottom-up from a full array is O(n), faster than repeated insertion. Equal values are fine: the >= check stops the climb.",
           "lines": []
         }
       ],
@@ -3178,7 +3389,11 @@
       "linkedProblems": [
         "problem-heap-root",
         "problem-lower-middle"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-sorting": "Comparing with a full sort shows what a heap gives up: only the maximum is in place, so insertion is cheaper.",
+        "concept-binary-trees": "The heap is a complete binary tree stored in an array, so parent and child positions come from tree shape."
+      }
     },
     {
       "id": "lesson-bfs",
@@ -3443,7 +3658,11 @@
       },
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "prerequisiteNotes": {
+        "concept-queues": "The FIFO queue is what makes nearer vertices finish before farther ones.",
+        "concept-graphs": "BFS walks adjacency lists, so you need to read a vertex's outgoing edges."
+      }
     },
     {
       "id": "lesson-dfs",
@@ -3458,9 +3677,9 @@
       "difficulty": "Intermediate",
       "minutes": 14,
       "published": true,
-      "body": "Keep the current path on the call stack. Enter an unvisited neighbour, finish its descendants, then return to try the next neighbour.",
+      "body": "Picture exploring a cave with a ball of string. You follow one passage as far as it goes, and only when it dead-ends do you wind the string back to the last fork and try the next opening. Depth-first search does the same on a graph: the call stack is the string, recording the path from the start to where you stand. It answers questions such as which vertices can I reach, is there a cycle, or what belongs to one connected piece. In the animation, watch the list of open frames grow by one vertex each time the search goes deeper, and shrink by one each time a vertex is finished. The order in which vertices are entered and the order in which they finish are both useful later, for example in topological sorting.",
       "invariant": "Every active frame represents a discovered vertex whose outgoing neighbours are not yet fully explored.",
-      "pitfall": "DFS does not guarantee shortest paths. Mark before descending to break cycles. Pre-marking every sibling before exploring one can produce a traversal that is not recursive DFS.",
+      "pitfall": "Do not expect DFS to find shortest routes. It follows the first neighbour as deep as it goes, so a target one edge away can be reached through a long detour first. Also mark a vertex when you enter it, not when you finish it. If the mark comes late, a cycle sends the search back into a vertex that is still on the path, and the recursion never ends.",
       "timeComplexity": "O(V+E)",
       "spaceComplexity": "O(V) visited/call stack",
       "code": [
@@ -3606,8 +3825,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "With neighbours in ascending order on the generated six-vertex graph, DFS enters 0,1,2,3,4,5 before unwinding. Changing neighbour order can produce a different valid DFS.",
+          "title": "One long dive, then unwind",
+          "text": "The search starts at vertex 0 and marks it entered. From 0 it descends to neighbour 1 before looking at any other neighbour of 0, and the same thing repeats: 1 descends to 2, 2 to 3, 3 to 4, and 4 to 5. At that moment six frames are open, [0, 1, 2, 3, 4, 5], which is the exact path from the source. Vertex 5 has nothing new to explore, so it finishes and returns. Then 4, 3, 2, 1 and 0 finish in turn. None of them finds another unvisited neighbour on the way back, so the stack empties without a second dive. The final state reports 6 visited vertices, and the entry order 0, 1, 2, 3, 4, 5 is what dfs returns in its out list.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The open frames are the path",
+          "text": "At every moment, the open frames form a path of discovered vertices from the source to the vertex being explored, and each of them may still have neighbours left to check. A vertex is marked in seen the moment explore is called on it, before any of its neighbours are tried. That early mark keeps the search finite: if a cycle leads back to a vertex already marked, the check fails and the search does not enter it again. When a frame returns, every vertex reachable from it through still-unmarked vertices has been entered. So no vertex is entered twice, and every vertex reachable from the source is entered once.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Each edge is checked once",
+          "text": "Each vertex is entered once because seen blocks a second entry, and each vertex's neighbour list is scanned once while its frame is open. Across the whole graph that is V entries plus E neighbour checks, so the time is O(V+E) with adjacency lists. The space is O(V): the seen array has one slot per vertex, and in the worst case, a long chain like the one in this trace, the call stack holds every vertex at once. On a large graph shaped like a long line, recursion can overflow Java's stack, so switch to an explicit stack. If you need the fewest edges to a target, use BFS instead. The outer loop in dfs restarts from every unmarked vertex, so disconnected parts are covered too.",
           "lines": []
         }
       ],
@@ -3685,7 +3918,11 @@
       "linkedProblems": [
         "problem-island-groups",
         "problem-dependency-order"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-recursion": "explore calls itself for each unvisited neighbour, and the call stack remembers where to resume when a deeper call returns.",
+        "concept-graphs": "The search walks the lists built by adjacency, reading each vertex's row of outgoing neighbours."
+      }
     },
     {
       "id": "lesson-dijkstra",
@@ -3803,9 +4040,9 @@
       "difficulty": "Intermediate",
       "minutes": 12,
       "published": true,
-      "body": "Naive recursive Fibonacci repeatedly solves the same subproblems. Memoization caches an answer the first time it is computed, then turns repeated calls into lookups.",
+      "body": "Suppose a friend asks you for 37 times 43 and you work it out on paper. If they ask again five minutes later, you read your answer off the paper instead of redoing the multiplication. Memoization gives a recursive function that same notepad. Plain recursive Fibonacci calls F(n-1) and F(n-2), and those two calls share almost all of their work, so the number of calls explodes as n grows. Storing each answer the first time it is finished collapses that tree of calls into one computation per value of n. In the animation, watch two things: the chain of frames that dives down to the base cases once, and the cache hits on the way back up, where a call returns at once without opening any deeper frames.",
       "invariant": "A cached state is correct once all dependencies have been computed correctly. The recursive structure remains visible.",
-      "pitfall": "Caching the wrong state key returns plausible but incorrect results. Zero may be a valid value, so a general cache should distinguish absent from computed zero.",
+      "pitfall": "Check the cache before recursing and store the result before returning. If the two recursive calls still run on every visit and memo is only written afterwards, the table fills up but nothing is saved. A quick test: every repeated n should show a cache hit with no new frames under it. Also keep not computed apart from a computed zero; memo uses Integer and null for that reason.",
       "timeComplexity": "O(n)",
       "spaceComplexity": "O(n)",
       "code": [
@@ -3962,8 +4199,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "F(0)=0,F(1)=1. For n=7, both versions return 13 from table [0,1,1,2,3,5,8,13]. Staircase counts and House Robber reuse state thinking but have different meanings and base cases.",
+          "title": "Dive once, then reuse",
+          "text": "The trace computes F(8). The first call opens frames for 8, 7, 6, 5, 4, 3, 2 and finally 1, always taking the n minus one branch first. F(1) returns 1 and F(0) returns 0 as base cases, so F(2) is stored as 1. Back in F(3), its second call F(1) is another base case, and F(3) is stored as 2. Now the reuse starts. F(4) needs F(2), which is already in the table: a cache hit returns 1 with no new frames, and F(4) is stored as 3. The same pattern repeats at every level. F(5) reuses F(3) and becomes 5, F(6) reuses F(4) and becomes 8, F(7) reuses F(5) and becomes 13, and F(8) reuses F(6) and becomes 21. The finished table is [0, 1, 1, 2, 3, 5, 8, 13, 21], and the answer read from it is 21.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "A stored value is final",
+          "text": "Once memo holds a value for n, that value is the true F(n) and never changes. It is written only after both recursive calls have returned, and those calls return correct values by the same argument applied to smaller n, with F(0) and F(1) returned directly as base cases. So a cache hit is safe: reading memo[n] gives exactly what recomputing would give. The table in the trace fills strictly left to right, because an entry can only be written after the entries it depends on. The bottom-up fibTable relies on the same fact in loop form: when it writes dp[i], the two entries before it are already final.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Calls drop from exponential to linear",
+          "text": "Without the cache, F(n) makes two calls that each make two more, and the shared work is redone again and again, so the call count grows exponentially, roughly like the Fibonacci numbers themselves. With memo, each n from 2 up to the target is computed once, and every other call is a base case or a cache hit that does constant work. That gives O(n) time. Space is O(n) for the memo array, plus O(n) for the recursion stack, which in the trace is deepest with 8 frames open. fibTable has the same O(n) time and table with no recursion, so it cannot overflow the stack. If you only need the final value, keep the last two numbers and the space drops to O(1). Note that int overflows after F(46); use long for larger n.",
           "lines": []
         }
       ],
@@ -4038,7 +4289,11 @@
       "linkedProblems": [
         "problem-small-coins",
         "problem-nonadjacent-stops"
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-prefix-sums": "fibTable fills dp left to right, each entry built from earlier entries, the same pattern as building a prefix table.",
+        "concept-recursion": "solve calls itself twice, and reading the trace means following how frames open, return and resume their callers."
+      }
     },
     {
       "id": "lesson-tabulation",
@@ -4520,9 +4775,9 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "Treat a loop as a counter of work. Doubling the input doubles a full scan, roughly quadruples a square nested loop, and adds about one iteration to repeated halving.",
+      "body": "Timing code with a stopwatch tells you about one machine on one day. Complexity asks a sturdier question: if the input doubles, how much more work does the code do? To answer it, pick one basic operation, here one pass through a loop body, and count how many times it runs as a formula in n. Think of counting steps instead of minutes: a walker's speed changes from day to day, the number of steps does not. In the animation the same n drives three loops. Notice how differently their counters grow. One ticks once per position, one adds a whole row at a time, and one stops after a handful of visits because its variable is halved each time.",
       "invariant": "The operation counter increases once for each visit of the selected loop body.",
-      "pitfall": "Two nested loops are not automatically quadratic: their bounds and dependencies determine the count. Big-O is a growth bound, not an exact runtime.",
+      "pitfall": "Do not read complexity off the shape of the code. Two nested loops are quadratic only when both run about n times. If the inner loop runs a fixed 3 times, or halves its range, the count is very different. Write down how many times the inner body runs for each outer value and add those numbers up.",
       "timeComplexity": "O(n), O(n²), O(log n) for the three loops",
       "spaceComplexity": "O(1) auxiliary",
       "code": [
@@ -4670,8 +4925,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For n=8, a scan performs 8 visits, a square nested loop performs 64 visits, and repeated integer halving visits 8,4,2,1: 4 iterations. These counts describe the defined operations, not elapsed milliseconds.",
+          "title": "Three counters for n = 8",
+          "text": "With n = 8, the scan loop visits positions 0 through 7, and its counter climbs one step at a time until it reads 8. The nested loop counts ordered pairs. Each outer row contributes a full inner loop of 8 visits, so the counter jumps to 8, 16, 24, 32, 40, 48, 56 and ends at 64 after row 7. The halving loop starts with x at 8 and divides by two: it visits 8, 4, 2 and 1, and when x becomes 0 the loop stops, giving 4 visits. The final comparison is 8, 64 and 4 for the same input size. Try predicting n = 16 before you run it: the scan doubles, the pair count grows fourfold, and the halving count grows by one.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Count what the body does",
+          "text": "Each counter in counts goes up by exactly one every time its loop body runs, so when a loop finishes, its counter equals the number of times that body executed. That is the whole method: choose the operation you care about, write down how many times it runs, and keep the term that grows fastest. For the scan the count is n. For the square loop the inner body runs n times for each of n outer values, so n times n. For halving, x takes the values n, n/2, n/4 and so on down to 1, which is about log2(n) plus one values. Big-O then drops constant factors and smaller terms, because they stop mattering as n grows.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Why growth beats milliseconds",
+          "text": "The three loops cost O(n), O(n²) and O(log n) time because those are the formulas their counters follow. Space is O(1) auxiliary: however large n is, counts keeps three long counters and a loop variable or two, and nothing grows with n. Growth rate matters more than constant factors once inputs get large. At n = 1000 the scan does a thousand visits and the square loop a million, so a quadratic method that was fine on a small test can stall on real data. Counting has limits too. It ignores memory effects and fixed overhead, so for small n a plain O(n²) loop can beat a cleverer method. Treat Big-O as a guide to how cost scales, then measure when the constants matter.",
           "lines": []
         }
       ],
@@ -4744,7 +5013,8 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Rows 0 and 1 have each contributed n visits."
         }
-      ]
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-arrays",
@@ -4752,7 +5022,7 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "An array is a numbered row of slots. Index i selects a position, not a value; duplicate values still occupy different slots.",
+      "body": "Think of an array as a row of numbered lockers. Each locker has a fixed position, and you can open locker 2 directly without walking past lockers 0 and 1. That direct jump is why arrays are the default container for ordered data: reading or writing any slot by its index costs the same, however long the row is. The index names a place, not what is stored there, so two lockers can hold the same value and still be different slots. In the animation, watch the index move left to right while a running total absorbs one slot at a time. That pattern, a loop plus a variable that summarises everything seen so far, is the shape of most array algorithms you will meet next.",
       "invariant": "Before index i, total equals the sum of a[0..i).",
       "pitfall": "The last valid index is length-1. Iterating with i <= length reads beyond the array. Integer sums may overflow; use long for the accumulator.",
       "timeComplexity": "O(n)",
@@ -4899,8 +5169,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For [2,1,5], visit indices 0,1,2. The running total becomes 2,3,8. An empty row has total 0.",
+          "title": "Summing [2, 1, 5] slot by slot",
+          "text": "Before the loop starts, total is 0 because nothing has been read yet. At index 0 the loop reads 2, and total becomes 2. At index 1 it reads 1, and total becomes 3. At index 2 it reads 5, and total becomes 8. The condition i < a.length now fails, since the length is 3, and sum returns 8. Notice that each step adds only the value in the current slot. The earlier slots are never read again, because total already stands for them. If the array were empty, the loop body would never run and the method would return the starting value 0.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Total covers the slots behind i",
+          "text": "Each time the loop is about to read index i, total equals the sum of every slot before i and none after it. At the start i is 0 and no slots are behind it, so total must be 0, which is how it is initialised. Each iteration adds a[i] and then moves i forward by one, so the statement is true again for the new i. When the loop ends, i equals a.length, and every slot before i means the whole array. That is why the returned value is the full sum. This style of reasoning, true at the start, kept by each step, useful at the end, is how you check any loop.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "One visit per slot",
+          "text": "The loop body runs once per slot and does constant work each time, so summing takes O(n) time. You cannot do better for a sum, because every value must be read at least once. Auxiliary space is O(1): one long and one int index, whatever the length. The accumulator is long rather than int because adding many large ints can pass the int limit of about 2.1 billion and wrap silently to a negative number. Arrays are the right tool for indexed reads and scans, but their size is fixed when they are created, and inserting into the middle means shifting every later slot. When the size changes often, a growable list or a linked structure fits better.",
           "lines": []
         }
       ],
@@ -4977,7 +5261,10 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Indices start at zero, and the total includes every slot read so far."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-complexity": "You count loop-body visits to see why sum runs in O(n) time with O(1) extra space."
+      }
     },
     {
       "id": "lesson-strings",
@@ -4985,7 +5272,7 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "A string is an indexed sequence of text units. Reading does not mutate it; build changed text in a separate buffer.",
+      "body": "A string is a fixed line of characters, each at a numbered position, like letters stamped on a strip of metal. In Java you can read any position, but you cannot change the strip itself: String is immutable. To produce changed text, you copy characters into a new buffer and turn that buffer into a fresh string at the end. This matters for cost. Gluing strings together with + inside a loop copies the whole growing result each time, while a StringBuilder appends in place. In the animation, keep two things apart: the read index, which walks backwards through the source, and the output, which grows forwards one character at a time. The source never changes.",
       "invariant": "After k iterations, the buffer contains the final k characters in reverse order.",
       "pitfall": "Java char indexes UTF-16 code units, not all user-perceived characters. This introductory example is restricted to ASCII; it is not a Unicode grapheme reverser.",
       "timeComplexity": "O(n)",
@@ -5133,8 +5420,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Read \"cat\" from indices 2,1,0 and append t,a,c to produce \"tac\". The original string remains \"cat\".",
+          "title": "Reversing \"cat\" into a buffer",
+          "text": "The source is \"cat\", with c at index 0, a at index 1 and t at index 2. The output buffer starts empty. The loop begins at the last index, 2, and appends t, so the output is \"t\". Next it reads index 1 and appends a, giving \"ta\". Then it reads index 0 and appends c, giving \"tac\". The index would now be negative, the condition i >= 0 fails, and reverse returns \"tac\". The source is still \"cat\", because every step only read from it. Notice that the read index goes 2, 1, 0 while the output length goes 1, 2, 3. That is why the two must be tracked separately.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The buffer holds a reversed suffix",
+          "text": "After k characters have been appended, the buffer holds the last k characters of the source in reverse order. Before the loop, k is 0 and the buffer is empty, which matches. Each step reads the next character further left and appends it to the right end of the buffer, so the reversed suffix grows by one and stays in the right order. When i passes index 0, k equals the length of the source, the suffix is the whole string, and the buffer is its full reverse. Because nothing is ever written to s, any other code holding a reference to it still sees the original text.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Why the builder keeps it linear",
+          "text": "The loop runs once per character, and each append adds one character to the end of the builder, which is amortised constant work. So the reversal costs O(n) time. Space is O(n) because the output is a new string of the same length, which you cannot avoid since the original cannot be changed. Concatenating onto a String with + inside the loop would copy the partial result on every step, 1 + 2 + ... + n characters in total, which is O(n²). For one or two concatenations + is fine. One caution: charAt reads UTF-16 code units, so reversing text with emoji or combined accents can split a character in two.",
           "lines": []
         }
       ],
@@ -5213,7 +5514,10 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "The first copy read index 2. Type the output without quotes."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "A string is read by index like an array, from 0 to length minus one, so the backwards loop uses the same bounds reasoning."
+      }
     },
     {
       "id": "lesson-hashing",
@@ -5221,9 +5525,9 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "A set answers whether a value has appeared. A map additionally remembers a value such as the earlier index. Hashing locates a candidate bucket; equality still decides exact membership.",
+      "body": "Think of a coat check. You hand over a coat, get a ticket number, and later the attendant goes straight to the right hook instead of searching every coat. A hash set does that for values: it turns a key into a bucket number, goes to that bucket, and compares only the few keys stored there. A hash map adds a value to each key, such as a count or an earlier index. This turns questions like have I seen this before, or how many times did this appear, from a scan of everything seen so far into one lookup that takes expected constant time. In the animation, notice that two different keys can land in the same bucket. The bucket only narrows the search; an equality check decides whether the key is really there.",
       "invariant": "Before reading position i, seen contains exactly the values at earlier positions.",
-      "pitfall": "Hash lookup is expected constant time under normal assumptions, not a universal worst-case guarantee. A Bloom filter is not a replacement for an exact set.",
+      "pitfall": "Do not treat the bucket as the answer. Keys 2 and 6 share a bucket in the trace but are different keys; only equality settles membership. For your own key classes, define equality and hashing together, or equal objects will be stored twice and lookups will miss. And remember the speed is expected, not guaranteed: many colliding keys make lookups slow.",
       "timeComplexity": "Expected O(n)",
       "spaceComplexity": "O(n) auxiliary",
       "code": [
@@ -5383,8 +5687,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For [2,1,2], insert 2, then 1. The last 2 is already present, so a duplicate exists. Two equal values at different positions count as repetition.",
+          "title": "Counting [2, 1, 6, 2, 5]",
+          "text": "The trace follows frequencies on [2, 1, 6, 2, 5], using an illustrative bucket rule of key mod 4. Key 2 goes to bucket 2, is not found, and enters with count 1. Key 1 goes to bucket 1 and enters with count 1. Key 6 also lands in bucket 2, but equality shows it is not 2, so it becomes a separate entry: 3 unique keys now. The second 2 goes to bucket 2, matches the existing key, and its count rises to 2 without a new entry. Finally 5 shares bucket 1 with key 1 and enters as the fourth unique key. The map ends with 2 counted twice and 1, 6 and 5 once each. With duplicate, the second 2 is where seen.add returns false and the method returns true.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The table mirrors what came before",
+          "text": "Before position i is read, the set or map contains exactly the distinct values from positions before i, and in frequencies each count equals how often that value has appeared so far. It starts empty, which is correct for an empty prefix. Each step either finds the key and updates it, or inserts it, so the statement holds again for the next position. For duplicate this gives a clean proof: seen.add fails exactly when the current value already appeared earlier, so the first false means a repeat, and finishing the loop means every value was new. Correctness also rests on equality and hashing agreeing: equal keys must hash to the same bucket, or a lookup searches the wrong place.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Expected constant, not guaranteed",
+          "text": "Each element costs one lookup plus one insert or update. With a good hash function and a table that resizes as it fills, buckets stay short, so each operation takes expected constant time and the whole pass is expected O(n). The worst case is worse: if many keys collide, a bucket grows long and lookups slow down, which is why the bound says expected. Space is O(n) because, when all values are distinct, every one gets an entry. Compare the alternatives. Checking each value against all earlier ones is O(n²) with no extra memory, and sorting first is O(n log n) and puts repeats next to each other. Use a LinkedHashMap, as frequencies does, when you also need the insertion order back.",
           "lines": []
         }
       ],
@@ -5465,7 +5783,11 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Three different keys (2, 1, 6) had been inserted before the repeat."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "A hash table keeps its buckets in an array, and the trace scans the input array once, position by position.",
+        "concept-strings": "Strings are the most common hash keys, and key equality compares content the same way two strings are compared."
+      }
     },
     {
       "id": "lesson-prefix-sums",
@@ -5473,7 +5795,7 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "Store the sum before every boundary. The sum between two boundaries is the later prefix minus the earlier prefix.",
+      "body": "Imagine a long road with a milestone at every kilometre, each showing the distance from the start. To find the length of any stretch you do not walk it: you read two milestones and subtract. A prefix-sum table puts those milestones on an array. Entry i holds the total of everything before boundary i, so the sum of any contiguous range is one subtraction. This pays off when you need many range sums from the same data. You pay one pass to build the table, then each question is answered in constant time instead of by adding up the slots again. In the animation, watch the table gain one boundary per step, then watch the query use only two of its entries.",
       "invariant": "prefix[i] equals the sum of the first i values; prefix[0] is zero.",
       "pitfall": "Mixing inclusive and exclusive endpoints causes off-by-one errors. Prefix sums work with negative values; a positive-only shrinking window is a different technique.",
       "timeComplexity": "O(n) build; O(1) per range query",
@@ -5636,8 +5958,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For [2,1,5], prefix=[0,2,3,8]. The range [1,3) sums to prefix[3]-prefix[1]=8-2=6.",
+          "title": "Building [0, 2, 3, 8]",
+          "text": "The input is [2, 1, 5]. Boundary 0 stores 0, since nothing has been added yet. Boundary 1 stores 0 + 2 = 2, the sum of the first value. Boundary 2 stores 2 + 1 = 3. Boundary 3 stores 3 + 5 = 8, the sum of the whole array. The table has 4 entries for 3 values, one per boundary. The query asks for the half-open range from 1 to 3, which covers the values 1 and 5. The method reads the entry at the right boundary, 8, and subtracts the entry at the left boundary, 2, giving 6. Check by hand: 1 + 5 is 6.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Each entry sums everything before it",
+          "text": "p[i] always equals the sum of the first i values of a, and p[0] is 0 because zero values add to nothing. The loop keeps this true: p[i + 1] is p[i] plus a[i], so it covers exactly one more value. Given that, a range from left to right, including left and excluding right, is the first right values with the first left values taken away. That is p[right] minus p[left], and nothing else is needed. The half-open convention is what keeps the formula clean: the range length is right minus left, and an empty range, where left equals right, correctly sums to 0.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "One pass now, constant time later",
+          "text": "Building the table touches each value once, so it costs O(n) time, and the table takes O(n) space for its n plus one entries. Each range query then reads two entries and subtracts, which is O(1) however wide the range is. For a single query this is no win, since summing the range directly is also O(n). The payoff comes with many queries: q questions cost O(n + q) instead of up to O(n times q). Prefix sums work with negative values too. They handle updates badly: changing one value forces every later entry to change, so for frequent updates use a Fenwick tree or a segment tree. The entries are long so that sums of many values do not overflow.",
           "lines": []
         }
       ],
@@ -5720,7 +6056,10 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "prefix = 0, 2, 3, 8. Subtract the value at the left boundary from the value at the right boundary."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "The table is an array one slot longer than the input, and the build loop reads a[i] while writing p[i + 1]."
+      }
     },
     {
       "id": "lesson-variable-window",
@@ -5728,9 +6067,9 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "Stretch a frame while it remains valid. When a repeated character enters, remove characters from the left until the frame is valid again.",
+      "body": "Think of reading a sentence through a stretchable frame that must never show the same letter twice. You keep pulling the right edge forward to see more. When a new letter would repeat one already inside, you slide the left edge forward until the old copy drops out, then carry on. Each edge only ever moves right. That one-way movement is what makes the technique fast: instead of checking every substring, you find the longest valid one in a single sweep. Unlike a fixed window, the width here changes. In the animation, watch left jump forward in a burst when a repeat arrives, and notice that the frame may have to drop more than one character before it is valid again.",
       "invariant": "After shrinking, all characters in the current frame are distinct.",
-      "pitfall": "Removing only once can leave a repeated character inside the frame. For minimum-length sum windows, positivity is what makes shrinking monotonic; arbitrary negatives break that proof.",
+      "pitfall": "Writing if instead of while removes only one character per repeat. On \"abba\" the buggy version leaves the frame bb after the second b, then lets a in and reports 3, while the correct answer is 2. Test any window code on an input where the repeated character is not the leftmost one.",
       "timeComplexity": "Expected O(n)",
       "spaceComplexity": "O(min(n, alphabet size))",
       "code": [
@@ -5887,8 +6226,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For \"abca\", the frame grows through a,ab,abc. The next a forces the old a out, leaving bca. The best length stays 3.",
+          "title": "Why \"abba\" needs a loop",
+          "text": "Take \"abba\". With right at 0 the frame is a and best becomes 1. With right at 1 the frame is ab and best becomes 2. At right 2 the incoming b is already inside. Removing the leftmost character, a, moves left to 1, but the old b is still there, so shrinking continues: removing b moves left to 2. Now the frame is the single b at index 2 and best stays 2. At right 3 the incoming a is no longer in the set, because it left during the shrink, so the frame becomes ba from index 2 to 3, length 2. The answer is best = 2. A single if in place of the while would have stopped after removing a and left two b characters in the frame.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Distinct after every shrink",
+          "text": "After the while loop ends and incoming is added, window holds exactly the characters from index left through index right, all distinct. The loop runs until incoming is absent, so adding it cannot create a repeat. Why is it safe to drop characters from the left for good? Any frame that starts before the new left and ends at right would contain the repeated character twice, and extending such a frame further right keeps that repeat. So no frame the method skips can be valid and longer than one it measured, and best ends as the true maximum.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Each character enters and leaves once",
+          "text": "The right edge moves n times in total, and the left edge moves at most n times across the whole run, since it never moves back. Each move does one set operation in expected constant time, so the total is expected O(n), even though there is a loop inside a loop. Space is O(min(n, alphabet size)) because the set holds only distinct characters: at most the length of the string, and at most the size of the alphabet. A brute-force check of every substring costs O(n²) or more. Use this pattern only when shrinking from the left always helps restore validity. For sums with negative numbers that property fails, and prefix sums with a hash map are the usual alternative.",
           "lines": []
         }
       ],
@@ -5970,7 +6323,11 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Both letters at the front must leave before the window holds only the new \"b\"."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-hashing": "The set window tells you in expected constant time whether the incoming character is already in the frame.",
+        "concept-fixed-window": "You already slide a frame by adding on the right and removing on the left; here the frame's width is allowed to change."
+      }
     },
     {
       "id": "lesson-intervals",
@@ -5978,7 +6335,7 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "Lay closed segments on a number line. Sorted starts let you extend the latest output segment or begin a separate one.",
+      "body": "Picture bookings for a shared meeting room, written as time ranges on a whiteboard in no particular order. To see when the room is actually busy, you would first line the bookings up by start time, then sweep left to right, joining any booking that starts before the current busy block ends. That is interval merging. Sorting is the step that makes it work: once starts are in order, a new interval can only overlap the most recent merged block, so you never look further back. The same sort-then-sweep idea shows up in calendar conflicts and total covered length. In the animation, notice that each interval causes exactly one of two outcomes: extend the last block, or start a new one.",
       "invariant": "Output segments are disjoint and cover exactly the processed input intervals.",
       "pitfall": "For closed intervals [1,2] and [2,3], equality means overlap. Half-open intervals need a different convention. Never mutate caller intervals accidentally while merging.",
       "timeComplexity": "O(n log n)",
@@ -6128,8 +6485,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For [1,3],[2,6],[8,10], the second segment overlaps the first and extends its end to 6. Result: [1,6],[8,10].",
+          "title": "Merging three segments",
+          "text": "The input pairs are [1, 3], [2, 6] and [8, 10], so there are 3 intervals. Sorting by start leaves them in the same order, since 1, 2, 8 is already ascending. The output is empty, so [1, 3] is appended and there is 1 merged block. Next, [2, 6] starts at 2, which is not past the block's end of 3, so the two overlap and the block's end grows to the larger end, 6. The count stays at 1 and the block is now [1, 6]. Finally [8, 10] starts at 8, past the end 6, so it is appended as a separate block. The result is [1, 6] and [8, 10]: 2 blocks.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Only the last block can overlap",
+          "text": "After each interval is processed, the output blocks are in order, do not overlap, and together cover exactly the intervals seen so far. Sorting is what lets the loop compare only with the last block. Every earlier block ends before the last block starts, and every new interval starts at or after the last block's start, so a new interval cannot reach back to an earlier block. If the new start is at most the last end, the two share at least one point and joining them keeps coverage exact. If the start is greater, there is a real gap, and a new block keeps the output disjoint. Taking the larger of the two ends matters when one interval sits inside another.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Sorting dominates the cost",
+          "text": "The sweep visits each interval once and does constant work, so it is O(n). The sort before it is O(n log n), and that term dominates, so the whole method is O(n log n). If the intervals already arrive sorted by start, you can skip the sort and merge in O(n). Space is O(n): mergeIntervals clones every pair so the caller's arrays are not changed, and the output can hold up to n blocks when nothing overlaps. Decide edge cases up front. Touching endpoints such as [1, 2] and [2, 3] merge here because the intervals are closed, while half-open ranges would keep them apart. An empty input returns an empty array.",
           "lines": []
         }
       ],
@@ -6201,7 +6572,10 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "An overlapping interval extends the last one rather than adding a new one."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-sorting": "Arrays.sort with a comparator on the start puts intervals in order, which lets the merge look only at the last block."
+      }
     },
     {
       "id": "lesson-matrices",
@@ -6209,7 +6583,7 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "A rectangular matrix is a row of rows. Coordinates identify both a row and a column; a transpose swaps their roles.",
+      "body": "A matrix is a grid, like a spreadsheet or a seating chart. Every cell has two coordinates: which row it is in and which column. In Java a matrix is an array of row arrays, so a[r][c] means pick row r first, then column c inside it. Grids appear everywhere: images, game boards, distance tables, and the adjacency matrix of a graph. The transpose is a good first exercise because it forces you to keep the two dimensions apart. Rows become columns, so a wide grid turns tall. In the animation, follow one source cell to its new home and notice that its two coordinates trade places, while the row and column counts of the output trade places too.",
       "invariant": "Every copied source cell a[r][c] appears at out[c][r].",
       "pitfall": "Using row count for both dimensions only works for square inputs. Reject ragged rows for this rectangular operation.",
       "timeComplexity": "O(rows × columns)",
@@ -6362,8 +6736,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "Transpose [[1,2,3],[4,5,6]] into [[1,4],[2,5],[3,6]]. The input is 2×3 and the output is 3×2.",
+          "title": "From 2 × 3 to 3 × 2",
+          "text": "The input values 1, 2, 3, 4, 5, 6 form 2 rows of 3: row 0 is 1, 2, 3 and row 1 is 4, 5, 6. So out is created with 3 rows and 2 columns. The loop walks the source row by row. Cell (0,0) goes to (0,0), (0,1) goes to (1,0) and (0,2) goes to (2,0). The first source row becomes the first output column, which now reads 1, 2, 3 from top to bottom. Then (1,0) goes to (0,1), (1,1) to (1,1) and (1,2) to (2,1), filling column 1 with 4, 5, 6. The result is [[1, 4], [2, 5], [3, 6]]. Cells on the diagonal, (0,0) and (1,1), keep their coordinates.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Cell (r, c) lands at (c, r)",
+          "text": "Every source cell a[r][c] is written to out[c][r], and each output cell receives exactly one source cell. That one rule makes the whole result correct: row r of the input becomes column r of the output, and column c becomes row c. The output shape follows from it. Source row numbers now index output columns, so out needs cols rows and rows columns. The nested loop visits every (r, c) pair once, so no cell is missed or copied twice. The ragged check before the loop guarantees that a[r][c] exists for every r and c the loop will touch.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Every cell is copied once",
+          "text": "The nested loop runs cols times for each of rows, and each pass copies one value, so the time is O(rows × columns). You cannot do better, because every cell must move. Space is also O(rows × columns), since the result is a new grid with the same number of cells. A square matrix can be transposed in place by swapping a[r][c] with a[c][r] for the cells above the diagonal, which needs O(1) extra space, but a non-square grid cannot, because its shape changes. Edge cases: zero rows give an empty result, and a ragged input, where rows have different lengths, is rejected with an exception instead of producing a wrong grid.",
           "lines": []
         }
       ],
@@ -6440,7 +6828,10 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "The transpose maps (r, c) to (c, r)."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-arrays": "A matrix is an array whose slots are arrays, so every cell access is two index lookups with the usual bounds."
+      }
     },
     {
       "id": "lesson-graphs",
@@ -6448,7 +6839,7 @@
       "published": true,
       "minutes": 12,
       "difficulty": "Foundations",
-      "body": "A graph names vertices and stores their connections. An adjacency list gives every vertex a row of outgoing neighbours, including an empty row for an isolated vertex.",
+      "body": "A graph is a set of things and the connections between them: cities and roads, people and friendships, web pages and links. The things are vertices and the connections are edges. Before any search can run, you need to store the connections so that you can quickly ask what is next to this vertex. An adjacency list gives each vertex its own row listing where its edges lead. It is like one contacts page per person: you open a page and see only that person's links, not the whole network. In the animation, watch the rows get created first, one per vertex even if nothing connects to it, and then watch each edge drop its endpoint into the row of the vertex it leaves from.",
       "invariant": "Every supplied directed edge u→v contributes v to exactly the outgoing row for u.",
       "pitfall": "Forgetting isolated vertices changes n. A matrix costs O(V²) storage, while a list stores O(V+E). Parallel edges and self loops require an explicit policy.",
       "timeComplexity": "O(V+E) build",
@@ -6606,8 +6997,22 @@
         {
           "id": "worked",
           "kind": "explanation",
-          "title": "Worked example",
-          "text": "For n=4 and directed edges 0→1,0→2,2→3, adjacency is [[1,2],[],[3],[]]. Making this undirected also requires the reverse connection for each edge.",
+          "title": "Four rows, three edges",
+          "text": "The trace uses 4 vertices and the edges 0 to 1, 0 to 2 and 2 to 3. First, adjacency creates 4 empty rows, numbered 0 to 3, before reading any edge, so a vertex with no edges still has a row. Edge 0 to 1 adds 1 to row 0. Edge 0 to 2 adds 2 to row 0, which now reads [1, 2]. Edge 2 to 3 adds 3 to row 2. After 3 edges the graph is [[1, 2], [], [3], []]. Rows 1 and 3 stay empty: those vertices have no outgoing edges, even though edges point into them. Because the edges are directed, asking for the neighbours of 1 returns nothing, not 0.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Each edge lands in one row",
+          "text": "Every edge u to v that has been read appears as v in row u, once, and nowhere else. The rows are created for all n vertices before any edge is read, so every valid u has a row waiting. The validity check rejects an edge whose endpoint is outside 0 to n minus one, so a bad edge cannot slip into the wrong row or cause a crash later. With this property, the neighbours of u are exactly row u, which is what BFS and DFS rely on. For an undirected graph, add each edge twice, u to v and v to u. Repeated edges and self loops are kept as given, so decide whether your problem allows them.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Lists versus a matrix",
+          "text": "Building takes O(V+E) time: one pass creates V rows and a second pass appends each of the E edges in amortised constant time. Space is O(V+E) for the same reason, one row per vertex plus one entry per edge. An adjacency matrix uses V × V cells, so it costs O(V²) space even when there are few edges, but it answers whether an edge u to v exists in O(1). Lists are the usual choice for sparse graphs, where E is far smaller than V², and they let you loop over a vertex's neighbours in time proportional to how many it has. When vertex names are strings rather than 0 to n minus one, map each name to an index first with a hash map.",
           "lines": []
         }
       ],
@@ -6688,7 +7093,11 @@
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Edges are stored in the order given."
         }
-      ]
+      ],
+      "prerequisiteNotes": {
+        "concept-hashing": "When vertices have names instead of numbers, a hash map turns each name into the row index this lesson uses.",
+        "concept-matrices": "The adjacency matrix is the grid alternative to these lists, and this lesson compares their space costs."
+      }
     }
   ],
   "problems": [
