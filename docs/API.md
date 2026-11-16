@@ -81,6 +81,17 @@ The canonical teaching policy lives in `backend/src/main/resources/teaching-poli
 
 GET/PUT `/conversations/{context}` stores the current learner's last 20 messages (120000 total serialized characters). Roles are `you`/`tutor`; text is capped at 16000 per message. Optional scenes must validate on Java. Context is a lesson/problem ID or `workspace`; records are private and produce no achievement events. Client history-load failures have explicit retry; streaming supports cancellation.
 
+## Guided coding coach
+
+All authenticated; one private record per learner and problem. `language` is `java`, `python` or `cpp`.
+
+- GET `/coach/{problem}?language=` returns `{stage, steps[], plan?, codeRevision, latestRun?, accepted, nudges[], solutionRevealed, reflection?, transfer, execution}`. `stage` is `plan` → `code` → `debug` (latest official run finished and failed) → `reflect` (accepted) → `done`. `latestRun.current` is false when the saved draft has changed since that run; its `failing` row carries input/expected/actual only for public fixtures.
+- PUT `/coach/{problem}/plan`: `{language, approach (≤1500), invariant (≤600), example (≤1000)}`, all required.
+- POST `/coach/{problem}/nudge`: `{language}` returns the next rung for the current stage: one question built from the learner's own plan, then the evidence (the actual failing case, compiler message, or the constraints), then the three authored hints, then honest options. A new run starts a new ladder. `{language, want:"solution", confirm:true}` reveals the reference in the learner's language (Java fallback) with a transfer question; without `confirm` it is rejected.
+- PUT `/coach/{problem}/reflection`: `{language, complexity (≤800), transfer (≤1500)}`; 409 until an official run is accepted.
+
+The coach never writes credit, attempts or learning events: plans, nudges, a revealed solution and reflections are study records only. When the Blob is asked from a problem page, `/tutor` and `/tutor/stream` accept `problem` and `language` and add the coach record (last six nudges, no solution code) to the model's context, with instructions to label suspected mistakes as hypotheses and to treat `current:false` runs as older code.
+
 ## Challenges and saved context
 
 POST `/challenges/{id}/attempts` accepts `{answer,requestId}` and returns typed `{id,challengeId,kind,correct,feedback,explanation,saved}`. CSRF is mandatory; guests receive grading with `saved:false`, while signed-in attempts are persisted/idempotent by `(member,requestId)`. Public challenge definitions include prompt, options/fields and input metadata, never private grading rules.
