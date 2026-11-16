@@ -75,7 +75,8 @@ public final class Contracts {
     List<GraphEdge> edges,
     String activeEdge,
     List<Link> links,
-    String head
+    String head,
+    Map<String, Object> visual
   ) {}
 
   public record ExecutionTrace(
@@ -84,7 +85,9 @@ public final class Contracts {
     String family,
     SceneRequest input,
     List<TraceStep> steps,
-    TraceStep result
+    TraceStep result,
+    Integer revision,
+    List<String> code
   ) {
     public static ExecutionTrace from(Map<String, Object> trace) {
       return new tools.jackson.databind.ObjectMapper().convertValue(
@@ -120,6 +123,18 @@ public final class Contracts {
     SceneRequest scene,
     int step,
     String section,
-    String codeRevision
-  ) {}
+    String codeRevision,
+    Integer traceRevision
+  ) {
+    public StudyContext(
+      int version,
+      String lesson,
+      SceneRequest scene,
+      int step,
+      String section,
+      String codeRevision
+    ) {
+      this(version, lesson, scene, step, section, codeRevision, null);
+    }
+  }
 }

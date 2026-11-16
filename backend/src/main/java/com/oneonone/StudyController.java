@@ -49,6 +49,13 @@ public class StudyController {
     @RequestBody StudyContext context
   ) {
     String user = AuthController.user(auth);
+    if (
+      context.traceRevision() != null &&
+      context.traceRevision() != 2 &&
+      context.traceRevision() != 3
+    ) throw new IllegalArgumentException(
+      "Choose a supported visualization revision."
+    );
     var source = store.owned(lesson, "public");
     if (
       !lesson.equals(context.lesson()) ||
@@ -77,7 +84,30 @@ public class StudyController {
       (context.codeRevision() != null && context.codeRevision().length() > 128)
     ) throw new IllegalArgumentException("Invalid saved study location.");
     var data = new LinkedHashMap<String, Object>();
+    var previous = store.find("study-" + user + "-" + lesson);
+    if (
+      previous.isPresent() &&
+      previous.get().get("scene") != null &&
+      !Integer.valueOf(3).equals(previous.get().get("traceRevision"))
+    ) data.put(
+      "legacyPosition",
+      Map.of(
+        "step",
+        previous.get().getOrDefault("step", 0),
+        "section",
+        previous.get().getOrDefault("section", "idea"),
+        "revision",
+        2
+      )
+    );
+    else if (
+      previous.isPresent() && previous.get().containsKey("legacyPosition")
+    ) data.put("legacyPosition", previous.get().get("legacyPosition"));
     data.put("version", 1);
+    data.put(
+      "traceRevision",
+      context.traceRevision() == null ? 2 : context.traceRevision()
+    );
     data.put("lesson", lesson);
     if (context.scene() != null) data.put("scene", context.scene().toMap());
     data.put("step", context.step());

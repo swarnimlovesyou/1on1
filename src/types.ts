@@ -45,6 +45,7 @@ export interface StudyContext {
   step: number;
   section: string;
   codeRevision: string;
+  traceRevision?: number;
   updatedAt?: string;
 }
 export interface Lesson {
@@ -70,7 +71,7 @@ export interface Lesson {
   teaching?: CurriculumConcept;
   conceptId?: string;
   branch?: "core" | "advanced";
-  interactiveStatus?: "existing-limited" | "specification-only";
+  interactiveStatus?: "existing-limited" | "specification-only" | "interactive";
   checkpoint: {
     question: string;
     options: string[];
@@ -274,6 +275,9 @@ export interface Step {
   topics?: string[];
   vertexCount?: number;
   edges?: { from: number; to: number; weight: number }[];
+  links?: { from: string; to: string }[];
+  head?: string;
+  visual?: Record<string, unknown>;
 }
 export interface Trace {
   version: number;
@@ -282,6 +286,8 @@ export interface Trace {
   steps: Step[];
   result: Step;
   input: Scene;
+  revision?: number;
+  code?: string[];
 }
 export const emptyProgress: Progress = {
   completed: [],

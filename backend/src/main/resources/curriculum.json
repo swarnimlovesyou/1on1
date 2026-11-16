@@ -131,11 +131,17 @@
         ],
         "manipulation": "Change n to 4 or 16 and predict the counters before comparing.",
         "limits": "Nonnegative n; teaching counter only, not a runtime profiler.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "complexity",
+          "seed": 42,
+          "input": "8",
+          "target": 8
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -224,11 +230,17 @@
         ],
         "manipulation": "Edit a slot or repeat a value; predict which intermediate sums change.",
         "limits": "Empty to 32 integers; values have stable slot identities.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "arrays",
+          "seed": 42,
+          "input": "2,1,5",
+          "target": 0
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -317,11 +329,18 @@
         ],
         "manipulation": "Change the string and track source index separately from output length.",
         "limits": "ASCII, 0–32 characters; Unicode expansion is separate.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "strings",
+          "seed": 42,
+          "input": "",
+          "target": 0,
+          "words": "cat"
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -419,11 +438,17 @@
         ],
         "manipulation": "Repeat a value, change it to a new value, and compare membership checks.",
         "limits": "0–32 integers; show exact key equality, not invented hash addresses.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "hashing",
+          "seed": 42,
+          "input": "2,1,6,2,5",
+          "target": 0
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -514,7 +539,7 @@
         ],
         "manipulation": "Use duplicate keys and empty runs; keep element identity through merging.",
         "limits": "Sorted runs of up to 16 elements each; splitting and pivot sorting are separate child traces.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "merge-sort",
           "input": "4, 2, 7, 1, 3, 6",
@@ -522,8 +547,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Current child traces cover whole sorting, not the two-run merge lesson input. Splits and per-merge cursor moves need refinement."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -623,11 +649,18 @@
         ],
         "manipulation": "Move either query boundary and compare the highlighted original range.",
         "limits": "0–32 integers; half-open endpoints; long accumulation.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "prefix-sums",
+          "seed": 42,
+          "input": "2,1,5",
+          "target": 0,
+          "words": "1,3"
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -722,7 +755,7 @@
         ],
         "manipulation": "Change target or repeat a value; distinguish sorted positions from original indices.",
         "limits": "Sorted integers; distinct positions; preparation cost shown separately.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "two-pointers",
           "input": "4, 2, 7, 1, 3, 6",
@@ -730,8 +763,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Numeric sorted-pair trace only; string normalization and palindrome visuals are not implemented."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -826,7 +860,7 @@
         ],
         "manipulation": "Edit input or k, then predict incoming/outgoing values.",
         "limits": "1–32 integers; 1 <= k <= n; existing interactive window trace.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "sliding-window",
           "input": "2,1,5,1,3,2",
@@ -834,8 +868,9 @@
           "seed": 42
         },
         "gaps": [
-          "Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -929,11 +964,18 @@
         ],
         "manipulation": "Use \"abba\" to expose a single-if shrinking bug.",
         "limits": "ASCII 0–32 characters; no sum-window claims for negative numbers.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "variable-window",
+          "seed": 42,
+          "input": "",
+          "target": 0,
+          "words": "abba"
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1027,7 +1069,7 @@
         ],
         "manipulation": "Try present, absent and duplicated values; show sorting as preparation.",
         "limits": "0–32 sorted values; current trace accepts nonempty teaching input.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "binary-search",
           "input": "4, 2, 7, 1, 3, 6",
@@ -1035,8 +1077,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1124,11 +1167,17 @@
         ],
         "manipulation": "Move endpoints and compare touching, nested and disjoint segments.",
         "limits": "0–16 valid closed intervals; distinguish endpoint convention.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "intervals",
+          "seed": 42,
+          "input": "1,3,2,6,8,10",
+          "target": 0
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1221,11 +1270,17 @@
         ],
         "manipulation": "Use a non-square grid and follow one cell into the output.",
         "limits": "Rectangular grid up to 6×6; ragged input explicitly invalid.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "matrices",
+          "seed": 42,
+          "input": "1,2,3,4,5,6",
+          "target": 3
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1315,7 +1370,7 @@
         ],
         "manipulation": "Use duplicate values and track node IDs while reversing arrows.",
         "limits": "Acyclic list; no cyclic-list claims; existing renderer needs arrow-state refinement.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "linked-list",
           "input": "4, 2, 7, 1, 3, 6",
@@ -1323,8 +1378,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Java links preserve identity; the legacy renderer still needs to display every rewired arrow."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1413,7 +1469,7 @@
         ],
         "manipulation": "Interleave pushes and pops; attempt a pop only after checking emptiness.",
         "limits": "0–32 values; top and empty state explicit.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "stack",
           "input": "4, 2, 7, 1, 3, 6",
@@ -1421,8 +1477,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Push/pop trace exists; bracket matching and per-depth minimum visuals remain future applications."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1515,7 +1572,7 @@
         ],
         "manipulation": "Switch removal end and explain why the behavior becomes LIFO.",
         "limits": "0–32 values; show front/back and FIFO ordering.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "queue",
           "input": "4, 2, 7, 1, 3, 6",
@@ -1523,8 +1580,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "FIFO is supported; deque operations at both ends and the two-stack implementation are specifications only."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1621,7 +1679,7 @@
         ],
         "manipulation": "Change n and follow frame-local n separately from returned result.",
         "limits": "n=0..10; show base frame and unwind; no arbitrary own-code tracing.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "recursion",
           "input": "4, 2, 7, 1, 3, 6",
@@ -1629,8 +1687,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Base frame and returned values need a dedicated frame view; existing authored trace is not own-code tracing."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1720,7 +1779,7 @@
         ],
         "manipulation": "Toggle an include/exclude branch and watch undo restore the parent state.",
         "limits": "Distinct values; at most 5 items in existing trace; exponential output explicit.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "backtracking",
           "input": "4, 2, 7, 1, 3, 6",
@@ -1728,8 +1787,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Existing bounded trace records choices; branch-tree layout and undo transitions need refinement."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1822,16 +1882,17 @@
         ],
         "manipulation": "Change a value without rewiring links to see why general inorder need not be sorted.",
         "limits": "Small acyclic tree; inorder specification separate from the existing level-order renderer.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "tree-traversal",
-          "input": "4, 2, 7, 1, 3, 6",
+          "input": "4,2,7,1,3,6",
           "target": 3,
-          "words": "tree, trie, try, track"
+          "words": "inorder"
         },
         "gaps": [
-          "Existing child renderer uses BST insertion and level-order traversal. It cannot accept arbitrary binary trees or demonstrate the specified inorder traversal yet."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -1922,7 +1983,7 @@
         ],
         "manipulation": "Insert sorted or repeated keys; follow comparisons and stable node IDs.",
         "limits": "1–32 input keys; equal keys ignored; no balancing guarantee.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "bst",
           "input": "8,3,10,1,6,14,4,7,13",
@@ -1930,8 +1991,9 @@
           "seed": 42
         },
         "gaps": [
-          "Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -2021,7 +2083,7 @@
         ],
         "manipulation": "Insert a new maximum and observe every parent comparison/swap.",
         "limits": "0–32 values; existing trace records completed insertions, intermediate bubble swaps remain a renderer/trace gap.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "heap",
           "input": "4, 2, 7, 1, 3, 6",
@@ -2029,8 +2091,9 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Trace shows completed insertions; capture/render every sift comparison and swap plus extraction before claiming full heap coverage."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -2124,11 +2187,17 @@
         ],
         "manipulation": "Toggle directedness or add an isolated vertex, self loop or parallel edge.",
         "limits": "0–8 vertices and up to 16 edges; explicit graph-input renderer not yet implemented.",
-        "interactiveStatus": "specification-only",
-        "scene": null,
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "graphs",
+          "seed": 42,
+          "input": "0,1,0,2,2,3",
+          "target": 4
+        },
         "gaps": [
-          "No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -2215,7 +2284,7 @@
         ],
         "manipulation": "Compare queue and discovery state; change generated input length.",
         "limits": "Current trace generates a directed graph and ignores displayed weights for BFS; explicit adjacency/grid input is future work.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "bfs",
           "input": "4,2,7,1,3,6",
@@ -2223,9 +2292,10 @@
           "seed": 42
         },
         "gaps": [
-          "Generated graph only; explicit graphs, cycles, disconnected vertices and multi-source grid input need renderer/input expansion.",
-          "The current trace records processing order; shortest-edge distances are verified in the Java example but are not yet displayed per vertex."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code.",
+          "Traversal graphs are generated from numeric inputs; arbitrary grid/multi-source practice is outside this scene."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -2316,7 +2386,7 @@
         ],
         "manipulation": "Step through entry and return; compare recursive path with BFS frontier.",
         "limits": "Up to 8 generated vertices; trace visits source component, full-code forest also handles disconnected graphs.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "dfs",
           "input": "4, 2, 7, 1, 3, 6",
@@ -2324,8 +2394,10 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Generated graph only; explicit graphs and a visible call-frame stack remain Phase 2 work."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code.",
+          "Traversal graphs are generated from numeric inputs; arbitrary grid/multi-source practice is outside this scene."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -2424,7 +2496,7 @@
         ],
         "manipulation": "Change n, compare repeated calls with cache hits and bottom-up writes.",
         "limits": "n=0..16; do not imply Fibonacci is the complete DP curriculum; practice derives two distinct state models.",
-        "interactiveStatus": "existing-limited",
+        "interactiveStatus": "interactive",
         "scene": {
           "algorithm": "memoization",
           "input": "4, 2, 7, 1, 3, 6",
@@ -2432,8 +2504,10 @@
           "words": "tree, trie, try, track"
         },
         "gaps": [
-          "Fibonacci is supported; staircase and take/skip practice require their own state explanations and future interactive scenes."
-        ]
+          "This is bounded authored execution, not tracing arbitrary student code.",
+          "The interactive dependency example is Fibonacci; staircase and House Robber practice remain distinct Phase 2 applications."
+        ],
+        "traceRevision": 3
       },
       "applications": [
         {
@@ -4526,5 +4600,6 @@
     "skillTreeUi": "decision-after-curriculum-review",
     "practice": "phase-2",
     "uiUx": "phase-2"
-  }
+  },
+  "visualizationRevision": 3
 }

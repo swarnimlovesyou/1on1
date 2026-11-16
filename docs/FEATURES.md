@@ -75,6 +75,14 @@ This is guidance, not a compulsory sequence. Lessons and experiments stay access
 - Problem-specific progressive hints, editorials, complexity explanations, and verified reference solutions in the supported languages.
 - Boundary and adversarial tests that reject plausible incorrect solutions.
 
+### Guided coding coach — Phase 2
+
+Concept → visual prediction → minimal Java → learner-planned application → incremental coding → run/debug → reflection. The coding workspace carries the lesson context, current draft revision, hint history and actual run results into the Blob. It saves drafts and teaching milestones for resume.
+
+Use Socratic questions for predictions, invariants, approach selection, debugging and complexity: one focused question at a time, grounded in the learner's work. Follow with progressively clearer hints and direct teaching when needed. Never make the learner guess unfamiliar facts indefinitely. Full worked explanations require a deliberate request; follow them with a small transfer exercise.
+
+The learner makes or approves corrections; the AI does not silently rewrite the solution. Clearly distinguish suspected bugs from observed compiler/test failures. Chat cannot award acceptance or mastery. Runner/provider outages must remain explicit. Phase 3 adds actual own-code traces and performance evidence to this same workspace. See the [phase plan and acceptance journey](IMPLEMENTATION_PLAN.md#guided-transition-from-concepts-to-coding).
+
 ## 7. Own-code tracing and visual performance tools
 
 ### Trace my code

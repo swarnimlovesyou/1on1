@@ -71,6 +71,21 @@ Deliver checkpointed source, setup instructions, contract examples, clean sample
 - Every problem gets specific progressive hints, a full editorial, verified Java/Python/C++ references and boundary/adversarial fixtures.
 - Administrator forms support preview, validation and publication checks for these contracts.
 
+### Guided transition from concepts to coding
+
+**Phase 2 required scope:** connect the concept lesson to a guided coding workspace. This is planned work, not a claim that the current simulator teaches the complete lesson. Phase 3 enriches it with actual own-code tracing and profiling; those tools are not prerequisites for Phase 2 coaching.
+
+- Teach in context: explain a small visual example, ask for a prediction, connect its state changes to minimal Java code, then offer a related application. Keep free exploration available.
+- Start an application with a learner-written approach, invariant and tiny manual example. Offer starter signatures or small implementation milestones appropriate to the learner; avoid revealing the full solution by default.
+- Carry the selected concept, problem, language, current draft revision, learner explanation, hint history and actual run results into the Blob's coding conversation. Save milestones and drafts so a learner can resume.
+- Use a Socratic coaching ladder: ask one focused question about the learner's reasoning → identify the relevant concept or failing example → offer a targeted hint → explain a small code fragment when needed. A fuller worked solution is available on deliberate request, followed by a transfer task. Do not trap a stuck learner in repeated questions.
+- Ground feedback in actual compiler errors, test output and learner-supplied traces. Clearly label suspected mistakes as hypotheses until verified. AI feedback never awards accepted credit; Java grading and isolated execution remain authoritative.
+- Point to the relevant code location and ask the learner to predict or make the correction. Suggest edits for review rather than silently replacing their draft. If execution is unavailable, explain the limitation and continue with explicitly labelled reasoning/manual checks.
+- Use Socratic prompts throughout: concept prediction ("What must stay true?"), code planning ("What state do you need?"), debugging ("Which smallest input breaks this assumption?"), complexity reflection ("How many times can this pointer move?"), and post-solution transfer ("What changes if negative values are allowed?"). Teach unfamiliar material directly before questioning it.
+- Keep hint use separate from correctness and mastery evidence. No accepted credit or mastery upgrade from chat agreement, autosaves or AI opinion.
+
+**Phase 2 acceptance:** demonstrate concept → explained approach → partial code → actual failing run → guided learner correction → actual passing submission → reflection, with reload/resume. Check that an intentionally wrong AI suggestion cannot create credit, full answers are not revealed by default, guidance remains useful after repeated difficulty, and stale code revisions are not presented as current evidence. Verify mobile/keyboard access and honest runner/provider outage recovery.
+
 ### Dashboard, planning and review
 
 - Freely explorable concept map, prerequisite links, accessible list and personalised next action.
@@ -105,6 +120,7 @@ Deliver a complete core product, content-authoring guide, stable learning/notebo
 - Start at 200 source lines, 1,000 captured steps and bounded serialized output. Explicitly report unsupported features/truncation.
 - Show source lines, variables, frames, references, mutations, stdout and exceptions.
 - Reuse playback controls but keep runtime traces distinct from authored traces. Never fill missing runtime data with AI guesses.
+- Enrich Phase 2's guided workspace with these actual runtime events. The coach may discuss a captured frame or mutation, clearly distinguishing observed execution from its interpretation; retain the earlier coaching flow for unsupported languages/features.
 
 ### Performance laboratory
 

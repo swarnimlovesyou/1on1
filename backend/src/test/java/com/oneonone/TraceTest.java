@@ -11,7 +11,7 @@ class TraceTest {
 
   @Test
   void singleValueAndEmptyStructuresAreHandled() {
-    for (String alg : TraceEngine.SUPPORTED)
+    for (String alg : TraceEngine.LEGACY)
       assertFalse(
         Store.items(
           engine
@@ -39,7 +39,7 @@ class TraceTest {
 
   @Test
   void everySceneHasBoundedInterpretableSteps() {
-    for (String alg : TraceEngine.SUPPORTED) {
+    for (String alg : TraceEngine.LEGACY) {
       var result = engine.trace(
         Map.of("algorithm", alg, "input", "4, 2, 7, 1, 3, 6", "target", 3)
       );

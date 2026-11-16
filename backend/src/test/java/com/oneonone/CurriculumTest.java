@@ -209,7 +209,10 @@ class CurriculumTest {
         assertNull(lesson.get("experiment"));
       }
     }
-    assertEquals(9, specs);
+    assertEquals(0, specs);
+    assertTrue(
+      lessons.stream().allMatch(l -> l.get("experiment") instanceof Map<?, ?>)
+    );
     assertEquals(7, advanced);
     var pathIds = Store.items(content.get("paths"))
       .stream()

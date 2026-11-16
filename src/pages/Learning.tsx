@@ -516,6 +516,7 @@ export function NotebookPage() {
     [section, setSection] = useState("idea"),
     [activeScene, setActiveScene] = useState<Scene>(),
     [contextScene, setContextScene] = useState<Scene>(),
+    [traceRevision, setTraceRevision] = useState<number>(),
     [step, setStep] = useState(0);
   useEffect(() => {
     setActiveScene(undefined);
@@ -554,6 +555,7 @@ export function NotebookPage() {
       step,
       section,
       codeRevision: "",
+      traceRevision,
     };
     const key = JSON.stringify(context);
     if (lastResume.current === key) return;
@@ -574,6 +576,7 @@ export function NotebookPage() {
     section,
     JSON.stringify(contextScene),
     query.data?.id,
+    traceRevision,
   ]);
   if (query.isLoading || (user && !progressReady)) return <Loading />;
   if (query.error || !query.data) return <ErrorState error={query.error} />;
@@ -685,6 +688,14 @@ export function NotebookPage() {
             ))}
         </section>
         <section id="experiment">
+          {savedContext?.scene &&
+            savedContext.step > 0 &&
+            savedContext.traceRevision !== 3 && (
+              <p className="inline-alert">
+                The visualization has been rebuilt. Your input is preserved;
+                playback restarts from the beginning.
+              </p>
+            )}
           <div className="section-heading">
             <div>
               <h2>What if you could see it?</h2>
@@ -708,15 +719,15 @@ export function NotebookPage() {
               initialStep={
                 activeScene
                   ? 0
-                  : (savedContext?.step ??
-                    (progress.resumeLesson === l.id
-                      ? (progress.resumeStep ?? 0)
-                      : 0))
+                  : savedContext?.traceRevision === 3
+                    ? savedContext.step
+                    : 0
               }
               code={l.code}
-              onStep={(s, index) => {
+              onStep={(s, index, revision) => {
                 setStep(index);
                 setContextScene(s);
+                setTraceRevision(revision);
               }}
             />
           ) : (

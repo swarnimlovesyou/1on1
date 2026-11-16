@@ -36,7 +36,7 @@ def enrich(lessons, problems):
             code=['if (node == null) return new Node(value);', 'if (value < node.value) node.left = insert(node.left, value);', 'else if (value > node.value) node.right = insert(node.right, value);', 'return node; // an equal key leaves the tree unchanged'],
             predict=('After inserting 8, 3, 10, and 1, where will 6 be inserted?', ['Left child of 8', 'Right child of 10', 'Right child of 3'], 2, '6 is smaller than 8, then larger than 3. Follow those two comparisons.'),
             pattern=('You need ordered traversal as well as repeated insertions and searches. Which structure fits, and what controls its operation cost?', ['A queue; every operation is O(log n)', 'A BST; search and insertion cost O(height)', 'A hash table; its iteration is always sorted'], 1, 'A BST preserves ordered relationships. Its height determines how many comparisons a path needs.'),
-            dry_step=5, fields=[('inserted', 'Just-inserted key'), ('root', 'Root key'), ('height', 'Height in nodes')],
+            dry_step=11, fields=[('inserted', 'Just-inserted key'), ('root', 'Root key'), ('height', 'Height in nodes')],
             dry_prompt='Fill the table after inserting the first five values: 8, 3, 10, 1, 6.', dry_hint='Height counts nodes on the longest root-to-leaf path. Insertion into an ordinary BST does not move the root.',
             goal='Create an insertion order whose unbalanced BST has height 4. Duplicate keys are ignored.', rule=dict(path='variables.height', equals=4),
             linked=['bst-inorder', 'tree-height'], prerequisites=['lesson-binary-search'],

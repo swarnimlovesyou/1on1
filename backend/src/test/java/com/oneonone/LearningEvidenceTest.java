@@ -289,7 +289,7 @@ class LearningEvidenceTest {
 
   @Test
   void everyAlgorithmCanBeExpressedByThePublicVersionedContract() {
-    for (String algorithm : TraceEngine.SUPPORTED) {
+    for (String algorithm : TraceEngine.LEGACY) {
       var typed = Contracts.ExecutionTrace.from(
         traces.trace(
           Map.of("algorithm", algorithm, "input", "4,2,7,1,3,6", "target", 3)
@@ -320,6 +320,10 @@ class LearningEvidenceTest {
 
   @Test
   void readingOnlyContextIsOwnedAndDoesNotInventAnExperimentOrActivity() {
+    var custom = new LinkedHashMap<>(store.get("lesson-arrays"));
+    custom.remove("experiment");
+    custom.put("edited", true);
+    store.put("lesson-arrays", "lesson", "public", custom);
     var study = new StudyController(store, traces, challenges, progress);
     var auth =
       new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
@@ -431,5 +435,17 @@ class LearningEvidenceTest {
       List.of("problem-three-window"),
       progress.summary("alice").get("solved")
     );
+  }
+
+  @Test
+  void upgradedTraceKeepsLegacyPositionAndFullExperimentInput() {
+    var old=Map.<String,Object>of("version",1,"lesson","lesson-sliding-window","scene",Map.of("algorithm","sliding-window","input","4,4,4,1","target",3,"seed",42),"step",3,"section","experiment");
+    store.put("study-alice-lesson-sliding-window","study-context","alice",old);
+    var study=new StudyController(store,traces,challenges,progress);
+    var auth=new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("alice","unused",List.of());
+    var saved=study.save(auth,"lesson-sliding-window",new Contracts.StudyContext(1,"lesson-sliding-window",new Contracts.SceneRequest("sliding-window","4,4,4,1",3,"",42L),0,"experiment","",3));
+    assertEquals(3,saved.get("traceRevision"));assertEquals(3,((Map<?,?>)saved.get("legacyPosition")).get("step"));
+    assertEquals("4,4,4,1",((Map<?,?>)saved.get("scene")).get("input"));
+    assertEquals(Map.of(),progress.summary("alice").get("activity"));
   }
 }

@@ -14,12 +14,13 @@ import type { Scene, Trace } from "../types";
 import { ErrorState } from "./Shared";
 import SceneCanvas from "./experiment/SceneCanvas";
 import { usePlayback } from "./experiment/usePlayback";
+import { presets } from "./experiment/presets";
 
 type Props = {
   scene: Scene;
   code?: string[];
   compact?: boolean;
-  onStep?: (scene: Scene, step: number) => void;
+  onStep?: (scene: Scene, step: number, revision?: number) => void;
   initialStep?: number;
 };
 export default function Experiment({
@@ -32,6 +33,7 @@ export default function Experiment({
   const [input, setInput] = useState(scene.input),
     [target, setTarget] = useState(scene.target),
     [words, setWords] = useState(scene.words ?? "");
+  const [seed, setSeed] = useState(scene.seed ?? 42);
   const [trace, setTrace] = useState<Trace>(),
     [busy, setBusy] = useState(false),
     [error, setError] = useState<Error>(),
@@ -59,6 +61,7 @@ export default function Experiment({
       setInput(data.input.input);
       setTarget(data.input.target);
       setWords(data.input.words ?? "");
+      setSeed(data.input.seed ?? 42);
     } catch (caught) {
       if (revision === latest.current && !abort.signal.aborted)
         setError(caught as Error);
@@ -74,7 +77,7 @@ export default function Experiment({
     };
   }, [sceneKey]);
   useEffect(() => {
-    if (trace) callback.current?.(trace.input, state.index);
+    if (trace) callback.current?.(trace.input, state.index, trace.revision);
   }, [trace, state.index]);
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined" || !container.current)
@@ -97,7 +100,7 @@ export default function Experiment({
     input,
     target,
     words,
-    seed: scene.seed ?? 42,
+    seed,
   };
   return (
     <section
@@ -168,6 +171,37 @@ export default function Experiment({
         </div>
       </div>
       {error && <ErrorState error={error} retry={() => void run(draft)} />}
+      {error && trace && (
+        <p className="experiment-footnote">
+          The previous successful execution stays visible while you correct the
+          input.
+        </p>
+      )}
+      {!compact && (
+        <div className="lab-preset-bar">
+          <label>
+            Try a case
+            <select
+              aria-label="Example input"
+              value=""
+              onChange={(event) => {
+                const selected = presets(scene)[Number(event.target.value)];
+                if (selected) void run(selected.scene);
+              }}
+              disabled={busy}
+            >
+              <option value="" disabled>
+                Choose an example
+              </option>
+              {presets(scene).map((p, i) => (
+                <option value={i} key={p.label}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
       {!compact && (
         <div className="experiment-meta">
           <strong>{scene.algorithm.replaceAll("-", " ")}</strong>
@@ -185,6 +219,7 @@ export default function Experiment({
           <SceneCanvas
             step={step}
             family={trace!.family}
+            algorithm={scene.algorithm}
             duration={Math.min(0.55, state.speed / 2000)}
             instant={state.instant}
           />
@@ -219,12 +254,9 @@ export default function Experiment({
           </div>
         </>
       )}
-      {code && !compact && (
-        <div
-          className="trace-code"
-          aria-label="Minimal implementation linked to execution"
-        >
-          {code.map((line, index) => (
+      {(trace?.code ?? code) && !compact && (
+        <div className="trace-code" aria-label="Pseudocode linked to execution">
+          {(trace?.code ?? code)!.map((line, index) => (
             <div
               key={index}
               className={index === step?.line ? "current-line" : ""}
@@ -315,15 +347,39 @@ export default function Experiment({
               void run(draft);
             }}
           >
+            {scene.algorithm === "quickselect" && (
+              <label>
+                Random seed
+                <input
+                  type="number"
+                  min={-2147483648}
+                  max={2147483647}
+                  value={seed}
+                  onChange={(e) => setSeed(Number(e.target.value))}
+                />
+              </label>
+            )}
             {![
               "recursion",
               "memoization",
               "tabulation",
               "trie",
               "bloom-filter",
+              "strings",
+              "variable-window",
+              "complexity",
+              "set-cover",
             ].includes(scene.algorithm) && (
               <label>
-                Your input
+                {scene.algorithm === "intervals"
+                  ? "Interval endpoints (start,end pairs)"
+                  : scene.algorithm === "graphs"
+                    ? "Directed edges (from,to pairs)"
+                    : scene.algorithm === "tree-traversal"
+                      ? "Level-order slots (integers or null)"
+                      : scene.algorithm === "matrices"
+                        ? "Row-major matrix values"
+                        : "Your input"}
                 <input
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
@@ -339,13 +395,22 @@ export default function Experiment({
               "memoization",
               "tabulation",
               "quickselect",
+              "complexity",
+              "matrices",
+              "graphs",
             ].includes(scene.algorithm) && (
               <label className="target-input">
-                {scene.algorithm === "sliding-window"
-                  ? "Window size"
-                  : scene.algorithm === "tabulation"
-                    ? "n"
-                    : "Target / n / k"}
+                {scene.algorithm === "complexity"
+                  ? "Input size n"
+                  : scene.algorithm === "matrices"
+                    ? "Columns"
+                    : scene.algorithm === "graphs"
+                      ? "Vertex count"
+                      : scene.algorithm === "sliding-window"
+                        ? "Window size"
+                        : scene.algorithm === "tabulation"
+                          ? "n"
+                          : "Target / n / k"}
                 <input
                   type="number"
                   min={
@@ -359,13 +424,45 @@ export default function Experiment({
                 />
               </label>
             )}
-            {["trie", "bloom-filter"].includes(scene.algorithm) && (
+            {[
+              "trie",
+              "bloom-filter",
+              "strings",
+              "variable-window",
+              "prefix-sums",
+              "set-cover",
+            ].includes(scene.algorithm) && (
               <label>
-                Words
+                {scene.algorithm === "strings" ||
+                scene.algorithm === "variable-window"
+                  ? "ASCII text"
+                  : scene.algorithm === "prefix-sums"
+                    ? "Query range: left,right (exclusive)"
+                    : scene.algorithm === "bloom-filter"
+                      ? "Insert words | query word"
+                      : scene.algorithm === "set-cover"
+                        ? "Goal topics (comma-separated)"
+                        : "Words"}
                 <input
                   value={words}
                   onChange={(event) => setWords(event.target.value)}
                 />
+              </label>
+            )}
+            {scene.algorithm === "tree-traversal" && (
+              <label>
+                Traversal order
+                <select
+                  aria-label="Traversal order"
+                  value={words || "inorder"}
+                  onChange={(e) => setWords(e.target.value)}
+                >
+                  {["inorder", "preorder", "postorder", "levelorder"].map(
+                    (mode) => (
+                      <option key={mode}>{mode}</option>
+                    ),
+                  )}
+                </select>
               </label>
             )}
             <button className="button secondary small" disabled={busy}>

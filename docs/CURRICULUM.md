@@ -38,9 +38,9 @@ scan: 8 → square: 64 → halving: 8 → 4 → 2 → 1
 
 **Limits:** Nonnegative n; teaching counter only, not a runtime profiler.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -106,9 +106,9 @@ i=0,total=2 → i=1,total=3 → i=2,total=8
 
 **Limits:** Empty to 32 integers; values have stable slot identities.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -171,9 +171,9 @@ read 2: t → read 1: ta → read 0: tac
 
 **Limits:** ASCII, 0–32 characters; Unicode expansion is separate.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -236,9 +236,9 @@ seen={2} → seen={1,2} → duplicate 2 found
 
 **Limits:** 0–32 integers; show exact key equality, not invented hash addresses.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -306,9 +306,9 @@ out=[1] → out=[1,2] → out=[1,2,3] → out=[1,2,3,4]
 
 **Limits:** Sorted runs of up to 16 elements each; splitting and pivot sorting are separate child traces.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Current child traces cover whole sorting, not the two-run merge lesson input. Splits and per-merge cursor moves need refinement.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -374,9 +374,9 @@ p=[0] → p=[0,2] → p=[0,2,3] → p=[0,2,3,8]; query=6
 
 **Limits:** 0–32 integers; half-open endpoints; long accumulation.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -443,9 +443,9 @@ left=0,right=5,sum=8 → left=1,right=5,sum=9
 
 **Limits:** Sorted integers; distinct positions; preparation cost shown separately.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Numeric sorted-pair trace only; string normalization and palindrome visuals are not implemented.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -512,9 +512,9 @@ For [2,1,5,1,3,2] and k=3, the full-window sums are 8,7,9,6. The largest is 9.
 
 **Limits:** 1–32 integers; 1 <= k <= n; existing interactive window trace.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -582,9 +582,9 @@ For "abca", the frame grows through a,ab,abc. The next a forces the old a out, l
 
 **Limits:** ASCII 0–32 characters; no sum-window claims for negative numbers.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -653,9 +653,9 @@ low=0,high=5,mid=2 → low=3,high=5,mid=4 → low=3,high=3,mid=3 → low=4,high=
 
 **Limits:** 0–32 sorted values; current trace accepts nonempty teaching input.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -722,9 +722,9 @@ sort by start → extend [1,3] to [1,6] → append [8,10]
 
 **Limits:** 0–16 valid closed intervals; distinguish endpoint convention.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -792,9 +792,9 @@ Transpose [[1,2,3],[4,5,6]] into [[1,4],[2,5],[3,6]]. The input is 2×3 and the 
 
 **Limits:** Rectangular grid up to 6×6; ragged input explicitly invalid.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -859,9 +859,9 @@ prev=null,current=4 → 4→null; current=2 → 2→4→null; current=7 → head
 
 **Limits:** Acyclic list; no cyclic-list claims; existing renderer needs arrow-state refinement.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Java links preserve identity; the legacy renderer still needs to display every rewired arrow.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -943,9 +943,9 @@ top=4 → top=6 after pushes → pop 6,3,1,7,2,4
 
 **Limits:** 0–32 values; top and empty state explicit.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Push/pop trace exists; bracket matching and per-depth minimum visuals remain future applications.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1010,9 +1010,9 @@ front=4 → back=6 after enqueues → dequeue 4,2,7,1,3,6
 
 **Limits:** 0–32 values; show front/back and FIFO ordering.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- FIFO is supported; deque operations at both ends and the two-stack implementation are specifications only.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1082,9 +1082,9 @@ call 5,4,3,2,1,0 → base returns 1 → unwind 1,2,6,24,120
 
 **Limits:** n=0..10; show base frame and unwind; no arbitrary own-code tracing.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Base frame and returned values need a dedicated frame view; existing authored trace is not own-code tracing.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1151,9 +1151,9 @@ choose 1 → choose 2: record [1,2] → undo 2: record [1] → undo 1: explore [
 
 **Limits:** Distinct values; at most 5 items in existing trace; exponential output explicit.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Existing bounded trace records choices; branch-tree layout and undo transitions need refinement.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1223,9 +1223,9 @@ walk left:1,2,3 → visit root:4 → walk right:6,7
 
 **Limits:** Small acyclic tree; inorder specification separate from the existing level-order renderer.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Existing child renderer uses BST insertion and level-order traversal. It cannot accept arbitrary binary trees or demonstrate the specified inorder traversal yet.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1300,9 +1300,9 @@ root 8 → 3 left,10 right → 6 right of 3 → 13 left of 14
 
 **Limits:** 1–32 input keys; equal keys ignored; no balancing guarantee.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Existing bounded scene supports the teaching operation; broader problem-specific visuals remain Phase 2.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1380,9 +1380,9 @@ Insert [4,2,7,1,3,6]. After 7 enters, it swaps with 4; the final heap is [7,3,6,
 
 **Limits:** 0–32 values; existing trace records completed insertions, intermediate bubble swaps remain a renderer/trace gap.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Trace shows completed insertions; capture/render every sift comparison and swap plus extraction before claiming full heap coverage.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1452,9 +1452,9 @@ create four empty rows → row 0=[1,2] → row 2=[3]; rows 1,3 stay empty
 
 **Limits:** 0–8 vertices and up to 16 edges; explicit graph-input renderer not yet implemented.
 
-**Interactive readiness:** specification-only
+**Interactive readiness:** interactive
 
-- No matching interactive scene exists yet. Show the authored state sequence and Java code; do not substitute another algorithm.
+- This is bounded authored execution, not tracing arbitrary student code.
 
 ### Minimal Java
 
@@ -1522,10 +1522,10 @@ queue=[0] → expand 0:queue=[1,2] → expand 1:queue=[2,3] → distance=[0,1,1,
 
 **Limits:** Current trace generates a directed graph and ignores displayed weights for BFS; explicit adjacency/grid input is future work.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Generated graph only; explicit graphs, cycles, disconnected vertices and multi-source grid input need renderer/input expansion.
-- The current trace records processing order; shortest-edge distances are verified in the Java example but are not yet displayed per vertex.
+- This is bounded authored execution, not tracing arbitrary student code.
+- Traversal graphs are generated from numeric inputs; arbitrary grid/multi-source practice is outside this scene.
 
 ### Minimal Java
 
@@ -1604,9 +1604,10 @@ enter 0 → descend 1,2,3,4,5 → exit 5,4,3,2,1,0
 
 **Limits:** Up to 8 generated vertices; trace visits source component, full-code forest also handles disconnected graphs.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Generated graph only; explicit graphs and a visible call-frame stack remain Phase 2 work.
+- This is bounded authored execution, not tracing arbitrary student code.
+- Traversal graphs are generated from numeric inputs; arbitrary grid/multi-source practice is outside this scene.
 
 ### Minimal Java
 
@@ -1683,9 +1684,10 @@ base [0,1] → write 1,2,3,5,8,13 → both methods return 13
 
 **Limits:** n=0..16; do not imply Fibonacci is the complete DP curriculum; practice derives two distinct state models.
 
-**Interactive readiness:** existing-limited
+**Interactive readiness:** interactive
 
-- Fibonacci is supported; staircase and take/skip practice require their own state explanations and future interactive scenes.
+- This is bounded authored execution, not tracing arbitrary student code.
+- The interactive dependency example is Fibonacci; staircase and House Robber practice remain distinct Phase 2 applications.
 
 ### Minimal Java
 

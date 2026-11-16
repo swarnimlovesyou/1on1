@@ -37,20 +37,13 @@ test("all core notebooks expose real curriculum content and canonical references
         .locator("#practice")
         .getByRole("heading", { name: "Apply this concept" }),
     ).toBeVisible();
-    if (!lesson.experiment) {
-      await expect(
-        page.getByText("This worked example is read-only.", {
-          exact: false,
-        }),
-      ).toBeVisible();
-      await expect(page.getByRole("button", { name: "Next step" })).toHaveCount(
-        0,
-      );
-    }
+    expect(lesson.experiment).toBeTruthy();
+    await expect(page.locator('.lab-model')).toBeVisible();
+    await expect(page.getByRole('button',{name:'Next step'})).toBeEnabled();
   }
 });
 
-test("reading-only lesson saves notes and location without fabricated trace or activity", async ({
+test("new interactive lesson saves notes and location without inflated activity", async ({
   page,
 }) => {
   await page.goto("/signup");
@@ -95,7 +88,7 @@ test("reading-only lesson saves notes and location without fabricated trace or a
     progress.studyContexts.find(
       (c: { lesson: string }) => c.lesson === "lesson-arrays",
     ).scene,
-  ).toBeUndefined();
+  ).toMatchObject({algorithm:'arrays',input:'2,1,5',seed:42});
   expect(progress.activity).toEqual({});
   const external = page.locator(
     '#practice a[href="https://leetcode.com/problems/running-sum-of-1d-array/"]',

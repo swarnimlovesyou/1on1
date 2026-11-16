@@ -1,5 +1,7 @@
 # 1on1 — Start here for project handoff
 
+**Guided teaching assignment:** Phase 2 now explicitly owns the concept-to-coding teaching flow and a Socratic coding coach inside the learner's workspace. Phase 3 adds runtime tracing/profiling evidence to that flow. This is a planned feature; see [scope and acceptance criteria](IMPLEMENTATION_PLAN.md#guided-transition-from-concepts-to-coding). Blob presentation and graduated tutoring remain Phase 2; external skills/MCP remain Phase 3.
+
 **Current update — 16 November 2026:** start with [PHASE1_HANDOFF.md](PHASE1_HANDOFF.md) for the implementation, setup commands, exact Docker blocker, verification and incoming backlog. The approved [three-phase plan](IMPLEMENTATION_PLAN.md) assigns later phases to the two teammates. Native setup is now managed by `npm run setup` / `dev`; self-hosted authentication and durable execution are implemented. Actual Gemini explanation/visualization/streaming passed. Docker Desktop failed during the Judge0 image pull, so real grading, SMTP and PostgreSQL remain unverified.
 
 The discussion below is retained as the **15 November historical decision record**. Its explanations about optional deployment, laptop dependencies and provider pricing remain context; its implementation-status tables and old adapter instructions are superseded by the current handoff. The original faculty PDF remains the assessment authority.
