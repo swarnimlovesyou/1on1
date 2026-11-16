@@ -142,6 +142,26 @@ class PlanAndMapTest {
   }
 
   @Test
+  void aDueReviewLinksBackToTheMissedChallengeAndTheLearnersNotes() {
+    attempt("alice", "challenge-sliding-window-pattern", "lesson-sliding-window", false, false, today.minusDays(2));
+    store.put("note-lesson", "note", "alice", Map.of("title", "Window sums", "lesson", "lesson-sliding-window", "createdAt", "2026-11-01T00:00:00Z"));
+    store.put("note-problem", "note", "alice", Map.of("title", "Three-window bug", "lesson", "", "problem", "problem-three-window", "createdAt", "2026-11-02T00:00:00Z"));
+    store.put("note-other", "note", "alice", Map.of("title", "Graphs", "lesson", "lesson-graphs", "createdAt", "2026-11-03T00:00:00Z"));
+
+    var review = Store.items(map.map("alice").get("reviewsDue")).stream().filter(r -> "concept-fixed-window".equals(r.get("conceptId"))).findFirst().orElseThrow();
+    var missed = (Map<?, ?>) review.get("missed");
+    assertEquals("challenge-sliding-window-pattern", missed.get("challengeId"));
+    assertEquals("lesson-sliding-window", missed.get("lessonId"));
+    assertNotEquals("a challenge", missed.get("title"), "the authored title, not a placeholder");
+    assertEquals(List.of("note-problem", "note-lesson"), Store.items(review.get("notes")).stream().map(n -> n.get("id")).toList(), "this concept's notes, newest first");
+
+    // passing it later resolves the miss; another learner sees none of this
+    attempt("alice", "challenge-sliding-window-pattern", "lesson-sliding-window", true, false, today.minusDays(1));
+    assertNull(concept(map.map("alice"), "concept-fixed-window").get("missed"));
+    assertEquals(List.of(), concept(map.map("bob"), "concept-fixed-window").get("notes"));
+  }
+
+  @Test
   void aCycleInPrerequisitesIsRejected() {
     var order = Map.of("a", 1, "b", 2);
     assertEquals(List.of("a", "b"), LearningMapService.topologicalOrder(new LinkedHashMap<>(Map.of("a", List.of(), "b", List.of("a"))), order));

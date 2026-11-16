@@ -81,6 +81,11 @@ public class LearningController {
     ) throw new IllegalArgumentException("Choose a valid note identifier.");
     if (s.find(id).isPresent()) s.owned(id, u);
     Map<String, Object> note = new LinkedHashMap<>();
+    String problem = Store.text(b, "problem", "");
+    if (!problem.isEmpty()) {
+      if (!problem.startsWith("problem-") || !s.owned(problem, "public").containsKey("tests")) throw new IllegalArgumentException("Choose a published practice problem.");
+      note.put("problem", problem);
+    }
     if (b.get("experiment") instanceof Map<?, ?>) {
       var scene = (Map<String, Object>) b.get("experiment");
       traces.trace(scene);

@@ -99,7 +99,9 @@ public class LearningMapService {
     List<Map<String, Object>> attempts = List.of();
     Map<String, LocalDate> accepted = new HashMap<>();
     List<Map<String, Object>> plans = List.of();
+    List<Map<String, Object>> notes = List.of();
     if (user != null) {
+      notes = store.list("note", user);
       explored.addAll(Store.strings(store.find("state-" + user).orElse(Map.of()).get("completed")));
       attempts = store.db.queryForList(
         "select challenge_id,lesson_id,correct,hint_used,created_at from challenge_attempts where member_id=? order by created_at",
@@ -145,14 +147,19 @@ public class LearningMapService {
       Set<String> passed = new TreeSet<>();
       List<ReviewSchedule.Event> events = new ArrayList<>();
       Map<String, LocalDate> missedOn = new HashMap<>();
+      Map<String, String> unresolved = new LinkedHashMap<>(); // missed challenge -> lesson, most recent last
       for (var a : attempts) {
         if (!lessonIds.contains(a.get("lesson_id").toString())) continue;
         String challenge = a.get("challenge_id").toString();
         boolean correct = Boolean.TRUE.equals(a.get("correct"));
         LocalDate d = day((Timestamp) a.get("created_at"));
         boolean hinted = Boolean.TRUE.equals(a.get("hint_used")) || (correct && d.equals(missedOn.get(challenge)));
+        unresolved.remove(challenge);
         if (correct) passed.add(challenge);
-        else missedOn.put(challenge, d);
+        else {
+          missedOn.put(challenge, d);
+          unresolved.put(challenge, a.get("lesson_id").toString());
+        }
         events.add(new ReviewSchedule.Event(d, correct, hinted));
       }
       List<String> acceptedHere = new ArrayList<>();
@@ -186,6 +193,22 @@ public class LearningMapService {
       view.put("challenges", Map.of("passed", passed.size(), "total", challengeTotal));
       view.put("problems", Map.of("accepted", acceptedHere.size(), "total", problems.size()));
       view.put("evidence", evidence);
+      // the learner's own notes on this concept's lessons or problems, newest first
+      var linkedNotes = notes.stream()
+        .filter(n -> lessonIds.contains(Store.text(n, "lesson", "")) || problems.contains(Store.text(n, "problem", "")))
+        .sorted(Comparator.comparing((Map<String, Object> n) -> Store.text(n, "createdAt", "")).reversed())
+        .map(n -> Map.<String, Object>of("id", n.get("id"), "title", Store.text(n, "title", "Study note")))
+        .toList();
+      view.put("notes", linkedNotes);
+      Map<String, Object> missed = null;
+      if (!unresolved.isEmpty()) {
+        var last = new ArrayList<>(unresolved.entrySet()).getLast();
+        missed = new LinkedHashMap<>();
+        missed.put("challengeId", last.getKey());
+        missed.put("lessonId", last.getValue());
+        missed.put("title", challengeTitle(lessons, last.getValue(), last.getKey()));
+        view.put("missed", missed);
+      }
       if (!events.isEmpty()) {
         var r = ReviewSchedule.replay(events);
         var review = new LinkedHashMap<String, Object>();
@@ -203,6 +226,8 @@ public class LearningMapService {
           item.put("overdueDays", r.dueOn().until(today).getDays());
           item.put("lastOutcome", r.lastOutcome());
           item.put("lessonId", lessonIds.isEmpty() ? null : lessonIds.iterator().next());
+          item.put("notes", linkedNotes);
+          if (missed != null) item.put("missed", missed);
           reviewsDue.add(item);
         }
       }
@@ -293,5 +318,11 @@ public class LearningMapService {
 
   private static LocalDate day(Timestamp t) {
     return t.toInstant().atZone(ZoneOffset.UTC).toLocalDate();
+  }
+
+  static String challengeTitle(List<Map<String, Object>> lessons, String lessonId, String challengeId) {
+    for (var l : lessons) if (lessonId.equals(l.get("id"))) for (var c : ChallengeService.authored(l)) if (challengeId.equals(c.get("id")))
+      return Store.text(c, "title", Store.text(c, "prompt", "a challenge"));
+    return "a challenge";
   }
 }
