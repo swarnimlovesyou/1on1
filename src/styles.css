@@ -5725,3 +5725,48 @@ section[id] {
   color: var(--muted);
   white-space: nowrap;
 }
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-layout .admin-actions .button {
+  margin-top: 0;
+}
+.admin-checks {
+  margin-top: 12px;
+  font-size: 12px;
+}
+.admin-checks p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-check-group h3 {
+  font-size: 12px;
+  margin: 12px 0 4px;
+}
+.admin-check-group ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.admin-check-group.error h3 {
+  color: var(--error);
+}
+.admin-check-group.publication h3 {
+  color: var(--warning);
+}
+.admin-check-group.warning h3 {
+  color: var(--muted);
+}
+.admin-check-group code {
+  font-size: 11px;
+  color: var(--muted);
+}
+.admin-preview {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}

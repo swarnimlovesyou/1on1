@@ -56,23 +56,64 @@ export function Admin() {
     </Gate>
   );
 }
+type CheckItem = { field: string; message: string };
+type Checks = {
+  errors: CheckItem[];
+  publication: CheckItem[];
+  warnings: CheckItem[];
+  canSave: boolean;
+  canPublish: boolean;
+  summary: Record<string, number>;
+};
+
+function parse(text: string): { record?: any; error?: string } {
+  try {
+    return { record: JSON.parse(text) };
+  } catch (e) {
+    return { error: "This is not valid JSON: " + (e as Error).message };
+  }
+}
+
 function AdminContent() {
   const q = useQuery({
       queryKey: ["admin"],
       queryFn: () => api<Record<string, any>>("/admin/content"),
     }),
     [content, setContent] = useState(""),
+    [checked, setChecked] = useState<{ text: string; checks: Checks }>(),
     [message, setMessage] = useState("");
+  const parsed = content.trim() ? parse(content) : {};
+  const single =
+    parsed.record && !Array.isArray(parsed.record) ? parsed.record : undefined;
+  // checks describe one exact text; any edit makes them stale
+  const current = checked?.text === content ? checked.checks : undefined;
+  const load = (text: string, note = "") => {
+    setContent(text);
+    setChecked(undefined);
+    setMessage(note);
+  };
+  const check = useMutation({
+    mutationFn: () => api<Checks>("/admin/content/check", single),
+    onSuccess: (checks) => setChecked({ text: content, checks }),
+  });
   const save = useMutation({
-    mutationFn: () => {
-      const parsed = JSON.parse(content);
-      return api(
-        "/admin/" + (Array.isArray(parsed) ? "import" : "content"),
-        parsed,
+    mutationFn: (publish: boolean | undefined) =>
+      Array.isArray(parsed.record)
+        ? api("/admin/import", parsed.record)
+        : api("/admin/content", { ...single, published: publish }),
+    onSuccess: (_, publish) => {
+      setMessage(
+        Array.isArray(parsed.record)
+          ? "Records imported."
+          : publish
+            ? "Published. Learners see this version now."
+            : "Saved as a draft. Learners don’t see it yet.",
       );
-    },
-    onSuccess: () => {
-      setMessage("Content validated and saved.");
+      if (single) {
+        const next = JSON.stringify({ ...single, published: publish }, null, 2);
+        setContent(next);
+        setChecked(current ? { text: next, checks: current } : undefined);
+      }
       q.refetch();
     },
   });
@@ -80,7 +121,7 @@ function AdminContent() {
     <>
       <PageHeading
         title="Build a better learning moment."
-        description="Author, validate, and publish the content students will actually use."
+        description="Author, check, preview and publish the content students will actually use."
         action={<ShieldCheck size={26} />}
       />
       <div className="admin-layout">
@@ -100,10 +141,7 @@ function AdminContent() {
                   {q.data?.[k].map((x: any) => (
                     <button
                       key={x.id}
-                      onClick={() => {
-                        setContent(JSON.stringify(x, null, 2));
-                        setMessage("");
-                      }}
+                      onClick={() => load(JSON.stringify(x, null, 2))}
                     >
                       {x.title}
                       <span>
@@ -138,9 +176,11 @@ function AdminContent() {
                   return;
                 }
                 try {
-                  const parsed = JSON.parse(await file.text());
-                  setContent(JSON.stringify(parsed, null, 2));
-                  setMessage("File loaded. Validate and save to import it.");
+                  const data = JSON.parse(await file.text());
+                  load(
+                    JSON.stringify(data, null, 2),
+                    "File loaded. Check it before saving.",
+                  );
                 } catch {
                   setMessage("That file is not valid JSON.");
                 }
@@ -148,8 +188,9 @@ function AdminContent() {
             />
           </label>
           <p className="muted">
-            Select an item or paste a new JSON record. Set published to false to
-            keep a draft. Import arrays to add multiple records.
+            Select an item or paste a new record, then check it. Errors block
+            saving; publication checks block publishing, but you can still
+            save a draft. Arrays import several records at once.
           </p>
           <label>
             Lesson, problem, or path JSON
@@ -157,23 +198,63 @@ function AdminContent() {
               className="json-editor"
               rows={20}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => {
+                setContent(e.target.value);
+                setMessage("");
+              }}
               spellCheck={false}
             />
           </label>
-          <button
-            className="button primary small"
-            disabled={!content.trim() || save.isPending}
-            onClick={() => save.mutate()}
-          >
-            Validate & save <CheckCircle size={17} />
-          </button>
+          {parsed.error && <p className="inline-alert">{parsed.error}</p>}
+          <div className="admin-actions">
+            {Array.isArray(parsed.record) ? (
+              <button
+                className="button primary small"
+                disabled={save.isPending}
+                onClick={() => save.mutate(undefined)}
+              >
+                Import {parsed.record.length} records{" "}
+                <CheckCircle size={17} />
+              </button>
+            ) : (
+              <>
+                <button
+                  className="button secondary small"
+                  disabled={!single || check.isPending}
+                  onClick={() => check.mutate()}
+                >
+                  <Flask size={16} />
+                  {current ? "Check again" : "Check"}
+                </button>
+                <button
+                  className="button secondary small"
+                  disabled={!current?.canSave || save.isPending}
+                  onClick={() => save.mutate(false)}
+                >
+                  Save draft
+                </button>
+                <button
+                  className="button primary small"
+                  disabled={!current?.canPublish || save.isPending}
+                  onClick={() => save.mutate(true)}
+                >
+                  Publish <CheckCircle size={17} />
+                </button>
+              </>
+            )}
+          </div>
+          {single && checked && !current && (
+            <p className="muted">You’ve edited since the last check.</p>
+          )}
+          {check.error && <ErrorState error={check.error} />}
           {save.error && <ErrorState error={save.error} />}
           <p className="success" role="status">
             {message}
           </p>
+          {current && <CheckList checks={current} />}
         </section>
       </div>
+      {single && current?.canSave && <AdminPreview record={single} />}
       <section>
         <h2>Service usage</h2>
         <table className="simple-table">
@@ -196,5 +277,93 @@ function AdminContent() {
         </table>
       </section>
     </>
+  );
+}
+
+function CheckList({ checks }: { checks: Checks }) {
+  const groups: [string, string, CheckItem[]][] = [
+    ["error", "Fix before saving", checks.errors],
+    ["publication", "Needed before publishing", checks.publication],
+    ["warning", "Worth a look", checks.warnings],
+  ];
+  return (
+    <div className="admin-checks" aria-live="polite">
+      {checks.canPublish ? (
+        <p className="success">
+          <CheckCircle size={16} /> Ready to publish.
+        </p>
+      ) : (
+        <p>
+          {checks.canSave
+            ? "You can save this as a draft."
+            : "This can’t be saved yet."}
+        </p>
+      )}
+      {groups.map(([kind, title, items]) =>
+        items.length ? (
+          <div key={kind} className={"admin-check-group " + kind}>
+            <h3>{title}</h3>
+            <ul>
+              {items.map((i, n) => (
+                <li key={n}>
+                  <code>{i.field}</code> {i.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null,
+      )}
+    </div>
+  );
+}
+
+/** What a learner would see, rendered from the unsaved record. */
+function AdminPreview({ record }: { record: any }) {
+  return (
+    <section className="admin-preview">
+      <h2>Preview</h2>
+      <h3>{record.title}</h3>
+      {record.kind === "lesson" ? (
+        <>
+          <p className="lesson-prose">{record.body}</p>
+          {(record.blocks ?? []).map((b: any) => (
+            <div className="lesson-block" key={b.id}>
+              <h3>{b.title}</h3>
+              <p className="lesson-prose">{b.text}</p>
+            </div>
+          ))}
+          {record.experiment && <Experiment scene={record.experiment} />}
+          <h3>Challenges</h3>
+          <ol>
+            {(record.challenges ?? []).map((c: any) => (
+              <li key={c.id}>
+                <strong>{c.title}</strong> ({c.kind}): {c.prompt}
+              </li>
+            ))}
+          </ol>
+        </>
+      ) : record.kind === "problem" ? (
+        <>
+          <p className="preserve-lines">{record.description}</p>
+          <p className="muted">{record.constraints}</p>
+          <h3>Hints</h3>
+          <ol>
+            {(record.hints ?? []).map((h: string) => (
+              <li key={h}>{h}</li>
+            ))}
+          </ol>
+          <h3>Editorial</h3>
+          <p className="preserve-lines">{record.editorial}</p>
+          <p className="muted">
+            {(record.tests ?? []).length} tests,{" "}
+            {(record.tests ?? []).filter((t: any) => t.public === false).length}{" "}
+            hidden. References:{" "}
+            {Object.keys(record.references ?? { java: 1 }).join(", ")}.
+          </p>
+        </>
+      ) : (
+        <p className="muted">Paths have no learner preview.</p>
+      )}
+    </section>
   );
 }
