@@ -26,6 +26,7 @@ import {
   Bookmark,
 } from "../components/Shared";
 import Tutor from "../components/Tutor";
+import CoachPanel from "../components/CoachPanel";
 const CodeEditor = lazy(() => import("../components/CodeEditor"));
 export const starters: Record<string, string> = {
   java: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner input = new Scanner(System.in);\n        // Read the problem input and write your solution here.\n    }\n}\n",
@@ -309,13 +310,18 @@ export function ProblemPage() {
         </div>
         <div>
           <Bookmark id={p.id} />
-          <Tutor problem={id} code={code} submission={job} />
+          <Tutor
+            problem={id}
+            language={language}
+            code={code}
+            submission={job}
+          />
         </div>
       </div>
       <div className="coding-workspace">
         <section className="problem-statement">
           <div className="tabs">
-            {["Description", "Hints", "Editorial"].map((t) => (
+            {["Description", "Hints", "Coach", "Editorial"].map((t) => (
               <button
                 key={t}
                 className={tab === t ? "active" : ""}
@@ -381,6 +387,12 @@ export function ProblemPage() {
                   <Lightbulb size={16} />
                 </button>
               </>
+            ) : tab === "Coach" ? (
+              <CoachPanel
+                problem={id!}
+                language={language}
+                refreshKey={`${saved}:${submission.data?.status ?? ""}`}
+              />
             ) : editorial.isLoading ? (
               <Loading />
             ) : editorial.error ? (

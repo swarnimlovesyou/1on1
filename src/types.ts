@@ -384,3 +384,34 @@ export interface RevisionCard {
   recalledAt: string | null;
   updatedAt: string;
 }
+
+export type CoachNudge = {
+  at: string;
+  stage: string;
+  kind: "question" | "evidence" | "hint" | "options" | "solution";
+  text: string;
+  rung?: number;
+  code?: string;
+  language?: string;
+};
+export type CoachRun = {
+  id: string;
+  status: string;
+  createdAt: string;
+  current: boolean;
+  finished: boolean;
+  failing?: { index: number; status: string; public: boolean };
+};
+export type CoachView = {
+  problem: string;
+  stage: "plan" | "code" | "debug" | "reflect" | "done";
+  steps: { key: string; label: string; done: boolean }[];
+  plan?: { approach: string; invariant: string; example: string };
+  latestRun?: CoachRun;
+  accepted: boolean;
+  nudges: CoachNudge[];
+  solutionRevealed: boolean;
+  reflection?: { complexity: string; transfer: string };
+  transfer: string;
+  execution: boolean;
+};

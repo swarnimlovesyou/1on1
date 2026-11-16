@@ -5591,3 +5591,112 @@ section[id] {
 .reviews-due .section-heading {
   margin: 0;
 }
+
+/* guided coding coach */
+.coach {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.coach-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.coach-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.coach-steps li.done {
+  color: var(--ink);
+}
+.coach-steps li.done svg {
+  color: var(--success);
+}
+.coach-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  font-size: 12px;
+}
+.statement-body .coach-note,
+.coach-note svg {
+  color: var(--warning);
+}
+.coach-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.statement-body .coach-plan h3 {
+  margin: 0;
+}
+.coach-plan dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 14px;
+  font-size: 12px;
+}
+.coach-plan dt {
+  color: var(--muted);
+}
+.coach-plan dd {
+  margin: 0;
+}
+.statement-body .coach .button {
+  margin-top: 0;
+  align-self: flex-start;
+}
+.coach-run {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface-soft);
+  font-size: 12px;
+}
+.coach-run.stale {
+  border-left-color: var(--warning);
+}
+.coach-run span {
+  color: var(--muted);
+}
+.coach-thread {
+  display: flex;
+  flex-direction: column;
+}
+.coach-nudge {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.coach-nudge small {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.coach-nudge.kind-evidence small {
+  color: var(--warning);
+}
+.statement-body .coach-nudge p {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 12px;
+}
+.coach-actions,
+.coach-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
