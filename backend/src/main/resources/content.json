@@ -6752,18 +6752,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "0\n",
           "public": false
+        },
+        {
+          "input": "-10000 0 10000 0\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "0\n",
+          "output": "1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count readings equal to zero.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Walk through the readings once, keeping a counter of how many equal zero. The invariant is simple: after looking at the first i readings, the counter holds exactly the number of zeros among them, so after the last reading it holds the answer. Each reading is inspected once, so the time is O(n) and, apart from storing the input, the extra space is O(1). There is nothing to sort or remember. Edge cases: a sequence with no zeros at all prints 0 (not an empty line), a single reading of 0 prints 1, and a run where every reading is zero prints n. Negative readings are never zero, however close to it.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSystem.out.println(Arrays.stream(a).filter(x->x==0).count());\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Only one property of each reading matters here: whether it is exactly zero. Its sign and size are irrelevant.",
+        "Keep a single running counter. Each reading either adds one to it or leaves it unchanged.",
+        "Scan the readings once and increment the counter on every value equal to 0. Negative numbers are not zero, and a line with no zeros must still print 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSystem.out.println(Arrays.stream(a).filter(x->x==0).count());\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nprint(sum(1 for value in values if value == 0))\n"
+      }
     },
     {
       "id": "problem-reverse-route",
@@ -6826,18 +6840,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-8 4 9 -7 8 12 -6 -5 -2 -2 -1 -9 -6 11\n",
           "public": false
+        },
+        {
+          "input": "-10000 10000\n",
+          "output": "10000 -10000\n",
+          "public": false
+        },
+        {
+          "input": "7 7 -3 7\n",
+          "output": "7 -3 7 7\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the readings in reverse input order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Read every token, then output them from the last index down to the first. This is the stack idea in its simplest form: the first item in is the last item out. Correctness is direct, since position i of the output holds input position n-1-i, which is exactly the reversed order. The tokens never need to be parsed as numbers because reversing does not depend on their values, so printing them unchanged keeps signs such as -10000 intact. Time is O(n) for one pass and space is O(n) for the stored list (an in-place two-pointer swap would also work). Edge cases: a single reading prints itself, repeated values stay in their mirrored positions, and the output has no trailing separator.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=a.length-1;i>=0;i--)System.out.print(a[i]+(i==0?\"\":\" \"));\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "There is no leading count: every token on the input line is a reading, so read the whole input and split it on whitespace.",
+        "The last reading must be printed first. A stack does exactly this: push in input order, pop in reverse order. Walking an array backwards is the same idea.",
+        "Iterate the index from the last position down to 0 and join the values with single spaces. A single reading is its own reverse, and negative values must keep their minus sign."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=a.length-1;i>=0;i--)System.out.print(a[i]+(i==0?\"\":\" \"));\n }\n}",
+        "python": "import sys\n\nvalues = sys.stdin.read().split()\n# Walk the list from the back to the front.\nprint(' '.join(reversed(values)))\n"
+      }
     },
     {
       "id": "problem-ordered-parcels",
@@ -6899,18 +6927,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-9 -8 -7 -6 -6 -5 -2 -2 -1 4 8 9 11 12\n",
           "public": false
+        },
+        {
+          "input": "10000 -10000 0 -10000 10000\n",
+          "output": "-10000 -10000 0 10000 10000\n",
+          "public": false
+        },
+        {
+          "input": "3 -1 3 -1 3\n",
+          "output": "-1 -1 3 3 3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the input in nondecreasing order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Read every token, convert it to an integer and sort the list with the language's built-in sort, then print it separated by single spaces. The built-in sort is a comparison sort, so after it finishes every adjacent pair satisfies a[i] <= a[i+1], which is exactly the nondecreasing order requested. It runs in O(n log n) time and O(n) space. A hand-written insertion sort (O(n^2)) would also pass for n <= 1000, and because values lie in [-10000, 10000] a counting sort over 20001 buckets would run in linear time. Edge cases: a single value, many duplicates, and negative numbers, which must be compared numerically rather than as strings.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nArrays.sort(a);for(long x:a)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "There is no length prefix: every whitespace-separated token on the line is a value, and duplicates and negatives must all be kept.",
+        "Nondecreasing order means equal values simply sit next to each other; you only need a comparison sort on whole integers, not on their text.",
+        "Parse every token as an integer (so -10 sorts before -9 and 10 after 9), sort once, then print the values joined by single spaces."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nArrays.sort(a);for(long x:a)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nvalues.sort()\nprint(' '.join(str(v) for v in values))\n"
+      }
     },
     {
       "id": "problem-running-altitude",
@@ -6972,18 +7014,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "11 5 -4 -5 -7 -9 -14 -20 -8 0 -7 2 6 -2\n",
           "public": false
+        },
+        {
+          "input": "-10000 -10000 -10000\n",
+          "output": "-10000 -20000 -30000\n",
+          "public": false
+        },
+        {
+          "input": "5 -5 5 -5\n",
+          "output": "5 0 5 0\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the prefix sums in input order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Scan the readings once while keeping a running total. When you reach position i, add a[i] to the total and output it. The invariant is that before processing position i the total equals a[0] + ... + a[i-1], so after adding a[i] it is precisely the prefix sum ending at i. A naive version recomputes each prefix from scratch in O(n^2); the running total makes it O(n) time and O(1) extra space beyond the output. Edge cases: a single value prints itself, all-negative input produces a strictly decreasing sequence, and zeros repeat the previous total. With at most 1000 values of magnitude 10000 the totals stay well within normal integer range.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong running=0;for(long x:a){running+=x;System.out.print(running+\" \");}\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Each output value depends only on the values up to and including the same position, so you can produce the answer while scanning left to right.",
+        "Keep one running total. After adding the current value, that total is exactly the prefix sum for this position.",
+        "Add first, then print, so the first output equals the first input. Negative values simply pull the total down; it can dip below zero and come back."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong running=0;for(long x:a){running+=x;System.out.print(running+\" \");}\n }\n}",
+        "python": "import sys\n\nvalues = [int(x) for x in sys.stdin.read().split()]\nrunning = 0\nprefix = []\nfor x in values:\n    running += x\n    prefix.append(running)\nprint(\" \".join(map(str, prefix)))\n"
+      }
     },
     {
       "id": "problem-distinct-stations",
@@ -7046,18 +7102,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "12\n",
           "public": false
+        },
+        {
+          "input": "-10000 10000 -10000 10000\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "7 7 7 7 7 -7\n",
+          "output": "2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the number of distinct readings.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Insert every reading into a hash set and print the size of the set. A set stores each value at most once, so the invariant after processing i readings is that the set contains exactly the distinct values among them. Insertion is expected O(1), giving O(n) expected time and O(n) space. A slower but equally valid alternative is to sort the readings and count positions where a value differs from its predecessor, which costs O(n log n) time and no hashing. Edge cases: a single reading gives 1, all-equal readings give 1, and a value and its negation (for example 10000 and -10000) are counted separately.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSystem.out.println(Arrays.stream(a).distinct().count());\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Duplicates should only be counted once, no matter how many times or where they appear.",
+        "A hash set remembers which values you have already seen, and its size is the number of distinct values.",
+        "Insert every reading into a set and print its size. Remember that 7 and -7 are different readings, and a line where all readings are equal has exactly one distinct value."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSystem.out.println(Arrays.stream(a).distinct().count());\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nprint(len(set(values)))\n"
+      }
     },
     {
       "id": "problem-repeat-visits",
@@ -7120,18 +7190,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "2\n",
           "public": false
+        },
+        {
+          "input": "-10000 -10000 -10000 10000 10000\n",
+          "output": "3\n",
+          "public": false
+        },
+        {
+          "input": "5 -5 5 -5 5\n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count readings after their first occurrence. For 4 4 4, the answer is 2.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Each distinct value contributes exactly one first occurrence, and every other reading is a repeat. So the answer is n minus the number of distinct values. Build a hash set of the readings and subtract its size from n. Equivalently, scan left to right with a set and add one whenever the value is already present; both views count every non-first occurrence exactly once. Time is O(n) expected with hashing and space is O(d) for d distinct values. A sorting baseline (sort, then count positions equal to their left neighbour) runs in O(n log n). Edge cases: a single reading or all-distinct input gives 0, and k copies of one value give k-1, not the number of equal pairs.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSystem.out.println(a.length-Arrays.stream(a).distinct().count());\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Only the first occurrence of each value is \"new\"; every later occurrence of that value counts once toward the answer.",
+        "Keep a set of values already seen. A reading whose value is already in the set is a repeat visit.",
+        "Equivalently, the answer is the total number of readings minus the number of distinct values. Check 4 4 4: three readings, one distinct value, answer 2, not 3 pairs."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSystem.out.println(a.length-Arrays.stream(a).distinct().count());\n }\n}",
+        "python": "import sys\n\nvalues = list(map(int, sys.stdin.read().split()))\n# Every reading that is not the first of its value is a repeat.\nprint(len(values) - len(set(values)))\n"
+      }
     },
     {
       "id": "problem-first-peak",
@@ -7194,18 +7278,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "8\n",
           "public": false
+        },
+        {
+          "input": "-7 -3 -3 -9\n",
+          "output": "1\n",
+          "public": false
+        },
+        {
+          "input": "10000 -10000 10000\n",
+          "output": "0\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the zero-based index of the first maximum value.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Walk the array once, remembering the index of the largest value seen so far. Start with index 0 and replace it only when a later value is strictly larger. Invariant: after looking at positions 0..i, best is the smallest index holding the maximum of that prefix, because ties never move it. When the scan ends the prefix is the whole array. Time is O(n) and extra space is O(1). Sorting would lose the original positions, and calling max then index is also correct but makes two passes. Edge cases: a single value (answer 0), all values equal (answer 0), and all-negative input, which is why the scan seeds from the first element instead of from 0.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint best=0;for(int i=1;i<a.length;i++)if(a[i]>a[best])best=i;System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The answer is a position, not a value, and when the maximum appears several times only its first occurrence counts.",
+        "Keep the index of the best value seen so far, starting at index 0, rather than starting from a guessed value such as 0 that breaks on all-negative input.",
+        "Scan left to right and move the best index only when the new value is strictly greater; using greater-or-equal would return the last maximum instead."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint best=0;for(int i=1;i<a.length;i++)if(a[i]>a[best])best=i;System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nbest = 0\nfor i in range(1, len(values)):\n    if values[i] > values[best]:  # strict: a later tie never replaces the first maximum\n        best = i\nprint(best)\n"
+      }
     },
     {
       "id": "problem-second-distinct",
@@ -7268,18 +7366,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "11\n",
           "public": false
+        },
+        {
+          "input": "9 9 9 4 4\n",
+          "output": "4\n",
+          "public": false
+        },
+        {
+          "input": "-10000 10000\n",
+          "output": "-10000\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the second-largest distinct value, or NONE if fewer than two distinct values exist.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Collapse the readings into a set of unique values. If fewer than two remain, print NONE; otherwise the answer is the second element from the top of the sorted unique values. This is correct because duplicates of the maximum must be skipped, and the set removes exactly those duplicates. Sorting costs O(n log n) time and O(n) space; a one-pass alternative keeps the largest and second-largest seen so far, updating the second only with values strictly smaller than the largest, for O(n) time and O(1) space. Edge cases: all equal values, a repeated maximum, and all-negative input where the answer is still the second-highest negative.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong[] d=Arrays.stream(a).distinct().sorted().toArray();System.out.println(d.length<2?\"NONE\":String.valueOf(d[d.length-2]));\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The word distinct matters: if the maximum appears several times, its copies do not count as the second-largest.",
+        "Remove duplicates first (a set does this), then the question becomes the second-largest element of the unique values.",
+        "If only one unique value remains, print NONE. Otherwise sort the unique values, or track the top two in one pass, and print the runner-up."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong[] d=Arrays.stream(a).distinct().sorted().toArray();System.out.println(d.length<2?\"NONE\":String.valueOf(d[d.length-2]));\n }\n}",
+        "python": "import sys\n\nvalues = [int(x) for x in sys.stdin.read().split()]\ndistinct = sorted(set(values))\nprint(\"NONE\" if len(distinct) < 2 else distinct[-2])\n"
+      }
     },
     {
       "id": "problem-zero-tail",
@@ -7342,18 +7454,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "public": false
+        },
+        {
+          "input": "0 0 5 0 -3\n",
+          "output": "5 -3 0 0 0\n",
+          "public": false
+        },
+        {
+          "input": "0 -10000 0 10000\n",
+          "output": "-10000 10000 0 0\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Move zero values to the end while preserving the order of all other readings.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Use two pointers: a read pointer that visits every reading and a write pointer that marks the next free slot for a non-zero value. Whenever the read pointer finds a non-zero value, copy it to the write slot and advance the write pointer. Afterwards, fill the rest of the array with zeros. The invariant is that the prefix before the write pointer holds exactly the non-zero values seen so far, in their original order, so the result is stable. This runs in O(n) time and O(1) extra space in place. Edge cases: an array with no zeros is unchanged, an all-zero array is unchanged, and leading zeros must all travel to the end while negative values stay put.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint w=0;for(long x:a)if(x!=0)a[w++]=x;while(w<a.length)a[w++]=0;for(long x:a)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The non-zero readings must keep their original relative order; only the zeros move, and they all end up at the back.",
+        "Use a write position: it marks where the next non-zero value should be placed in the array.",
+        "Copy each non-zero value to the write position and advance it, then fill every remaining slot with 0. Make sure leading zeros and negative values are handled, since only exact zeros move."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint w=0;for(long x:a)if(x!=0)a[w++]=x;while(w<a.length)a[w++]=0;for(long x:a)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nnon_zero = [value for value in values if value != 0]\nresult = non_zero + [0] * (len(values) - len(non_zero))\nprint(' '.join(map(str, result)))\n"
+      }
     },
     {
       "id": "problem-ordered-check",
@@ -7415,18 +7541,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "NO\n",
           "public": false
+        },
+        {
+          "input": "-10000 10000\n",
+          "output": "YES\n",
+          "public": false
+        },
+        {
+          "input": "1 2 2 3 3 2\n",
+          "output": "NO\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print YES if the readings are nondecreasing, otherwise NO.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Compare each reading with the one before it. If some a[i] is strictly smaller than a[i-1] the sequence is not nondecreasing, so print NO; if the scan finishes without a drop, print YES. This is correct because order is transitive: a[0] <= a[1] <= ... <= a[n-1] holds exactly when every adjacent pair holds, so checking n-1 neighbours is enough. Time is O(n) and space is O(1) beyond the input (you can stop at the first drop). Sorting a copy and comparing would also work but costs O(n log n). Edge cases: a single reading and all-equal readings are YES, and a violation at the final pair must not be missed.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nboolean ok=true;for(int i=1;i<a.length;i++)if(a[i]<a[i-1])ok=false;System.out.println(ok?\"YES\":\"NO\");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Nondecreasing means equal neighbours are fine; only a strict drop breaks the order.",
+        "You never need to compare non-adjacent readings: if every adjacent pair is in order, the whole sequence is in order.",
+        "Scan i from 1 to n-1 and answer NO as soon as a[i] < a[i-1]. A single reading is trivially ordered, and a drop at the very last pair must still be caught."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nboolean ok=true;for(int i=1;i<a.length;i++)if(a[i]<a[i-1])ok=false;System.out.println(ok?\"YES\":\"NO\");\n }\n}",
+        "python": "import sys\n\nvalues = list(map(int, sys.stdin.read().split()))\nordered = all(values[i - 1] <= values[i] for i in range(1, len(values)))\nprint('YES' if ordered else 'NO')\n"
+      }
     },
     {
       "id": "problem-adjacent-rise",
@@ -7488,18 +7628,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "18\n",
           "public": false
+        },
+        {
+          "input": "-10000 10000\n",
+          "output": "20000\n",
+          "public": false
+        },
+        {
+          "input": "5 5 5 4\n",
+          "output": "0\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the largest increase from one reading to the next, or 0 if no positive increase exists.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "For every i from 1 to n-1 compute the step a[i] - a[i-1] and keep the largest one, starting from 0. Starting at 0 encodes the rule that a sequence with no positive increase prints 0: negative and zero steps can never beat it. Invariant: after processing step i, best is max(0, largest step among the first i steps). One pass gives O(n) time and O(1) space. Do not confuse this with the best buy-then-sell gap, which compares a value with the minimum of everything before it; here only consecutive readings count. Edge cases: one value (no steps, answer 0), a plateau of equal values, and the extreme jump from -10000 to 10000, which is 20000.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong best=0;for(int i=1;i<a.length;i++)best=Math.max(best,a[i]-a[i-1]);System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Only neighbouring readings matter: compare each value with the one immediately before it, never with values further back.",
+        "Each pair gives a difference a[i] - a[i-1]; the answer is the largest of these, but falls and flat steps must not make the answer negative.",
+        "Start the running best at 0, then take the maximum with every adjacent difference; a single reading or a never-rising sequence then naturally prints 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong best=0;for(int i=1;i<a.length;i++)best=Math.max(best,a[i]-a[i-1]);System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nbest = 0  # no rise at all prints 0\nfor i in range(1, len(values)):\n    best = max(best, values[i] - values[i - 1])\nprint(best)\n"
+      }
     },
     {
       "id": "problem-pair-energy",
@@ -7562,18 +7716,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "132\n",
           "public": false
+        },
+        {
+          "input": "-10000 -9999 10000 1\n",
+          "output": "99990000\n",
+          "public": false
+        },
+        {
+          "input": "-3 5\n",
+          "output": "-15\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the maximum product of two different positions, or 0 if the input has one value.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Sort the readings. The maximum product of two different positions is either the product of the two largest values or the product of the two smallest values. Why: if the best pair contains a positive and a negative, the product is negative, and with only two values that is forced anyway; with three or more values, two same-sign extremes always do at least as well. Checking all pairs is O(n^2); sorting is O(n log n), and a single pass tracking the top two and bottom two is O(n) with O(1) space. Edge cases: a single value prints 0, two values of opposite sign give a negative answer, and two large negatives such as -10000 and -9999 beat the positives.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nif(a.length<2){System.out.println(0);return;}Arrays.sort(a);System.out.println(Math.max(a[0]*a[1],a[a.length-1]*a[a.length-2]));\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Two negative numbers multiply to a positive, so the two largest values are not always the best pair.",
+        "Only four values can matter: the two largest and the two smallest. Sorting puts them at the ends.",
+        "Compare the product of the two smallest with the product of the two largest and print the larger. With exactly one value print 0; with two values the answer can be negative."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nif(a.length<2){System.out.println(0);return;}Arrays.sort(a);System.out.println(Math.max(a[0]*a[1],a[a.length-1]*a[a.length-2]));\n }\n}",
+        "python": "import sys\n\nvalues = sorted(int(x) for x in sys.stdin.read().split())\nif len(values) < 2:\n    print(0)\nelse:\n    # the best product uses either the two largest or the two most negative values\n    print(max(values[0] * values[1], values[-1] * values[-2]))\n"
+      }
     },
     {
       "id": "problem-profitable-stretch",
@@ -7636,18 +7804,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "26\n",
           "public": false
+        },
+        {
+          "input": "-3 -1 -2\n",
+          "output": "-1\n",
+          "public": false
+        },
+        {
+          "input": "3 -2 5 -10000 4\n",
+          "output": "6\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the maximum sum of a nonempty contiguous subarray.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "This is Kadane's algorithm. Let current be the best sum of a stretch ending at the current position. For the next reading x, the best stretch ending there either starts fresh at x or extends the previous one, so current becomes max(x, current + x). Track the largest current ever seen. The invariant is that after position i, current is the optimum for stretches ending at i and best is the optimum for stretches ending anywhere up to i. It takes O(n) time and O(1) space, versus O(n squared) for trying every start and end with running sums. Edge cases: initialise from the first reading, not 0, so an all-negative input returns its largest value; a single reading is its own answer.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong cur=a[0],best=cur;for(int i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);best=Math.max(best,cur);}System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The stretch must be nonempty, so when every reading is negative the answer is the largest single reading, not 0.",
+        "For each position, track the best sum of a stretch that ends exactly there.",
+        "The best stretch ending at i is either the reading alone or the best stretch ending at i-1 plus the reading (Kadane). Keep the overall maximum, and start both values from the first reading rather than from 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong cur=a[0],best=cur;for(int i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);best=Math.max(best,cur);}System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\ncurrent = best = values[0]\nfor value in values[1:]:\n    # Either extend the stretch ending at the previous reading or start fresh here.\n    current = max(value, current + value)\n    best = max(best, current)\nprint(best)\n"
+      }
     },
     {
       "id": "problem-nonadjacent-stops",
@@ -7709,18 +7891,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "32\n",
           "public": false
+        },
+        {
+          "input": "-3 -1 -7 -2\n",
+          "output": "0\n",
+          "public": false
+        },
+        {
+          "input": "5 1 1 5\n",
+          "output": "10\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Choose nonadjacent values for maximum total. Choosing no values is allowed.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Let best[i] be the maximum total using only the first i readings with no two chosen values adjacent. For reading i you either skip it, giving best[i-1], or take it, which forbids reading i-1 and gives best[i-2] + a[i]. So best[i] = max(best[i-1], best[i-2] + a[i]) with best[0] = best[-1] = 0. The base value 0 encodes the empty choice, which is why negatives are simply never taken. Only the last two values are needed, so keep two variables. Time O(n), space O(1). Trying every subset is O(2^n). Edge cases: all-negative input gives 0, zeros are harmless, and greedy choices such as 5 1 1 5 (answer 10) show why the recurrence is needed.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong prev=0,best=0;for(long x:a){long next=Math.max(best,prev+x);prev=best;best=next;}System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Choosing nothing is allowed, so the answer is never negative, and greedy picks (largest first, or every other value) can fail.",
+        "For each prefix, track the best total that uses only that prefix. At each reading you either skip it, or take it and add the best total from two positions back.",
+        "Keep two rolling numbers: best up to the previous reading and best up to the one before that. Start both at 0 so that an all-negative input yields 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong prev=0,best=0;for(long x:a){long next=Math.max(best,prev+x);prev=best;best=next;}System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = list(map(int, sys.stdin.read().split()))\n# best: best total using the readings seen so far; prev: best total one reading earlier.\nprev, best = 0, 0\nfor x in values:\n    prev, best = best, max(best, prev + x)\nprint(best)\n"
+      }
     },
     {
       "id": "problem-rising-subsequence",
@@ -7782,18 +7978,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "4\n",
           "public": false
+        },
+        {
+          "input": "1 2 2 3 3 4\n",
+          "output": "4\n",
+          "public": false
+        },
+        {
+          "input": "0 8 4 12 2 10 6 14 1 9 5 13 3 11 7 15\n",
+          "output": "6\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the length of the longest strictly increasing subsequence.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n²). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Maintain a list tails where tails[k] is the smallest value that can end a strictly increasing subsequence of length k+1. The list is always strictly increasing. For each value x, find the first tail >= x with binary search: if there is none, x extends the longest chain, otherwise x replaces that tail, because a smaller ending can only help later values. The answer is the length of tails. This takes O(n log n) time and O(n) space. The classic DP, where d[i] = 1 + max d[j] over j < i with a[j] < a[i], is O(n^2) and fine for n <= 1000. Edge cases: duplicates must not count twice (use >= in the search, not >), a decreasing input gives 1, and a single value gives 1.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint[] d=new int[a.length]; Arrays.fill(d,1); int best=0; for(int i=0;i<a.length;i++){for(int j=0;j<i;j++)if(a[j]<a[i])d[i]=Math.max(d[i],d[j]+1);best=Math.max(best,d[i]);}System.out.println(best);\n }\n}",
       "complexity": "O(n²)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A subsequence may skip elements but must keep their order, and strictly increasing means equal values can never follow each other.",
+        "The quadratic idea: let best[i] be the longest strictly increasing subsequence that ends at position i, built from any earlier j with a smaller value.",
+        "Faster: keep, for each length, the smallest possible tail value. For each new x, binary-search the first tail that is >= x and replace it, or append if none; searching for >= is what stops duplicates from extending a chain."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint[] d=new int[a.length]; Arrays.fill(d,1); int best=0; for(int i=0;i<a.length;i++){for(int j=0;j<i;j++)if(a[j]<a[i])d[i]=Math.max(d[i],d[j]+1);best=Math.max(best,d[i]);}System.out.println(best);\n }\n}",
+        "python": "import sys\nfrom bisect import bisect_left\n\nvalues = [int(token) for token in sys.stdin.read().split()]\n# tails[k] = smallest possible last value of a strictly increasing subsequence of length k + 1\ntails = []\nfor x in values:\n    pos = bisect_left(tails, x)  # bisect_left so an equal value replaces, never extends\n    if pos == len(tails):\n        tails.append(x)\n    else:\n        tails[pos] = x\nprint(len(tails))\n"
+      }
     },
     {
       "id": "problem-out-of-order",
@@ -7855,18 +8065,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "46\n",
           "public": false
+        },
+        {
+          "input": "2 2 1 1\n",
+          "output": "4\n",
+          "public": false
+        },
+        {
+          "input": "-10000 10000 -10000\n",
+          "output": "1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count pairs i < j for which a[i] > a[j].\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n²), merge counting improves it. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "This is inversion counting. The direct approach checks every pair in O(n^2), which is fine for 1000 values but does not scale. Merge sort counts inversions in O(n log n): split the array, count inversions inside each half recursively, then count pairs that cross the halves while merging. Because both halves are sorted, whenever the right head is strictly smaller than the left head it is also smaller than all remaining left values, so all of them form inversions with it. Taking the left value on ties keeps equal pairs uncounted. Space is O(n) for the merge buffers. Edge cases: one value or sorted input gives 0, strictly decreasing input gives n(n-1)/2, and duplicates contribute nothing.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong count=0;for(int i=0;i<a.length;i++)for(int j=i+1;j<a.length;j++)if(a[i]>a[j])count++;System.out.println(count);\n }\n}",
       "complexity": "O(n²), merge counting improves it",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Only strictly greater counts: equal values at positions i < j do not form an out-of-order pair.",
+        "Merge sort can count these pairs. While merging two sorted halves, a value taken from the right half is smaller than every value still waiting in the left half.",
+        "When the right value is strictly smaller, add the number of remaining left values to the count; on a tie take the left value first so equal pairs are never counted."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong count=0;for(int i=0;i<a.length;i++)for(int j=i+1;j<a.length;j++)if(a[i]>a[j])count++;System.out.println(count);\n }\n}",
+        "python": "import sys\n\n\ndef sort_and_count(a):\n    \"\"\"Return (sorted copy of a, number of pairs i < j with a[i] > a[j]).\"\"\"\n    if len(a) <= 1:\n        return a, 0\n    mid = len(a) // 2\n    left, left_count = sort_and_count(a[:mid])\n    right, right_count = sort_and_count(a[mid:])\n    merged = []\n    count = left_count + right_count\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            merged.append(left[i])\n            i += 1\n        else:\n            # right[j] is smaller than every remaining left value\n            count += len(left) - i\n            merged.append(right[j])\n            j += 1\n    merged.extend(left[i:])\n    merged.extend(right[j:])\n    return merged, count\n\n\nvalues = [int(x) for x in sys.stdin.read().split()]\nprint(sort_and_count(values)[1])\n"
+      }
     },
     {
       "id": "problem-three-window",
@@ -8023,18 +8247,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8 11\n",
           "public": false
+        },
+        {
+          "input": "7 -3\n",
+          "output": "-3 7\n",
+          "public": false
+        },
+        {
+          "input": "10000 0 0 -10000\n",
+          "output": "0 0 -10000 10000\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Rotate the input left by one position.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "A left rotation by one moves the reading at position i to position i - 1 and sends the first reading to the end. Equivalently, output position i takes input position (i + 1) mod n. You can print the readings from index 1 to the end and then the reading at index 0, or rotate in place by saving the first value, shifting everything left by one, and writing the saved value into the last slot. Both run in O(n) time; the in-place version uses O(1) extra space. The invariant of the in-place shift is that after step i, slots 0..i-1 already hold their final values. Edge cases: a single reading is unchanged, and with two readings the rotation simply swaps them.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=1;i<=a.length;i++)System.out.print(a[i%a.length]+\" \");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Every reading shifts one place to the left, and the first reading wraps around to become the last.",
+        "Index arithmetic modulo n describes the wrap: the output at position i comes from input position (i + 1) mod n.",
+        "Print readings 2..n followed by reading 1. With a single reading the output equals the input, and duplicates are moved like any other value."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=1;i<=a.length;i++)System.out.print(a[i%a.length]+\" \");\n }\n}",
+        "python": "import sys\n\nvalues = sys.stdin.read().split()\nprint(' '.join(values[1:] + values[:1]))\n"
+      }
     },
     {
       "id": "problem-equal-pairs",
@@ -8096,18 +8334,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "2\n",
           "public": false
+        },
+        {
+          "input": "7 7 7 7 7\n",
+          "output": "10\n",
+          "public": false
+        },
+        {
+          "input": "-10000 10000 -10000 10000 -10000\n",
+          "output": "4\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count pairs i < j with equal values.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Walk the readings once while a hash map stores how many times each value has been seen. When reading x arrives, it forms a valid pair (i < j) with every earlier copy, so add count[x] to the total and then increment count[x]. Every pair is counted exactly once, at the moment its later element is processed. Summing per value gives 0 + 1 + ... + (k-1) = k(k-1)/2 for k copies. Time is O(n) expected and space O(d) for d distinct values; checking all pairs directly is O(n^2). Edge cases: a single reading or all-distinct input gives 0, and the total can reach about 500000 for 1000 equal readings, which fits easily.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Long>m=new HashMap<>();long total=0;for(long x:a){long seen=m.getOrDefault(x,0L);total+=seen;m.put(x,seen+1);}System.out.println(total);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A pair is only about equal values, so positions matter only through how many copies of each value exist.",
+        "Scan left to right with a hash map from value to how many times it has appeared so far. The current reading forms a pair with each earlier copy.",
+        "Add the stored count before incrementing it. A value that appears k times contributes k*(k-1)/2 pairs, so five equal readings give 10, not 5."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Long>m=new HashMap<>();long total=0;for(long x:a){long seen=m.getOrDefault(x,0L);total+=seen;m.put(x,seen+1);}System.out.println(total);\n }\n}",
+        "python": "import sys\n\nvalues = list(map(int, sys.stdin.read().split()))\nseen = {}\ntotal = 0\nfor x in values:\n    # x pairs with every earlier copy of itself.\n    total += seen.get(x, 0)\n    seen[x] = seen.get(x, 0) + 1\nprint(total)\n"
+      }
     },
     {
       "id": "problem-majority-reading",
@@ -8169,18 +8421,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "NONE\n",
           "public": false
+        },
+        {
+          "input": "7 7 3 3\n",
+          "output": "NONE\n",
+          "public": false
+        },
+        {
+          "input": "-2 5 -2 5 -2\n",
+          "output": "-2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the value occurring more than half the time, or NONE.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Count occurrences of every value in a hash map, then look for a value whose count is greater than n // 2. Two different values cannot both appear more than n/2 times, so if one passes the test it is the unique answer, and if none does the output is NONE. Counting takes O(n) expected time and O(k) space for k distinct values. The Boyer-Moore voting algorithm finds the only possible candidate in O(1) extra space, but it still needs a second pass to verify the candidate really exceeds half. Edge cases: n = 1 (the value is the majority), an even-length list split exactly in half (NONE), and negative values, which are ordinary keys.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Integer>m=new HashMap<>();for(long x:a)m.merge(x,1,Integer::sum);for(var e:m.entrySet())if(e.getValue()>a.length/2){System.out.println(e.getKey());return;}System.out.println(\"NONE\");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "More than half is strict: in a list of 4 values a value seen exactly 2 times is not a majority, so the answer can be NONE.",
+        "Count how many times each value occurs with a hash map; at most one value can exceed half the length.",
+        "After counting, test count > n // 2 (integer division) for each value and print it, otherwise print NONE; a single value is always its own majority."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Integer>m=new HashMap<>();for(long x:a)m.merge(x,1,Integer::sum);for(var e:m.entrySet())if(e.getValue()>a.length/2){System.out.println(e.getKey());return;}System.out.println(\"NONE\");\n }\n}",
+        "python": "import sys\nfrom collections import Counter\n\nvalues = [int(token) for token in sys.stdin.read().split()]\ncounts = Counter(values)\nanswer = 'NONE'\nfor value, count in counts.items():\n    if count > len(values) // 2:  # strictly more than half; exactly half is not a majority\n        answer = value\nprint(answer)\n"
+      }
     },
     {
       "id": "problem-balance-position",
@@ -8242,18 +8508,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-1\n",
           "public": false
+        },
+        {
+          "input": "1 -1 5\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "3 0 0 3\n",
+          "output": "1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the first index where the sum strictly to the left equals the sum strictly to the right, or -1.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Compute the total once, then walk the array keeping left, the sum of elements strictly before index i. The right sum is total - left - a[i], so each index is checked in O(1). Print the first index where the two sides are equal, or -1 if none is. The invariant is that left is updated only after the check, so it never includes the current element. Recomputing both sides at every index would be O(n^2); this is O(n) time and O(1) space. Edge cases: a single value balances at index 0 because both sides are empty, several balanced indices must report the first, and negative values can make a later index balance after earlier ones fail.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong total=Arrays.stream(a).sum(),left=0;for(int i=0;i<a.length;i++){if(left==total-left-a[i]){System.out.println(i);return;}left+=a[i];}System.out.println(-1);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The element at the balance position belongs to neither side, and an empty side sums to 0.",
+        "If you know the total and the sum strictly to the left, the right side is total minus left minus the current value.",
+        "Scan left to right, test before adding the current value to the left sum, and stop at the first match. Negative values mean the sums are not monotonic, so you cannot binary search."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong total=Arrays.stream(a).sum(),left=0;for(int i=0;i<a.length;i++){if(left==total-left-a[i]){System.out.println(i);return;}left+=a[i];}System.out.println(-1);\n }\n}",
+        "python": "import sys\n\nvalues = [int(x) for x in sys.stdin.read().split()]\ntotal = sum(values)\nleft = 0\nanswer = -1\nfor i, x in enumerate(values):\n    if left == total - left - x:\n        answer = i\n        break\n    left += x\nprint(answer)\n"
+      }
     },
     {
       "id": "problem-zero-sum-stretches",
@@ -8316,18 +8596,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "2\n",
           "public": false
+        },
+        {
+          "input": "5 -5 5 -5\n",
+          "output": "4\n",
+          "public": false
+        },
+        {
+          "input": "0\n",
+          "output": "1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count all nonempty contiguous subarrays whose sum is zero.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Let P(k) be the sum of the first k readings, with P(0) = 0. The stretch from position i+1 to j sums to zero exactly when P(i) = P(j). So scan left to right, maintaining a hash map counting how often each prefix sum has occurred. At each step compute the new prefix sum, add its current count to the answer (each earlier equal prefix starts one zero-sum stretch ending here), then increment its count. Seeding the map with sum 0 once accounts for stretches that start at the first reading. Time is O(n) expected and space O(n), versus O(n squared) for checking every pair. Edge cases: alternating values like 5 -5 5 -5 produce overlapping stretches, and a run of k zeros contributes k(k+1)/2.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Long>m=new HashMap<>();m.put(0L,1L);long sum=0,total=0;for(long x:a){sum+=x;total+=m.getOrDefault(sum,0L);m.merge(sum,1L,Long::sum);}System.out.println(total);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A stretch from i to j sums to zero exactly when the prefix sum before i equals the prefix sum through j.",
+        "Keep a hash map from each prefix sum to how many times it has appeared so far, including the empty prefix with sum 0.",
+        "For each new prefix sum, add the number of earlier equal prefix sums to the answer, then record it. Repeated zeros are the trap: three zeros alone form six zero-sum stretches."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Long>m=new HashMap<>();m.put(0L,1L);long sum=0,total=0;for(long x:a){sum+=x;total+=m.getOrDefault(sum,0L);m.merge(sum,1L,Long::sum);}System.out.println(total);\n }\n}",
+        "python": "import sys\nfrom collections import defaultdict\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nseen = defaultdict(int)\nseen[0] = 1  # the empty prefix\nprefix = total = 0\nfor value in values:\n    prefix += value\n    total += seen[prefix]\n    seen[prefix] += 1\nprint(total)\n"
+      }
     },
     {
       "id": "problem-next-taller",
@@ -8389,18 +8683,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "12 -1 -1 12 12 12 12 12 -1 9 9 -1 -1 -1\n",
           "public": false
+        },
+        {
+          "input": "5 5 4 6\n",
+          "output": "6 6 6 -1\n",
+          "public": false
+        },
+        {
+          "input": "-10000 -10000 10000 10000\n",
+          "output": "10000 10000 -1 -1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. For every value, print the first strictly larger value to its right, or -1.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Use a monotonic stack of indices whose next strictly larger value is still unknown. When reading x arrives, every waiting index with a smaller value has x as its answer, because x is the first larger value seen to its right; pop those and record x. Then push the current index. Invariant: the stack values are nonincreasing from bottom to top, so the pops always come from the top. Each index is pushed and popped at most once, giving O(n) time and O(n) space, versus O(n^2) for scanning right from each position. Edge cases: equal readings are not strictly larger, so 5 5 4 6 gives 6 6 6 -1; indices still on the stack at the end print -1, including the last reading.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong[]out=new long[a.length];Arrays.fill(out,-1);Deque<Integer>st=new ArrayDeque<>();for(int i=0;i<a.length;i++){while(!st.isEmpty()&&a[st.peek()]<a[i])out[st.pop()]=a[i];st.push(i);}for(long x:out)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A brute-force scan to the right for each reading is O(n^2). Notice that once a larger value appears, it answers every smaller value still waiting before it.",
+        "Keep a stack of indices that have not found their answer yet. Their values are nonincreasing from bottom to top.",
+        "For each new reading, pop while the top value is strictly smaller and record the new reading as its answer, then push the new index. Equal values do not pop each other, and anything left at the end gets -1."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nlong[]out=new long[a.length];Arrays.fill(out,-1);Deque<Integer>st=new ArrayDeque<>();for(int i=0;i<a.length;i++){while(!st.isEmpty()&&a[st.peek()]<a[i])out[st.pop()]=a[i];st.push(i);}for(long x:out)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nvalues = list(map(int, sys.stdin.read().split()))\nanswer = [-1] * len(values)\nstack = []  # indices still waiting for a larger value; their values never increase upward\nfor i, x in enumerate(values):\n    while stack and values[stack[-1]] < x:\n        answer[stack.pop()] = x\n    stack.append(i)\nprint(' '.join(map(str, answer)))\n"
+      }
     },
     {
       "id": "problem-record-span",
@@ -8462,18 +8770,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "1 1 1 3 1 2 1 1 9 1 1 3 1 1\n",
           "public": false
+        },
+        {
+          "input": "5 5 5 6 1\n",
+          "output": "1 2 3 4 1\n",
+          "public": false
+        },
+        {
+          "input": "-1 -3 -2 -1 0\n",
+          "output": "1 1 2 4 5\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. For each position print the length of the consecutive suffix ending there whose values are no greater than the current value.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "This is the stock-span problem solved with a monotonic stack. For each index i, the span is i - p where p is the closest earlier index with a value strictly greater than a[i] (or -1 if there is none). Keep a stack of indices with strictly decreasing values. Before pushing i, pop every index whose value is <= a[i]: those values are covered by a[i] and can never be the blocker for anything later. Whatever is left on top is p. Each index is pushed and popped at most once, so the total time is O(n) with O(n) space, versus O(n^2) for scanning backwards from every position. Edge cases: equal values (they extend the span), a strictly decreasing input (all 1s), and a final maximum whose span is the whole array.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nDeque<Integer>st=new ArrayDeque<>();for(int i=0;i<a.length;i++){while(!st.isEmpty()&&a[st.peek()]<=a[i])st.pop();System.out.print((i-(st.isEmpty()?-1:st.peek()))+\" \");st.push(i);}\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The span at position i stops at the nearest earlier value that is strictly greater than a[i]; equal values are included in the span.",
+        "Keep a stack of indices whose values are strictly decreasing; anything smaller or equal to the current value can never block a later span, so it can be thrown away.",
+        "For each i, pop while the top value is <= a[i]; the span is i minus the remaining top index, or i + 1 if the stack is empty. Then push i."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nDeque<Integer>st=new ArrayDeque<>();for(int i=0;i<a.length;i++){while(!st.isEmpty()&&a[st.peek()]<=a[i])st.pop();System.out.print((i-(st.isEmpty()?-1:st.peek()))+\" \");st.push(i);}\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nstack = []  # indices whose values are strictly decreasing from bottom to top\nspans = []\nfor i, x in enumerate(values):\n    while stack and values[stack[-1]] <= x:  # <= so equal values join the span\n        stack.pop()\n    previous_greater = stack[-1] if stack else -1\n    spans.append(i - previous_greater)\n    stack.append(i)\nprint(' '.join(str(s) for s in spans))\n"
+      }
     },
     {
       "id": "problem-trapped-rain",
@@ -8536,18 +8858,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "87\n",
           "public": false
+        },
+        {
+          "input": "3 -10000 3\n",
+          "output": "3\n",
+          "public": false
+        },
+        {
+          "input": "4 0 0 0 1\n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Treat each value as a ridge height after replacing negative heights with zero. Print the total trapped rainwater.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n²) reference; O(n) two-pointer alternative. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "After replacing negative heights with 0, the water above column i equals min(maxLeft(i), maxRight(i)) - h[i], where both maxima include i itself. Computing these by scanning for each column is O(n^2). Two pointers achieve O(n) time and O(1) space: keep the best wall seen from each end and always advance the side with the smaller best wall. The water on that side is fully determined, because the opposite side is already known to contain a wall at least as high. Prefix and suffix maximum arrays are an equally valid O(n) alternative. Edge cases: one column, strictly increasing or decreasing heights, a deep negative valley that becomes a zero-height pit, and a lower right wall that caps the level.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=0;i<a.length;i++)a[i]=Math.max(0,a[i]);long water=0;for(int i=0;i<a.length;i++){long l=0,r=0;for(int j=0;j<=i;j++)l=Math.max(l,a[j]);for(int j=i;j<a.length;j++)r=Math.max(r,a[j]);water+=Math.min(l,r)-a[i];}System.out.println(water);\n }\n}",
       "complexity": "O(n²) reference; O(n) two-pointer alternative",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Clamp negative heights to 0 first. Water above one column is limited by the tallest wall to its left and the tallest wall to its right.",
+        "The water at column i is min(highest on the left including i, highest on the right including i) minus the height of i.",
+        "Use two pointers: move inward from the side whose running maximum is smaller, because that maximum is the binding limit there. Edge columns and monotonic slopes hold no water."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(int i=0;i<a.length;i++)a[i]=Math.max(0,a[i]);long water=0;for(int i=0;i<a.length;i++){long l=0,r=0;for(int j=0;j<=i;j++)l=Math.max(l,a[j]);for(int j=i;j<a.length;j++)r=Math.max(r,a[j]);water+=Math.min(l,r)-a[i];}System.out.println(water);\n }\n}",
+        "python": "import sys\n\nheights = [max(0, int(x)) for x in sys.stdin.read().split()]\nleft, right = 0, len(heights) - 1\nleft_max = right_max = 0\nwater = 0\nwhile left <= right:\n    # the lower side's best wall decides how much water sits above it\n    if left_max <= right_max:\n        left_max = max(left_max, heights[left])\n        water += left_max - heights[left]\n        left += 1\n    else:\n        right_max = max(right_max, heights[right])\n        water += right_max - heights[right]\n        right -= 1\nprint(water)\n"
+      }
     },
     {
       "id": "problem-lower-middle",
@@ -8610,18 +8946,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-2\n",
           "public": false
+        },
+        {
+          "input": "3 1\n",
+          "output": "1\n",
+          "public": false
+        },
+        {
+          "input": "10000 -10000 10000 -10000\n",
+          "output": "-10000\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the lower median, at sorted index floor((n-1)/2).\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n); expected O(n) selection alternative. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Sort the readings and print the one at index floor((n-1)/2). For odd n this is the true middle; for even n it is the lower of the two middle values. Sorting is correct because the element at sorted index k is by definition the value with exactly k readings at or before it in order. This takes O(n log n) time and O(n) space. An alternative is randomized quickselect: partition around a random pivot and recurse only into the side that contains index k, which runs in expected O(n) time. Edge cases: a single reading is its own median, two readings return the smaller, and heavy duplicates such as -10000 -10000 10000 10000 return -10000.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nArrays.sort(a);System.out.println(a[(a.length-1)/2]);\n }\n}",
       "complexity": "O(n log n); expected O(n) selection alternative",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "For an even number of readings there are two middle values; this problem always wants the smaller one, at sorted index floor((n-1)/2).",
+        "Once the readings are in sorted order, the answer is just the value at a fixed index.",
+        "Sort (or use quickselect for expected linear time) and read index (n-1)//2. Duplicates and negative values are fine: ties do not change which value sits at that index."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nArrays.sort(a);System.out.println(a[(a.length-1)/2]);\n }\n}",
+        "python": "import sys\n\nvalues = sorted(int(token) for token in sys.stdin.read().split())\nprint(values[(len(values) - 1) // 2])\n"
+      }
     },
     {
       "id": "problem-distinct-sorted",
@@ -8684,18 +9034,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-9 -8 -7 -6 -5 -2 -1 4 8 9 11 12\n",
           "public": false
+        },
+        {
+          "input": "10000 -10000 0 10000 -10000\n",
+          "output": "-10000 0 10000\n",
+          "public": false
+        },
+        {
+          "input": "-3 -3 -3 -10 -2\n",
+          "output": "-10 -3 -2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print distinct readings in ascending order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Insert every reading into a hash set, which keeps one copy of each value, then sort the set and print it. The output contains every value that appears (the set loses none) exactly once (the set keeps no duplicates) in ascending order (the sort). Time is O(n + d log d) for d distinct values and space is O(d). An equivalent approach sorts all n readings and prints a value only when it differs from the previous one, which is O(n log n). Edge cases: sort numerically, not as strings, so negatives such as -10000 come first; all-equal input prints a single value; a single reading prints itself.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(long x:Arrays.stream(a).distinct().sorted().toArray())System.out.print(x+\" \");\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Two separate jobs are hiding here: removing duplicates and putting the survivors in ascending order.",
+        "A hash set removes duplicates in one pass; then sort what is left. Alternatively sort first and skip any value equal to its left neighbour.",
+        "Parse the readings as integers before sorting, otherwise text order puts -2 after -10 and 10 before 9."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nfor(long x:Arrays.stream(a).distinct().sorted().toArray())System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nvalues = set(map(int, sys.stdin.read().split()))\nprint(' '.join(map(str, sorted(values))))\n"
+      }
     },
     {
       "id": "problem-frequency-peak",
@@ -8757,18 +9121,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "-6\n",
           "public": false
+        },
+        {
+          "input": "9 -4 9 -4 2\n",
+          "output": "-4\n",
+          "public": false
+        },
+        {
+          "input": "10000 10000 -10000\n",
+          "output": "10000\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the most frequent value. Break ties by choosing the smallest value.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "First count how often each value occurs using a hash map. Then choose the value that maximises its count, breaking ties toward the smaller value. A clean way is to take the minimum over all distinct values of the pair (-count, value): a larger count gives a smaller first component, and equal counts fall back to comparing the values. The reference does the same by walking values in sorted order and updating only on a strictly greater count, so the first, smallest value with the top count is kept. Counting is O(n); choosing is O(k), or O(k log k) if you sort the k distinct keys. Edge cases: every value distinct (answer is the minimum), ties involving negative numbers, and a single value.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Integer>m=new TreeMap<>();for(long x:a)m.merge(x,1,Integer::sum);long ans=0;int count=0;for(var e:m.entrySet())if(e.getValue()>count){ans=e.getKey();count=e.getValue();}System.out.println(ans);\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Two rules decide the answer: the highest count wins, and among values with the same count the numerically smallest wins, which may be negative.",
+        "Count every value with a hash map, then choose a winner by comparing (count, value) pairs instead of count alone.",
+        "Either visit values in increasing order and replace the answer only on a strictly larger count, or pick the minimum by the key (negative count, value); both handle ties correctly."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nMap<Long,Integer>m=new TreeMap<>();for(long x:a)m.merge(x,1,Integer::sum);long ans=0;int count=0;for(var e:m.entrySet())if(e.getValue()>count){ans=e.getKey();count=e.getValue();}System.out.println(ans);\n }\n}",
+        "python": "import sys\nfrom collections import Counter\n\nvalues = [int(token) for token in sys.stdin.read().split()]\ncounts = Counter(values)\n# highest count first, then the smallest value among equal counts\nanswer = min(counts, key=lambda v: (-counts[v], v))\nprint(answer)\n"
+      }
     },
     {
       "id": "problem-longest-run",
@@ -8830,18 +9208,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "2\n",
           "public": false
+        },
+        {
+          "input": "5 5 1 5 5\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "-7 -7 3 -7 -7 -7\n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the longest contiguous run of equal readings.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Walk the readings once while tracking run, the length of the equal run ending at the current index, and best, the longest run seen so far. If a[i] equals a[i-1] the run grows by one; otherwise it restarts at 1. Updating best on every step guarantees that a run ending at the final element is not lost. The invariant is that run always describes the maximal equal block ending at i, so the maximum over all i is the answer. Time is O(n) and space O(1). Counting value frequencies instead would be wrong because equal values separated by others do not form one run. Edge cases: one value gives 1, all equal gives n, and the longest run at the end.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint best=1,run=1;for(int i=1;i<a.length;i++){run=a[i]==a[i-1]?run+1:1;best=Math.max(best,run);}System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A run must be contiguous: equal values separated by something else start new runs.",
+        "Track the length of the run that ends at the current position, compared only with the previous value.",
+        "Reset the run to 1 when the value changes, update the best after every step so a run ending at the last position is counted, and start both at 1 for a single value."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint best=1,run=1;for(int i=1;i<a.length;i++){run=a[i]==a[i-1]?run+1:1;best=Math.max(best,run);}System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = [int(x) for x in sys.stdin.read().split()]\nbest = run = 1\nfor i in range(1, len(values)):\n    run = run + 1 if values[i] == values[i - 1] else 1\n    best = max(best, run)\nprint(best)\n"
+      }
     },
     {
       "id": "problem-suffix-leaders",
@@ -8903,18 +9295,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "12 9 4 -8\n",
           "public": false
+        },
+        {
+          "input": "3 3 3 1\n",
+          "output": "3 1\n",
+          "public": false
+        },
+        {
+          "input": "-10000 -9999 -10000\n",
+          "output": "-9999 -10000\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print values which are strictly greater than every value to their right, preserving input order. The final value is always a leader.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Scan from right to left while tracking the largest value seen so far. The last reading is always a leader. Every other reading is a leader exactly when it is strictly greater than the running maximum; when it is, record it and make it the new maximum. Because leaders are found in reverse order, reverse the list before printing. The invariant is that before visiting position i, the running maximum is the largest value strictly to the right of i. This takes O(n) time and O(n) space for the output, compared with O(n squared) for comparing each reading against everything to its right. Edge cases: strictly decreasing input makes every reading a leader, and ties are not leaders, so 0 0 0 prints a single 0.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nList<Long>out=new ArrayList<>();long max=Long.MIN_VALUE;for(int i=a.length-1;i>=0;i--)if(a[i]>max){out.add(a[i]);max=a[i];}Collections.reverse(out);for(long x:out)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Whether a reading is a leader depends only on the largest value to its right, so it is natural to scan from the right end.",
+        "Keep the maximum of everything already scanned. A reading is a leader exactly when it beats that maximum.",
+        "Scan right to left, collect readings strictly greater than the running maximum, update the maximum, and reverse the collection at the end. Equal values are not leaders, so in 3 3 3 1 only one 3 qualifies."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nList<Long>out=new ArrayList<>();long max=Long.MIN_VALUE;for(int i=a.length-1;i>=0;i--)if(a[i]>max){out.add(a[i]);max=a[i];}Collections.reverse(out);for(long x:out)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nvalues = [int(token) for token in sys.stdin.read().split()]\nleaders = []\nbest_to_right = None\nfor value in reversed(values):\n    if best_to_right is None or value > best_to_right:\n        leaders.append(value)\n        best_to_right = value\nleaders.reverse()\nprint(' '.join(map(str, leaders)))\n"
+      }
     },
     {
       "id": "problem-mirror-word",
@@ -8977,18 +9383,32 @@
           "input": "abcabcbb\n",
           "output": "NO\n",
           "public": false
+        },
+        {
+          "input": "Racecar\n",
+          "output": "NO\n",
+          "public": false
+        },
+        {
+          "input": "   ab ba   \n",
+          "output": "YES\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print YES if the input text is a palindrome, otherwise NO. Compare characters exactly.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Strip the outer whitespace, then place one pointer at the start and one at the end. While they have not met, compare the two characters; any mismatch means NO, otherwise move both inward. If the pointers meet or cross, every mirrored pair matched, so the text is a palindrome and the answer is YES. The middle character of an odd-length text pairs with itself and never needs checking. Time O(n), extra space O(1); building the reversed string and comparing is also O(n) but uses O(n) extra space. Edge cases: a single character is YES, comparison is case-sensitive, and inner spaces are real characters.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(s.equals(new StringBuilder(s).reverse().toString())?\"YES\":\"NO\");\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Outer whitespace is ignored but everything inside the line counts: spaces, digits, punctuation and letter case are all compared exactly.",
+        "A palindrome reads the same from both ends, so character i must equal character n-1-i for every i.",
+        "Strip the line first, then move two pointers inward from both ends and stop at the first mismatch. Do not lowercase anything: Racecar is NO."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(s.equals(new StringBuilder(s).reverse().toString())?\"YES\":\"NO\");\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\nleft, right = 0, len(text) - 1\nis_palindrome = True\nwhile left < right:\n    if text[left] != text[right]:\n        is_palindrome = False\n        break\n    left += 1\n    right -= 1\nprint('YES' if is_palindrome else 'NO')\n"
+      }
     },
     {
       "id": "problem-reverse-message",
@@ -9051,18 +9471,32 @@
           "input": "abcabcbb\n",
           "output": "bbcbacba\n",
           "public": false
+        },
+        {
+          "input": "  padded  text  \n",
+          "output": "txet  deddap\n",
+          "public": false
+        },
+        {
+          "input": "Ab!? 9\n",
+          "output": "9 ?!bA\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the input text in reverse character order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Strip the outer whitespace, then output the characters from last to first. A stack shows why this works: pushing characters in order and popping them returns them in reverse, because the last one in is the first one out. In Python a slice with step -1 does the same walk in one expression. Every character is touched once, so the time is O(n) and the reversed copy uses O(n) space; an in-place two-pointer swap on a character array uses O(1) extra space. Edge cases: a single character, a palindrome (unchanged), runs of internal spaces, which must be kept exactly, and surrounding spaces, which are removed before reversing.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(new StringBuilder(s).reverse());\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Reverse the characters of the whole line, not the order of the words: spaces and punctuation move like any other character.",
+        "Leading and trailing whitespace is not significant, so strip it first; spaces inside the line stay and are reversed too.",
+        "Walk from the last character to the first (or push every character on a stack and pop them all) and print the result; a palindrome comes back unchanged."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(new StringBuilder(s).reverse());\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()  # outer whitespace is not significant\nprint(text[::-1])\n"
+      }
     },
     {
       "id": "problem-vowel-count",
@@ -9124,18 +9558,32 @@
           "input": "abcabcbb\n",
           "output": "2\n",
           "public": false
+        },
+        {
+          "input": "AEIOU aeiou\n",
+          "output": "10\n",
+          "public": false
+        },
+        {
+          "input": "rhythm by\n",
+          "output": "0\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count English vowels a e i o u, ignoring case.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Lowercase the stripped line and count characters that belong to the set a, e, i, o, u. Lowercasing first means one membership test covers both cases, and every non-letter character (digits, spaces, punctuation) simply fails the test, so no special handling is needed. Each character is examined exactly once, giving O(n) time and O(1) extra space for a fixed five-letter vowel set. A slightly slower baseline compares each character against all ten upper and lower case vowels, which is still linear. Edge cases: text in all capitals, words with only y as a vowel sound such as rhythm, and lines made entirely of symbols.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(s.toLowerCase(Locale.ROOT).chars().filter(c->\"aeiou\".indexOf(c)>=0).count());\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Uppercase and lowercase vowels both count, and only a, e, i, o and u are vowels here; y is not.",
+        "Lowercase the whole line once, then each character needs a single membership test against the five vowels.",
+        "Count characters, not words, so digits, punctuation and spaces simply fail the test. Strip outer whitespace as the statement says it is not significant."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(s.toLowerCase(Locale.ROOT).chars().filter(c->\"aeiou\".indexOf(c)>=0).count());\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip().lower()\nprint(sum(1 for ch in text if ch in \"aeiou\"))\n"
+      }
     },
     {
       "id": "problem-distinct-letters",
@@ -9199,18 +9647,32 @@
           "input": "abcabcbb\n",
           "output": "3\n",
           "public": false
+        },
+        {
+          "input": "a b a b\n",
+          "output": "3\n",
+          "public": false
+        },
+        {
+          "input": "  Zz zZ  \n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count distinct characters, including spaces within the text.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Remove leading and trailing whitespace, then insert every character of the line into a hash set and print the set size. The set holds each character at most once, so after processing a prefix it contains exactly the distinct characters of that prefix. Since the input is ASCII you can equally use a boolean array of 128 entries and count how many flip to true. Time is O(n); space is O(1) because the alphabet is bounded. Edge cases: case matters (A and a differ), inner spaces count once, outer spaces do not count at all, and a single character prints 1.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(s.chars().distinct().count());\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Every character counts, including inner spaces and punctuation, and uppercase and lowercase letters are different characters.",
+        "A set of characters records each character the first time it appears and ignores later repeats.",
+        "Strip only the outer whitespace, add every remaining character to a set, and print its size. Spaces inside the text count as one distinct character no matter how many there are."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nSystem.out.println(s.chars().distinct().count());\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\nprint(len(set(text)))\n"
+      }
     },
     {
       "id": "problem-first-single",
@@ -9273,18 +9735,32 @@
           "input": "abcabcbb\n",
           "output": "NONE\n",
           "public": false
+        },
+        {
+          "input": "aAa\n",
+          "output": "A\n",
+          "public": false
+        },
+        {
+          "input": "xxyyzzw\n",
+          "output": "w\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the first character occurring exactly once, or NONE.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n²) reference; O(n) counting alternative. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Count the occurrences of every character in one pass using a hash map (or a 128-entry array for ASCII). Then scan the stripped line again from the left and print the first character whose count is 1. The second scan follows the original order, so the first hit is the earliest unique character; if the scan ends without a hit, print NONE. Time O(n) and space O(alphabet). The naive way, checking for each position whether the character occurs elsewhere, is O(n^2). Edge cases: comparison is case-sensitive (in aAa the answer is A), the unique character may be the last one, and a line where everything repeats prints NONE.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nfor(int i=0;i<s.length();i++)if(s.indexOf(s.charAt(i))==s.lastIndexOf(s.charAt(i))){System.out.println(s.charAt(i));return;}System.out.println(\"NONE\");\n }\n}",
       "complexity": "O(n²) reference; O(n) counting alternative",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "You need the count of each character over the whole line before you can decide whether an early character is unique.",
+        "Make two passes: first count every character, then walk the line again in order and stop at the first character whose count is 1.",
+        "Characters are compared exactly, so a and A are different. If no count equals 1, print NONE."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nfor(int i=0;i<s.length();i++)if(s.indexOf(s.charAt(i))==s.lastIndexOf(s.charAt(i))){System.out.println(s.charAt(i));return;}System.out.println(\"NONE\");\n }\n}",
+        "python": "import sys\nfrom collections import Counter\n\ntext = sys.stdin.read().strip()\ncounts = Counter(text)\n# Second pass in original order finds the earliest character seen exactly once.\nprint(next((ch for ch in text if counts[ch] == 1), 'NONE'))\n"
+      }
     },
     {
       "id": "problem-remove-adjacent",
@@ -9347,18 +9823,32 @@
           "input": "abcabcbb\n",
           "output": "abcabcb\n",
           "public": false
+        },
+        {
+          "input": "zzzzzz\n",
+          "output": "z\n",
+          "public": false
+        },
+        {
+          "input": "aA  Aa!!\n",
+          "output": "aA Aa!\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Replace every maximal consecutive run of the same character with one character.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Scan the stripped line once and build the output: append the current character if the output is empty or its last character is different, otherwise skip it. Invariant: the output never contains two equal neighbours, and every maximal run seen so far contributes exactly its first character, so after the scan each run is compressed to one character. The scan is O(n) time and the output uses O(n) space. Comparing with the previous input character instead of the last output character gives the same result here, since both equal the previous character. Edge cases: a line of one repeated character (one character out), runs of spaces (collapsed to one space), and case sensitivity, so a and A are not merged.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nStringBuilder o=new StringBuilder();for(char c:s.toCharArray())if(o.isEmpty()||o.charAt(o.length()-1)!=c)o.append(c);System.out.println(o);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Only consecutive repeats are merged: the same letter appearing again later after a different character is kept.",
+        "You only ever need to compare the current character with the last character you kept, which is the top of a stack or the end of the output.",
+        "Append a character when the output is empty or its last character differs; spaces and punctuation form runs too, and uppercase and lowercase letters are different characters."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nStringBuilder o=new StringBuilder();for(char c:s.toCharArray())if(o.isEmpty()||o.charAt(o.length()-1)!=c)o.append(c);System.out.println(o);\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\nout = []\nfor ch in text:\n    if not out or out[-1] != ch:  # keep a character only when it starts a new run\n        out.append(ch)\nprint(''.join(out))\n"
+      }
     },
     {
       "id": "problem-parenthesis-depth",
@@ -9421,18 +9911,32 @@
           "input": "abcabcbb\n",
           "output": "0\n",
           "public": false
+        },
+        {
+          "input": ")(\n",
+          "output": "-1\n",
+          "public": false
+        },
+        {
+          "input": "((a)\n",
+          "output": "-1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Ignore non-parenthesis characters. Print maximum nesting depth, or -1 if parentheses are unbalanced.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Scan the characters with a counter for the current open depth. Each ( increments it and updates the best depth; each ) decrements it. If the counter ever goes negative, a closer has no matching opener, so the string is unbalanced and the answer is -1 immediately. After the scan, a non-zero counter means unmatched openers, which is also -1; otherwise print the best depth. A counter is enough because there is only one bracket type, so a stack would just store identical symbols. Time is O(n), space O(1). Edge cases: text with no parentheses prints 0, and a string like )( has a final count of zero but is still unbalanced.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nint d=0,best=0;for(char c:s.toCharArray()){if(c=='(')best=Math.max(best,++d);if(c==')'&&--d<0){System.out.println(-1);return;}}System.out.println(d==0?best:-1);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Only ( and ) matter; every other character is skipped. A string with no parentheses is balanced with depth 0.",
+        "You do not need an explicit stack: one counter for the current depth is enough, plus the maximum it ever reached.",
+        "Unbalanced has two forms: the depth drops below zero at some point (like a closer before its opener), or it ends above zero. Check both; a final count of zero alone is not enough."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nint d=0,best=0;for(char c:s.toCharArray()){if(c=='(')best=Math.max(best,++d);if(c==')'&&--d<0){System.out.println(-1);return;}}System.out.println(d==0?best:-1);\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\ndepth = best = 0\nbalanced = True\nfor ch in text:\n    if ch == \"(\":\n        depth += 1\n        best = max(best, depth)\n    elif ch == \")\":\n        depth -= 1\n        if depth < 0:\n            balanced = False  # a closer with no matching opener\n            break\nprint(best if balanced and depth == 0 else -1)\n"
+      }
     },
     {
       "id": "problem-longest-unique",
@@ -9495,18 +9999,32 @@
           "input": "abcabcbb\n",
           "output": "3\n",
           "public": false
+        },
+        {
+          "input": "abba\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "tmmzuxt\n",
+          "output": "5\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the length of the longest substring with no repeated characters.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Use a sliding window [left, right] that never contains a repeated character, plus a map from each character to the last index where it appeared. When extending right to a character whose last occurrence is inside the window, move left just past that occurrence; if the last occurrence is already left of the window, leave left alone. The invariant is that the window is always the longest duplicate-free substring ending at right, so the best window length seen is the answer. Each index is visited once, giving O(n) time and O(alphabet) space, versus O(n squared) or worse for checking every substring. Edge cases: abba (left must not move backwards), a string of one repeated character gives 1, and spaces are ordinary characters.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nMap<Character,Integer>last=new HashMap<>();int left=0,best=0;for(int i=0;i<s.length();i++){char c=s.charAt(i);left=Math.max(left,last.getOrDefault(c,-1)+1);last.put(c,i);best=Math.max(best,i-left+1);}System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A valid substring is a window with no repeated characters; when a repeat enters on the right, only the left edge needs to move.",
+        "Remember the last index where each character appeared. That tells you exactly where the window must start to exclude the earlier copy.",
+        "For each right end, set left to the larger of its current value and last-seen index plus one, then measure the window. Taking the larger value matters: in abba the old a must not pull left backwards."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nMap<Character,Integer>last=new HashMap<>();int left=0,best=0;for(int i=0;i<s.length();i++){char c=s.charAt(i);left=Math.max(left,last.getOrDefault(c,-1)+1);last.put(c,i);best=Math.max(best,i-left+1);}System.out.println(best);\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\nlast_seen = {}\nleft = best = 0\nfor right, char in enumerate(text):\n    # Jump the window start past the previous copy, but never move it backwards.\n    if char in last_seen and last_seen[char] >= left:\n        left = last_seen[char] + 1\n    last_seen[char] = right\n    best = max(best, right - left + 1)\nprint(best)\n"
+      }
     },
     {
       "id": "problem-palindrome-count",
@@ -9569,18 +10087,32 @@
           "input": "abcabcbb\n",
           "output": "10\n",
           "public": false
+        },
+        {
+          "input": "aaaa\n",
+          "output": "10\n",
+          "public": false
+        },
+        {
+          "input": "ab\n",
+          "output": "2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Count all nonempty palindromic substrings, counting equal text at different positions separately.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n²). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Expand around centres. There are 2n-1 centres: n single characters and n-1 gaps. For each, grow a window one step on each side while the end characters match, counting one palindrome per step. Each palindromic substring has exactly one centre and is reached by exactly one expansion, so nothing is counted twice or missed; the first mismatch ends that centre because any wider window contains it. Time is O(n^2) in the worst case (all-equal text) and space O(1). A DP table is[i][j] gives the same O(n^2) time with O(n^2) memory, and checking every substring is O(n^3). Edge cases: one character gives 1, all-equal text gives n(n+1)/2, and spaces count as characters.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nint count=0;for(int center=0;center<2*s.length()-1;center++){int l=center/2,r=l+center%2;while(l>=0&&r<s.length()&&s.charAt(l--)==s.charAt(r++))count++;}System.out.println(count);\n }\n}",
       "complexity": "O(n²)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Every palindrome has a centre: either a single character (odd length) or the gap between two characters (even length).",
+        "From each of the 2n-1 centres, expand outward while the two ends match. Every successful expansion is one more palindromic substring.",
+        "Stop expanding at the first mismatch, because a larger window around the same centre cannot be a palindrome. Count equal text at different positions separately: aaaa has 10."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nint count=0;for(int center=0;center<2*s.length()-1;center++){int l=center/2,r=l+center%2;while(l>=0&&r<s.length()&&s.charAt(l--)==s.charAt(r++))count++;}System.out.println(count);\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\nn = len(text)\ncount = 0\n# 2n-1 centres: even c is a single character, odd c is the gap between two.\nfor center in range(2 * n - 1):\n    left = center // 2\n    right = left + center % 2\n    while left >= 0 and right < n and text[left] == text[right]:\n        count += 1\n        left -= 1\n        right += 1\nprint(count)\n"
+      }
     },
     {
       "id": "problem-digit-total",
@@ -9642,18 +10174,32 @@
           "input": "abcabcbb\n",
           "output": "0\n",
           "public": false
+        },
+        {
+          "input": "9999999999\n",
+          "output": "90\n",
+          "public": false
+        },
+        {
+          "input": "-12.5e3 x0\n",
+          "output": "11\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the sum of decimal digits in the text; ignore all other characters.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Walk the characters once and keep a running total. For each character between 0 and 9 add its numeric value, which is its character code minus the code of 0; skip everything else. Invariant: after reading a prefix, total equals the sum of the digits in that prefix. This is O(n) time and O(1) space. The usual mistake is to parse whole numbers with a regular expression and add them, which turns 42 into 42 instead of 6, or to treat a minus sign as making the following digit negative; the statement only asks for decimal digits. Edge cases: no digits at all (print 0), a long run of 9s, and digits glued to signs or letters.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nint total=0;for(char c:s.toCharArray())if(c>='0'&&c<='9')total+=c-'0';System.out.println(total);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "You add individual digit characters, not numbers: the text 42 contributes 4 + 2 = 6, not 42.",
+        "Everything that is not one of the characters 0 to 9 is ignored, including minus signs, decimal points and letters.",
+        "Scan each character, and when it lies between 0 and 9 add its value (character code minus the code of 0) to a running total; text with no digits prints 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();\nint total=0;for(char c:s.toCharArray())if(c>='0'&&c<='9')total+=c-'0';System.out.println(total);\n }\n}",
+        "python": "import sys\n\ntext = sys.stdin.read().strip()\ntotal = 0\nfor ch in text:\n    if '0' <= ch <= '9':  # each digit counts on its own, so 42 adds 4 + 2\n        total += ord(ch) - ord('0')\nprint(total)\n"
+      }
     },
     {
       "id": "problem-fibonacci-station",
@@ -9894,18 +10440,32 @@
           "input": "15\n",
           "output": "4\n",
           "public": false
+        },
+        {
+          "input": "6\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "8\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given amount n (0 ≤ n ≤ 30), print the fewest coins needed using denominations 1, 3 and 4.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Use bottom-up dynamic programming. fewest[0] is 0, and for each amount a from 1 to n, fewest[a] is one more than the smallest fewest[a - c] over coins c in {1, 3, 4} with c no larger than a. This is correct because an optimal purse for a ends with some coin c, and removing it leaves an optimal purse for a - c. The greedy rule of always taking the largest coin is a tempting baseline but is wrong for this coin set, for example 6 and 7. Time is O(n times the number of coins) and space O(n). Edge cases: n = 0 prints 0, and the coin 1 guarantees every amount has an answer.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nint[]d=new int[n+1];for(int i=1;i<=n;i++){d[i]=i;for(int c:new int[]{1,3,4})if(c<=i)d[i]=Math.min(d[i],d[i-c]+1);}System.out.println(d[n]);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Greedy fails here: taking the largest coin first turns 6 into 4 + 1 + 1, but 3 + 3 uses only two coins.",
+        "Let fewest[a] be the minimum coins for amount a. The last coin used is 1, 3 or 4, so fewest[a] builds on a smaller amount.",
+        "Fill fewest from 0 upward with fewest[0] = 0 and fewest[a] = 1 + the minimum of fewest[a - c] over coins c that fit. Since 1 is a coin every amount is reachable, and n = 0 needs zero coins."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nint[]d=new int[n+1];for(int i=1;i<=n;i++){d[i]=i;for(int c:new int[]{1,3,4})if(c<=i)d[i]=Math.min(d[i],d[i-c]+1);}System.out.println(d[n]);\n }\n}",
+        "python": "import sys\n\nn = int(sys.stdin.read().strip())\ncoins = (1, 3, 4)\nfewest = [0] * (n + 1)\nfor amount in range(1, n + 1):\n    fewest[amount] = min(fewest[amount - c] + 1 for c in coins if c <= amount)\nprint(fewest[n])\n"
+      }
     },
     {
       "id": "problem-factorial-lock",
@@ -9967,18 +10527,32 @@
           "input": "15\n",
           "output": "1307674368000\n",
           "public": false
+        },
+        {
+          "input": "4\n",
+          "output": "24\n",
+          "public": false
+        },
+        {
+          "input": "14\n",
+          "output": "87178291200\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given n (0 ≤ n ≤ 15), print n factorial. Inputs for this problem never exceed 15.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Factorial follows the recurrence n! = n x (n-1)! with base case 0! = 1. Either recurse with that definition or, equivalently, keep a running product starting at 1 and multiply in 2, 3, ..., n. The invariant of the loop is that after multiplying by i the accumulator equals i!. Both take O(n) multiplications; the loop uses O(1) space while recursion uses O(n) stack frames, which is harmless for n at most 15. Edge cases: n = 0 and n = 1 both print 1 because the loop body never runs, and 15! = 1307674368000 exceeds the 32-bit range, so a 64-bit integer is required in Java or C++.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nlong out=1;for(int i=2;i<=n;i++)out*=i;System.out.println(out);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "n! is the product 1 x 2 x ... x n, and by definition 0! is 1.",
+        "The recursive definition n! = n x (n-1)! with base case 0! = 1 translates directly into a loop or a recursive call.",
+        "Start an accumulator at 1 and multiply by every integer from 2 to n. 15! is about 1.3 trillion, which overflows a 32-bit int, so use a 64-bit type in languages with fixed-width integers."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nlong out=1;for(int i=2;i<=n;i++)out*=i;System.out.println(out);\n }\n}",
+        "python": "import sys\n\nn = int(sys.stdin.read().strip())\nresult = 1\nfor i in range(2, n + 1):\n    result *= i\nprint(result)\n"
+      }
     },
     {
       "id": "problem-subset-count",
@@ -10040,18 +10614,32 @@
           "input": "15\n",
           "output": "32768\n",
           "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "1073741824\n",
+          "public": false
+        },
+        {
+          "input": "4\n",
+          "output": "16\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given n (0 ≤ n ≤ 30), print the number of subsets of n distinct objects, including the empty subset.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(1) for bounded integers. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Build a subset by deciding, for each of the n objects, whether to include it. Each decision has two outcomes and the decisions are independent, so there are 2 * 2 * ... * 2 = 2^n distinct subsets. The recursive view is count(n) = 2 * count(n-1) with count(0) = 1, since the empty collection has only the empty subset; every subset of n objects is a subset of the first n-1 with the last object added or not. A closed form or a bit shift computes it in O(1) time and space, while listing subsets would cost O(2^n). Edge cases: n = 0 prints 1, and n = 30 prints 1073741824, which needs a 64-bit type in Java.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nSystem.out.println(1L<<n);\n }\n}",
       "complexity": "O(1) for bounded integers",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Think about one object at a time: in any subset it is either included or left out.",
+        "Those choices are independent, so the number of subsets doubles with every object you add: count(n) = 2 * count(n-1).",
+        "The base case is count(0) = 1, because the empty set has exactly one subset, itself. The answer for n = 30 exceeds a 32-bit signed int only barely, so use a wide type in fixed-width languages."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nSystem.out.println(1L<<n);\n }\n}",
+        "python": "import sys\n\nn = int(sys.stdin.read().strip())\n# Each object is either in or out of a subset: two choices, n times.\nprint(2 ** n)\n"
+      }
     },
     {
       "id": "problem-binary-ones",
@@ -10113,18 +10701,32 @@
           "input": "15\n",
           "output": "4\n",
           "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "4\n",
+          "public": false
+        },
+        {
+          "input": "16\n",
+          "output": "1\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given a nonnegative integer n ≤ 30, count the set bits in its binary representation.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(number of set bits). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Use Kernighan's trick. Subtracting 1 from n flips its lowest set bit to 0 and every zero below it to 1, so n & (n - 1) is n with that lowest set bit removed and everything else unchanged. Repeating until n is 0 removes one set bit per step, so the number of steps is the answer. The loop runs once per set bit, at most 5 times for n <= 30, with O(1) space. The simpler baseline checks n & 1 and shifts right, which costs one step per bit position instead of per set bit. Edge cases: n = 0 (the loop never runs, print 0), powers of two (exactly 1), and 30, which is 11110 in binary with four set bits.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nint count=0,x=n;while(x!=0){x&=x-1;count++;}System.out.println(count);\n }\n}",
       "complexity": "O(number of set bits)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Count the 1s in the binary form of n, for example 10 is 1010 in binary and has two of them; 0 has none.",
+        "You can test the lowest bit with n & 1 and shift right, but there is a neater trick that jumps straight from one set bit to the next.",
+        "n & (n - 1) clears exactly the lowest set bit, so repeat it until n becomes 0 and count the steps; the loop runs once per 1 bit and not at all for 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nint count=0,x=n;while(x!=0){x&=x-1;count++;}System.out.println(count);\n }\n}",
+        "python": "import sys\n\nn = int(sys.stdin.read().strip())\ncount = 0\nwhile n:\n    n &= n - 1  # clears the lowest set bit\n    count += 1\nprint(count)\n"
+      }
     },
     {
       "id": "problem-triangular-total",
@@ -10186,18 +10788,32 @@
           "input": "15\n",
           "output": "120\n",
           "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "465\n",
+          "public": false
+        },
+        {
+          "input": "4\n",
+          "output": "10\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given n (0 ≤ n ≤ 30), print the sum of integers from 1 through n.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(1). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "The sum 1 + 2 + ... + n equals n(n + 1) / 2. Writing the sum forwards and backwards and adding term by term gives n copies of n + 1, which is twice the sum. Because n and n + 1 are consecutive, one of them is even, so the division is always exact and integer arithmetic is safe. A loop that adds each number is a correct O(n) baseline; the formula is O(1) time and space. Edge cases: n = 0 must print 0 (an empty sum), n = 1 prints 1, and the largest allowed n = 30 prints 465, far from any overflow concern.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nSystem.out.println((long)n*(n+1)/2);\n }\n}",
       "complexity": "O(1)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "You can add 1 + 2 + ... + n in a loop, but there is a closed formula that answers in constant time.",
+        "Pair the first and last terms: 1 + n, 2 + (n - 1), and so on. Every pair sums to n + 1.",
+        "There are n / 2 such pairs, giving n(n + 1) / 2. One of n and n + 1 is even, so integer division is exact, and n = 0 correctly gives 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nSystem.out.println((long)n*(n+1)/2);\n }\n}",
+        "python": "import sys\n\nn = int(sys.stdin.read().strip())\nprint(n * (n + 1) // 2)\n"
+      }
     },
     {
       "id": "problem-balanced-tree-nodes",
@@ -10259,18 +10875,32 @@
           "input": "15\n",
           "output": "32767\n",
           "public": false
+        },
+        {
+          "input": "30\n",
+          "output": "1073741823\n",
+          "public": false
+        },
+        {
+          "input": "4\n",
+          "output": "15\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Given height n (0 ≤ n ≤ 30), print the number of nodes in a perfect binary tree with n levels. Zero levels has zero nodes.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(1) for bounded integers. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "A perfect binary tree with n levels has 1 node on the first level, 2 on the second, and 2^(k) on level k counting from zero. The total 1 + 2 + ... + 2^(n-1) is a geometric series equal to 2^n - 1, which you can see by induction: adding a new full level of 2^n nodes to a tree of 2^n - 1 nodes gives 2^(n+1) - 1. Compute it with a left shift, (1 << n) - 1, in O(1) time and space; a recursive count of nodes(n) = 1 + 2 x nodes(n-1) is an O(n) alternative. Edge cases: n = 0 prints 0, n = 1 prints 1, and n = 30 prints 1073741823, which still fits in 32 bits but is safest computed with a 64-bit shift.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nSystem.out.println((1L<<n)-1);\n }\n}",
       "complexity": "O(1) for bounded integers",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "In a perfect binary tree every level is full, so level k (counting from 0) holds exactly 2^k nodes.",
+        "Add up the levels: 1 + 2 + 4 + ... + 2^(n-1) is a geometric series with a closed form.",
+        "The total is 2^n - 1, which a left shift computes directly. Check the boundaries: zero levels gives 0, and 30 levels gives 1073741823, close to the 32-bit limit."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();int n=Integer.parseInt(s);\nSystem.out.println((1L<<n)-1);\n }\n}",
+        "python": "import sys\n\nn = int(sys.stdin.read().strip())\nprint((1 << n) - 1)\n"
+      }
     },
     {
       "id": "problem-bst-inorder",
@@ -10427,18 +11057,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "12\n",
           "public": false
+        },
+        {
+          "input": "-10000 -9999 -10000\n",
+          "output": "-9999\n",
+          "public": false
+        },
+        {
+          "input": "10000 3 10000 -10000\n",
+          "output": "10000\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Insert all readings into a max heap. Print its root value.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Push every reading into a max heap and print the root. The heap property says each parent is at least as large as its children, and by chaining that from any node up to the top, the root is at least as large as every element, so it is the maximum. Each insertion sifts the new value up in O(log n), for O(n log n) total; heapify can build the heap in O(n). Space is O(n). A single linear scan for the maximum gives the same answer in O(n) with O(1) space, which is a good check. Edge cases: duplicates of the maximum still print one value, all-negative input prints the largest (closest to zero) reading, and a single reading is the root.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nPriorityQueue<Long>h=new PriorityQueue<>(Comparator.reverseOrder());for(long x:a)h.add(x);System.out.println(h.peek());\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "In a max heap every parent is at least as large as its children, so the root is the largest value present.",
+        "Insert each reading with sift-up. The heap property guarantees that after all insertions the root holds the maximum.",
+        "If your language only has a min heap, push negated values and negate the root when printing. With all-negative readings the root is the one closest to zero."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nPriorityQueue<Long>h=new PriorityQueue<>(Comparator.reverseOrder());for(long x:a)h.add(x);System.out.println(h.peek());\n }\n}",
+        "python": "import sys\nimport heapq\n\nvalues = list(map(int, sys.stdin.read().split()))\n# heapq is a min heap, so store negated values to get max-heap behaviour.\nheap = []\nfor x in values:\n    heapq.heappush(heap, -x)\nprint(-heap[0])\n"
+      }
     },
     {
       "id": "problem-tree-height",
@@ -10594,18 +11238,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "5\n",
           "public": false
+        },
+        {
+          "input": "-10000 10000 -9999\n",
+          "output": "2\n",
+          "public": false
+        },
+        {
+          "input": "3 3 2 2 1 1 5 -1 0\n",
+          "output": "5\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the longest run of consecutive distinct integer values, irrespective of input order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Put all values in a hash set, which removes duplicates and gives O(1) membership checks. A value x is the start of a run exactly when x - 1 is not in the set. From each start, walk upward through x + 1, x + 2, ... while the values exist and record the length. Every value is visited by at most one upward walk, the one from its own run start, so the total work is O(n) expected time with O(n) space. Sorting and counting consecutive distinct neighbours is a simpler O(n log n) alternative. Edge cases: duplicates such as 1 1 2 2 still give 2, a single value gives 1, and runs that cross zero into negative numbers work the same way.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSet<Long>set=new HashSet<>();for(long x:a)set.add(x);int best=0;for(long x:set)if(!set.contains(x-1)){int len=1;while(set.contains(x+len))len++;best=Math.max(best,len);}System.out.println(best);\n }\n}",
       "complexity": "O(n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Order in the input does not matter and duplicates add nothing, so think of the values as a set and look for the longest block x, x+1, x+2, ...",
+        "A run is easiest to measure from its smallest member: x starts a run exactly when x - 1 is not in the set.",
+        "For every x whose predecessor is missing, count upward while x + length is present and keep the maximum; starting only at run starts keeps the whole scan linear."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nSet<Long>set=new HashSet<>();for(long x:a)set.add(x);int best=0;for(long x:set)if(!set.contains(x-1)){int len=1;while(set.contains(x+len))len++;best=Math.max(best,len);}System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = set(int(token) for token in sys.stdin.read().split())\nbest = 0\nfor x in values:\n    if x - 1 not in values:  # x starts a run, so count it once from here\n        length = 1\n        while x + length in values:\n            length += 1\n        best = max(best, length)\nprint(best)\n"
+      }
     },
     {
       "id": "problem-minimum-gap",
@@ -10667,18 +11325,32 @@
           "input": "11 -6 -9 -1 -2 -2 -5 -6 12 8 -7 9 4 -8\n",
           "output": "0\n",
           "public": false
+        },
+        {
+          "input": "-10000 10000\n",
+          "output": "20000\n",
+          "public": false
+        },
+        {
+          "input": "10 -3 7 1\n",
+          "output": "3\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. Print the smallest absolute difference between different positions, or 0 for one value.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(n log n). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Sort the readings and take the smallest difference between consecutive sorted values. This is correct because for any sorted a <= b <= c, the gap c - a is at least both b - a and c - b, so a non-adjacent pair can never beat the adjacent pairs inside it. Comparing every pair is O(n^2); sorting brings it to O(n log n) time with O(n) space for the sorted copy. Edge cases: one value prints 0 by definition, duplicates at any positions give 0, the extreme pair -10000 and 10000 gives 20000, and the closest values may be far apart in the input.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nArrays.sort(a);long best=a.length<2?0:Long.MAX_VALUE;for(int i=1;i<a.length;i++)best=Math.min(best,a[i]-a[i-1]);System.out.println(best);\n }\n}",
       "complexity": "O(n log n)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Positions must be different, but their values may be equal, so duplicates give a gap of 0.",
+        "After sorting, the closest pair of values is always adjacent in the sorted order.",
+        "Sort, take the minimum difference between neighbours, and print 0 when there is only one value. The closest pair is often not adjacent in the original input."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nArrays.sort(a);long best=a.length<2?0:Long.MAX_VALUE;for(int i=1;i<a.length;i++)best=Math.min(best,a[i]-a[i-1]);System.out.println(best);\n }\n}",
+        "python": "import sys\n\nvalues = sorted(int(x) for x in sys.stdin.read().split())\nif len(values) < 2:\n    print(0)\nelse:\n    print(min(b - a for a, b in zip(values, values[1:])))\n"
+      }
     },
     {
       "id": "problem-distinct-windows",
@@ -11025,18 +11697,32 @@
           "input": "4 5 0 1 0 1 1 2 2 3 3 1\n",
           "output": "1\n",
           "public": false
+        },
+        {
+          "input": "5 3 1 1 3 3 3 3\n",
+          "output": "5\n",
+          "public": false
+        },
+        {
+          "input": "6 4 0 5 5 0 2 4 4 2\n",
+          "output": "4\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. The input begins n m, followed by m undirected edges u v. Print the number of connected components, including isolated vertices.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(V·E) simple DSU reference. Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Start with n components, one per vertex, and process edges with a disjoint-set union. For edge u v, find the root of each endpoint; if the roots differ, link one under the other and decrease the component count, otherwise the edge is redundant. The invariant is that after each edge the count equals the number of distinct roots, which is the number of connected components of the edges seen so far. With path compression and union by size this is nearly O(n + m) time and O(n) space. A BFS or DFS over an adjacency list is an equally valid O(n + m) alternative. Edge cases: m = 0 gives n, self loops and parallel edges never merge anything, and vertices with no edges are components on their own.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];int[]p=new int[n];for(int i=0;i<n;i++)p[i]=i;for(int i=2;i<a.length;i+=2){int u=(int)a[i],v=(int)a[i+1];while(p[u]!=u)u=p[u];while(p[v]!=v)v=p[v];p[u]=v;}Set<Integer>roots=new HashSet<>();for(int i=0;i<n;i++){int v=i;while(p[v]!=v)v=p[v];roots.add(v);}System.out.println(roots.size());\n }\n}",
       "complexity": "O(V·E) simple DSU reference",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Every vertex starts as its own group, and each edge can merge at most two groups into one. Isolated vertices still count.",
+        "A disjoint-set union (union-find) tracks which group each vertex belongs to via a representative root.",
+        "Start with n components; for each edge, find both roots and, only if they differ, union them and subtract one. Self loops and parallel edges join a vertex to its own group, so they must not decrease the count."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];int[]p=new int[n];for(int i=0;i<n;i++)p[i]=i;for(int i=2;i<a.length;i+=2){int u=(int)a[i],v=(int)a[i+1];while(p[u]!=u)u=p[u];while(p[v]!=v)v=p[v];p[u]=v;}Set<Integer>roots=new HashSet<>();for(int i=0;i<n;i++){int v=i;while(p[v]!=v)v=p[v];roots.add(v);}System.out.println(roots.size());\n }\n}",
+        "python": "import sys\n\nnumbers = [int(token) for token in sys.stdin.read().split()]\nn = numbers[0]\nparent = list(range(n))\n\n\ndef find(v):\n    while parent[v] != v:\n        parent[v] = parent[parent[v]]  # path halving keeps trees shallow\n        v = parent[v]\n    return v\n\n\ncomponents = n\nfor i in range(2, len(numbers), 2):\n    root_u, root_v = find(numbers[i]), find(numbers[i + 1])\n    if root_u != root_v:\n        parent[root_u] = root_v\n        components -= 1\nprint(components)\n"
+      }
     },
     {
       "id": "problem-incoming-links",
@@ -11098,18 +11784,32 @@
           "input": "4 5 0 1 0 1 1 2 2 3 3 1\n",
           "output": "0 3 1 1\n",
           "public": false
+        },
+        {
+          "input": "1 3 0 0 0 0 0 0\n",
+          "output": "3\n",
+          "public": false
+        },
+        {
+          "input": "6 2 0 5 0 5\n",
+          "output": "0 0 0 0 0 2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. The input begins n m, followed by m directed edges u v. Print each vertex’s indegree in vertex order. Parallel edges count separately.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(V + E). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Keep a counter array of size n initialised to zero. For each of the m edges u v, increment the counter at v. After all edges, counter[v] equals the number of edges whose target is v, which is the definition of indegree, so print the array in vertex order. Each edge is processed once, so time is O(n + m) and space is O(n). Building an adjacency list and then counting would work too but is unnecessary. Edge cases: m = 0 prints n zeros, parallel edges count separately, a self loop counts toward its own vertex, and isolated vertices in a disconnected graph still appear as 0.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint[]d=new int[(int)a[0]];for(int i=3;i<a.length;i+=2)d[(int)a[i]]++;for(int x:d)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(V + E)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "The indegree of a vertex is the number of edges that end at it; where the edge starts does not matter.",
+        "Make an array of n zeros and add one to the entry of the target v for every edge u v. There is no need to build an adjacency list.",
+        "Parallel edges each add one, and a self loop u u adds one to u. Vertices that no edge touches must still be printed as 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint[]d=new int[(int)a[0]];for(int i=3;i<a.length;i+=2)d[(int)a[i]]++;for(int x:d)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nnumbers = list(map(int, sys.stdin.read().split()))\nn, m = numbers[0], numbers[1]\nindegree = [0] * n\nfor i in range(m):\n    target = numbers[3 + 2 * i]  # edge i is (numbers[2+2i], numbers[3+2i])\n    indegree[target] += 1\nprint(' '.join(map(str, indegree)))\n"
+      }
     },
     {
       "id": "problem-dependency-order",
@@ -11172,18 +11872,32 @@
           "input": "4 5 0 1 0 1 1 2 2 3 3 1\n",
           "output": "CYCLE\n",
           "public": false
+        },
+        {
+          "input": "4 1 3 0\n",
+          "output": "1 2 3 0\n",
+          "public": false
+        },
+        {
+          "input": "2 1 1 1\n",
+          "output": "CYCLE\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. The input begins n m, followed by m directed dependencies u v (u before v). Print the lexicographically smallest topological order, or CYCLE if no ordering exists.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O((V + E) log V). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Use Kahn's algorithm with a min-priority queue. Count in-degrees, put every vertex with in-degree 0 in a min-heap, then repeatedly remove the smallest, append it to the order and decrement the in-degree of each successor, pushing those that reach 0. Greedy choice is safe: the smallest ready vertex can go first in some valid order, and putting any larger vertex first would make the sequence lexicographically bigger. If the order ends with fewer than n vertices, the rest lie on or behind a cycle, so print CYCLE. Time is O((n + m) log n) and space O(n + m). Edge cases: isolated vertices, parallel edges (each adds to the in-degree), and self loops, which always mean CYCLE.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];List<List<Integer>>g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int i=2;i<a.length;i+=2)g.get((int)a[i]).add((int)a[i+1]);int[]d=new int[n];for(var row:g)for(int v:row)d[v]++;PriorityQueue<Integer>q=new PriorityQueue<>();for(int i=0;i<n;i++)if(d[i]==0)q.add(i);List<Integer>order=new ArrayList<>();while(!q.isEmpty()){int u=q.remove();order.add(u);for(int v:g.get(u))if(--d[v]==0)q.add(v);}if(order.size()!=n)System.out.println(\"CYCLE\");else for(int v:order)System.out.print(v+\" \");\n }\n}",
       "complexity": "O((V + E) log V)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "A vertex may be printed only after everything that must come before it; if some vertices can never become free, there is a cycle and the answer is CYCLE.",
+        "Track each vertex's in-degree, the number of unprinted prerequisites. Vertices with in-degree 0 are ready, and to be lexicographically smallest you must always print the smallest ready vertex.",
+        "Run Kahn's algorithm with a min-heap: pop the smallest ready vertex, decrement its successors (once per parallel edge) and push any that reach 0. A self loop never reaches 0, so fewer than n printed vertices means CYCLE."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint n=(int)a[0];List<List<Integer>>g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int i=2;i<a.length;i+=2)g.get((int)a[i]).add((int)a[i+1]);int[]d=new int[n];for(var row:g)for(int v:row)d[v]++;PriorityQueue<Integer>q=new PriorityQueue<>();for(int i=0;i<n;i++)if(d[i]==0)q.add(i);List<Integer>order=new ArrayList<>();while(!q.isEmpty()){int u=q.remove();order.add(u);for(int v:g.get(u))if(--d[v]==0)q.add(v);}if(order.size()!=n)System.out.println(\"CYCLE\");else for(int v:order)System.out.print(v+\" \");\n }\n}",
+        "python": "import sys\nimport heapq\n\nnumbers = [int(token) for token in sys.stdin.read().split()]\nn = numbers[0]\ngraph = [[] for _ in range(n)]\nindegree = [0] * n\nfor i in range(2, len(numbers), 2):\n    u, v = numbers[i], numbers[i + 1]\n    graph[u].append(v)  # parallel edges are kept, so they are also removed one at a time\n    indegree[v] += 1\n\nready = [v for v in range(n) if indegree[v] == 0]\nheapq.heapify(ready)\norder = []\nwhile ready:\n    u = heapq.heappop(ready)  # always take the smallest available vertex\n    order.append(u)\n    for v in graph[u]:\n        indegree[v] -= 1\n        if indegree[v] == 0:\n            heapq.heappush(ready, v)\n\nif len(order) != n:\n    print('CYCLE')\nelse:\n    print(' '.join(str(v) for v in order))\n"
+      }
     },
     {
       "id": "problem-outgoing-links",
@@ -11245,18 +11959,32 @@
           "input": "4 5 0 1 0 1 1 2 2 3 3 1\n",
           "output": "2 1 1 1\n",
           "public": false
+        },
+        {
+          "input": "4 3 1 1 1 1 1 0\n",
+          "output": "0 3 0 0\n",
+          "public": false
+        },
+        {
+          "input": "1 2 0 0 0 0\n",
+          "output": "2\n",
+          "public": false
         }
       ],
       "published": true,
-      "editorial": "Identify the state needed by the requested operation. The input begins n m, followed by m directed edges u v. Print each vertex’s outdegree in vertex order.\n\nThe reference solution below handles the boundary cases explicitly. Its time complexity is O(V + E). Compare the example output with your own before submitting. For selection, sorting is a simple baseline; randomized Quickselect can avoid sorting every position. For stack problems, remember that each index need only enter and leave the stack once.",
+      "editorial": "Create an array of n zeros. For each directed edge u v, increment the counter for u. Then print the counters in vertex order. This is correct because the outdegree of a vertex is by definition the number of edges whose source is that vertex, and every edge is visited once. Building a full adjacency list first and taking list sizes also works but uses more memory than needed. Time is O(n + m) and space O(n). Edge cases: m = 0 prints all zeros, a self loop u u counts once toward u, parallel edges are each counted, and vertices with no outgoing edges still appear in the output.",
       "reference": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint[]d=new int[(int)a[0]];for(int i=2;i<a.length;i+=2)d[(int)a[i]]++;for(int x:d)System.out.print(x+\" \");\n }\n}",
       "complexity": "O(V + E)",
       "hints": [
-        "Write down the result for a one-element input.",
-        "Identify whether you need order, counts, or a running state.",
-        "Use the invariant from the related notebook and test repeated or negative values."
+        "Outdegree counts edges leaving a vertex, so for each edge u v only u matters.",
+        "One counter per vertex is enough: no adjacency list is needed to answer this question.",
+        "Read n, skip m, then step through the edge pairs adding one to the source counter. Self loops count once for their vertex, parallel edges count every time, and isolated vertices print 0."
       ],
-      "externalUrl": ""
+      "externalUrl": "",
+      "references": {
+        "java": "import java.util.*;\npublic class Main {\n\n public static void main(String[] args) throws Exception {\nString s=new String(System.in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).strip();long[] a=Arrays.stream(s.split(\"\\\\s+\")).mapToLong(Long::parseLong).toArray();\nint[]d=new int[(int)a[0]];for(int i=2;i<a.length;i+=2)d[(int)a[i]]++;for(int x:d)System.out.print(x+\" \");\n }\n}",
+        "python": "import sys\n\nnumbers = [int(x) for x in sys.stdin.read().split()]\nn = numbers[0]\noutdegree = [0] * n\n# edges start at index 2 and come in (u, v) pairs; only the source u matters\nfor u in numbers[2::2]:\n    outdegree[u] += 1\nprint(\" \".join(map(str, outdegree)))\n"
+      }
     }
   ],
   "paths": [
