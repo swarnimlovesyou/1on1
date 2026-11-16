@@ -6,6 +6,7 @@ import "monaco-editor/esm/vs/basic-languages/python/python.contribution";
 import "monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution";
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import { useApp } from "../context";
+import { editorTheme } from "./editorTheme";
 self.MonacoEnvironment = { getWorker: () => new EditorWorker() };
 loader.config({ monaco });
 export default function CodeEditor({
@@ -18,18 +19,36 @@ export default function CodeEditor({
   language: string;
 }) {
   const { theme } = useApp();
-  const dark =
-    theme === "dark" ||
-    (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+  const name = editorTheme(
+    theme,
+    matchMedia("(prefers-color-scheme: dark)").matches,
+  );
   useEffect(() => {
-    monaco.editor.defineTheme("1on1-light", {
+    // the page's CSS variables don't reach Monaco, so the paper and night palettes are repeated here
+    monaco.editor.defineTheme("1on1-paper", {
       base: "vs",
       inherit: true,
       rules: [],
       colors: {
-        "editor.background": "#ffffff",
-        "editorLineNumber.foreground": "#a3abba",
-        "editor.lineHighlightBackground": "#f3f5fa",
+        "editor.background": "#FFFFFF",
+        "editor.foreground": "#1F2430",
+        "editorLineNumber.foreground": "#9A9DA6",
+        "editor.lineHighlightBackground": "#F6F4EE",
+        "editorCursor.foreground": "#2F4A6E",
+        "editor.selectionBackground": "#D5DEEA",
+      },
+    });
+    monaco.editor.defineTheme("1on1-night", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [],
+      colors: {
+        "editor.background": "#1E2024",
+        "editor.foreground": "#ECE8DF",
+        "editorLineNumber.foreground": "#6E6B65",
+        "editor.lineHighlightBackground": "#25282D",
+        "editorCursor.foreground": "#A9BEDC",
+        "editor.selectionBackground": "#34404F",
       },
     });
   }, []);
@@ -39,7 +58,7 @@ export default function CodeEditor({
       language={language === "cpp" ? "cpp" : language}
       value={value}
       onChange={(v) => onChange(v ?? "")}
-      theme={dark ? "vs-dark" : "1on1-light"}
+      theme={name}
       loading={
         <textarea
           aria-label="Code editor loading"
