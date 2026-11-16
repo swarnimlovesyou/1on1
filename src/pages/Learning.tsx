@@ -665,7 +665,32 @@ export function NotebookPage() {
                   <li key={objective}>{objective}</li>
                 ))}
               </ul>
-              {!!l.teaching.prerequisites.length && (
+              {!!l.teaching.prerequisites.length && l.prerequisiteNotes ? (
+                <>
+                  <h3>Recommended first</h3>
+                  <ul className="prerequisite-notes">
+                    {l.teaching.prerequisites.map((cid) => {
+                      const concept = curriculum.data?.concepts.find(
+                        (c) => c.id === cid,
+                      );
+                      return (
+                        <li key={cid}>
+                          {concept ? (
+                            <Link to={"/learn/" + concept.lessonIds[0]}>
+                              {concept.title}
+                            </Link>
+                          ) : (
+                            cid.replace("concept-", "").replaceAll("-", " ")
+                          )}
+                          {l.prerequisiteNotes?.[cid] && (
+                            <span>: {l.prerequisiteNotes[cid]}</span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              ) : !!l.teaching.prerequisites.length && (
                 <p>
                   Recommended first:{" "}
                   {l.teaching.prerequisites.map((cid, index) => {
