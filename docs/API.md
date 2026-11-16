@@ -72,7 +72,7 @@ Source/fixtures/receipt tokens/results/deadline are persisted before/after runne
 
 ## Gemini boundary
 
-- POST `/tutor`: `{message,mode:"visualize",lesson?,experiment?,step?,code?,submission?,history?}`. Returns `{text,scene}` after schema/business validation.
+- POST `/tutor`: `{message,mode:"visualize",lesson?,experiment?,step?,code?,submission?,history?,level?}`. `level` 1–4 asks for graduated help: one focused question, then the relevant concept or failing example, then a targeted hint naming the step, then a fragment of at most six lines. A full solution comes only when explicitly requested. Out-of-range levels are rejected. Returns `{text,scene}` after schema/business validation.
 - POST `/tutor/stream`: same context with normal explanation mode. Returns SSE events `token` (`{text}`), `done` (`{ok:true}`), or `error` (`{message}`). Text tokens are provider-generated, not an artificial playback of a complete answer.
 
 Message length is capped at 8000; code fragments at 20000; recent conversation at eight bounded messages. A selected experiment is recomputed by Java before its step is included. Lesson context must be public; submission context must belong to the requester. Hidden input/expected data is never included.
