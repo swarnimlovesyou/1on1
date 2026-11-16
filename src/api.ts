@@ -111,3 +111,23 @@ export function download(name: string, value: unknown) {
   a.click();
   URL.revokeObjectURL(a.href);
 }
+/** A file upload (multipart) with the same session, CSRF and error handling as api(). */
+export async function upload<T>(path: string, file: File): Promise<T> {
+  if (!csrf) await api("/auth/session");
+  const body = new FormData();
+  body.append("file", file);
+  const r = await fetch("/api/v1" + path, {
+    method: "POST",
+    credentials: "include",
+    headers: csrf ? { "X-CSRF-TOKEN": csrf } : {},
+    body,
+  });
+  const data = await r.json().catch(() => ({
+    message: "The server could not be reached. Check the connection and retry.",
+  }));
+  if (!r.ok) {
+    if (r.status === 403) csrf = "";
+    throw new ApiError(data.message ?? "The upload could not be completed.", r.status);
+  }
+  return data;
+}

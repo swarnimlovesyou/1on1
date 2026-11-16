@@ -347,3 +347,40 @@ export const emptyProgress: Progress = {
   drafts: [],
   submissions: [],
 };
+
+export interface NotebookSource {
+  id: string;
+  title: string;
+  fileName: string;
+  pages: number;
+  bytes: number;
+  createdAt: string;
+}
+export interface NotebookPassage {
+  sourceId: string;
+  title: string;
+  page: number;
+  text: string;
+  score: number;
+  n?: number;
+}
+export interface NotebookAnswer {
+  /** true: cited answer; false: the sources don't say; null: passages only (no model). */
+  answered: boolean | null;
+  text: string;
+  citations: NotebookPassage[];
+  passages: NotebookPassage[];
+  method: "model" | "search";
+}
+export interface RevisionCard {
+  id: string;
+  sourceId: string | null;
+  sourceTitle: string | null;
+  page: number | null;
+  front: string;
+  back: string;
+  draftedBy: "model" | "text";
+  recall: "again" | "hard" | "good" | "easy" | null;
+  recalledAt: string | null;
+  updatedAt: string;
+}
