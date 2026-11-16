@@ -28,7 +28,8 @@ class LearningEvidenceTest {
     );
     for (String migration : List.of(
       "V1__initial.sql",
-      "V2__learning_evidence.sql"
+      "V2__learning_evidence.sql",
+      "V3__review_evidence.sql"
     )) {
       var source = new String(
         getClass()

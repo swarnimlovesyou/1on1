@@ -105,7 +105,12 @@ public final class Contracts {
     List<String> lines
   ) {}
 
-  public record AttemptRequest(Object answer, String requestId) {}
+  /** hintUsed: the learner opened the hint before answering (optional; a success after a miss is also hinted). */
+  public record AttemptRequest(Object answer, String requestId, Boolean hintUsed) {
+    public AttemptRequest(Object answer, String requestId) {
+      this(answer, requestId, null);
+    }
+  }
 
   public record AttemptResult(
     String id,

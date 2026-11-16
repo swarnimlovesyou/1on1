@@ -192,7 +192,7 @@ public class ChallengeService {
     String id = UUID.randomUUID().toString();
     if (user != null) {
       int inserted = store.db.update(
-        "insert into challenge_attempts(id,member_id,request_id,challenge_id,lesson_id,kind,answer_json,correct,feedback) values(?,?,?,?,?,?,?,?,?) on conflict do nothing",
+        "insert into challenge_attempts(id,member_id,request_id,challenge_id,lesson_id,kind,answer_json,correct,feedback,hint_used) values(?,?,?,?,?,?,?,?,?,?) on conflict do nothing",
         id,
         user,
         request.requestId(),
@@ -201,7 +201,8 @@ public class ChallengeService {
         kind,
         answerJson,
         correct,
-        feedback
+        feedback,
+        Boolean.TRUE.equals(request.hintUsed())
       );
       if (inserted == 0) {
         var row = store.db.queryForMap(
