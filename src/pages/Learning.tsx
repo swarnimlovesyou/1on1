@@ -39,6 +39,7 @@ import {
 import Experiment from "../components/Experiment";
 import Tutor from "../components/Tutor";
 import ChallengeCard from "../components/ChallengeCard";
+import { ConceptMap, NextActionCard, ReviewsDue, useLearningMap } from "./LearningMap";
 const sampleScene: Scene = {
   algorithm: "sliding-window",
   input: "2, 1, 5, 1, 3, 2",
@@ -172,6 +173,7 @@ export function Landing() {
 export function Home() {
   const { user, progress } = useApp();
   const lessons = useLessons();
+  const map = useLearningMap();
   const paths = useQuery({
     queryKey: ["paths"],
     queryFn: () => api<Path[]>("/paths"),
@@ -197,6 +199,12 @@ export function Home() {
           <br /> Just find the next thing that clicks.
         </p>
       </div>
+      {map.data && (
+        <div className="home-next">
+          <NextActionCard action={map.data.nextAction} />
+          <ReviewsDue />
+        </div>
+      )}
       <section className="continue-section">
         <div className="continue-copy">
           <h2>{current?.title}</h2>
@@ -369,7 +377,7 @@ export function Library() {
       />
       <div className="library-toolbar">
         <div className="tabs">
-          {["All concepts", "Learning paths", "Saved for later"].map((t) => (
+          {["All concepts", "Concept map", "Learning paths", "Saved for later"].map((t) => (
             <button
               key={t}
               className={tab === t ? "active" : ""}
@@ -395,7 +403,9 @@ export function Library() {
           />
         </div>
       </div>
-      {tab === "Learning paths" ? (
+      {tab === "Concept map" ? (
+        <ConceptMap />
+      ) : tab === "Learning paths" ? (
         <div className="learning-paths">
           {paths.data?.map((p, i) => (
             <Link
