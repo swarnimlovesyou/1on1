@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { clock, timeUsed, useCountdown, useIntegritySignals } from "./mockTime";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle, Circle, Timer } from "@phosphor-icons/react";
@@ -6,21 +7,6 @@ import { api } from "../../api";
 import type { MockView } from "../../types";
 import { useApp } from "../../context";
 import { Loading, ErrorState } from "../../components/Shared";
-
-export function clock(seconds: number) {
-  const s = Math.max(0, Math.floor(seconds));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
-
-/** Counts down from the server's deadline; the server, not this clock, decides what counts. */
-export function useCountdown(deadline?: string) {
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return deadline ? Math.max(0, (new Date(deadline).getTime() - now) / 1000) : 0;
-}
 
 /** Timed assessments over 1on1's own judged problems. */
 export default function MockOA() {
@@ -42,24 +28,17 @@ export default function MockOA() {
     onError: (e) => notify(e.message),
   });
   const active = mocks.data?.find((m) => !m.finished);
-  const remaining = useCountdown(active?.deadline);
+  const remaining = useCountdown(active?.remainingSeconds, mocks.dataUpdatedAt);
   const finish = useMutation({
     mutationFn: (id: string) => api<MockView>(`/mocks/${id}/finish`, {}),
     onSuccess: refresh,
+    // a failed auto-finish refetches, so the server's own deadline decides what the page shows next
+    onError: refresh,
   });
   // integrity signals are counts the learner can see in the report; they are not proctoring
-  useEffect(() => {
-    if (!active) return;
-    const report = (kind: string) => api(`/mocks/${active.id}/signals`, { kind }).catch(() => {});
-    const onHidden = () => document.visibilityState === "hidden" && report("tab");
-    const onFullscreen = () => !document.fullscreenElement && report("fullscreen");
-    document.addEventListener("visibilitychange", onHidden);
-    document.addEventListener("fullscreenchange", onFullscreen);
-    return () => {
-      document.removeEventListener("visibilitychange", onHidden);
-      document.removeEventListener("fullscreenchange", onFullscreen);
-    };
-  }, [active?.id]);
+  useIntegritySignals(active?.id, (kind) => {
+    if (active) api(`/mocks/${active.id}/signals`, { kind }).catch(() => {});
+  });
   useEffect(() => {
     if (active && remaining <= 0 && !finish.isPending) finish.mutate(active.id);
   }, [active?.id, remaining <= 0]);
@@ -148,7 +127,7 @@ export default function MockOA() {
                 {m.score} of {m.problems.length} solved
               </strong>
               <span className="muted">
-                {m.style === "mixed" ? "Mixed" : m.style + " style"} · {m.minutes} min ·{" "}
+                {m.style === "mixed" ? "Mixed" : m.style + " style"} · Time used {timeUsed(m)} of {m.minutes} min ·{" "}
                 {new Date(m.startedAt).toLocaleString()}
               </span>
               <ul>

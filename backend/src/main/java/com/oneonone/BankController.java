@@ -27,6 +27,11 @@ public class BankController {
     return bank.search(q, source, difficulty, topic, company, page, size);
   }
 
+  @GetMapping("/topics")
+  public List<String> topics() {
+    return bank.topics();
+  }
+
   @GetMapping("/companies")
   public List<Map<String, Object>> companies() {
     return bank.companies();

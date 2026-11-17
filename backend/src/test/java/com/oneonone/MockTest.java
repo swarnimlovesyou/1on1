@@ -105,6 +105,23 @@ class MockTest {
   }
 
   @Test
+  void problemsOutsideTheMockNeverCountTowardsItsScore() {
+    var view = mocks.start(U, 2, 60, "mixed");
+    String id = view.get("id").toString();
+    var chosen = problems(view).stream().map(p -> p.get("id").toString()).toList();
+    String other = store.list("problem", "public").stream().map(p -> p.get("id").toString()).filter(p -> !chosen.contains(p)).findFirst().orElseThrow();
+    submit(other, "ACCEPTED", true, Instant.now());
+    assertEquals(0, ((Number) mocks.view(U, id).get("score")).intValue());
+  }
+
+  @Test
+  void mocksAreReadOnlyThroughTheirOwnKind() {
+    store.put("submission-x", "submission", U, Map.of("problem", "p", "official", true, "status", "ACCEPTED", "createdAt", Instant.now().toString()));
+    var error = assertThrows(ResponseStatusException.class, () -> mocks.view(U, "submission-x"));
+    assertEquals(404, error.getStatusCode().value());
+  }
+
+  @Test
   void anotherLearnersAttemptIsNotFound() {
     String id = mocks.start(U, 2, 60, "mixed").get("id").toString();
     var error = assertThrows(ResponseStatusException.class, () -> mocks.view("someone-else", id));

@@ -29,7 +29,19 @@ public class BankService {
     return external;
   }
 
+  private volatile List<Map<String, Object>> ownCache;
+  private volatile long ownLoadedAt;
+
   List<Map<String, Object>> own() {
+    // shortcut: a 60 s cache, so an admin's edit appears within a minute; invalidate on save if that matters
+    if (ownCache == null || System.currentTimeMillis() - ownLoadedAt > 60_000) {
+      ownCache = loadOwn();
+      ownLoadedAt = System.currentTimeMillis();
+    }
+    return ownCache;
+  }
+
+  List<Map<String, Object>> loadOwn() {
     return store.list("problem", "public").stream()
       .filter(p -> !Boolean.FALSE.equals(p.get("published")))
       .sorted(Comparator.comparingInt(p -> ((Number) p.getOrDefault("order", 999)).intValue()))
@@ -53,13 +65,16 @@ public class BankService {
   }
 
   static int companyCount(Map<String, Object> r, String company) {
-    return r.get("companies") instanceof Map<?, ?> m && m.get(company) instanceof Number n ? n.intValue() : 0;
+    if (!(r.get("companies") instanceof Map<?, ?> m)) return 0;
+    for (var e : m.entrySet()) if (e.getKey().toString().equalsIgnoreCase(company) && e.getValue() instanceof Number n) return n.intValue();
+    return 0;
   }
 
   public Map<String, Object> search(String q, String source, String difficulty, String topic, String company, int page, int size) {
     int pageSize = Math.max(1, Math.min(100, size));
+    String needle = has(q) ? q.strip().toLowerCase(Locale.ROOT) : "";
     var rows = Stream.concat(own().stream(), external().stream())
-      .filter(r -> !has(q) || r.get("title").toString().toLowerCase(Locale.ROOT).contains(q.strip().toLowerCase(Locale.ROOT)))
+      .filter(r -> needle.isEmpty() || r.get("title").toString().toLowerCase(Locale.ROOT).contains(needle))
       .filter(r -> !has(source) || source.equalsIgnoreCase(String.valueOf(r.get("source"))))
       .filter(r -> !has(difficulty) || difficulty.equalsIgnoreCase(String.valueOf(r.get("difficulty"))))
       .filter(r -> !has(topic) || Store.strings(r.get("tags")).stream().anyMatch(topic::equalsIgnoreCase))
@@ -82,6 +97,16 @@ public class BankService {
       .sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
       .map(e -> Map.<String, Object>of("name", e.getKey(), "count", e.getValue()))
       .toList();
+  }
+
+  /** Every tag in the bank, 1on1 topics first, for the topic filter. */
+  public List<String> topics() {
+    var out = new LinkedHashSet<String>();
+    for (var r : own()) out.addAll(Store.strings(r.get("tags")));
+    var external = new TreeSet<String>();
+    for (var r : external()) external.addAll(Store.strings(r.get("tags")));
+    out.addAll(external);
+    return List.copyOf(out);
   }
 
   /** How many of a company's reported questions are Easy, Medium and Hard; the mock OA mirrors this mix. */

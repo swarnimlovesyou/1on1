@@ -52,7 +52,8 @@ public class MockService {
     };
   }
 
-  public Map<String, Object> start(String user, int size, int minutes, String style) {
+  // start, finish and signal read-modify-write one document; serialising them stops a signal undoing a finish
+  public synchronized Map<String, Object> start(String user, int size, int minutes, String style) {
     if (size != 2 && size != 3) throw new IllegalArgumentException("Choose 2 or 3 problems.");
     if (minutes != 60 && minutes != 90) throw new IllegalArgumentException("Choose 60 or 90 minutes.");
     String chosenStyle = style == null || style.isBlank() ? "mixed" : style.strip();
@@ -95,14 +96,24 @@ public class MockService {
     return doc.get("finishedAt") != null || !now.isBefore(Instant.parse(doc.get("deadline").toString()));
   }
 
+  Map<String, Object> mock(String user, String id) {
+    if (!id.startsWith("mock-")) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    return s.owned(id, user);
+  }
+
   public Map<String, Object> view(String user, String id) {
-    var doc = s.owned(id, user);
+    return view(user, id, s.list("submission", user));
+  }
+
+  Map<String, Object> view(String user, String id, List<Map<String, Object>> submissions) {
+    var doc = mock(user, id);
+    var chosen = Set.copyOf(Store.strings(doc.get("problems")));
     Instant now = Instant.now(), start = Instant.parse(doc.get("startedAt").toString()), deadline = Instant.parse(doc.get("deadline").toString());
     Instant end = doc.get("finishedAt") == null ? deadline : Instant.parse(doc.get("finishedAt").toString());
     if (end.isAfter(deadline)) end = deadline;
     Map<String, Instant> acceptedAt = new HashMap<>();
-    for (var sub : s.list("submission", user)) {
-      if (!Boolean.TRUE.equals(sub.get("official")) || !"ACCEPTED".equals(sub.get("status"))) continue;
+    for (var sub : submissions) {
+      if (!chosen.contains(Store.text(sub, "problem", "")) || !Boolean.TRUE.equals(sub.get("official")) || !"ACCEPTED".equals(sub.get("status"))) continue;
       Instant at = Instant.parse(Store.text(sub, "createdAt", "1970-01-01T00:00:00Z"));
       if (at.isBefore(start) || at.isAfter(end)) continue;
       acceptedAt.merge(Store.text(sub, "problem", ""), at, (a, b) -> a.isBefore(b) ? a : b);
@@ -134,8 +145,8 @@ public class MockService {
     return out;
   }
 
-  public Map<String, Object> finish(String user, String id) {
-    var doc = new LinkedHashMap<>(s.owned(id, user));
+  public synchronized Map<String, Object> finish(String user, String id) {
+    var doc = new LinkedHashMap<>(mock(user, id));
     if (doc.get("finishedAt") == null) {
       Instant now = Instant.now(), deadline = Instant.parse(doc.get("deadline").toString());
       doc.put("finishedAt", (now.isAfter(deadline) ? deadline : now).toString());
@@ -144,13 +155,13 @@ public class MockService {
     return view(user, id);
   }
 
-  public Map<String, Object> signal(String user, String id, String kind) {
+  public synchronized Map<String, Object> signal(String user, String id, String kind) {
     String key = switch (kind) {
       case "tab" -> "tabSwitches";
       case "fullscreen" -> "fullscreenExits";
       default -> throw new IllegalArgumentException("Report tab or fullscreen.");
     };
-    var doc = new LinkedHashMap<>(s.owned(id, user));
+    var doc = new LinkedHashMap<>(mock(user, id));
     if (!finished(doc, Instant.now())) {
       var signals = new LinkedHashMap<String, Object>((Map<String, Object>) doc.get("signals"));
       signals.merge(key, 1, (a, b) -> ((Number) a).intValue() + 1);
@@ -161,9 +172,10 @@ public class MockService {
   }
 
   public List<Map<String, Object>> list(String user) {
+    var submissions = s.list("submission", user);
     return s.list("mock", user).stream()
       .sorted(Comparator.comparing((Map<String, Object> d) -> Instant.parse(d.get("startedAt").toString())).reversed())
-      .map(d -> view(user, d.get("id").toString()))
+      .map(d -> view(user, d.get("id").toString(), submissions))
       .toList();
   }
 }

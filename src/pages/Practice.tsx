@@ -1,6 +1,7 @@
 import QuestionBank from "./practice/QuestionBank";
 import Companies from "./practice/Companies";
-import MockOA, { clock, useCountdown } from "./practice/MockOA";
+import MockOA from "./practice/MockOA";
+import { clock, useCountdown, useIntegritySignals } from "./practice/mockTime";
 import type { MockView } from "../types";
 import FamilyMark from "../components/FamilyMark";
 import { familyOfProblem, familyStyle } from "../families";
@@ -225,10 +226,15 @@ export function Practice() {
 }
 function MockBanner({ id }: { id: string }) {
   const mock = useQuery({ queryKey: ["mock", id], queryFn: () => api<MockView>("/mocks/" + id), refetchInterval: 30000 });
-  const remaining = useCountdown(mock.data?.finished ? undefined : mock.data?.deadline);
+  const remaining = useCountdown(mock.data?.remainingSeconds, mock.dataUpdatedAt);
+  // learners solve here, so the integrity signals are recorded here too
+  useIntegritySignals(mock.data && !mock.data.finished ? id : undefined, (kind) => {
+    api(`/mocks/${id}/signals`, { kind }).catch(() => {});
+  });
   if (!mock.data) return null;
   return (
-    <div className="mock-banner" role="status">
+    // a ticking timer is not announced; only the change to "ended" is
+    <div className="mock-banner" role={mock.data.finished ? "status" : "timer"}>
       {mock.data.finished ? "This mock has ended; new runs no longer count." : `Mock in progress: ${clock(remaining)} left.`}
       <Link to="/practice?tab=mock">Back to the mock</Link>
     </div>

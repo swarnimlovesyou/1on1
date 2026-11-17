@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, MagnifyingGlass } from "@phosphor-icons/react";
@@ -18,10 +18,21 @@ export default function QuestionBank() {
   const [params, setParams] = useSearchParams();
   const company = params.get("company") ?? "";
   const [q, setQ] = useState(""),
+    [typed, setTyped] = useState(""),
     [source, setSource] = useState(""),
     [difficulty, setDifficulty] = useState(""),
+    [topic, setTopic] = useState(""),
     [page, setPage] = useState(0);
-  const query = new URLSearchParams({ q, source, difficulty, company, page: String(page), size: String(SIZE) });
+  // search once typing pauses, not on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setQ(typed);
+      setPage(0);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [typed]);
+  const topics = useQuery({ queryKey: ["bank-topics"], queryFn: () => api<string[]>("/bank/topics"), staleTime: Infinity });
+  const query = new URLSearchParams({ q, source, difficulty, topic, company, page: String(page), size: String(SIZE) });
   const bank = useQuery({
     queryKey: ["bank", query.toString()],
     queryFn: () => api<BankPage>("/bank?" + query),
@@ -37,7 +48,7 @@ export default function QuestionBank() {
       <div className="practice-filters">
         <div className="search-field">
           <MagnifyingGlass size={17} />
-          <input aria-label="Search the question bank" placeholder="Find a question…" value={q} onChange={(e) => reset(setQ)(e.target.value)} />
+          <input aria-label="Search the question bank" placeholder="Find a question…" value={typed} onChange={(e) => setTyped(e.target.value)} />
         </div>
         <select aria-label="Source" value={source} onChange={(e) => reset(setSource)(e.target.value)}>
           <option value="">All sources</option>
@@ -49,6 +60,12 @@ export default function QuestionBank() {
           <option value="">All difficulties</option>
           {["Easy", "Medium", "Hard"].map((d) => (
             <option key={d}>{d}</option>
+          ))}
+        </select>
+        <select aria-label="Topic" value={topic} onChange={(e) => reset(setTopic)(e.target.value)}>
+          <option value="">All topics</option>
+          {topics.data?.map((t) => (
+            <option key={t}>{t}</option>
           ))}
         </select>
         {company && (
@@ -105,7 +122,8 @@ export default function QuestionBank() {
                         item.companies[company]
                       ) : (
                         <div className="table-tags">
-                          {item.tags.slice(0, 3).map((t) => (
+                          {/* the filtered topic leads, so a match is visible even past the first three tags */}
+                          {[...item.tags].sort((x, y) => Number(y === topic) - Number(x === topic)).slice(0, 3).map((t) => (
                             <span key={t}>{t}</span>
                           ))}
                         </div>

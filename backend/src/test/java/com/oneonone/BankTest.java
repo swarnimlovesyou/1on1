@@ -70,6 +70,14 @@ class BankTest {
   }
 
   @Test
+  void topicsAreOfferedAndCompanyFiltersIgnoreCase() {
+    var topics = bank.topics();
+    assertTrue(topics.contains("greedy") && topics.contains("Arrays"), topics.toString());
+    for (var r : items(bank.search("", "", "", "greedy", "", 0, 20))) assertTrue(Store.strings(r.get("tags")).contains("greedy"));
+    assertEquals(bank.search("", "", "", "", "Google", 0, 1).get("total"), bank.search("", "", "", "", "google", 0, 1).get("total"));
+  }
+
+  @Test
   void companiesAreListedWithCountsAndAMixPerDifficulty() {
     var companies = bank.companies();
     assertFalse(companies.isEmpty());
