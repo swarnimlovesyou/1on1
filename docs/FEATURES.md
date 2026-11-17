@@ -1,12 +1,14 @@
 # 1on1 — consolidated feature catalogue
 
-Last updated: 15 November 2026.
+Last updated: 17 November 2026.
 
-This document captures the product ideas and decisions agreed with the owner. It describes the intended platform, not a claim that these features are complete. Phase 1 now provides four expanded reference journeys and shared foundations; the full catalogue, review/notebook and advanced tools still require the assigned later phases. Actual Gemini passed, while Docker Desktop blocks actual Judge0 verification. See [PHASE1_HANDOFF.md](PHASE1_HANDOFF.md), [the three-phase plan](IMPLEMENTATION_PLAN.md) and [VALIDATION.md](VALIDATION.md) for current status.
+This document lists the product ideas agreed with the owner and, for each section, what is actually built. Each section opens with a **Status** line: **built** (implemented and covered by automated tests), **partial** (some items built, others not, with the reason), or **not built**. "Built" does not mean verified against live external services: live Judge0 execution, live Gemini answers and a PostgreSQL rehearsal are still open gates (see [Delivery boundaries](#delivery-boundaries-and-definition-of-completion)). Detailed evidence is in [PHASE2_HANDOFF.md](PHASE2_HANDOFF.md), [API.md](API.md), [the three-phase plan](IMPLEMENTATION_PLAN.md) and [VALIDATION.md](VALIDATION.md).
+
+**Current verification (17 November 2026):** `npm run verify` passes: 149 backend tests, 40 frontend tests and the production build. The browser suite (95 specs) is being re-run; its result is not recorded here.
 
 ## Curriculum scope update
 
-The owner moved the core curriculum into current work: 24 concepts, 33 notebooks including retained child/advanced lessons, and 1–2 selected question applications per concept. Practice implementation and UI/UX remain Phase 2. The skill-tree interface will be decided after curriculum review. See [the implemented curriculum](CURRICULUM.md).
+The core curriculum is implemented: 24 concepts in prerequisite order and 33 lessons (26 core lessons, including child lessons such as Quicksort, plus 7 advanced lessons: AVL, Dijkstra, max flow, trie, set cover, Quickselect, Bloom filter). The 7 advanced lessons now have full prose, objectives and four practice questions each. The skill tree was built as a concept map with an accessible list (section 1). See [the implemented curriculum](CURRICULUM.md).
 
 ## Product direction
 
@@ -16,154 +18,173 @@ The typical journey is:
 
 **Concept map → visual mental model → minimal code → pattern drill → dry run → coding practice → reflection and spaced review.**
 
-This is guidance, not a compulsory sequence. Lessons and experiments stay accessible without passing prerequisite checkpoints. Build a complete, polished platform whose academic requirements are fulfilled through useful features.
+This is guidance, not a compulsory sequence. Lessons and experiments stay accessible without passing prerequisite checkpoints.
 
 ## 1. Home dashboard and concept map
 
-- An interactive skill tree showing core concepts, their relationships, and recommended prerequisites: arrays, linked lists, stacks, queues, recursion, trees, heaps, graphs, dynamic programming, and advanced techniques.
+**Status: built.** Concept map of the 24 concepts in prerequisite order (Kahn's algorithm) with a list view, evidence states, a next action and spaced review (`LearningMapService`, `pages/LearningMap.tsx`).
+
+- An interactive map showing core concepts, their relationships, and recommended prerequisites.
 - Freely accessible nodes with a simpler list view for small screens and accessibility.
-- A personal next action: resume a lesson, retry a weak concept, finish a planned problem, or complete a due review.
-- Evidence-based states such as explored, practising, demonstrated, and review due. Show what supports each state rather than inventing precise mastery percentages.
-- Review urgency informed by correctness, hint use, previous attempts, and elapsed time. Completed work remains recorded when a review becomes due.
-- A dashboard that reflects actual activity and onboarding goals; autosaving or leaving a tab open does not count as studying.
+- A personal next action: due review → today's plan task → next concept whose prerequisites have passed evidence → an unaccepted linked problem.
+- Evidence-based states: new, explored, passed, accepted, each with the sentences that support it. No mastery percentages.
+- Review urgency from correctness, hint use and elapsed time. Completed work remains recorded when a review becomes due.
+- Autosaving or leaving a tab open does not count as studying.
 
 ## 2. Interactive concept notebooks
 
-- Begin with a visual mental model that can be manipulated before introducing syntax.
-- Short teaching sections covering intuition, a worked example, the invariant, minimal implementation, complexity, and common mistakes.
-- Link highlighted code or pseudocode directly to the operation shown in the diagram.
-- Prediction checkpoints: ask what changes next, which pointer moves, or why a state is valid.
-- Input-manipulation challenges: find an input that exposes a mistake, reaches a target, or demonstrates an edge case.
-- Contextual links from a lesson to relevant drills and coding problems.
-- Save the current section, input, trace step, and notes so the learner can resume.
-- Retain the planned scope of 24 substantial lessons and three learning paths. Replace thin or repetitive content rather than increasing counts as a substitute for quality.
+**Status: built.** 33 lessons with experiments, teaching sections, challenges and saved position. The Phase 2 handoff still lists minor trace issues as open (the Graphs trace keeps its array at -1, some traces label the input length `size` at step 0, the backtracking animation stops at five values).
+
+- A visual mental model that can be manipulated before syntax.
+- Teaching sections covering intuition, a worked example that follows the animation's own trace, the invariant, minimal implementation, complexity, and common mistakes.
+- Code or pseudocode lines highlighted with the operation shown in the diagram.
+- Prediction checkpoints and input-manipulation challenges, graded on the server.
+- Links from a lesson to drills and coding problems.
+- The current section, input, trace step and notes are saved so the learner can resume.
+- Advanced lessons: full prose and four practice questions each, fact-checked against their traces.
 
 ## 3. Animated algorithm laboratory
 
-- Faithful operation animations: moving array elements and pointers, sliding window boundaries, stack/queue insertions, linked-list pointer changes, tree rotations, graph exploration, and DP dependencies.
-- Cover the existing algorithm catalogue, including sorting/searching, recursion/backtracking, trees/heaps, graph algorithms, DP, tries, greedy set cover, randomized Quickselect, and Bloom filters.
-- Stable identities for elements and nodes, including duplicate values, so animations show what actually moved.
-- Play/pause, step forward/back, scrub, replay, speed controls, editable inputs, and boundary-case presets.
-- Synchronized explanation, variables, code highlighting, and a readable transcript.
-- Java-generated authoritative traces. The frontend renders and animates them; AI may propose validated inputs for supported scenes.
-- Keyboard operation, reduced motion, responsive layouts, and interruption-safe playback.
+**Status: built.** Java-generated traces rendered with shared playback controls; an Animations gallery shows every lesson's animation on one page.
+
+- Operation animations for arrays and pointers, sliding windows, stacks and queues, linked lists, trees, heaps, graphs, DP tables, tries, set cover, Quickselect and Bloom filters.
+- Stable identities for elements and nodes, including duplicate values.
+- Play/pause, step forward/back, scrub, replay, speed controls, editable inputs and boundary-case presets.
+- Synchronized explanation, variables and code highlighting.
+- Java computes every trace; the frontend only renders it. Interactive inputs are capped at 32 values.
+- **Animations gallery** (`/learn/animations`, `pages/Animations.tsx`): every animation in one place; each runs its Java trace only when the learner presses play, with a link back to the lesson.
+- Keyboard operation and reduced motion.
 
 ## 4. Pattern-recognition drills
 
-- Short, approximately two-minute “Spot the Pattern” exercises before full coding problems.
-- Present a problem prompt and constraints, then ask for a suitable pattern, target complexity, and a short explanation.
-- Accept multiple valid approaches where appropriate. Constraints inform the answer but do not uniquely determine it.
-- Explain why an approach fits and why plausible alternatives fail.
-- Connect missed patterns to the relevant lesson, experiment, and review queue.
+**Status: built.** Every core lesson has a pattern drill graded on the server (`ChallengeService`).
+
+- Short "spot the pattern" exercises: a prompt and constraints, then the suitable pattern.
+- Explanations of why an approach fits and why plausible alternatives fail.
+- Missed drills feed the review schedule and link back to the lesson.
 
 ## 5. Dry-run and exam-practice mode
 
-- Interactive state tables for manually tracing algorithms: pointer positions, variable values, recursion state, partitions, queues, visited sets, and distance tables.
-- Check submitted steps against Java-computed transitions and algorithm rules, accepting alternative valid tie-breaking or traversal choices.
-- Identify the first incorrect step and let the learner retry from there.
-- Gemini explains the mistake and offers graduated hints; deterministic checks establish correctness.
-- Exam-style questions and quizzes grounded in lessons and, when selected, the learner's uploaded materials.
-- Preserve attempts and useful explanations for later review.
+**Status: partial.** Dry runs graded against the real trace are built. Gemini explanations of mistakes are implemented but not verified live (no API key on the dev machine). Exam-style questions generated from uploaded materials are limited to editable revision cards (section 9). The Prep tracks below are built.
+
+- Dry-run state tables checked field by field against the Java trace step; the first wrong field is reported.
+- Graduated hints from the Blob; deterministic checks establish correctness.
+- Attempts are saved for review.
+
+### Prep tracks
+
+**Status: built.** Five tracks at `/prep` (`PrepController`, `DrillService`, `scripts/prep/`, `pages/prep/`). Every content batch was fact-checked by a separate pass; guide quizzes are graded on the server.
+
+- **CS fundamentals:** 30 guides with quizzes.
+- **Aptitude:** 8 guides; **Reasoning:** 5 guides. Both link to drills across 13 topics. Drill questions are generated on the server from a seed, so a learner can draw as many as they like; the answer is never sent to the browser before grading.
+- **Puzzles:** 20 puzzles. Two hints, then the solution. A typed answer is checked on the server.
+- **System design:** 8 guides plus a traffic playground (`/prep/system-design/playground`) that models app servers as an M/M/c queue and the database as an M/M/1 queue. It is a teaching model, not a capacity planner.
+
+These tracks cover general topics. They make no claim to match any particular exam or company's process.
 
 ## 6. Coding practice and real grading
 
-- Retain 60 original problems with useful statements, constraints, samples, and lesson connections.
-- Java, Python, and C++ editing, appropriate starter code, and saved drafts per problem/language.
-- Custom runs, sample tests, official submissions, readable compiler/runtime errors, and submission history.
-- Real isolated execution through a locally integrated Judge0 service, with resource limits and clear unavailable/interrupted states.
-- Private hidden tests and accepted-only native solved credit, awarded once per problem.
-- Problem-specific progressive hints, editorials, complexity explanations, and verified reference solutions in the supported languages.
-- Boundary and adversarial tests that reject plausible incorrect solutions.
+**Status: partial.** Problems, editor, coach, question bank, sheets, mock assessments and contests are built. Live code execution is **not verified**: the Judge0 runner needs Docker, which is not available on the dev machine, so runs report the runner as unavailable. C++ references are missing for 52 problems, and the 8 that exist are unverified (no compiler).
 
-### Guided coding coach — Phase 2
+- 60 original problems with statements, constraints, samples and lesson links. Each has a Python reference verified on every fixture, three hints, a full editorial and two hidden adversarial cases agreed by the Java and Python references.
+- Java, Python and C++ editing with starter code and saved drafts per problem and language.
+- Custom runs, sample tests, official submissions and submission history through Judge0. The pipeline (job persistence, restart recovery, hidden-case redaction, accepted-only credit) is covered by contract tests against a local fixture server, not a live sandbox.
+- Accepted-only native solved credit, awarded once per problem.
 
-Concept → visual prediction → minimal Java → learner-planned application → incremental coding → run/debug → reflection. The coding workspace carries the lesson context, current draft revision, hint history and actual run results into the Blob. It saves drafts and teaching milestones for resume.
+### Guided coding coach
 
-Use Socratic questions for predictions, invariants, approach selection, debugging and complexity: one focused question at a time, grounded in the learner's work. Follow with progressively clearer hints and direct teaching when needed. Never make the learner guess unfamiliar facts indefinitely. Full worked explanations require a deliberate request; follow them with a small transfer exercise.
+**Status: built** (live-run journey not verified, as above). A Coach tab per problem: plan (approach, invariant, worked example) → code → run → fix → reflect (`CoachService`, `components/CoachPanel.tsx`). Nudges come one at a time, built from the learner's own plan and actual run results; edited code marks old runs as stale. The worked solution needs an explicit confirm and comes with a transfer question. The coach never writes credit.
 
-The learner makes or approves corrections; the AI does not silently rewrite the solution. Clearly distinguish suspected bugs from observed compiler/test failures. Chat cannot award acceptance or mastery. Runner/provider outages must remain explicit. Phase 3 adds actual own-code traces and performance evidence to this same workspace. See the [phase plan and acceptance journey](IMPLEMENTATION_PLAN.md#guided-transition-from-concepts-to-coding).
+### Question bank, company pages and sheets
+
+**Status: built** (`BankService`, `SheetController`, `pages/practice/`).
+
+- **Question bank:** 16,331 external questions (Codeforces 11,526; AtCoder 2,943; LeetCode 1,462; CSES 400) beside 1on1's own 60. Titles, links, tags and ratings only, never statements. Filters for source, difficulty, topic and company; sorting by easiest, hardest or title.
+- **Solve here** (`/practice/q/{id}`): an editor for an external question. The statement stays on its own site, and runs use the learner's own input only; there is no grading of external questions. Runs need the Judge0 runner.
+- **Company pages:** 184 company lists from a community-reported LeetCode dataset (data as of May 2022). They show what people reported, not what a company asks today.
+- **Blind 75 and NeetCode 150 sheets:** ticks (on the account when signed in, in the browser for guests), a link to the matching lesson, and up to five companies that most often reported each question.
+- **LeetCode profile sync:** ticks sheet questions found among the profile's last 20 accepted submissions. It uses an unofficial endpoint and cannot see older history.
+- **Mock OA:** timed assessments drawn from 1on1's own problems, scored only from official accepted runs within the window (so scoring also depends on the runner).
+
+### Contests
+
+**Status: built** (`ContestService`, `pages/contests/`). Upcoming Codeforces and AtCoder contests in the learner's local time, with a per-contest `.ics` calendar file. LeetCode and CodeChef are linked, not read. A failed source keeps its last good list and is shown as unavailable.
 
 ## 7. Own-code tracing and visual performance tools
 
 ### Trace my code
 
-- Step through the learner's real executed code with source-line highlighting, variables, collections, references, and visible mutations.
-- Initial scope: short Python programs, small inputs, supported built-in structures, and a capped execution trace.
-- Capture actual execution inside an isolated runtime. Do not substitute an AI-generated account of what the code probably did.
-- Report unsupported features and truncated traces explicitly. Normal Java/Python/C++ grading remains a separate capability.
-- Treat broader language and structure support as an extension of a verified tracer, not an existing prototype capability.
+**Status: not built.** Tracing must run inside the isolated runner, and the Judge0 runner is not available on the dev machine. No AI-generated substitute is offered.
 
-### Visual Big-O profiler
+- Planned: step through the learner's real executed Python with line highlighting, variables, collections, references and mutations; capped traces with explicit truncation and unsupported-feature reports.
 
-- Compare brute-force and improved approaches as input size grows.
-- Begin with supported algorithm implementations and defined operation counts, such as comparisons, visits, or moves.
-- Add measured runtime experiments for student code with consistent inputs and execution limits.
-- Distinguish theoretical growth curves, measured operation counts, and measured runtime. A few samples do not prove an arbitrary program's Big-O or an exact future TLE threshold.
-- Animate the relationship between additional work and growth so the chart teaches a concrete tradeoff.
+### Visual Big-O profiler (performance lab)
 
-## 8. Contextual AI companion — “The Blob”
+**Status: partial.** The performance lab (`/learn/lab`, `LabService`, `pages/LabPage.tsx`) is built for trace step counts. Profiling the learner's own code (measured runtime) is **not built**, because it also needs the runner.
 
-- A small, clickable companion opening contextual chat beside the learning workspace.
-- Quiet idle behavior, subtle reactions, and brief acknowledgements tied to meaningful actions.
-- Explain the current algorithm step, invariant, code line, or variable state.
-- Give Socratic, graduated hints and let the learner deliberately request a fuller explanation.
-- Turn natural-language questions into validated experiments using supported visual scenes.
-- Help debug using the learner's code and visible execution results; explain checkpoint and dry-run mistakes.
-- Generate editable flashcards, refresher questions, and exam quizzes from validated lessons or cited study materials.
-- Save conversations with their lesson/problem context; support cancelling responses and recovering from unavailable service.
-- Gemini is the planned in-platform provider. Its internet connection and free-tier limits still apply to a locally running website.
+- For binary search, two pointers, sliding window, merge sort and quick sort, the lab counts the steps of the real Java trace at n = 4, 8, 16 and 32 (averaged over three seeded random inputs) and plots them against log n, n, n log n and n² curves, naming the closest.
+- It shows operation counts, not wall-clock time. Four small sizes illustrate growth; they do not prove an algorithm's Big-O.
+
+## 8. Contextual AI companion — "The Blob"
+
+**Status: built; live answers not verified.** No Gemini key is configured on the dev machine, so the Blob is tested up to the provider boundary, and its answering states were checked in the browser with a stubbed reply (`TutorService`, `components/Tutor.tsx`).
+
+- A clickable companion opening contextual chat beside the workspace, with posture for idle, thinking, answered, error and AI unavailable, and reduced-motion support.
+- Suggestions fit the lesson step or the problem; a four-level "still stuck" ladder; an offline notice before typing.
+- Coach plan, hints and run evidence go to the model; hidden test data and solution code do not.
+- Natural-language requests for a visual example are validated and traced by Java.
+- Conversations are saved per lesson or problem; responses can be cancelled.
 
 ## 9. Personal notebook and document-based exam preparation
 
-- Notes, bookmarks, saved explanations, and experiment snapshots linked to lessons and problems.
-- Reopen the associated experiment, input, and step from a note.
-- Upload lecture PDFs and slides exported as PDFs initially; retain document and page references during extraction/indexing.
-- Search the learner's selected materials and provide grounded answers with file/page citations.
-- State when the selected sources do not support an answer.
-- Generate review cards and exam questions from selected notes or documents, with learner preview/editing.
-- Keep files and indexes local where practical. Confirm model compatibility, quotas, and any service costs before selecting managed retrieval.
-- Scope notebook retrieval to the connected learner and selected materials.
+**Status: built; live cited answers not verified** (no Gemini key; without one, the notebook returns the matching passages instead of an answer) (`NotebookService`, `workspace/DocumentNotebook.tsx`).
+
+- Notes linked to lessons, problems and experiment snapshots.
+- Text PDFs up to 10 MB and 100 pages; extraction keeps page numbers (PDFBox).
+- Lucene BM25 search over the learner's own selected sources only, with file and page citations; the notebook says when the sources do not answer.
+- Editable revision cards; self-reported recall is kept apart from graded results.
+- Scanned, protected, oversized and non-PDF files are refused with a reason.
 
 ## 10. Claude, ChatGPT, and Codex integration through MCP
 
-- One shared MCP adapter over the Java APIs, avoiding duplicated grading or algorithm logic.
-- Explicitly connect a study session so the assistant can obtain the selected lesson, experiment state, code context, and relevant learning history.
-- Expose focused tools to retrieve context, create/open validated experiments, check dry runs, search cited notes, and save explanations or review items.
-- Synchronize requested experiment changes into the website through a defined browser/backend update channel.
-- Keep authorization, validation, grading, and achievement updates enforced by Java.
-- Share refined teaching guidance across clients, packaged as focused skills such as **Concept Coach**, **Exam Practice**, and **Debugging Guide**, with client-specific metadata and connection setup where needed.
-- Prove the first local workflow with Claude Desktop, then package/test ChatGPT and Codex support against their actual connection requirements.
-- Claude Desktop supports local MCP extensions. Hosted ChatGPT requires an appropriate reachable connection; Secure MCP Tunnel is a documented option for private/local servers, subject to account/workspace support.
-- External-assistant mode runs inside Claude/ChatGPT/Codex. The website's Blob continues to use its own model integration; MCP does not automatically embed a subscription chat session into the website.
-- Public marketplace distribution and public website deployment are outside the local milestone.
+**Status: partial, in progress.** A read-only MCP adapter was added on 17 November 2026 (`mcp/server.mjs`, stdio transport). It calls the public Java API and owns no logic. Its tests (`mcp/server.test.mjs`) run against a stub API; a check in Claude Desktop against a running 1on1 is not recorded here. Codex and ChatGPT were not tried.
+
+- Built: eight public tools: `search_library`, `get_lesson` (no answers), `run_trace`, `search_questions`, `upcoming_contests`, `measure_growth`, `get_drill` and `check_drill`. Setup is in `mcp/README.md`.
+- Not built: pairing with a signed-in study session, so no tool can read or change a learner's account, notes, dry runs or review items; browser updates from the assistant; the **Concept Coach**, **Exam Practice** and **Debugging Guide** skills.
+- Planned order: Claude Desktop first, then ChatGPT and Codex against their actual connection requirements.
+- External-assistant mode runs inside Claude/ChatGPT/Codex. The website's Blob keeps its own model integration.
 
 References: [Claude local MCP](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop), [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins), [OpenAI Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels).
 
 ## 11. Review, planning, and supporting platform features
 
-- Spaced review covering missed concepts, prediction/drill attempts, saved flashcards, and due refreshers.
-- Initial review schedule: successful material returns after 1, 3, and 7 days; a missed review returns the following day. Validate and refine this simple rule using actual learner behavior.
-- Practice plans with selected topics, dated tasks, completion, rescheduling, and regeneration that preserves finished work.
-- Clear progress summaries distinguishing explored lessons, passed checkpoints, and accepted native problems.
-- Account creation, sign-in, onboarding, recovery, preferences, and reliable persistence.
-- Optional study cohorts and genuine cohort summaries.
-- LeetCode public-profile connection with cached/stale/unavailable states; imported statistics stay distinct from native achievements.
-- Administrator content forms, preview, validation, publication controls, import/export, and usage visibility.
+**Status: built, with two unchecked parts:** the admin editor UI has only been type-checked (no local admin account was configured), and password-reset email needs SMTP configuration.
+
+- Spaced review: successes return after 1, 3 and 7 days; a miss returns the next day; a hinted success repeats its interval (`ReviewSchedule`).
+- Practice plans chosen by greedy set cover, with dated tasks, completion, rescheduling and regeneration that keeps finished work (`PlanService`).
+- A progress page with notebooks explored, problems solved here, study streak, an activity heatmap and cohort summaries (`workspace/Analytics.tsx`).
+- Accounts, sign-in, onboarding, password reset and preferences.
+- Study cohorts with quartile summaries computed by randomized Quickselect.
+- LeetCode public-profile connection with cached/stale/unavailable states; imported statistics stay separate from native credit.
+- Administrator check, preview, draft and publish, with publication checks (`ContentChecks`, `AdminController`).
 
 ## 12. Visual personality and polish
 
-- Preserve the interactive notebook identity, Geist/JetBrains Mono typography, cobalt emphasis, and light/dark/system themes.
-- Increase readability, hierarchy, control sizes, and breathing room.
-- Add restrained navigation transitions, useful interaction feedback, and brief completion moments.
-- Give algorithm operations the strongest motion; keep surrounding motion supportive.
-- Challenges and quiet milestones provide engagement. No XP/level economy, compulsory unlocks, constant mascot movement, or excessive effects.
-- Provide complete loading, empty, unavailable, error, and recovery states, including accessible mobile behavior.
+**Status: built.**
+
+- Paper and night themes; Fraunces, Source Serif 4 and Inter Tight; six algorithm-family colours used across the library, map, lesson and problem headers and trace highlights.
+- **Landing page:** a framed photo hero with the photographer's Unsplash credit.
+- **Grouped sidebar:** Learn (Home, Explore concepts, Animations, Performance lab), Practise (Practice, Sheets, Contests, Prep) and Your work (plan, notebook, progress, study together).
+- **Command palette:** Ctrl+K (⌘+K on macOS) jumps to any page, lesson, Prep track or guide, or sheet (`components/CommandPalette.tsx`).
+- Loading, empty, unavailable and error states; keyboard access, reduced motion and phone layouts.
+- No XP/level economy, compulsory unlocks or constant mascot movement.
 
 ## Delivery boundaries and definition of completion
 
-- **Local-first; public deployment is not required for this milestone.** Setup must be reproducible and the full learning-to-practice journey demonstrable.
-- **Docker Desktop only for the local judge.** No separate Ubuntu VM was approved. Judge compatibility remains to be proven; failure is an explicit blocker for local grading, not permission to claim it works or silently switch hosting.
-- **Java remains responsible for core algorithms and business logic.** Preserve the original trie, greedy set cover, randomized Quickselect/CO5 component, correctness tests, baseline comparisons, three-size benchmarks, and assessment documentation.
-- **Complete one reference journey, then apply the standard across the catalogue.** Start with sliding window plus a linked problem, including saved context, meaningful interaction, actual AI help, and real grading. This first slice does not reduce the final 24-lesson/60-problem scope.
-- **Verify real integrations and real behavior.** Contract tests, catalogue counts, or a visible interface alone do not demonstrate live AI, execution, educational quality, or reliable saved progress.
-- **Keep the current handoff edits and subsequent work local and unpushed** until the owner requests publication. Compiling this catalogue does not start feature implementation.
+- **Local-first; public deployment is not required for this milestone.**
+- **Docker Desktop only for the local judge.** Docker is not available on the dev machine, so live Judge0 runs, own-code tracing, own-code profiling and C++ reference checks remain blocked. This is recorded as a blocker, not as working grading.
+- **Live Gemini** needs a locally configured key; it has not been checked on this machine.
+- **PostgreSQL** is supported in schema and configuration; the live compatibility rehearsal needs the owner's database credentials and has not been run.
+- **Java remains responsible for core algorithms and business logic.** The original trie, greedy set cover and randomized Quickselect, with their tests, baselines and three-size benchmarks, are preserved.
+- **Verify real integrations and real behaviour.** Contract tests, catalogue counts or a visible interface alone do not demonstrate live AI, execution or educational quality.
+- **Keep work local and unpushed** until the owner requests publication.
