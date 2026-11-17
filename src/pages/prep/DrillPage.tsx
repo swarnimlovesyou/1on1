@@ -29,8 +29,20 @@ export default function DrillPage() {
   });
   const guide = prep.data?.guides.find((g) => g.drill === topic);
 
+  const back = (
+    <Link className="back-link" to={guide ? "/prep/guide/" + guide.id : "/prep"}>
+      <ArrowLeft size={16} aria-hidden="true" />
+      {guide ? "Back to the guide" : "All of Prep"}
+    </Link>
+  );
   if (question.isLoading) return <Loading />;
-  if (question.error || !question.data) return <ErrorState error={question.error} />;
+  if (question.error || !question.data)
+    return (
+      <article className="prep-guide drill">
+        {back}
+        <ErrorState error={question.error} retry={() => question.refetch()} />
+      </article>
+    );
   const q = question.data;
   const unit = (value: string) => (q.unit === "₹" ? "₹" + value : q.unit ? `${value} ${q.unit}` : value);
 
@@ -46,10 +58,7 @@ export default function DrillPage() {
 
   return (
     <article className="prep-guide drill">
-      <Link className="back-link" to={guide ? "/prep/guide/" + guide.id : "/prep"}>
-        <ArrowLeft size={16} aria-hidden="true" />
-        {guide ? "Back to the guide" : "All of Prep"}
-      </Link>
+      {back}
       <h1 className="display">{guide ? guide.title : "Practice"}</h1>
       <p className="muted">
         A new question every time, checked on the server. <span className="drill-streak">Streak: {streak}</span>

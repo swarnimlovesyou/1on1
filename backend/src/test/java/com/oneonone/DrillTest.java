@@ -79,6 +79,21 @@ class DrillTest {
   }
 
   @Test
+  void aNumberTypedWithItsUnitIsStillRight() {
+    assertTrue(DrillService.matches("15", "15%"));
+    assertTrue(DrillService.matches("15", "15 %"));
+    assertTrue(DrillService.matches("1200", "₹1,200"));
+    assertTrue(DrillService.matches("1200", "Rs 1200"));
+    assertTrue(DrillService.matches("1200", "rs. 1200"));
+    assertTrue(DrillService.matches("12", "12 days"));
+    assertTrue(DrillService.matches("10", "10 seconds"));
+    assertTrue(DrillService.matches("5", "5 m"));
+    assertFalse(DrillService.matches("40", "41%"));
+    assertFalse(DrillService.matches("40", "forty"));
+    assertFalse(DrillService.matches("40", "%"));
+  }
+
+  @Test
   void knownValues() {
     assertEquals("8", DrillService.timeWork(12, 24).answer());
     assertEquals("10", DrillService.trainPole(150, 54).answer());

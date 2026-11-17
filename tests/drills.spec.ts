@@ -43,3 +43,16 @@ test("an unknown drill topic says so", async ({ page }) => {
   await page.goto("/prep/drill/calculus");
   await expect(page.getByText("That drill topic doesn't exist.")).toBeVisible();
 });
+
+test("a failed question load offers a retry and a way back", async ({ page }) => {
+  let failed = false;
+  await page.route("**/api/v1/drills/averages/next*", (route) => {
+    if (failed) return route.continue();
+    failed = true;
+    return route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ message: "Service unavailable." }) });
+  });
+  await page.goto("/prep/drill/averages");
+  await expect(page.getByRole("link", { name: "Back to the guide" })).toBeVisible();
+  await page.getByRole("button", { name: /try again/i }).click();
+  await expect(page.locator(".drill-prompt")).toBeVisible();
+});
