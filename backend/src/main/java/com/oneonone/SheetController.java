@@ -65,6 +65,19 @@ public class SheetController {
     return Map.of("done", doc.map(d -> Store.strings(d.get("done"))).orElse(List.of()));
   }
 
+  /** Adds every id that is on a sheet and not yet ticked; returns how many were added. */
+  synchronized int tickAll(String user, Collection<String> ids) {
+    all();
+    var list = new ArrayList<>(Store.strings(ticks(user).get("done")));
+    int added = 0;
+    for (String id : ids) if (itemIds.contains(id) && !list.contains(id)) {
+      list.add(id);
+      added++;
+    }
+    if (added > 0) store.put("sheet-ticks-" + user, "sheet-ticks", user, Map.of("done", list));
+    return added;
+  }
+
   synchronized Map<String, Object> tick(String user, String item, Map<String, Object> body) {
     all();
     if (!itemIds.contains(item)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That question is not on any sheet.");

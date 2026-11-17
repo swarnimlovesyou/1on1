@@ -143,6 +143,9 @@ function SheetView({ id, ticks, back }: { id: string; ticks: ReturnType<typeof u
           </section>
         );
       })}
+      <p className="muted sheet-note">
+        Signed in with LeetCode connected in Settings? Each refresh ticks the sheet questions among your last 20 accepted solves.
+      </p>
       <small className="muted">{s.credit}</small>
     </section>
   );

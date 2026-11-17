@@ -13,9 +13,19 @@ import org.springframework.web.client.RestClient;
 public class LeetcodeController {
 
   final Store s;
+  final SheetController sheets;
 
-  public LeetcodeController(Store s) {
+  public LeetcodeController(Store s, SheetController sheets) {
     this.s = s;
+    this.sheets = sheets;
+  }
+
+  /** Bank ids for the recent accepted submissions LeetCode returns (at most 20), without duplicates. */
+  static List<String> acceptedIds(Map<String, Object> data) {
+    var ids = new LinkedHashSet<String>();
+    for (var sub : Store.items(data.get("recentAcSubmissionList")))
+      if (sub.get("titleSlug") instanceof String slug && !slug.isBlank()) ids.add("lc-" + slug);
+    return List.copyOf(ids);
   }
 
   @GetMapping
@@ -76,6 +86,7 @@ public class LeetcodeController {
       old.put("data", data);
       old.put("syncedAt", Instant.now().toString());
       old.put("status", "synced");
+      old.put("sheetTicksAdded", sheets.tickAll(u, acceptedIds(data)));
       old.remove("message");
     } catch (Exception e) {
       old.put("status", "unavailable");

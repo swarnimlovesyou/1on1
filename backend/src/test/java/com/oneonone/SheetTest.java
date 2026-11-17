@@ -60,4 +60,26 @@ class SheetTest {
     assertEquals(404, status(() -> sheets.tick("user-1", "lc-not-on-any-sheet", Map.of("done", true))));
     assertEquals(400, status(() -> sheets.tick("user-1", id, Map.of())));
   }
+  @Test
+  void aLeetCodeSyncTicksAcceptedSheetQuestionsAndIgnoresTheRest() {
+    var items = Store.items(sheets.sheet("blind-75").get("items"));
+    String a = items.get(0).get("id").toString(), b = items.get(1).get("id").toString();
+    sheets.tick("user-1", a, Map.of("done", true));
+    assertEquals(1, sheets.tickAll("user-1", List.of(a, b, "lc-not-on-any-sheet")), "only the new sheet question counts");
+    assertEquals(List.of(a, b), sheets.ticks("user-1").get("done"), "existing ticks are kept, in order");
+    assertEquals(0, sheets.tickAll("user-1", List.of()));
+    assertEquals(0, sheets.tickAll("user-2", List.of("lc-not-on-any-sheet")));
+    assertEquals(List.of(), sheets.ticks("user-2").get("done"));
+  }
+
+  @Test
+  void recentAcceptedSubmissionsBecomeBankIds() {
+    Map<String, Object> data = Map.of("recentAcSubmissionList", List.of(
+      Map.of("titleSlug", "two-sum", "title", "Two Sum"),
+      Map.of("titleSlug", "two-sum", "title", "Two Sum"),
+      Map.of("title", "No slug")
+    ));
+    assertEquals(List.of("lc-two-sum"), LeetcodeController.acceptedIds(data));
+    assertEquals(List.of(), LeetcodeController.acceptedIds(Map.of()));
+  }
 }

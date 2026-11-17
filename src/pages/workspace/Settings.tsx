@@ -76,10 +76,12 @@ function SettingsContent() {
   });
   const sync = useMutation({
     mutationFn: () =>
-      api("/connections/leetcode", { username: username || q.data?.username }),
-    onSuccess: () => {
+      api<{ sheetTicksAdded?: number }>("/connections/leetcode", { username: username || q.data?.username }),
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["leetcode"] });
-      notify("Profile refresh finished");
+      qc.invalidateQueries({ queryKey: ["sheet-ticks"] });
+      const ticked = data?.sheetTicksAdded ?? 0;
+      notify(ticked ? `Profile refreshed. ${ticked} sheet question${ticked === 1 ? "" : "s"} ticked from your recent solves.` : "Profile refresh finished");
     },
   });
   const stats = q.data?.data?.matchedUser?.submitStatsGlobal
