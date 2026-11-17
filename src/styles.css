@@ -7079,3 +7079,107 @@ button.global-search:hover {
     justify-self: start;
   }
 }
+
+/* ---- Performance lab chart (series blue validated against both surfaces; references neutral, dashed) ---- */
+:root {
+  --lab-series: #2a78d6;
+  --lab-reference: #8a8983;
+}
+:root[data-theme="dark"] {
+  --lab-series: #3987e5;
+}
+.lab-figure {
+  margin: 8px 0 0;
+}
+.lab-verdict {
+  font-size: 18px;
+}
+.lab-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.lab-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.lab-swatch {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 2px solid var(--lab-series);
+}
+.lab-swatch.reference {
+  border-top: 2px dashed var(--lab-reference);
+}
+.lab-chart {
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  margin-top: 8px;
+}
+.lab-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.lab-axis,
+.lab-curve-label {
+  fill: var(--muted);
+  font-size: 12px;
+}
+.lab-curve {
+  fill: none;
+  stroke: var(--lab-reference);
+  stroke-width: 1.5;
+}
+.lab-curve.closest {
+  stroke-width: 2.5;
+}
+.lab-measured {
+  fill: none;
+  stroke: var(--lab-series);
+  stroke-width: 2;
+}
+.lab-dot {
+  fill: var(--lab-series);
+  stroke: var(--surface);
+  stroke-width: 2;
+  pointer-events: none;
+}
+.lab-hit {
+  fill: transparent;
+}
+.lab-point:hover .lab-dot {
+  r: 7;
+}
+.lab-table {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 18px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+.lab-table th,
+.lab-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+.lab-table th:first-child,
+.lab-table td:first-child {
+  text-align: left;
+}
+.lab-note {
+  max-width: 70ch;
+  margin-top: 18px;
+}
+@media (max-width: 640px) {
+  .lab-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

@@ -23,6 +23,7 @@ import {
   PlayCircle,
   ListChecks,
   Trophy,
+  ChartLine,
   Sun,
   Moon,
   SidebarSimple,
@@ -47,6 +48,7 @@ import GuidePage from "./pages/prep/GuidePage";
 import DrillPage from "./pages/prep/DrillPage";
 import Animations from "./pages/Animations";
 import Contests from "./pages/contests/Contests";
+import LabPage from "./pages/LabPage";
 import CommandPalette from "./components/CommandPalette";
 import PlaygroundPage from "./pages/prep/PlaygroundPage";
 import {
@@ -67,6 +69,7 @@ const navigation: [string, [string, string, typeof House][]][] = [
       ["/home", "Home", House],
       ["/learn", "Explore concepts", Books],
       ["/learn/animations", "Animations", PlayCircle],
+      ["/learn/lab", "Performance lab", ChartLine],
     ],
   ],
   [
@@ -94,8 +97,8 @@ function isCurrent(to: string, pathname: string, search: string) {
   const sheets = pathname === "/practice" && new URLSearchParams(search).get("tab") === "sheets";
   if (to === "/practice?tab=sheets") return sheets;
   if (to === "/practice") return pathname.startsWith("/practice") && !sheets;
-  if (to === "/learn/animations") return pathname === "/learn/animations";
-  if (to === "/learn") return pathname.startsWith("/learn") && pathname !== "/learn/animations";
+  if (to === "/learn/animations" || to === "/learn/lab") return pathname === to;
+  if (to === "/learn") return pathname.startsWith("/learn") && !["/learn/animations", "/learn/lab"].includes(pathname);
   return pathname === to || pathname.startsWith(to + "/");
 }
 function Brand() {
@@ -286,6 +289,8 @@ export default function App() {
                 <strong>
                   {location.pathname === "/learn/animations"
                     ? "Animations"
+                    : location.pathname === "/learn/lab"
+                      ? "Performance lab"
                     : location.pathname.startsWith("/learn/")
                       ? "Study notebook"
                       : (navigation
@@ -348,6 +353,7 @@ export default function App() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/learn" element={<Library />} />
                 <Route path="/learn/animations" element={<Animations />} />
+                <Route path="/learn/lab" element={<LabPage />} />
                 <Route path="/learn/:id" element={<NotebookPage />} />
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/practice/:id" element={<ProblemPage />} />
