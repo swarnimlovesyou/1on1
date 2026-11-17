@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   NavLink,
@@ -20,6 +20,8 @@ import {
   Users,
   ArrowUpRight,
   MagnifyingGlass,
+  PlayCircle,
+  ListChecks,
   Sun,
   Moon,
   SidebarSimple,
@@ -43,6 +45,7 @@ import PrepTrack from "./pages/prep/PrepTrack";
 import GuidePage from "./pages/prep/GuidePage";
 import DrillPage from "./pages/prep/DrillPage";
 import Animations from "./pages/Animations";
+import CommandPalette from "./components/CommandPalette";
 import PlaygroundPage from "./pages/prep/PlaygroundPage";
 import {
   Planner,
@@ -55,16 +58,43 @@ import {
   Auth,
   Onboarding,
 } from "./pages/Workspace";
-const navigation = [
-  ["/home", "Home", House],
-  ["/learn", "Explore concepts", Books],
-  ["/prep", "Prep", Exam],
-  ["/practice", "Practice", Code],
-  ["/plan", "My practice plan", CalendarBlank],
-  ["/notebook", "My notebook", Notebook],
-  ["/progress", "Progress", ChartBar],
-  ["/cohorts", "Study together", Users],
-] as const;
+const navigation: [string, [string, string, typeof House][]][] = [
+  [
+    "Learn",
+    [
+      ["/home", "Home", House],
+      ["/learn", "Explore concepts", Books],
+      ["/learn/animations", "Animations", PlayCircle],
+    ],
+  ],
+  [
+    "Practise",
+    [
+      ["/practice", "Practice", Code],
+      ["/practice?tab=sheets", "Sheets", ListChecks],
+      ["/prep", "Prep", Exam],
+    ],
+  ],
+  [
+    "Your work",
+    [
+      ["/plan", "My practice plan", CalendarBlank],
+      ["/notebook", "My notebook", Notebook],
+      ["/progress", "Progress", ChartBar],
+      ["/cohorts", "Study together", Users],
+    ],
+  ],
+];
+
+/** Which sidebar link is the current page; sheets and animations live under their parents' paths. */
+function isCurrent(to: string, pathname: string, search: string) {
+  const sheets = pathname === "/practice" && new URLSearchParams(search).get("tab") === "sheets";
+  if (to === "/practice?tab=sheets") return sheets;
+  if (to === "/practice") return pathname.startsWith("/practice") && !sheets;
+  if (to === "/learn/animations") return pathname === "/learn/animations";
+  if (to === "/learn") return pathname.startsWith("/learn") && pathname !== "/learn/animations";
+  return pathname === to || pathname.startsWith(to + "/");
+}
 function Brand() {
   return (
     <Link to="/home" className="brand" aria-label="1on1 home">
@@ -86,6 +116,7 @@ export default function App() {
     queryFn: () => api<{ user: User | null; csrf: string }>("/auth/session"),
   });
   const user = session.data?.user ?? null;
+  const [palette, setPalette] = useState(false);
   // fetched once for the whole app (the tutor reads it to say up front when AI is unavailable)
   useQuery({
     queryKey: ["system"],
@@ -99,22 +130,10 @@ export default function App() {
   });
   const progress = { ...emptyProgress, ...pq.data };
   const [notice, setNotice] = useState(""),
-    [mobile, setMobile] = useState(false),
-    [search, setSearch] = useState("");
+    [mobile, setMobile] = useState(false);
   const [theme, setTheme] = useState(
     () => localStorage.getItem("1on1-theme") ?? "system",
   );
-  const searchRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const focusSearch = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", focusSearch);
-    return () => window.removeEventListener("keydown", focusSearch);
-  }, []);
   useEffect(() => {
     const media = matchMedia("(prefers-color-scheme: dark)");
     const apply = () =>
@@ -143,12 +162,20 @@ export default function App() {
       <Brand />
       <div className="sidebar-intro">A space to figure it out.</div>
       <nav aria-label="Main navigation">
-        {navigation.map(([path, label, Icon]) => (
-          <NavLink key={path} to={path}>
-            <Icon size={20} />
-            <span>{label}</span>
-            {path === "/learn" && <span className="nav-count">24</span>}
-          </NavLink>
+        {navigation.map(([group, links]) => (
+          <div key={group} className="nav-group">
+            <p className="nav-group-label">{group}</p>
+            {links.map(([path, label, Icon]) => {
+              const current = isCurrent(path, location.pathname, location.search);
+              return (
+                <Link key={path} to={path} className={current ? "active" : undefined} aria-current={current ? "page" : undefined}>
+                  <Icon size={20} />
+                  <span>{label}</span>
+                  {path === "/learn" && <span className="nav-count">24</span>}
+                </Link>
+              );
+            })}
+          </div>
         ))}
       </nav>
       <div className="sidebar-bottom">
@@ -223,6 +250,7 @@ export default function App() {
       ) : (
         <div className="app-shell">
           <aside className="sidebar">{sidebar}</aside>
+          <CommandPalette open={palette} setOpen={setPalette} />
           <Dialog.Root open={mobile} onOpenChange={setMobile}>
             <Dialog.Portal>
               <Dialog.Overlay className="overlay" />
@@ -253,31 +281,27 @@ export default function App() {
               <span className="breadcrumb">
                 Your workspace <span>/</span>{" "}
                 <strong>
-                  {location.pathname.startsWith("/learn/")
-                    ? "Study notebook"
-                    : (navigation.find(([p]) => p === location.pathname)?.[1] ??
-                      "1on1")}
+                  {location.pathname === "/learn/animations"
+                    ? "Animations"
+                    : location.pathname.startsWith("/learn/")
+                      ? "Study notebook"
+                      : (navigation
+                          .flatMap(([, links]) => links)
+                          .find(([p]) => isCurrent(p, location.pathname, location.search))?.[1] ?? "1on1")}
                 </strong>
               </span>
-              <form
+              <button
+                type="button"
                 className="global-search"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  navigate("/learn?q=" + encodeURIComponent(search));
-                }}
+                aria-label="Jump to anything (Ctrl K)"
+                onClick={() => setPalette(true)}
               >
-                <MagnifyingGlass size={17} />
-                <input
-                  aria-label="Search concepts and problems"
-                  ref={searchRef}
-                  placeholder="Find your next lightbulb moment"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+                <MagnifyingGlass size={17} aria-hidden="true" />
+                <span>Find your next lightbulb moment</span>
                 <kbd>
                   <Command size={11} /> K
                 </kbd>
-              </form>
+              </button>
               <button
                 className="icon-btn"
                 aria-label="Toggle color theme"
