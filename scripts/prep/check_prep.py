@@ -8,6 +8,10 @@ from pathlib import Path
 
 TRACKS = ('aptitude', 'reasoning', 'puzzles', 'cs-fundamentals', 'system-design')
 SUBJECTS = ('OOP', 'DBMS', 'Operating systems', 'Computer networks', 'SQL')
+# Mirrors DrillService.TOPICS in the backend; PrepContentTest checks the two agree.
+DRILLS = {t: 'aptitude' for t in ('percentages', 'profit-loss', 'ratio-proportion', 'averages', 'interest', 'time-work',
+                                  'speed-distance', 'number-systems')}
+DRILLS.update({t: 'reasoning' for t in ('number-series', 'letter-series', 'coding-decoding', 'directions', 'syllogisms')})
 
 
 def _text(value):
@@ -25,6 +29,8 @@ def validate(g):
         errors.append(f'track must be one of {TRACKS}')
     if g.get('track') == 'cs-fundamentals' and g.get('subject') not in SUBJECTS:
         errors.append(f'subject must be one of {SUBJECTS}')
+    if g.get('track') in ('aptitude', 'reasoning') and DRILLS.get(g.get('drill')) != g.get('track'):
+        errors.append(f'drill must name a {g.get("track")} drill topic, have {g.get("drill")!r}')
     for key in ('title', 'summary'):
         if not _text(g.get(key)):
             errors.append(f'{key} is required')

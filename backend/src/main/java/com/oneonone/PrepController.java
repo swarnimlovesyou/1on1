@@ -42,7 +42,7 @@ public class PrepController {
     var guides = guides();
     var listed = guides.stream().map(g -> {
       var row = new LinkedHashMap<String, Object>();
-      for (String key : List.of("id", "track", "subject", "title", "order", "summary")) if (g.containsKey(key)) row.put(key, g.get(key));
+      for (String key : List.of("id", "track", "subject", "title", "order", "summary", "drill")) if (g.containsKey(key)) row.put(key, g.get(key));
       row.put("challengeIds", ChallengeService.authored(g).stream().map(c -> c.get("id")).toList());
       row.put("puzzle", g.containsKey("puzzle"));
       return (Map<String, Object>) row;

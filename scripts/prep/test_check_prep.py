@@ -47,5 +47,19 @@ class ValidateTest(unittest.TestCase):
         self.assertIn('subject', self.errors_for(lambda g: g.update(subject='Biology')))
 
 
+    def test_aptitude_and_reasoning_guides_name_a_drill_of_their_own_track(self):
+        def make(track, drill):
+            def change(g):
+                g.update(id=f'guide-{track}-sample', track=track)
+                g.pop('subject')
+                if drill is not None:
+                    g['drill'] = drill
+            return change
+        self.assertIn('drill', self.errors_for(make('aptitude', None)))
+        self.assertIn('drill', self.errors_for(make('aptitude', 'calculus')))
+        self.assertIn('drill', self.errors_for(make('reasoning', 'percentages')))
+        self.assertEqual('', self.errors_for(make('aptitude', 'percentages')))
+        self.assertEqual('', self.errors_for(make('reasoning', 'syllogisms')))
+
 if __name__ == '__main__':
     unittest.main()

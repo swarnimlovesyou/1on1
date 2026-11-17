@@ -89,4 +89,13 @@ class PrepTest {
     assertFalse(listed.contains("guide-cs-fundamentals-stale"));
     assertTrue(listed.contains("guide-cs-fundamentals-kept"));
   }
+  @Test
+  void theOverviewTellsWhichDrillAGuidePractises() {
+    var questions = new ArrayList<Map<String, Object>>();
+    for (int i = 1; i <= 5; i++) questions.add(question(i + 10));
+    store.put("guide-aptitude-test", "guide", "public", Map.of("kind", "guide", "track", "aptitude", "title", "Percentages", "order", 1,
+      "summary", "s", "drill", "percentages", "challenges", questions));
+    var row = Store.items(prep.overview().get("guides")).stream().filter(g -> "guide-aptitude-test".equals(g.get("id"))).findFirst().orElseThrow();
+    assertEquals("percentages", row.get("drill"));
+  }
 }

@@ -463,6 +463,7 @@ export type PrepGuideSummary = {
   id: string;
   track: string;
   subject?: string;
+  drill?: string;
   title: string;
   order: number;
   summary: string;
