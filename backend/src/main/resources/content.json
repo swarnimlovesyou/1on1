@@ -2935,9 +2935,9 @@
       "difficulty": "Intermediate",
       "minutes": 14,
       "published": true,
-      "body": "AVL trees add a local balance rule to the binary search invariant. After insertion, each node checks the difference between its left and right subtree heights. Rotations repair a difference greater than one while preserving key order.",
+      "body": "A plain binary search tree is only as good as its shape. Feed it keys in sorted or nearly sorted order and it turns into a long chain, so a search walks past almost every key. An AVL tree keeps the ordering rule of a search tree and adds one duty: every node remembers its height, and after each insertion the nodes on the way back to the root check whether their two subtrees differ in height by more than one. When one does, a rotation, a small relinking of two or three nodes, lowers the taller side without disturbing the sorted order. In the animation, watch where each repair happens: it is anchored at the lowest node on the insertion path that went out of balance, and a double rotation first turns that node's child.",
       "invariant": "For every node, the subtree heights differ by at most one. Rotations preserve the in-order sequence of keys.",
-      "pitfall": "Left-right and right-left cases need two rotations. Height updates must happen after pointer changes, starting with the lower node.",
+      "pitfall": "A single rotation does not fix a zig-zag. When the new key went left and then right (or right and then left) below the unbalanced node, rotating only at that node moves the imbalance to the other side. Check which way the child leans first and rotate the child before the node. After any rotation, recompute the lower node's height before the upper one, because the upper height is built from it.",
       "timeComplexity": "O(log n) per operation",
       "spaceComplexity": "O(n)",
       "code": [
@@ -2971,7 +2971,103 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-avl-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "The in-order sequence",
+            "The exact root value",
+            "Every node depth"
+          ],
+          "hint": "For every node, the subtree heights differ by at most one. Rotations preserve the in-order sequence of keys."
+        },
+        {
+          "id": "challenge-avl-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "An AVL tree holds 30 with 20 as its left child. Inserting 10 makes the left side of 30 two levels taller. What happens?",
+          "options": [
+            "A right rotation at 30 makes 20 the root, with children 10 and 30",
+            "A left rotation at 30 makes 10 the root",
+            "Nothing yet: a height difference of two is allowed"
+          ],
+          "answer": 0,
+          "explanation": "The extra height is in the outer grandchild (left of left), so one right rotation at 30 repairs it; the in-order sequence 10, 20, 30 is unchanged.",
+          "hint": "Is the new key on the outside or the inside of the unbalanced node?"
+        },
+        {
+          "id": "challenge-avl-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "100,000 keys arrive already sorted, and you need lookups and inserts with an O(log n) worst case. Which structure fits?",
+          "options": [
+            "A plain binary search tree",
+            "A self-balancing tree such as an AVL tree",
+            "An unsorted array with a linear scan"
+          ],
+          "answer": 1,
+          "explanation": "Sorted insertions turn a plain BST into a chain of height n; rotations keep a balanced tree logarithmic for any insertion order.",
+          "hint": "What shape does a plain BST take when every new key is larger than the last?"
+        },
+        {
+          "id": "challenge-avl-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Insert 30, 20, 10, 25, 28, 27. Fill the table once 27 has been inserted and the tree rebalanced (count levels: a lone root has height 1).",
+          "scene": {
+            "algorithm": "avl",
+            "input": "30,20,10,25,28,27",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 27,
+          "fields": [
+            {
+              "key": "root",
+              "label": "Root key"
+            },
+            {
+              "key": "height",
+              "label": "Tree height"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Inserting 27 makes the root too heavy on its right, and the extra height is on the inside, so the repair takes two rotations."
+        }
+      ],
+      "linkedProblems": [],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "One single rotation, two double ones",
+          "text": "The keys arrive as 30, 20, 10, 25, 28, 27. After 30 and 20 the tree is a two-node chain of height 2. Inserting 10 makes the chain three long, and 30 sees a balance of 2: its left side is two levels taller. One right rotation at 30 lifts 20 to the root with 10 and 30 as children. 25 then settles as the left child of 30, and the height becomes 3. Inserting 28 as the right child of 25 unbalances 30 again, but now the extra height sits in the inner grandchild, so two rotations are needed: left at 25, then right at 30, leaving 28 above 25 and 30. Last, 27 goes under 25 and the root 20 is too heavy on the right. A right rotation at 28 and a left rotation at 20 make 25 the new root. The final tree has 25 on top, 20 with 10 on the left, 28 with 27 and 30 on the right, and height 3.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Balanced heights, unchanged order",
+          "text": "Two facts hold after every insertion. First, the search-tree order: every key in a left subtree is smaller than its ancestor and every key in a right subtree is larger, so an in-order walk lists the keys sorted. A rotation only changes which of the nodes involved is the parent, and the middle subtree is reattached on the other side, so the in-order sequence is the same before and after. Second, the balance rule: at every node the two subtree heights differ by at most one. An insertion changes heights only along its own path, by at most one each, so the lowest node that reaches a difference of two is the only place that needs repair. After the rotation that subtree is back to its height before the insertion, so nothing above it needs work.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Logarithmic height for a little bookkeeping",
+          "text": "Because subtree heights differ by at most one everywhere, the sparsest AVL tree of a given height grows like the Fibonacci numbers, which keeps the height below about 1.44 log2 n. Search, insert and delete therefore cost O(log n) in the worst case, not only on friendly inputs. Each node stores one extra integer, and an insertion needs at most one single or double rotation plus height updates along its path. The cost is code: four rotation cases, careful height updates, and deletions that may rotate at several levels. Red-black trees accept looser balance, up to about 2 log2 n, and need only a constant number of rotations even on deletion; Java's TreeMap is one. If the data never changes after loading, a sorted array with binary search is simpler still.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Find the lowest node whose subtree heights differ by two after an insertion.",
+        "Choose a single or double rotation and explain why key order survives it."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-tree-traversal",
@@ -4028,9 +4124,9 @@
       "difficulty": "Intermediate",
       "minutes": 8,
       "published": true,
-      "body": "Dijkstra’s algorithm repeatedly chooses the unsettled vertex with the smallest known distance. Relaxing an outgoing edge checks whether reaching a neighbor through this vertex improves its current estimate.",
+      "body": "Breadth-first search finds the fewest edges, but road maps, networks and schedules put a cost on each edge, and the cheapest route can use more edges than the shortest one. Dijkstra's algorithm handles nonnegative costs. It keeps a tentative distance for every vertex, 0 at the source and infinity elsewhere, and grows a set of settled vertices whose distances are final. Each round it settles the unsettled vertex with the smallest tentative distance, then relaxes that vertex's outgoing edges: if going through it gives a neighbour a cheaper route, the neighbour's estimate drops and its parent changes. In the animation, watch the distance row. A number can shrink while its vertex is unsettled, but once the vertex is settled the number never changes again.",
       "invariant": "With nonnegative edge weights, a settled distance cannot later improve. This is the reason greedy finalization is valid.",
-      "pitfall": "Negative weights break that reasoning. This readable implementation scans for the minimum, giving O(V²) time; a heap-based implementation changes the bound.",
+      "pitfall": "Do not finalise a vertex the moment it is first reached. A first estimate is only an upper bound: a route with more edges but lighter weights can still beat it, and only the smallest-estimate rule guarantees nothing cheaper is on the way. Keep weights nonnegative too; a single negative edge can leave a settled distance wrong without any error being raised.",
       "timeComplexity": "O(V² + E) in this implementation",
       "spaceComplexity": "O(V²) matrix representation",
       "code": [
@@ -4066,7 +4162,103 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-dijkstra-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "Nonnegative edge weights",
+            "Equal vertex names",
+            "A complete graph"
+          ],
+          "hint": "With nonnegative edge weights, a settled distance cannot later improve. This is the reason greedy finalization is valid."
+        },
+        {
+          "id": "challenge-dijkstra-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Vertex 1 is settled at distance 5, and vertex 2 has estimate 6. The edge 1 → 2 has weight 3. What happens to vertex 2?",
+          "options": [
+            "Its estimate stays 6, because 5 + 3 = 8 is not shorter",
+            "It becomes 8, the newest route",
+            "It becomes 3, the edge weight"
+          ],
+          "answer": 0,
+          "explanation": "Relaxation only ever lowers an estimate: the route through 1 costs 8, worse than the direct 6.",
+          "hint": "Relaxing an edge compares two route totals and keeps the smaller."
+        },
+        {
+          "id": "challenge-dijkstra-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A delivery app needs the fastest travel time from one depot to every address, and roads have different nonnegative travel times. Which approach fits?",
+          "options": [
+            "Breadth-first search by number of roads",
+            "Dijkstra's algorithm with a priority queue",
+            "Depth-first search from the depot"
+          ],
+          "answer": 1,
+          "explanation": "BFS counts edges, which is wrong when weights differ; Dijkstra settles addresses in order of true travel time.",
+          "hint": "Does the question count edges or add up weights?"
+        },
+        {
+          "id": "challenge-dijkstra-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Run from vertex 0. Fill the table at the relaxation that gives vertex 4 its first finite distance.",
+          "scene": {
+            "algorithm": "dijkstra",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 6,
+          "fields": [
+            {
+              "key": "from",
+              "label": "Edge source vertex"
+            },
+            {
+              "key": "distance",
+              "label": "New distance for vertex 4"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Only a settled vertex relaxes its edges, and vertices are settled in order of distance."
+        }
+      ],
+      "linkedProblems": [],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Settling six vertices in order",
+          "text": "The source is vertex 0 at distance 0. Its edges reach 1 with weight 5 and 2 with weight 6, so those estimates become 5 and 6, and 0 is settled. The smallest unsettled estimate is 5, so 1 is settled next. Its edge to 3 gives 5 + 4 = 9, while its edge to 2 would give 5 + 3 = 8, which does not beat 6. Vertex 2 is settled at 6, and its edge to 4 gives 6 + 4 = 10; reaching 3 through 2 would cost 6 + 8, worse than 9. Vertex 3 is settled at 9 and offers 5 a route of 9 + 3 = 12, while 9 + 2 does not beat the 10 already held by 4. Then 4 is settled at 10 and 5 at 12. The final distances are [0, 5, 6, 9, 10, 12], and following parents back from 5 gives the route 0, 1, 3, 5.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Settled means final",
+          "text": "When a vertex is settled, its tentative distance is its true shortest distance from the source. Suppose a cheaper route to it existed. That route starts in the settled set, so let u be its first unsettled vertex, reached by an edge from a settled one. Relaxing that edge already gave u an estimate no larger than the route's cost up to u, and with nonnegative weights the rest of the route can only add cost. So u's estimate would be smaller than the picked vertex's, contradicting the choice of the minimum. That argument is why the greedy choice is safe, and it is exactly where a negative edge breaks things: a later edge could subtract cost and make a settled distance wrong.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Scanning versus a heap",
+          "text": "This version finds the next vertex by scanning every unsettled estimate, which costs O(V) per round and O(V²) overall, plus O(E) relaxations. On a dense graph, where E is close to V², that is as good as it gets and the code stays short. On a sparse graph, a binary heap keyed by tentative distance finds the minimum in O(log V) and brings the total to O((V + E) log V); stale heap entries are simply skipped when popped. Space is O(V) for distances and parents, plus the graph itself. If every edge has the same weight, plain BFS gives the same answer more cheaply. If weights can be negative, use Bellman-Ford, which is slower but also detects negative cycles.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Settle vertices in order of smallest tentative distance and relax their edges.",
+        "Explain why nonnegative weights make a settled distance final."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-max-flow",
@@ -4080,9 +4272,9 @@
       "difficulty": "Intermediate",
       "minutes": 10,
       "published": true,
-      "body": "A flow network assigns capacities to directed edges. Edmonds–Karp finds a source-to-sink path in the residual network, sends its bottleneck capacity, and repeats. Reverse residual edges let later paths undo and reroute earlier choices.",
+      "body": "Picture pipes from a reservoir to a city, each with a limit on how much water it can carry per second. How much can arrive in total? A flow network models this with directed edges that have capacities, a source, a sink, and the rule that every inner vertex passes on exactly what it receives. Edmonds-Karp builds the answer in rounds. Each round runs a breadth-first search in the residual network, the edges that still have spare capacity plus reverse edges that allow earlier flow to be cancelled, and pushes as much as the narrowest edge on the found path allows. When no path from source to sink remains, the flow is maximum. In the animation, watch reverse edges appear after each augmentation, and the reachable set at the end, which marks a minimum cut.",
       "invariant": "Flow respects capacity and conservation. Residual capacity records what can still be added or reversed.",
-      "pitfall": "Ignoring reverse edges can leave a nonmaximum flow. When no augmenting path remains, residual reachability identifies a minimum cut.",
+      "pitfall": "Do not leave out the reverse edges. Without them, a path chosen early can block a better arrangement, and the search stops while more flow is still possible. Also take the bottleneck over residual capacities, not the original ones: an edge that already carries flow has less room left than its label says.",
       "timeComplexity": "O(V·E²)",
       "spaceComplexity": "O(V²) here",
       "code": [
@@ -4117,7 +4309,103 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-max-flow-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "They allow earlier flow to be rerouted",
+            "They double every capacity",
+            "They make the graph undirected"
+          ],
+          "hint": "Flow respects capacity and conservation. Residual capacity records what can still be added or reversed."
+        },
+        {
+          "id": "challenge-max-flow-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "The first augmenting path 0 → 1 → 3 → 5 has capacities 5, 4 and 3. How much flow does it carry?",
+          "options": [
+            "3, the smallest capacity on the path",
+            "12, the sum of the capacities",
+            "5, the capacity leaving the source"
+          ],
+          "answer": 0,
+          "explanation": "Every unit passes through every edge on the path, so the narrowest edge, 3, limits the push.",
+          "hint": "Which edge on the path fills up first?"
+        },
+        {
+          "id": "challenge-max-flow-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "Each student lists acceptable projects and each project takes one student. You must assign as many students as possible. Which approach fits?",
+          "options": [
+            "Maximum flow with unit capacities from a source through students and projects to a sink",
+            "Sort students by name and assign greedily",
+            "Run Dijkstra from each student"
+          ],
+          "answer": 0,
+          "explanation": "Bipartite matching is a maximum flow with capacity 1 everywhere; reverse edges let a later student take a project by moving its earlier student to another acceptable one.",
+          "hint": "Think of each assignment as one unit travelling from a source to a sink."
+        },
+        {
+          "id": "challenge-max-flow-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Source 0, sink 5. Fill the table after the second augmenting path has been applied.",
+          "scene": {
+            "algorithm": "max-flow",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 2,
+          "fields": [
+            {
+              "key": "added flow",
+              "label": "Flow added by this path"
+            },
+            {
+              "key": "total flow",
+              "label": "Total flow so far"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "The second path cannot use the edge into the sink that the first path filled."
+        }
+      ],
+      "linkedProblems": [],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Two paths, then a cut",
+          "text": "The source is vertex 0 and the sink is vertex 5. The first search finds the path 0, 1, 3, 5 with capacities 5, 4 and 3. The narrowest is 3, so 3 units flow and the total is 3, and each of those edges gains a reverse residual edge of 3. The second search finds 0, 2, 4, 5 with capacities 6, 4 and 4, which carries 4 more units, so the total becomes 7. Now the edges from 3 to 5 and from 4 to 5 are both full. From the source the residual network still reaches 1, 2, 3 and 4, but not 5, so the search fails and the algorithm stops at 7. The edges leaving that reachable set are exactly those two full edges into the sink, with capacities 3 + 4 = 7, matching the flow: a minimum cut. This run never needed a reverse edge, but they are what lets other inputs reroute earlier choices.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Capacity, conservation, residuals",
+          "text": "Throughout the run, the flow on each edge stays between zero and its capacity, and every vertex other than the source and sink sends out exactly what comes in. An augmentation keeps both facts. It adds the same amount along one path, so every inner vertex on it gains equal inflow and outflow, and that amount is the smallest residual capacity on the path, so no edge overflows. The residual network records for each edge how much more can be pushed forward and how much already sent could be pushed back. When the sink is unreachable, the vertices the source can still reach form a cut whose outgoing edges are full and whose incoming edges carry nothing, so the flow equals the cut's capacity and no flow can be larger.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Shortest paths bound the rounds",
+          "text": "Any augmenting path keeps the answer correct, but careless choices can need a huge number of tiny augmentations. Choosing the path with the fewest edges, via BFS, guarantees at most O(VE) rounds, each costing O(E) for the search, so Edmonds-Karp runs in O(VE²) time. This lesson keeps capacities in a V by V matrix, which costs O(V²) space and suits small dense graphs; adjacency lists with paired reverse edges suit large sparse ones. Dinic's algorithm pushes many shortest paths per phase and is often much faster in practice. Whichever you use, the final failed search also hands you a minimum cut, which answers bottleneck questions directly.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Augment flow along a shortest residual path by its bottleneck capacity.",
+        "Read a minimum cut from the vertices still reachable when the search fails."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-memoization",
@@ -4674,9 +4962,9 @@
       "difficulty": "Intermediate",
       "minutes": 8,
       "published": true,
-      "body": "A trie stores a character per edge so that words with a common prefix share a path. A prefix query follows only the characters typed so far, then enumerates completions below that point.",
+      "body": "Autocomplete keeps asking one question: which stored words begin with what has been typed so far? Keeping the words in a list means comparing the prefix with every one of them. A trie spreads the words over a tree instead, one character per edge, so all words that start the same way share the same opening path. Looking up a prefix of length L follows at most L edges, however many words are stored, and every word below the node you reach is a completion. A flag on each node records whether a word actually ends there, because a path can be a stored word, a prefix of longer words, or both. In the animation, notice how later words reuse the edges earlier words created and only branch off where they first differ.",
       "invariant": "Each root-to-node path spells a prefix. A terminal marker distinguishes a complete word from a prefix that is not itself a word.",
-      "pitfall": "Prefix lookup cost and result enumeration cost are different. Returning many completions costs at least as much as writing those results.",
+      "pitfall": "Reaching a node is not the same as finding a word. Walking t, r, y proves that some stored word starts with try, not that try itself was inserted; only the word-end flag says that. The opposite slip also happens: forgetting to set the flag on a word that is a prefix of a longer one, such as adding car after cart, makes car invisible to exact lookups.",
       "timeComplexity": "O(L) lookup plus output",
       "spaceComplexity": "O(total stored characters)",
       "code": [
@@ -4711,7 +4999,103 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-trie-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "A word-ending marker",
+            "A separate sorted array",
+            "A negative capacity"
+          ],
+          "hint": "Each root-to-node path spells a prefix. A terminal marker distinguishes a complete word from a prefix that is not itself a word."
+        },
+        {
+          "id": "challenge-trie-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "A trie already holds tree and trie. Inserting try follows the existing edges for t and r. How many new nodes does it create?",
+          "options": [
+            "1: only y is new",
+            "3: one per character",
+            "0: the path already exists"
+          ],
+          "answer": 0,
+          "explanation": "The path t, r is shared, and r has no y child yet, so exactly one node is created and marked as a word end.",
+          "hint": "Follow the existing path as far as it matches, then count what is missing."
+        },
+        {
+          "id": "challenge-trie-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A search box must suggest stored product names after every keystroke, over 200,000 names. Which structure fits?",
+          "options": [
+            "A hash set of the full names",
+            "A trie keyed by characters",
+            "An unsorted list scanned on every keystroke"
+          ],
+          "answer": 1,
+          "explanation": "Each keystroke extends the prefix by one edge, and every completion lies in the subtree below. A hash set only answers exact matches.",
+          "hint": "Which structure can answer \"starts with\" rather than \"equals\"?"
+        },
+        {
+          "id": "challenge-trie-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Insert tree, trie, try, track. Fill the table at the step where inserting track creates its first new node.",
+          "scene": {
+            "algorithm": "trie",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 17,
+          "fields": [
+            {
+              "key": "prefix",
+              "label": "Prefix reached"
+            },
+            {
+              "key": "word",
+              "label": "Word being inserted"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Every earlier word shares t and r; find where track first leaves the existing paths. Type text without quotes."
+        }
+      ],
+      "linkedProblems": [],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Four words, one shared stem",
+          "text": "The words are tree, trie, try and track. Inserting tree starts at the empty root, creates one node each for t, r, e and e, and marks the last one as a word end: 1 word stored. Inserting trie follows the existing t and r edges, so the only new nodes are i and e, and the count becomes 2. try follows t and r again and creates just y, giving 3 words. track follows t and r, branches at a, and creates a, c and k, so the count reaches 4. The trie holds only 10 nodes below the root, fewer than the letters in the four words, because the stem tr is stored once and shared by every word. A query for the prefix tr would stop at that shared node and find all four words beneath it.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Every path spells one prefix",
+          "text": "Each node stands for exactly one string: the characters on the edges from the root down to it. No two nodes stand for the same string, because insertion follows an existing edge whenever one matches and creates a new edge only where the stored paths stop. That is why a lookup can be a plain walk. If the walk for a prefix falls off the tree, no stored word starts with that prefix; if it reaches a node, every stored word with that prefix lies in the subtree below. The word-end flag records what the shape cannot: here a node for tr exists, yet tr was never inserted, so its flag stays off and an exact lookup for tr answers false.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Fast prefixes, many small nodes",
+          "text": "With constant-time child lookup, insert and lookup cost O(L) for a word or prefix of length L, independent of how many words are stored. Listing completions costs extra, in proportion to the subtree you walk, so a short prefix over a large dictionary can still produce a lot of output. Space is the weak point: every node carries a map or array of children, which is heavy next to the characters themselves. A sorted list with binary search answers the same prefix questions in O(L log n) time with far less memory, and a hash set answers exact membership with less memory. A trie earns its memory when prefix queries are frequent and the stored words share long stems.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Insert words so that shared prefixes reuse existing edges.",
+        "Separate prefix lookup from exact-word lookup with the word-end flag."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-set-cover",
@@ -4725,9 +5109,9 @@
       "difficulty": "Intermediate",
       "minutes": 10,
       "published": true,
-      "body": "Practice questions often teach several topics. To cover a selected set of topics with a compact plan, repeatedly choose the question adding the most still-uncovered topics. That is a unit-cost greedy set-cover approximation.",
+      "body": "Suppose you want a short study plan that touches every topic on your list, and each practice question covers a few topics. Finding the smallest set of questions that covers everything is hard in general: no known method solves large cases exactly in reasonable time. The greedy rule is a practical compromise. In each round, score every candidate by how many still-uncovered topics it would add, take the best one, and repeat until everything is covered or no candidate adds anything. It never revisits a choice. In the animation, watch the scores change from round to round: a candidate's value depends on what is already covered, not on how many topics it lists.",
       "invariant": "The covered set grows after every useful choice. The algorithm stops with complete coverage or identifies topics no remaining question can cover.",
-      "pitfall": "The result is not guaranteed to use the fewest questions. Under unit costs and feasible coverage, the standard greedy bound is harmonic in the number of topics.",
+      "pitfall": "Do not score a candidate by how many topics it lists. Its value is only what it adds now: in the second round, candidate 3 still lists two topics but adds one, because Arrays is already covered. And do not read the greedy result as proof that no smaller plan exists.",
       "timeComplexity": "O(P·T·min(P,T)) for straightforward sets",
       "spaceComplexity": "O(P·T)",
       "code": [
@@ -4762,7 +5146,99 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-set-cover-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "It is an approximation, not always optimal",
+            "It always finds the exact minimum",
+            "It ignores the selected topics"
+          ],
+          "hint": "The covered set grows after every useful choice. The algorithm stops with complete coverage or identifies topics no remaining question can cover."
+        },
+        {
+          "id": "challenge-set-cover-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "In the first round, candidates 1, 2 and 3 each add two uncovered topics. Which one does this implementation choose?",
+          "options": [
+            "Candidate 1, the first of the tied candidates",
+            "Candidate 3, because only it covers DP",
+            "None: a tie stops the algorithm"
+          ],
+          "answer": 0,
+          "explanation": "The scan keeps the first largest gain it meets. Greedy does not look ahead to rare topics such as DP, and a tie never stops the loop.",
+          "hint": "Picture a left-to-right scan that replaces its best choice only on a strictly larger gain."
+        },
+        {
+          "id": "challenge-set-cover-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You must open as few clinics as possible so that every one of 2,000 districts is served, and each candidate site serves a known set of districts. The exact minimum is too slow to compute. Which approach fits?",
+          "options": [
+            "Greedy set cover: repeatedly open the site serving the most unserved districts",
+            "Open sites in listed order until every district is served",
+            "Run Dijkstra's algorithm from every site"
+          ],
+          "answer": 0,
+          "explanation": "This is set cover; greedy is fast and has a proven approximation bound, while listed order ignores how much each site adds.",
+          "hint": "Which rule looks at what is still uncovered?"
+        },
+        {
+          "id": "challenge-set-cover-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Goals Arrays, Hashing, Trees, Graphs, DP. Fill the table when candidate 3 (Arrays, DP) is scored in the second round.",
+          "scene": {
+            "algorithm": "set-cover",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "Arrays,Hashing,Trees,Graphs,DP"
+          },
+          "traceStep": 8,
+          "fields": [
+            {
+              "key": "new coverage",
+              "label": "Uncovered topics it would add"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Only topics still uncovered after the first choice count."
+        }
+      ],
+      "linkedProblems": [],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Three rounds to cover five topics",
+          "text": "The goals are Arrays, Hashing, Trees, Graphs and DP, so 5 topics start uncovered. Candidate 1 covers Arrays and Hashing, candidate 2 covers Graphs and Trees, candidate 3 covers Arrays and DP, and candidate 4 covers only Trees. In the first round candidates 1, 2 and 3 each add 2 topics and candidate 4 adds 1; the tie goes to the first, so candidate 1 is chosen and Trees, Graphs and DP remain. In the second round candidate 1 adds nothing, candidate 2 still adds 2, and candidates 3 and 4 add 1 each, so candidate 2 is chosen and only DP remains. In the third round only candidate 3 adds anything, and it covers DP. Three candidates were chosen and nothing is left uncovered. Here three is also the true minimum, since no two candidates together cover all five topics.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "Coverage only grows",
+          "text": "After each round, the covered set is exactly the union of the chosen candidates, and the remaining set is the goals minus that union. A candidate is chosen only when its gain is positive, so every round strictly shrinks what remains, and the loop runs at most once per goal. When it stops there are two honest outcomes: everything is covered, or the leftover goals appear in no candidate at all, and the algorithm reports them instead of hiding them. What this invariant does not promise is minimality. Gains are measured against the current remaining set only, so a choice that looked best early can force extra picks later.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "A guarantee, not an optimum",
+          "text": "Each round scores every candidate against the remaining goals. With P candidates and T goals, a straightforward version spends up to O(P·T) per round over at most min(P, T) rounds. Finding the exact minimum cover is NP-hard, so for large inputs a fast heuristic is the realistic option. Greedy comes with a proven bound: with equal costs it uses at most H(T) times as many sets as the optimum, where the harmonic number H(T) is below ln T + 1. On small inputs like this one, trying every subset of candidates is affordable and gives the true minimum. When candidates have different costs, score by uncovered topics per unit of cost instead.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Score each candidate by the uncovered goals it adds and pick the largest gain.",
+        "Explain why a greedy cover can be larger than the optimum."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-quickselect",
@@ -4776,9 +5252,9 @@
       "difficulty": "Intermediate",
       "minutes": 12,
       "published": true,
-      "body": "Randomized Quickselect chooses a pivot and partitions around it. Only the side containing the requested order statistic needs further work. The rest of the values can stay unordered.",
+      "body": "Sometimes you need one value by rank, such as the median or the third smallest, not a fully sorted list, and sorting does more work than the question asks for. Quickselect borrows the partition step from quicksort: choose a pivot, move the values not larger than it to its left and the larger ones to its right, and the pivot lands exactly where it would sit after sorting. If that position is the requested rank, you are done. Otherwise only one side can contain the answer, and the other side is dropped for good. Choosing the pivot at random makes it unlikely that the split is lopsided round after round. In the animation, watch the range of interest shrink, and notice the values outside it that are never put in order.",
       "invariant": "After partitioning, the pivot’s position tells us which interval can contain the requested rank. Random pivots make repeatedly bad splits unlikely.",
-      "pitfall": "Expected linear time is not a worst-case guarantee. The production selector uses three-way partitioning to handle duplicates efficiently; this small lesson shows pivot movement explicitly.",
+      "pitfall": "Mixing up ranks and indexes is the classic bug: rank 3 means index 2. The expected bound also depends on the pivots being random; a fixed first or last pivot on sorted input discards only one value per round. With many repeated values a two-way partition can degrade as well, which is why many implementations, including this app's own Quickselect class, split into less, equal and greater.",
       "timeComplexity": "Expected O(n), worst O(n²)",
       "spaceComplexity": "O(n) defensive copy",
       "code": [
@@ -4813,7 +5289,101 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-quickselect-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "Only the side containing the requested rank",
+            "Both sides must be fully sorted",
+            "Only the smaller values, always"
+          ],
+          "hint": "After partitioning, the pivot’s position tells us which interval can contain the requested rank. Random pivots make repeatedly bad splits unlikely."
+        },
+        {
+          "id": "challenge-quickselect-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "Looking for rank 3 (index 2) in 4, 2, 7, 1, 3, 6, the first pivot 7 lands at index 5. Where does the search continue?",
+          "options": [
+            "Indices 0 to 4, left of the pivot",
+            "Indices 3 to 5",
+            "Both sides, which are then merged"
+          ],
+          "answer": 0,
+          "explanation": "The pivot sits at its sorted position 5; index 2 is smaller, so only the left part can hold the answer.",
+          "hint": "Compare the target index with the pivot's final index."
+        },
+        {
+          "id": "challenge-quickselect-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "You need the 100 largest of 10 million scores, in any order, as fast as possible on average. Which approach fits?",
+          "options": [
+            "Sort all scores and take the last 100: O(n log n)",
+            "Quickselect the 100th largest, then keep it and everything on its larger side: expected O(n)",
+            "Binary search the unsorted scores for the cutoff"
+          ],
+          "answer": 1,
+          "explanation": "After the selection the partition has already put the 100 largest values on one side, and their order was never required. Binary search needs sorted input.",
+          "hint": "The output does not have to be sorted."
+        },
+        {
+          "id": "challenge-quickselect-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Rank 3 in 4, 2, 7, 1, 3, 6. The third partition uses pivot 3 on indices 1 to 4. Fill the table when the pivot is placed.",
+          "scene": {
+            "algorithm": "quickselect",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree, trie, try, track"
+          },
+          "traceStep": 15,
+          "fields": [
+            {
+              "key": "pivot index",
+              "label": "Pivot's final index"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "Count the values in the range that are at most the pivot, starting from the low index."
+        }
+      ],
+      "linkedProblems": [
+        "problem-lower-middle"
+      ],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "Finding the third smallest",
+          "text": "The input is 4, 2, 7, 1, 3, 6 and the requested rank is 3, which is index 2 once sorted. The first random pivot is 7. It is moved to the end, every other value is at most 7, so the boundary advances past all of them and 7 is placed at index 5. Index 2 lies to its left, so the search continues on indices 0 to 4. The second pivot is 1, the smallest value: no scanned value is at most 1, so the pivot lands at index 0, giving 1, 2, 6, 3, 4, 7. The range is now indices 1 to 4. The third pivot is 3. Only 2 is at most 3, so the boundary moves once and 3 is placed at index 2. That is the requested position, and the answer is 3. The values 4 and 6 were never compared with each other; that they end up in order is luck.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "The pivot's index is its rank",
+          "text": "After a partition of the range from low to high, the pivot sits at some index p, every value from low up to p minus one is at most the pivot, and every value after p up to high is larger. So the pivot is exactly the value that would sit at index p in sorted order. The requested index always stays inside the current range: if it equals p the search stops, if it is smaller only the left part can hold the answer, and if it is larger only the right part can. Each round removes at least the pivot from the range, so the loop must end. Values outside the range are already on the correct side of the answer, which is why they never need sorting.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Expected linear, worst quadratic",
+          "text": "Each partition is one pass over the current range. With random pivots the range shrinks by a constant fraction on average, so the passes add up like n + n/2 + n/4 and the expected time is O(n). A run that keeps drawing the largest or smallest value, as the first two pivots here did, costs O(n²), but over many runs that is very unlikely. If a worst-case bound is required, the median-of-medians pivot rule guarantees O(n) at the price of a much larger constant. Sorting first costs O(n log n) and pays off only when you need many ranks from the same data. This version works on a copy of the input, using O(n) space, so the caller's array is left untouched.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Partition around a random pivot and continue only into the side that holds the rank.",
+        "Distinguish quickselect's expected O(n) time from its O(n²) worst case."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-bloom-filter",
@@ -4827,9 +5397,9 @@
       "difficulty": "Intermediate",
       "minutes": 14,
       "published": true,
-      "body": "A Bloom filter sets several bit positions for each inserted identifier. A missing bit proves absence. If every bit is set, the identifier might be present because other identifiers may have set the same positions.",
+      "body": "Before an expensive lookup on disk or across a network, it helps to learn cheaply that an item is definitely not there. A Bloom filter does this with a fixed array of bits and a few hash functions. Inserting an item sets the bits its hashes point to. A query checks those same bits: if any is zero, the item was never inserted; if all are one, it might have been, because other items may have set the same bits. The filter never stores the items, so it is far smaller than a set, but it cannot list its contents or delete safely. In the animation, watch bits turn on as words arrive, and notice that a later word can land entirely on bits that are already set.",
       "invariant": "With insert-only operation, a previously inserted identifier has all its bits set. Collisions can create false positives, not false negatives.",
-      "pitfall": "A positive result cannot justify discarding an item when exact membership matters. Confirm it against authoritative storage. Ordinary bit clearing is not a safe deletion operation.",
+      "pitfall": "Do not act on a positive answer as if it were exact: in this trace sheep was never inserted, yet both of its bits are set. Do not size the filter for today's data only, either. As more items arrive, more bits turn on and the false-positive rate climbs until almost every query says possibly present.",
       "timeComplexity": "O(k) per operation",
       "spaceComplexity": "O(m) bits",
       "code": [
@@ -4863,7 +5433,103 @@
       ],
       "branch": "advanced",
       "interactiveStatus": "interactive",
-      "traceRevision": 3
+      "traceRevision": 3,
+      "challenges": [
+        {
+          "id": "challenge-lesson-bloom-filter-checkpoint",
+          "kind": "prediction",
+          "title": "Check your intuition",
+          "prompt": "Which statement captures the key idea?",
+          "options": [
+            "Possibly present; confirm exactly when needed",
+            "Definitely present",
+            "Definitely absent"
+          ],
+          "hint": "With insert-only operation, a previously inserted identifier has all its bits set. Collisions can create false positives, not false negatives."
+        },
+        {
+          "id": "challenge-bloom-filter-prediction",
+          "kind": "prediction",
+          "title": "Predict the next change",
+          "prompt": "After inserting tree, bits 14 and 9 are set. graph also hashes to bits 14 and 9. What changes when graph is inserted?",
+          "options": [
+            "No bit changes; only the exact set grows",
+            "Bits 14 and 9 become 2",
+            "The filter rejects graph as a duplicate"
+          ],
+          "answer": 0,
+          "explanation": "Setting a bit that is already one leaves it one, so the bit array is unchanged; the filter cannot tell that a different word arrived.",
+          "hint": "Each position holds a single bit."
+        },
+        {
+          "id": "challenge-bloom-filter-pattern",
+          "kind": "pattern",
+          "title": "Spot the pattern",
+          "prompt": "A crawler tracks billions of visited URLs in little memory. Occasionally skipping a page it never visited is acceptable, but it must never fetch the same page twice. Which structure fits?",
+          "options": [
+            "A Bloom filter of visited URLs",
+            "A hash set of every URL string",
+            "A sorted list of URLs with binary search"
+          ],
+          "answer": 0,
+          "explanation": "The filter never forgets an inserted URL, so nothing is fetched twice; its false positives cause only the acceptable skips. Exact structures need far more memory.",
+          "hint": "Which kind of error can a Bloom filter make, and which can it never make?"
+        },
+        {
+          "id": "challenge-bloom-filter-dry-run",
+          "kind": "dry-run",
+          "title": "Dry-run the state",
+          "prompt": "Insert tree, graph, heap, then query sheep. Fill the table at the query step.",
+          "scene": {
+            "algorithm": "bloom-filter",
+            "input": "4, 2, 7, 1, 3, 6",
+            "target": 3,
+            "words": "tree,graph,heap | sheep"
+          },
+          "traceStep": 7,
+          "fields": [
+            {
+              "key": "possibly present",
+              "label": "Filter says possibly present (true/false)"
+            },
+            {
+              "key": "exact membership",
+              "label": "Exact set contains sheep (true/false)"
+            }
+          ],
+          "explanation": "Your entries agree with the actual Java trace for this input.",
+          "hint": "sheep hashes to bits 11 and 12. Check which insertion set those bits, and whether sheep was ever inserted."
+        }
+      ],
+      "linkedProblems": [],
+      "blocks": [
+        {
+          "id": "worked",
+          "kind": "explanation",
+          "title": "A false positive for sheep",
+          "text": "The filter starts with every bit at zero, and each word sets two positions. tree hashes to bits 14 and 9, so those turn on. graph happens to hash to the same two bits, 14 and 9, so the bit array does not change at all, even though the exact set now holds 2 words. heap hashes to 12 and 11, which turns those bits on; 4 bits are now set and the exact count is 3. The query sheep hashes to 11 and 12. Both are already one, set by heap, so the filter answers possibly present. The exact set shows that sheep was never inserted: this is a false positive. A query whose bits had included any position that is still zero would have been rejected at once, with certainty.",
+          "lines": []
+        },
+        {
+          "id": "invariant",
+          "kind": "explanation",
+          "title": "No false negatives",
+          "text": "Bits are only ever switched on, never off. So once an item has been inserted, every bit its hashes name stays one for the rest of the filter's life, and a query for it always answers possibly present. That is the guarantee a Bloom filter sells: a no is always right. A yes is weaker; it only says that each of the item's bits was set by some insertion, not necessarily by this item. The exact set kept beside the filter in this lesson exists to show that difference. In real use the confirmation comes from the authoritative store the filter protects. Clearing a bit to delete an item would break the guarantee, because the same bit may belong to other items.",
+          "lines": []
+        },
+        {
+          "id": "tradeoff",
+          "kind": "explanation",
+          "title": "Tiny, fast and approximate",
+          "text": "Insert and query each compute k hashes and touch k bits, so both cost O(k), however many items are stored. Space is m bits, about 9.6 bits per item for a one percent false-positive rate with the best k, far less than storing the items. The price is that rate, which rises as bits fill: with n items and well-mixed hashes a bit is still zero with probability about e^(-kn/m), so an absent item passes all k checks with probability about (1 - e^(-kn/m))^k, which is lowest near k = (m/n) ln 2. A filter cannot shrink, list its items or delete; a counting Bloom filter swaps bits for small counters to allow deletion, at several times the space. Put one in front of a slow lookup, never in place of exact membership.",
+          "lines": []
+        }
+      ],
+      "objectives": [
+        "Explain why a zero bit proves absence while all-ones only suggests presence.",
+        "Relate filter size, hash count and item count to the false-positive rate."
+      ],
+      "prerequisiteNotes": {}
     },
     {
       "id": "lesson-complexity",
@@ -16822,6 +17488,610 @@
       ]
     },
     {
+      "id": "guide-puzzles-handshakes",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 1,
+      "title": "Handshakes at a meetup",
+      "summary": "Count every handshake in a room where everyone greets everyone else exactly once.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Count from one person's point of view, then fix the double counting.",
+        "Choosing 2 from n is n(n-1)/2.",
+        "Check a tiny case (3 or 4 people) by hand before trusting a formula."
+      ],
+      "puzzle": {
+        "statement": "Fourteen people arrive at a meetup. Before the talks start, every person shakes hands exactly once with every other person. Nobody shakes their own hand. How many handshakes take place in total?",
+        "hints": [
+          "How many hands does one person shake? Now multiply by the number of people. Is anything counted twice?",
+          "The handshake between Asha and Ben gets counted once from Asha's side and once from Ben's side."
+        ],
+        "solution": [
+          "Each of the 14 people shakes hands with the other 13.",
+          "Adding that up over everyone gives 14 x 13 = 182.",
+          "Every handshake involves two people, so each one was counted exactly twice in that total.",
+          "Divide by 2: 182 / 2 = 91 handshakes. This is the number of ways to choose 2 people from 14."
+        ],
+        "answer": "91"
+      }
+    },
+    {
+      "id": "guide-puzzles-clock-angle",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 2,
+      "title": "The angle between the hands",
+      "summary": "Find the angle between the hour and minute hands of a clock at a given time.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Convert each hand to degrees measured from 12 before comparing.",
+        "The hour hand keeps moving between hours, half a degree per minute.",
+        "Take the smaller of the two angles the hands make."
+      ],
+      "puzzle": {
+        "statement": "An ordinary analog clock shows 4:36. Both hands move smoothly and continuously. What is the smaller angle, in degrees, between the hour hand and the minute hand?",
+        "hints": [
+          "Work out how far each hand has turned from the 12 o'clock position, in degrees.",
+          "The minute hand moves 6 degrees per minute. The hour hand moves 30 degrees per hour plus 0.5 degrees per minute."
+        ],
+        "solution": [
+          "Minute hand: 36 minutes x 6 degrees = 216 degrees from 12.",
+          "Hour hand: 4 hours x 30 degrees = 120 degrees, plus 36 minutes x 0.5 degrees = 18 degrees, so 138 degrees from 12.",
+          "The difference is 216 - 138 = 78 degrees.",
+          "The other way round the dial is 360 - 78 = 282 degrees, so the smaller angle is 78 degrees."
+        ],
+        "answer": "78"
+      }
+    },
+    {
+      "id": "guide-puzzles-trains-and-bird",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 3,
+      "title": "Two trains and a restless bird",
+      "summary": "A bird shuttles between two approaching trains; find how far it flies in total.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Ask how long something lasts before asking where it goes.",
+        "An infinite sequence of small trips can still have a simple total.",
+        "Closing speed is the sum of two speeds toward each other."
+      ],
+      "puzzle": {
+        "statement": "Two trains are 150 km apart on the same straight track, heading toward each other. One travels at 40 km/h and the other at 35 km/h. At the moment they are 150 km apart, a bird leaves the front of the first train and flies at a constant 90 km/h toward the second. When it reaches the second train it turns instantly and flies back to the first, and keeps doing this until the trains meet. Turning takes no time. How many kilometres does the bird fly in total?",
+        "hints": [
+          "Adding up each leg of the bird's trip is painful. Is there a quantity that is much easier to find?",
+          "The bird flies at a fixed speed for the whole time the trains are approaching. How long is that?"
+        ],
+        "solution": [
+          "The trains close the gap at 40 + 35 = 75 km/h.",
+          "A 150 km gap therefore disappears in 150 / 75 = 2 hours.",
+          "The bird flies non-stop at 90 km/h for exactly those 2 hours.",
+          "Total distance = 90 x 2 = 180 km. The back-and-forth legs form an infinite series, but it must sum to the same 180 km."
+        ],
+        "answer": "180"
+      }
+    },
+    {
+      "id": "guide-puzzles-switches-and-bulb",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 4,
+      "title": "Three switches, one bulb",
+      "summary": "Match three switches to one hidden bulb when you may look at the bulb only once.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "A single observation can carry more than two outcomes if you use more than one property.",
+        "Time is a resource: what you do before looking can leave a trace.",
+        "Count outcomes: you need at least as many distinguishable results as possibilities."
+      ],
+      "puzzle": {
+        "statement": "In a hallway there are three ordinary on/off switches. Exactly one of them controls an incandescent bulb in a closed storeroom at the end of a long corridor; the other two do nothing. From the hallway you cannot see the bulb. You may flip the switches as often as you like, but you may walk to the storeroom and open the door only once, and after that you cannot touch the switches again. How can you be certain which switch controls the bulb?",
+        "hints": [
+          "Looking at the bulb only tells you on or off, which separates two cases, not three. What else can you learn by being in the room?",
+          "An incandescent bulb that has been glowing for a while stays warm for some time after it goes dark."
+        ],
+        "solution": [
+          "Call the switches A, B and C. Turn A on and leave it on for about ten minutes.",
+          "Turn A off, then turn B on, and walk straight to the storeroom.",
+          "If the bulb is lit, B controls it.",
+          "If the bulb is dark but warm to the touch, it was on recently, so A controls it.",
+          "If the bulb is dark and cold, it was never on, so C controls it.",
+          "The three outcomes (lit, dark and warm, dark and cold) are distinct, so one visit always settles the question."
+        ]
+      }
+    },
+    {
+      "id": "guide-puzzles-lockers",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 5,
+      "title": "The 120 lockers",
+      "summary": "A crowd of students toggles a row of lockers in a pattern; count how many end up open.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Follow one item through the whole process instead of following the whole process.",
+        "Toggling an even number of times returns to the start.",
+        "Divisors come in pairs, except when a number is a perfect square."
+      ],
+      "puzzle": {
+        "statement": "A corridor has 120 lockers numbered 1 to 120, all closed. 120 students walk past one after another. Student 1 toggles every locker (opens it if closed, closes it if open). Student 2 toggles every 2nd locker (2, 4, 6, ...). Student 3 toggles every 3rd locker, and so on, until student 120 toggles only locker 120. After all 120 students have passed, how many lockers are open?",
+        "hints": [
+          "Pick one locker, say number 12, and list exactly which students touch it.",
+          "Locker n is touched once for each divisor of n. Which numbers have an odd number of divisors?"
+        ],
+        "solution": [
+          "Student k touches locker n exactly when k divides n, so locker n is toggled once per divisor of n.",
+          "A locker ends up open only if it is toggled an odd number of times.",
+          "Divisors pair up as (d, n/d). The pairs are distinct unless d = n/d, which happens only when n is a perfect square.",
+          "So exactly the perfect-square lockers have an odd number of divisors and stay open.",
+          "The perfect squares up to 120 are 1, 4, 9, ..., 100 (10 squared); 11 squared is 121, which is too big.",
+          "Therefore 10 lockers are open."
+        ],
+        "answer": "10"
+      }
+    },
+    {
+      "id": "guide-puzzles-nine-coins",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 6,
+      "title": "Nine coins, one heavy",
+      "summary": "Find the one heavier coin among nine using a balance scale as few times as possible.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "A balance has three outcomes, not two, so split into three groups.",
+        "Each weighing can at most divide the possibilities by three.",
+        "Prove a lower bound by counting outcomes against cases."
+      ],
+      "puzzle": {
+        "statement": "You have nine coins that look identical. Eight weigh the same and one is slightly heavier. You have a two-pan balance scale with no weights; each use tells you only whether the left pan is heavier, the right pan is heavier, or they balance. What is the smallest number of weighings that is guaranteed to find the heavy coin, whatever happens?",
+        "hints": [
+          "A weighing has three possible results. Can you make each result point to a different group of coins?",
+          "Put three coins on each pan and keep three aside. What does each outcome tell you?"
+        ],
+        "solution": [
+          "Weighing 1: put coins 1-3 on the left, 4-6 on the right, and keep 7-9 off the scale.",
+          "If one pan is heavier, the heavy coin is among its three. If they balance, it is among the three set aside.",
+          "Weighing 2: from the suspect three, put one coin on each pan and keep one aside. The heavier pan holds it; a balance means it is the coin set aside.",
+          "So 2 weighings always suffice.",
+          "One weighing cannot be enough: it has only 3 possible outcomes, but there are 9 possible heavy coins. Hence the minimum is 2."
+        ],
+        "answer": "2"
+      }
+    },
+    {
+      "id": "guide-puzzles-ferry",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 7,
+      "title": "The ferry, the dog and the rabbit",
+      "summary": "Get a dog, a rabbit and a basket of carrots across a river without anything being eaten.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Model the puzzle as states and moves, then search for the shortest path.",
+        "Bringing something back can be a forward step.",
+        "Identify the item that conflicts with everything and handle it first."
+      ],
+      "puzzle": {
+        "statement": "A ferry operator must take a dog, a rabbit and a basket of carrots across a river. The boat holds the operator plus at most one of the three, and only the operator can row it. If the dog and the rabbit are left together on a bank without the operator, the dog chases the rabbit. If the rabbit and the carrots are left together without the operator, the rabbit eats the carrots. The dog ignores the carrots. Counting each trip across the river (in either direction) as one crossing, what is the fewest crossings needed to get all three safely to the far bank?",
+        "hints": [
+          "Which item is in conflict with both of the others? It has to go first.",
+          "At some point the operator must carry something back to the starting bank."
+        ],
+        "solution": [
+          "Crossing 1: take the rabbit over (the dog and carrots are safe together).",
+          "Crossing 2: return alone.",
+          "Crossing 3: take the dog over. Crossing 4: bring the rabbit back, so the dog is not left with it.",
+          "Crossing 5: take the carrots over and leave them with the dog. Crossing 6: return alone.",
+          "Crossing 7: take the rabbit over. Everything is across.",
+          "Fewer is impossible. The total is odd, since the operator ends on the far bank. If nothing is ever carried back, 5 crossings would mean three loaded trips over with empty returns: the first load must be the rabbit, and the second load would then be left with the rabbit while the operator returns. So something must be carried back and ferried again, which makes at least 7. A full search of all states agrees."
+        ],
+        "answer": "7"
+      }
+    },
+    {
+      "id": "guide-puzzles-burning-ropes",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 8,
+      "title": "Timing with two uneven ropes",
+      "summary": "Measure an awkward time interval using two ropes that burn at an uneven rate.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Lighting both ends halves the remaining time, however uneven the burn.",
+        "Use one event (a rope going out) as the trigger for the next action.",
+        "Track how much burn time is left on each rope, not how much length."
+      ],
+      "puzzle": {
+        "statement": "You have two ropes and a box of matches. Rope A takes exactly 10 minutes to burn from one end to the other, and rope B takes exactly 6 minutes. Both burn unevenly: some stretches burn fast and others slowly, so half the length does not mean half the time. You may light either end of either rope at any moment, and you can see when a rope burns out. Starting from the moment you first light something, how can you mark exactly 6.5 minutes?",
+        "hints": [
+          "If you light a rope at both ends, it burns out in exactly half its remaining time, even though it burns unevenly.",
+          "Start A at one end and B at both ends together. What is left of A when B goes out?"
+        ],
+        "solution": [
+          "At time 0, light rope A at one end and rope B at both ends.",
+          "Burning from both ends, B goes out after 6 / 2 = 3 minutes.",
+          "At that moment A has burned for 3 minutes, so it has exactly 7 minutes of burn time left.",
+          "Immediately light the other end of A. Burning from both ends, the remaining 7 minutes takes 7 / 2 = 3.5 minutes.",
+          "A goes out at 3 + 3.5 = 6.5 minutes after the start, which is the moment you wanted."
+        ]
+      }
+    },
+    {
+      "id": "guide-puzzles-water-jugs",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 9,
+      "title": "Six litres from a 4 and a 9",
+      "summary": "Use two unmarked jugs to measure an exact amount of water in as few steps as possible.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Every reachable state is a pair of amounts; search them breadth-first.",
+        "Pouring big into small repeatedly leaves remainders you can collect.",
+        "Try filling each jug first; one direction is often much shorter."
+      ],
+      "puzzle": {
+        "statement": "You have an unmarked 4-litre jug, an unmarked 9-litre jug, a tap and a drain. Both jugs start empty. One step is any one of: fill a jug to the brim from the tap; empty a jug completely into the drain; or pour from one jug into the other until the first is empty or the second is full. What is the fewest steps needed to have exactly 6 litres in one of the jugs?",
+        "hints": [
+          "Only the 9-litre jug can hold 6 litres. Try starting by filling the big jug rather than the small one.",
+          "Filling the 9 and pouring off 4 twice leaves 1 litre. How can that 1 litre help you reach 6?"
+        ],
+        "solution": [
+          "Write states as (4-litre, 9-litre). Fill the 9: (0, 9). Pour into the 4: (4, 5).",
+          "Empty the 4: (0, 5). Pour again: (4, 1).",
+          "Empty the 4: (0, 1). Pour the 1 litre into the 4: (1, 0).",
+          "Fill the 9: (1, 9). Pour into the 4 until it is full, which takes 3 litres: (4, 6).",
+          "That is 8 steps. A breadth-first search over every reachable state finds no shorter route (starting by filling the 4-litre jug takes longer), so 8 is the minimum."
+        ],
+        "answer": "8"
+      }
+    },
+    {
+      "id": "guide-puzzles-counterfeit-bag",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 10,
+      "title": "The counterfeit bag",
+      "summary": "Identify a bag of fake coins with one reading of a digital scale, using as few coins as possible.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Give each candidate a unique signature in a single measurement.",
+        "The excess weight tells you how many fake coins are on the scale.",
+        "Zero is a valid label: one candidate can be left out entirely."
+      ],
+      "puzzle": {
+        "statement": "There are 8 bags, each holding plenty of coins. Every coin in seven of the bags weighs exactly 10 g. Every coin in the remaining bag is counterfeit and weighs exactly 11 g. You have an accurate digital scale that shows the total weight, and you may use it only once. You choose some number of coins from each bag (possibly zero) and weigh them all together. What is the fewest coins you can put on the scale and still be certain which bag is counterfeit?",
+        "hints": [
+          "If you take a different number of coins from each bag, how does the scale reading reveal the fake bag?",
+          "The counts from the 8 bags must all be different. What is the smallest total of 8 different whole numbers that are zero or more?"
+        ],
+        "solution": [
+          "If N coins are on the scale and c of them came from the fake bag, the reading is 10 x N + c grams, so the excess over 10 x N equals c.",
+          "To tell the bags apart, each bag must give a different excess, so the 8 counts must all be different.",
+          "The smallest 8 different non-negative whole numbers are 0, 1, 2, ..., 7.",
+          "Take 0 coins from one bag, 1 from the next, and so on up to 7. That is 0 + 1 + ... + 7 = 28 coins.",
+          "The excess over 280 g names the bag directly; an excess of 0 means the bag you left out.",
+          "Any other set of 8 different counts has a larger sum, so 28 is the minimum."
+        ],
+        "answer": "28"
+      }
+    },
+    {
+      "id": "guide-puzzles-trimmed-board",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 11,
+      "title": "Dominoes on a trimmed board",
+      "summary": "Decide whether dominoes can cover a small chessboard that is missing two corners.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Look for an invariant: a quantity every move preserves.",
+        "Colouring is a powerful way to prove that something is impossible.",
+        "Counting squares is necessary but not sufficient."
+      ],
+      "puzzle": {
+        "statement": "A 6 x 6 board is coloured like a chessboard, in alternating black and white squares. Two diagonally opposite corner squares are cut away, leaving 34 squares. You have 17 dominoes, and each domino covers exactly two squares that share an edge. Can the 17 dominoes cover the 34 remaining squares with no overlaps and nothing hanging off the board? Explain why or why not.",
+        "hints": [
+          "The square count works out, so the answer cannot come from counting alone. Think about the colours.",
+          "What colours are the two squares under any single domino? What colours were the two corners you removed?"
+        ],
+        "solution": [
+          "Any two squares that share an edge have different colours, so every domino covers one black and one white square.",
+          "17 dominoes would therefore cover exactly 17 black and 17 white squares.",
+          "The full 6 x 6 board has 18 black and 18 white squares.",
+          "Diagonally opposite corners always have the same colour, so removing them leaves 18 of one colour and 16 of the other.",
+          "17 and 17 can never match 18 and 16, so the covering is impossible, however the dominoes are arranged."
+        ]
+      }
+    },
+    {
+      "id": "guide-puzzles-ants-on-a-stick",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 12,
+      "title": "Ants on a metre stick",
+      "summary": "Ants bounce off each other on a stick; find when the last one falls off.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Two identical objects bouncing apart look the same as passing through each other.",
+        "Ignore labels when only the collective outcome matters.",
+        "Replace a messy interaction with an equivalent simple one."
+      ],
+      "puzzle": {
+        "statement": "Five ants sit on a stick 100 cm long, at 10 cm, 25 cm, 40 cm, 70 cm and 85 cm from the left end. They all start walking at the same moment at 1 cm per second. The ants at 10 cm and 40 cm walk right; the ants at 25 cm, 70 cm and 85 cm walk left. Whenever two ants meet head-on, both instantly turn around and carry on at the same speed. An ant falls off as soon as it reaches either end of the stick. After how many seconds does the last ant fall off?",
+        "hints": [
+          "Tracking every bounce is hard. If two ants meet and turn around, what would an observer who cannot tell ants apart see?",
+          "Pretend the ants walk straight through each other. Then each 'walker' just goes to the end it is facing."
+        ],
+        "solution": [
+          "When two ants meet and both reverse, the picture is identical to them passing through each other with labels swapped.",
+          "So the moments at which ants fall off are the same as if every ant ignored the others and walked straight on.",
+          "Walking straight on, the ant at 10 cm heading right needs 90 s; at 25 cm heading left, 25 s; at 40 cm heading right, 60 s; at 70 cm heading left, 70 s; at 85 cm heading left, 85 s.",
+          "Ants fall off at 25, 60, 70, 85 and 90 seconds (a different ant may be the one falling each time).",
+          "The last ant falls off after 90 seconds."
+        ],
+        "answer": "90"
+      }
+    },
+    {
+      "id": "guide-puzzles-bridge-and-torch",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 13,
+      "title": "Four people, one torch, one bridge",
+      "summary": "Get four walkers of different speeds across a narrow bridge at night in the least time.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Send the two slowest together so their times overlap.",
+        "The fastest walkers should do the return trips.",
+        "Compare the two standard strategies; neither always wins."
+      ],
+      "puzzle": {
+        "statement": "Four people must cross a narrow bridge at night. They have one torch, and nobody may be on the bridge without it. At most two people can be on the bridge at once, and a pair walks at the pace of the slower person. The torch must be carried back and forth; it cannot be thrown. Alone, the four take 1, 3, 8 and 12 minutes to cross. What is the shortest total time, in minutes, to get all four across?",
+        "hints": [
+          "Having the 1-minute person escort everyone wastes time, because the 8 and 12 each pay full price.",
+          "What if the 8 and 12 walk over together, and a fast person who is already on the far side brings the torch back?"
+        ],
+        "solution": [
+          "1 and 3 cross (3 min). 1 returns with the torch (1 min). Running total 4.",
+          "8 and 12 cross together (12 min). 3 returns with the torch (3 min). Running total 19.",
+          "1 and 3 cross again (3 min). Total 22 minutes.",
+          "The alternative of 1 escorting each person takes 3 + 1 + 8 + 1 + 12 = 25 minutes, which is worse.",
+          "A full search of every possible sequence of crossings confirms 22 minutes is the minimum."
+        ],
+        "answer": "22"
+      }
+    },
+    {
+      "id": "guide-puzzles-poisoned-wine",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 14,
+      "title": "The poisoned bottle",
+      "summary": "Find one poisoned bottle among hundreds using as few slow test strips as possible.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "When tests run in parallel, give each item a unique pattern of tests.",
+        "k yes/no tests can tell apart at most 2 to the power k cases.",
+        "Binary numbering is a ready-made way to assign those patterns."
+      ],
+      "puzzle": {
+        "statement": "A cellar holds 500 bottles of wine, and exactly one is poisoned. A test strip changes colour if it touches even a drop of the poisoned wine, but only shows its result 24 hours later. You may put drops from as many bottles as you like on each strip, and every strip must be prepared at the start because you have only 24 hours. What is the fewest strips you need to be certain which bottle is poisoned?",
+        "hints": [
+          "After 24 hours each strip is either changed or not. How many different overall results can k strips give?",
+          "Number the bottles and write each number in binary. Let each strip stand for one binary digit."
+        ],
+        "solution": [
+          "Each strip ends in one of two states, so k strips give at most 2 to the power k different overall results.",
+          "To single out one of 500 bottles you need 2 to the power k to be at least 500. 2 to the 8 is 256, too few; 2 to the 9 is 512, enough.",
+          "Number the bottles 0 to 499 and write each in 9-bit binary. Strip i gets a drop from every bottle whose bit i is 1.",
+          "After 24 hours, read the changed strips as 1s and the others as 0s. That 9-bit number is the poisoned bottle.",
+          "So 9 strips suffice and 8 cannot, which makes 9 the minimum."
+        ],
+        "answer": "9"
+      }
+    },
+    {
+      "id": "guide-puzzles-missing-and-repeated",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 15,
+      "title": "One missing, one repeated",
+      "summary": "Spot the missing number and the repeated number in a long list using only a little memory.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Compare what you see with what you expected; the difference is information.",
+        "Two unknowns need two independent equations.",
+        "Running totals use constant memory, however long the list."
+      ],
+      "puzzle": {
+        "statement": "A list should contain each whole number from 1 to n exactly once, in some order. By mistake, one number was replaced by a copy of another, so one number is missing and one appears twice. The list is read to you once, one number at a time. You may keep only a few running totals, not the whole list or a checklist of n entries. How can you find both the missing number and the repeated number?",
+        "hints": [
+          "Compare the sum you hear with the sum 1 + 2 + ... + n should have. What does the difference tell you?",
+          "One equation gives you missing minus repeated. Find a second equation from another running total, such as the sum of squares."
+        ],
+        "solution": [
+          "While the list is read, keep two running totals: the sum S of the numbers and the sum Q of their squares.",
+          "The correct totals are n(n+1)/2 for the sum and n(n+1)(2n+1)/6 for the sum of squares.",
+          "Let m be the missing number and r the repeated one. Then n(n+1)/2 - S = m - r. Call this d.",
+          "Also n(n+1)(2n+1)/6 - Q = m squared - r squared = (m - r)(m + r), so m + r = (that difference) / d.",
+          "Solve the two equations: m = ((m + r) + d) / 2 and r = ((m + r) - d) / 2.",
+          "Example with n = 6 and list 3, 1, 4, 4, 6, 2: d = 21 - 20 = 1 and 91 - 82 = 9, so m + r = 9, giving m = 5 and r = 4."
+        ]
+      }
+    },
+    {
+      "id": "guide-puzzles-shared-birthday",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 16,
+      "title": "Shared birthdays in a group",
+      "summary": "Find how small a group can be while a shared birthday is still more likely than you might expect.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "For \"at least one\" questions, compute the chance of \"none\" and subtract from 1.",
+        "The number of pairs grows much faster than the number of people.",
+        "Multiply the chances step by step as each new person joins."
+      ],
+      "puzzle": {
+        "statement": "Assume every year has 365 days, nobody is born on 29 February, and each person's birthday is equally likely to be any day, independently of everyone else. What is the smallest number of people in a group for which the chance that at least two share a birthday is 70% or more?",
+        "hints": [
+          "It is easier to work out the chance that all birthdays are different, then take that away from 1.",
+          "Each new person must avoid all earlier birthdays: multiply 365/365 x 364/365 x 363/365 and so on until the product falls to 30% or below."
+        ],
+        "solution": [
+          "With n people, the chance that all birthdays differ is (365/365) x (364/365) x ... x ((365 - n + 1)/365).",
+          "The chance of at least one shared birthday is 1 minus that product.",
+          "Multiplying the terms in turn, at 29 people the chance of a shared birthday is about 68.1%, still below 70%.",
+          "At 30 people it is about 70.6%, the first time it reaches 70%.",
+          "So the smallest group is 30 people. It is surprisingly small because 30 people form 435 different pairs."
+        ],
+        "answer": "30"
+      }
+    },
+    {
+      "id": "guide-puzzles-hats-in-a-line",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 17,
+      "title": "Hats in a line",
+      "summary": "A line of people must guess their own hat colours; plan a strategy that saves as many as possible.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "One bit of shared information can be worth more than one guess.",
+        "Parity (odd or even) summarises a whole group in a single bit.",
+        "Agree the encoding in advance; then everyone can decode it."
+      ],
+      "puzzle": {
+        "statement": "Twelve people stand in a single-file line, all facing forward. Each wears a hat that is either black or white, chosen in any way at all; there may be any number of each colour. Each person can see every hat in front of them, but not their own or any behind them. Starting from the back of the line and moving forward, each person says aloud one word, 'black' or 'white', as a guess at their own hat colour, and everyone hears every guess. Nothing else may be communicated. The group may agree on a strategy beforehand. With the best strategy, how many people are guaranteed to guess correctly, however the hats are placed?",
+        "hints": [
+          "The person at the back sees nothing about their own hat, so they can never be sure. Can they help everyone else instead?",
+          "The back person's word can carry one bit of information about the hats in front. Which single bit would let everyone else work out their own hat?"
+        ],
+        "solution": [
+          "Agree that the person at the back says 'black' if they see an odd number of black hats ahead, and 'white' if even.",
+          "The next person counts the black hats they can see. Comparing with the announced parity tells them their own hat colour.",
+          "Everyone further forward keeps track of the announced parity and every correct guess made since, plus the hats in front, and so deduces their own colour the same way.",
+          "So all 11 people in front of the back person are always right. The back person is right only by luck.",
+          "No strategy can guarantee 12: the back person's guess depends only on hats they can see, so for some placement their own hat is the other colour.",
+          "The guaranteed number is therefore 11."
+        ],
+        "answer": "11"
+      }
+    },
+    {
+      "id": "guide-puzzles-two-eggs",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 18,
+      "title": "Two eggs, eighty floors",
+      "summary": "Find the highest safe floor with only two eggs and the fewest drops in the worst case.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Balance the worst case: each early step should cost the same total.",
+        "Shrink the jump size by one after each survival.",
+        "Turn \"how many drops for n floors\" into \"how many floors for d drops\"."
+      ],
+      "puzzle": {
+        "statement": "A building has 80 floors. There is some unknown floor at or below which an egg dropped from a window survives, and above which it breaks; it is possible that eggs survive from every floor, or break from the 1st floor. You have exactly two identical eggs. A dropped egg that survives can be reused; a broken egg cannot. What is the fewest drops that guarantees you find the highest floor from which an egg survives, in the worst case?",
+        "hints": [
+          "Once the first egg breaks, the second egg must check every floor in the remaining gap one at a time, from the bottom up.",
+          "If you allow d drops in total, the first drop can be at floor d, the next d - 1 floors higher, and so on. How many floors can d drops cover?"
+        ],
+        "solution": [
+          "With the second egg alone you must test floors one by one, so the first egg's job is to narrow down the range.",
+          "Suppose you allow d drops in total. Drop the first egg from floor d. If it breaks, the second egg checks floors 1 to d - 1: at most d drops in all.",
+          "If it survives, you have d - 1 drops left, so jump up d - 1 floors next, then d - 2, and so on.",
+          "This plan covers d + (d - 1) + ... + 1 = d(d + 1)/2 floors. No plan with d drops can cover more: the first drop can be no higher than floor d (if it breaks, every floor below needs its own drop), and if it survives you face the same problem with d - 1 drops.",
+          "With d = 12 that is 78 floors, not enough for 80. With d = 13 it is 91 floors, which is enough.",
+          "So the minimum worst-case number of drops is 13 (for example, first drops at floors 13, 25, 36, 46, ...)."
+        ],
+        "answer": "13"
+      }
+    },
+    {
+      "id": "guide-puzzles-pirate-vote",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 19,
+      "title": "Seven pirates split the gold",
+      "summary": "Ruthless, logical pirates vote on how to split treasure; work out what the leader keeps.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "Work backwards from the simplest end state.",
+        "A vote is cheap to buy from someone who would otherwise get nothing.",
+        "Pin down tie-break rules before reasoning about choices."
+      ],
+      "puzzle": {
+        "statement": "Seven pirates, ranked from most senior to most junior, must share 60 gold coins, which cannot be cut. The most senior pirate still on board proposes how to split the coins, and then every pirate on board, including the proposer, votes. If at least half the votes are yes, the split happens and the game ends. Otherwise the proposer is thrown overboard and the next most senior pirate proposes, and so on. Every pirate is perfectly logical and knows the others are. Each pirate wants, in order: first to stay alive, then to get as many coins as possible, and, if those are equal, to see someone thrown overboard. No promises or deals outside the vote are possible. How many coins does the most senior pirate keep?",
+        "hints": [
+          "Start with just two pirates left, then three, and build upwards. What does each pirate get in each smaller game?",
+          "A pirate votes yes only for strictly more than they would get in the next smaller game. The cheapest votes come from pirates who would get nothing there."
+        ],
+        "solution": [
+          "Number the pirates 1 (most junior) to 7 (most senior). With only pirate 2 and pirate 1, pirate 2's own vote is half, so pirate 2 takes all 60.",
+          "Three pirates: pirate 3 needs one more vote. Pirate 1 gets nothing in the two-pirate game, so 1 coin buys that vote: 3 gets 59, 2 gets 0, 1 gets 1.",
+          "Four pirates: pirate 4 needs one more vote; pirate 2 gets 0 in the three-pirate game, so give 2 one coin. Split for (4, 3, 2, 1): 59, 0, 1, 0.",
+          "Five pirates need 3 votes: the proposer plus pirates 3 and 1, who get 0 in the four-pirate game, at 1 coin each. Split for (5, 4, 3, 2, 1): 58, 0, 1, 0, 1.",
+          "Six pirates need 3 votes: the proposer plus pirates 4 and 2 at 1 coin each. Split for (6, 5, 4, 3, 2, 1): 58, 0, 1, 0, 1, 0.",
+          "Seven pirates need 4 votes: the proposer plus pirates 5, 3 and 1, who get 0 in the six-pirate game, at 1 coin each.",
+          "So the most senior pirate keeps 60 - 3 = 57 coins. Buying votes any cheaper is impossible, since each bought vote must cost at least 1 coin."
+        ],
+        "answer": "57"
+      }
+    },
+    {
+      "id": "guide-puzzles-horse-races",
+      "kind": "guide",
+      "track": "puzzles",
+      "order": 20,
+      "title": "Thirty-six horses, six lanes",
+      "summary": "Find the three fastest horses using races with no stopwatch, in as few races as possible.",
+      "sections": [],
+      "challenges": [],
+      "keyPoints": [
+        "After each race, cross off everyone who can no longer make the top three.",
+        "A horse beaten by three known-faster horses is out.",
+        "Prove the lower bound by tracking which horses are still undefeated."
+      ],
+      "puzzle": {
+        "statement": "There are 36 horses and a track with 6 lanes, so at most 6 horses can run in one race. There is no stopwatch: a race only tells you the order in which its horses finished. Each horse always runs at exactly the same speed, and no two horses have the same speed. What is the fewest races that guarantees you can name the fastest, second fastest and third fastest horses in order?",
+        "hints": [
+          "Every horse has to race at least once, and the heat winners then need to be compared with each other.",
+          "After the heats and a race of heat winners, list only the horses that could still finish in the top three. How many are left?"
+        ],
+        "solution": [
+          "Races 1-6: split the horses into six groups of 6 and race each group. Call the groups A to F.",
+          "Race 7: race the six group winners. Say the order is A1, B1, C1, D1, E1, F1. A1 is the fastest of all.",
+          "Groups D, E and F are out: their winners already trail A1, B1 and C1. C1 can be at best third, so C2 and below are out; B can supply at most B1 and B2; A at most A2 and A3.",
+          "Race 8: race the five remaining candidates A2, A3, B1, B2, C1. The top two finishers are second and third overall. So 8 races suffice.",
+          "Seven cannot be enough. Call a horse undefeated if it has never finished behind another horse. Any undefeated horse could still be the fastest, so you must get down to 1 undefeated horse: 35 must lose.",
+          "Imagine the results are as unhelpful as possible: whenever a race contains an undefeated horse, one of them wins (this never contradicts earlier results). Then a race with u undefeated horses defeats at most u - 1 of them, which is at most 5. Fewer than 7 races cannot defeat 35, and exactly 7 races only can if every race has 6 runners who are all undefeated.",
+          "In that case let W, the winner of race 6, also win race 7 (it is still undefeated, so it runs there). Its runner-up in race 6 and the runner-up in race 7 have each lost only to W, and they have never met: both were undefeated before race 6, and the second did not run in race 6. Either could be second fastest, so 7 races cannot guarantee the answer, and 8 is the minimum."
+        ],
+        "answer": "8"
+      }
+    },
+    {
       "id": "guide-reasoning-number-series",
       "kind": "guide",
       "track": "reasoning",
@@ -17374,6 +18644,871 @@
           "answer": 2,
           "explanation": "The teachers who are singers sit inside the singers circle, which sits inside the dancers circle, so those teachers are dancers and I follows. II is I turned round, and a some statement can always be turned round, so II follows too. Only I would be the choice if you forgot that conversion.",
           "hint": "Follow the teachers who are singers into the next circle."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-scaling-basics",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Scaling basics and estimation",
+      "order": 1,
+      "summary": "Scaling means adding capacity either by buying a bigger machine or by adding more machines, and quick estimates of traffic, storage and bandwidth tell you which you need.",
+      "sections": [
+        {
+          "title": "Vertical versus horizontal scaling",
+          "text": "Vertical scaling (scaling up) means giving one machine more CPU, memory or faster disks. It needs no code changes, which makes it the natural first step. Its limits are hard ones: the biggest machine you can buy has a ceiling, prices rise steeply near the top end, and the one machine is still a single point of failure. Upgrading it often means downtime too.\n\nHorizontal scaling (scaling out) means running many ordinary machines side by side and spreading the work across them, usually behind a load balancer. Capacity grows roughly in step with the number of machines, and losing one machine removes only a slice of capacity instead of the whole service.\n\nThe price of scaling out is complexity. Requests for the same user may land on different machines, so any state kept on one machine becomes a problem. Data must be split or copied, and you now have a distributed system with network failures between its parts. In interviews, a good answer usually starts simple, scales up while that is cheap, and explains what has to change before scaling out."
+        },
+        {
+          "title": "Stateless services",
+          "text": "A service is stateless when any instance can handle any request, because nothing a request needs is stored only in that instance's memory or local disk. Session data, uploaded files and shopping carts live in a shared store instead: a database, a cache such as Redis, or object storage.\n\nConsider a login session kept in the memory of server A. If the load balancer sends the user's next request to server B, B has never heard of that session and the user appears logged out. Move the session into a shared cache, or into a signed token the client sends with every request, and A and B become interchangeable.\n\nStatelessness is what makes horizontal scaling easy. You can add instances when traffic rises, remove them when it falls, and replace a crashed instance without losing anything. The state has not disappeared; it has moved to a layer built to be shared and replicated, which then becomes the part you have to scale carefully."
+        },
+        {
+          "title": "Back-of-the-envelope estimation",
+          "text": "Estimates turn vague requirements into numbers you can design around. Round aggressively; the goal is the right order of magnitude, not three decimal places. A day has 86,400 seconds, and treating it as about 100,000 is fine for quick mental maths.\n\nTraffic: suppose 5 million daily active users each make 30 requests a day. That is 150 million requests ÷ 86,400 s ≈ 1,700 requests per second on average. Traffic is not flat, so assume a peak of about 3× the average, roughly 5,200 requests per second.\n\nStorage: if users create 2 million posts a day at about 1 KB each, that is 2 GB a day, 730 GB a year and about 3.65 TB over five years. Keeping three copies for safety brings it to roughly 11 TB.\n\nBandwidth: 1,700 responses per second at 50 KB each is about 85 MB/s, roughly 680 Mbit/s of outgoing traffic.\n\nServers: if one application server comfortably handles 800 requests per second, the 5,200 peak needs 5,200 ÷ 800 ≈ 6.5, so 7 servers, plus spares for failures."
+        },
+        {
+          "title": "Using the numbers to make decisions",
+          "text": "Numbers matter only if they change the design. A few hundred writes per second fits easily on one well-tuned database, so sharding at that level is premature. Tens of thousands of reads per second for the same popular items points straight at caching. Several terabytes of images suggests object storage plus a CDN rather than database rows.\n\nSeparate reads from writes when you estimate, because they scale differently. A read-heavy system with a 100:1 ratio can lean on caches and read replicas; a write-heavy one needs partitioning sooner.\n\nState your assumptions out loud, such as the number of users, requests per user, object size and peak factor, so the interviewer can correct one of them without throwing away the whole calculation. Finally, sanity-check the result: if the estimate says one user generates a gigabyte a day of text, an assumption is probably off by a factor of a thousand."
+        }
+      ],
+      "keyPoints": [
+        "Vertical scaling is simple but has a hardware ceiling and stays a single point of failure.",
+        "Horizontal scaling adds machines and needs stateless services to work smoothly.",
+        "Keep session and user state in a shared store so any instance can serve any request.",
+        "Average QPS = daily requests ÷ 86,400; plan for a peak several times higher.",
+        "Estimate traffic, storage and bandwidth separately, and let the numbers drive the design."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-scaling-basics-q1",
+          "kind": "prediction",
+          "title": "Average requests per second",
+          "prompt": "An app has 4 million daily active users, and each makes 15 requests per day spread evenly across the day. Roughly what is the average request rate?",
+          "options": [
+            "About 70 requests/s",
+            "About 700 requests/s",
+            "About 7,000 requests/s",
+            "About 70,000 requests/s"
+          ],
+          "answer": 1,
+          "explanation": "4 million × 15 = 60 million requests a day, and 60,000,000 ÷ 86,400 ≈ 694, so about 700 per second. About 7,000 comes from dividing by roughly 8,640 instead of 86,400, a factor-of-ten slip in the seconds per day.",
+          "hint": "Find the requests per day first, then divide by the number of seconds in a day."
+        },
+        {
+          "id": "challenge-system-design-scaling-basics-q2",
+          "kind": "prediction",
+          "title": "Storage for uploads",
+          "prompt": "Users upload 500,000 files a day, each 2 MB on average. Files are kept for 3 years (use 365 days a year) and you ignore replication. Roughly how much storage is needed?",
+          "options": [
+            "About 110 TB",
+            "About 365 TB",
+            "About 11 PB",
+            "About 1.1 PB"
+          ],
+          "answer": 3,
+          "explanation": "500,000 × 2 MB = 1,000,000 MB = 1 TB per day. Over 1,095 days that is about 1,095 TB, or roughly 1.1 PB. 365 TB is only one year of uploads, forgetting the 3-year retention.",
+          "hint": "Work out the daily volume in terabytes before multiplying by the retention period."
+        },
+        {
+          "id": "challenge-system-design-scaling-basics-q3",
+          "kind": "prediction",
+          "title": "Session in local memory",
+          "prompt": "Two app servers sit behind a round-robin load balancer with no sticky sessions. Login sessions are stored only in each server's local memory. A user logs in through server A. What happens on the next request?",
+          "options": [
+            "If it goes to server B, the user appears logged out",
+            "Server B fetches the session from server A automatically",
+            "The load balancer copies the session to server B",
+            "Nothing changes, because the browser keeps the session"
+          ],
+          "answer": 0,
+          "explanation": "Round robin can send the user's next request to B, and B has no copy of a session that lives only in A's memory, so the user looks logged out. Servers do not share memory or fetch sessions from each other unless you build that; the usual fix is a shared session store.",
+          "hint": "Ask where the session data actually lives and which machines can see it."
+        },
+        {
+          "id": "challenge-system-design-scaling-basics-q4",
+          "kind": "prediction",
+          "title": "The limit of scaling up",
+          "prompt": "A team keeps upgrading its single database server to a larger machine. Which problem does this approach leave unsolved, however much money they spend?",
+          "options": [
+            "Queries need to be rewritten for each new machine",
+            "Data has to be split across machines",
+            "There is still one machine whose failure takes the service down"
+          ],
+          "answer": 2,
+          "explanation": "A bigger machine adds capacity but not redundancy: it remains a single point of failure, and there is also a ceiling on how big it can get. Splitting data across machines is what horizontal scaling requires, which vertical scaling specifically avoids.",
+          "hint": "Think about what happens on the day that one machine breaks."
+        },
+        {
+          "id": "challenge-system-design-scaling-basics-q5",
+          "kind": "prediction",
+          "title": "Servers for peak",
+          "prompt": "Average traffic is 2,000 requests/s and peak is 3× the average. One server handles 500 requests/s at its target load. Ignoring spares, what is the minimum number of servers to cover peak?",
+          "options": [
+            "4",
+            "6",
+            "12",
+            "18"
+          ],
+          "answer": 2,
+          "explanation": "Peak is 3 × 2,000 = 6,000 requests/s, and 6,000 ÷ 500 = 12 servers. Four servers covers only the average load, which would overload during the peak.",
+          "hint": "Size for the busiest moment, not for the typical one."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-load-balancing",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Load balancing",
+      "order": 2,
+      "summary": "A load balancer spreads incoming requests across healthy servers, choosing a target with an algorithm and removing servers that fail health checks.",
+      "sections": [
+        {
+          "title": "Layer 4 versus layer 7",
+          "text": "A load balancer sits in front of a pool of servers and decides which one handles each request. The main design choice is how much of the request it looks at.\n\nA layer 4 balancer works at the transport level. It sees IP addresses, ports and the TCP or UDP connection, but not what is inside the stream. It picks a server when a connection opens and then forwards bytes. Because it does so little, it is fast and cheap, but it cannot route by URL, header or cookie.\n\nA layer 7 balancer understands the application protocol, usually HTTP. It can terminate TLS, read the path and headers, send /images to one pool and /api to another, rewrite headers, and retry a failed request on another server. That flexibility costs more CPU per request, and the balancer must hold the TLS certificates.\n\nMany setups use both: a layer 4 tier spreading connections across several layer 7 balancers, which then route by content. Tools such as NGINX, HAProxy and Envoy can act at either level."
+        },
+        {
+          "title": "Choosing a server",
+          "text": "Round robin hands requests to servers in turn: A, B, C, A, B, C. It is simple and works well when servers are identical and requests cost about the same. Weighted round robin gives a bigger server a larger share.\n\nLeast connections sends the next request to the server with the fewest active connections. If A has 10 open connections, B has 4 and C has 7, the next one goes to B. This adapts when some requests are slow, such as long uploads, because busy servers naturally receive less new work.\n\nHash-based routing picks the server from a hash of something in the request, such as the user ID, so the same key keeps reaching the same server. That helps when servers hold per-key caches. Plain modulo hashing (hash mod N) breaks badly when N changes: going from 4 servers to 5 sends about 80% of keys to a different server. Consistent hashing places servers and keys on a ring, so adding a fifth server moves only about 1/5 of the keys, the ones that now fall in its slice. Virtual nodes, many points per server on the ring, keep the slices even."
+        },
+        {
+          "title": "Health checks",
+          "text": "A load balancer must stop sending traffic to servers that cannot serve it. Active health checks probe each server on a schedule, for example an HTTP request to /health every 5 seconds. To avoid reacting to a single slow reply, a server is usually marked unhealthy only after several consecutive failures, and marked healthy again only after several successes.\n\nThe trade-off is detection time. With a 5 second interval and a threshold of 3 failures, a server that dies just after a passing check is removed about 15 seconds later, and requests sent to it in that window fail or must be retried. Shorter intervals detect faster but add probe traffic and risk flapping.\n\nPassive checks watch real traffic instead: if a server keeps returning errors or timing out, it is pulled out. A good /health endpoint checks what the server really needs, such as its database connection, but should not fail just because one optional dependency is slow, or a single shared problem could empty the entire pool at once."
+        },
+        {
+          "title": "Sticky sessions and why to avoid them",
+          "text": "Sticky sessions (session affinity) make the balancer send all requests from one client to the same server, usually via a cookie or the client's IP. They are a quick patch for servers that keep session data in local memory.\n\nThe patch has costs. Load becomes uneven, because a few heavy users can pin themselves to one server while others sit idle. When that server crashes or is redeployed, every user stuck to it loses their session. Scaling out does not help existing users, since they stay attached to their old server, and draining a server for maintenance takes as long as its longest session.\n\nThe better fix is to make servers stateless: keep sessions in a shared store or in a signed token, and then any server can handle any request and the balancer is free to use its best algorithm. Hash-based routing for cache efficiency is different: it is an optimisation, and correctness does not depend on it if a request lands elsewhere."
+        }
+      ],
+      "keyPoints": [
+        "Layer 4 balances connections by IP and port; layer 7 reads HTTP and can route by path or header.",
+        "Round robin suits identical servers; least connections adapts to uneven request cost.",
+        "Modulo hashing remaps most keys when servers change; consistent hashing moves only about 1/N.",
+        "Health checks trade detection speed against probe load and flapping.",
+        "Prefer stateless servers over sticky sessions, which cause uneven load and lost sessions on failure."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-load-balancing-q1",
+          "kind": "prediction",
+          "title": "Routing by path",
+          "prompt": "Requests to /video/* must go to a video server pool and everything else to a web pool, all on the same host and port over HTTPS. Which kind of load balancer can do this routing?",
+          "options": [
+            "A layer 4 balancer",
+            "A layer 7 balancer",
+            "Either, since both see the port"
+          ],
+          "answer": 1,
+          "explanation": "The path is part of the HTTP request, so only a balancer that terminates TLS and parses HTTP (layer 7) can see it. A layer 4 balancer sees only addresses and ports, which are identical for both kinds of request here.",
+          "hint": "Decide which layer the URL path belongs to."
+        },
+        {
+          "id": "challenge-system-design-load-balancing-q2",
+          "kind": "prediction",
+          "title": "Least connections",
+          "prompt": "A balancer uses least connections. Server A has 12 active connections, B has 5 and C has 9. All servers have equal weight. Where does the next request go?",
+          "options": [
+            "Server A",
+            "Server C",
+            "Server B",
+            "Whichever is next in round-robin order"
+          ],
+          "answer": 2,
+          "explanation": "Least connections picks the server with the fewest active connections, which is B with 5. Round-robin order is irrelevant to this algorithm; it only counts current connections.",
+          "hint": "The algorithm name tells you what it compares."
+        },
+        {
+          "id": "challenge-system-design-load-balancing-q3",
+          "kind": "prediction",
+          "title": "Modulo hashing on resize",
+          "prompt": "Keys are uniformly spread and assigned with hash(key) mod N. The pool grows from 4 servers to 5. Roughly what fraction of keys now map to a different server?",
+          "options": [
+            "About 20%",
+            "About 50%",
+            "About 80%",
+            "About 25%"
+          ],
+          "answer": 2,
+          "explanation": "A key stays put only when hash mod 4 equals hash mod 5, which happens for 4 out of every 20 hash values, so about 20% stay and about 80% move. 20% is what consistent hashing would move, not modulo hashing.",
+          "hint": "Check a run of consecutive hash values, say 0 to 19, under both moduli."
+        },
+        {
+          "id": "challenge-system-design-load-balancing-q4",
+          "kind": "prediction",
+          "title": "Consistent hashing on resize",
+          "prompt": "A consistent-hashing ring with many virtual nodes per server has 10 equally weighted servers. An 11th is added. Roughly what fraction of keys move?",
+          "options": [
+            "About 9%",
+            "About 50%",
+            "About 91%"
+          ],
+          "answer": 0,
+          "explanation": "The new server takes over an even share of the ring, 1/11 ≈ 9% of keys, and only those move. About 91% is the behaviour of naive modulo hashing, which consistent hashing is designed to avoid.",
+          "hint": "Ask what share of the ring the newcomer ends up owning."
+        },
+        {
+          "id": "challenge-system-design-load-balancing-q5",
+          "kind": "prediction",
+          "title": "Detection time",
+          "prompt": "Health checks run every 10 seconds and a server is removed after 3 consecutive failed checks. Probe timeouts are negligible. A server crashes immediately after passing a check. In the worst case, how long until it is removed?",
+          "options": [
+            "10 seconds",
+            "20 seconds",
+            "3 seconds",
+            "30 seconds"
+          ],
+          "answer": 3,
+          "explanation": "The next three checks happen at 10, 20 and 30 seconds after the crash, and only the third failure crosses the threshold, so removal happens at about 30 seconds. 10 seconds would be right only if a single failure were enough.",
+          "hint": "Count how many probes must fail and when each one runs."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-caching",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Caching",
+      "order": 3,
+      "summary": "A cache keeps copies of frequently read data in fast storage, and its write strategy, expiry and eviction policy decide how fresh, safe and effective it is.",
+      "sections": [
+        {
+          "title": "Cache-aside, write-through and write-back",
+          "text": "Cache-aside (lazy loading) is the most common pattern. On a read, the application checks the cache; on a miss it reads the database, stores the result in the cache and returns it. On a write, it updates the database and deletes the cached entry so the next read reloads it. Only data that is actually read gets cached, and a cache outage slows the system down without breaking correctness, provided the database can absorb the extra reads.\n\nWrite-through writes to the cache and the database together as part of every write, so recently written data is already cached and normally fresh (a failure between the two writes can still leave them out of step), at the cost of slower writes and caching data that may never be read.\n\nWrite-back (write-behind) writes only to the cache and flushes changes to the database later, often in batches. Writes become very fast and repeated updates to the same key collapse into one database write. The danger is durability: if the cache node fails before flushing, those writes are lost. Use write-back only where losing a few recent updates is acceptable, such as view counters, or where the cache itself is replicated and persisted."
+        },
+        {
+          "title": "Expiry and eviction",
+          "text": "A time-to-live (TTL) makes an entry expire after a fixed period, bounding how stale it can get. Short TTLs mean fresher data and more misses; long TTLs mean fewer misses and older data. TTLs are also a safety net when an invalidation is missed.\n\nEviction is different: it decides what to throw out when the cache is full. Least recently used (LRU) removes the entry that has gone longest without being read. With room for three entries and the access sequence A, B, C, A, D, the cache evicts B, because A was touched again after B.\n\nLeast frequently used (LFU) removes the entry with the fewest reads, which protects steadily popular items from a one-off scan of many cold keys, but can keep formerly popular items too long unless counts decay over time. LRU is a sensible default; LFU helps when popularity is stable and skewed. Real caches often approximate these policies; Redis, for example, approximates LRU by sampling a few keys and evicting the best candidate among them, which is cheaper than exact bookkeeping."
+        },
+        {
+          "title": "Hit rate and database load",
+          "text": "The hit rate is the fraction of reads the cache answers. Small changes in it make large differences to the database, because what matters is the miss rate.\n\nTake 10,000 reads per second. At a 90% hit rate, 10% miss, so the database sees 1,000 reads per second. At 99%, only 1% miss, and the database sees 100 per second. Going from 90% to 99% sounds like a small gain but cuts database reads by a factor of ten.\n\nLatency improves the same way. If a hit costs 1 ms and a miss costs 21 ms (the cache check plus a 20 ms query), the average at 90% is 0.9 × 1 + 0.1 × 21 = 3 ms, and at 99% it is 0.99 × 1 + 0.01 × 21 = 1.2 ms.\n\nThe flip side is fragility: a database sized for 100 reads per second cannot survive the cache going cold. After a cache restart, warm it gradually or limit the rate of misses that reach the database."
+        },
+        {
+          "title": "Cache stampedes",
+          "text": "A stampede, also called a thundering herd, happens when a very popular key expires and many requests miss at the same moment. Each one goes to the database to rebuild the same value.\n\nSuppose a key is read 5,000 times per second and rebuilding it takes 200 ms. Without protection, every read in that 200 ms window misses, so roughly 5,000 × 0.2 = 1,000 identical queries hit the database at once, which can slow it down enough to cause further expiries and misses.\n\nCommon defences: request coalescing, where only one request rebuilds the key while the others wait for its result or are served the old value; a short lock in the cache so only the lock holder queries the database; refreshing hot keys early, before they expire, sometimes with a probability that rises as expiry approaches; and adding random jitter to TTLs so keys written together do not all expire together. Serving slightly stale data for a moment is usually far better than overloading the database."
+        }
+      ],
+      "keyPoints": [
+        "Cache-aside loads on a miss and invalidates on write; it is the usual default.",
+        "Write-back makes writes fast but can lose data if the cache fails before flushing.",
+        "TTL bounds staleness; eviction (LRU, LFU) decides what goes when the cache is full.",
+        "Database load is driven by the miss rate: 90% to 99% hit rate cuts misses tenfold.",
+        "Prevent stampedes with request coalescing, early refresh and TTL jitter."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-caching-q1",
+          "kind": "prediction",
+          "title": "Load behind the cache",
+          "prompt": "A service receives 20,000 reads per second and its cache-aside cache has a 95% hit rate. Every miss causes exactly one database read. How many database reads per second does this produce?",
+          "options": [
+            "1,000",
+            "19,000",
+            "5,000",
+            "950"
+          ],
+          "answer": 0,
+          "explanation": "The miss rate is 5%, and 5% of 20,000 is 1,000 database reads per second. 19,000 is the number of hits, which the cache answers without touching the database.",
+          "hint": "Only the reads the cache cannot answer reach the database."
+        },
+        {
+          "id": "challenge-system-design-caching-q2",
+          "kind": "prediction",
+          "title": "LRU eviction",
+          "prompt": "An LRU cache holds 3 entries and starts empty. Keys are read in the order A, B, C, B, A, D. Which key is evicted when D is inserted?",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "answer": 2,
+          "explanation": "After A, B, C the least recently used is A. Reading B and then A makes C the least recently used, so C is evicted for D. A would be the answer only if re-reads did not update recency, which is first-in-first-out, not LRU.",
+          "hint": "After each read, move that key to the most recent position and track the order."
+        },
+        {
+          "id": "challenge-system-design-caching-q3",
+          "kind": "prediction",
+          "title": "Risk of write-back",
+          "prompt": "A system uses a write-back cache: writes go to a single, non-replicated cache node and are flushed to the database every 30 seconds. What is the main risk compared with write-through?",
+          "options": [
+            "Reads become slower because the cache is bypassed",
+            "Recent writes are lost if the cache node fails before flushing",
+            "The database receives more writes than before"
+          ],
+          "answer": 1,
+          "explanation": "Until a flush, the only copy of a recent write is in the cache node, so a crash loses up to about 30 seconds of writes. The database actually receives fewer writes with write-back, because repeated updates to a key are combined.",
+          "hint": "Ask where the only copy of a fresh write lives during the 30 seconds."
+        },
+        {
+          "id": "challenge-system-design-caching-q4",
+          "kind": "prediction",
+          "title": "Cache-aside on a miss",
+          "prompt": "An application uses the cache-aside pattern. A read finds no entry in the cache. What happens next?",
+          "options": [
+            "The cache fetches the row from the database by itself",
+            "The request fails until a writer fills the cache",
+            "The cache returns an empty value and the database is never read",
+            "The application reads the database, stores the result in the cache and returns it"
+          ],
+          "answer": 3,
+          "explanation": "In cache-aside the application owns the logic: it reads the database on a miss and populates the cache. A cache that loads from the database by itself is the read-through pattern, where the cache library or service does that work.",
+          "hint": "In this pattern the cache is a passive store sitting beside the database."
+        },
+        {
+          "id": "challenge-system-design-caching-q5",
+          "kind": "prediction",
+          "title": "Size of a stampede",
+          "prompt": "A hot key is read 4,000 times per second. It expires, and rebuilding it from the database takes 250 ms. There is no locking or request coalescing. Roughly how many database queries for this key arrive before the rebuilt value is cached?",
+          "options": [
+            "1",
+            "250",
+            "1,000",
+            "4,000"
+          ],
+          "answer": 2,
+          "explanation": "Every read during the 250 ms rebuild window misses: 4,000 × 0.25 = 1,000 queries. Only one query would be sent if requests were coalesced, which this setup does not do.",
+          "hint": "Multiply the read rate by the length of the window in which the key is missing."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-databases-at-scale",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Databases at scale",
+      "order": 4,
+      "summary": "Replication copies data to spread reads and survive failures, sharding splits data to spread writes and storage, and indexes keep each lookup cheap.",
+      "sections": [
+        {
+          "title": "Leader and follower replication",
+          "text": "In leader-follower replication, one node (the leader) accepts all writes and streams its changes to one or more followers, also called replicas. Followers apply those changes in the same order and can serve reads. If the leader fails, a follower is promoted.\n\nRead replicas are the standard way to scale a read-heavy database, but every replica must still apply every write. Suppose each node handles 5,000 queries per second, applying one replicated write costs about as much as one query, the workload is 12,000 reads and 1,500 writes per second, and reads go only to replicas. The naive answer is 12,000 ÷ 5,000 = 2.4, so 3 replicas. But each replica spends 1,500 of its capacity applying writes, leaving 3,500 for reads, so you need 12,000 ÷ 3,500 ≈ 3.4, which means 4 replicas.\n\nReplication can be synchronous, where the leader waits for a follower to confirm before acknowledging a write, or asynchronous, where it does not wait. Asynchronous is faster and more available, but a leader that crashes may lose writes its followers never received."
+        },
+        {
+          "title": "Replication lag",
+          "text": "With asynchronous replication, followers trail the leader by some amount, usually milliseconds but sometimes seconds under heavy load. That delay is replication lag, and it creates visible anomalies.\n\nThe classic one: a user edits their profile, the write goes to the leader, then the page reloads and reads from a replica that has not yet applied the change. The user sees their old profile and assumes the save failed. Fixes for this read-your-writes problem include reading a user's own data from the leader for a short time after they write, or tracking the position of the user's last write and only reading from replicas that have caught up to it.\n\nAnother anomaly is time appearing to go backwards: two reads hit two replicas with different lag, and the second shows older data than the first. Routing each user consistently to the same replica avoids that. Monitor lag as a first-class metric, and stop sending reads to a replica that falls too far behind."
+        },
+        {
+          "title": "Sharding and hot keys",
+          "text": "Sharding (partitioning) splits one dataset across several databases, each holding a subset of rows. It spreads writes and storage, which replication alone cannot do. If you have 4 TB of data and want each shard to hold at most 400 GB, you need 10 shards.\n\nRange sharding assigns contiguous key ranges to shards, for example names A to F on shard 1. Range queries stay on one shard, but sequential keys such as timestamps send all new writes to the last shard. Hash sharding applies a hash to the key and spreads rows evenly, at the cost of turning range queries into scatter-gather queries across every shard. A lookup directory that maps keys to shards gives full control but is one more component to keep available.\n\nEven with good hashing, one key can be hot: a celebrity account or a viral item gets far more traffic than its shard can take. Remedies include caching that key aggressively, splitting it across several sub-keys such as item_42#0 to item_42#7 and combining results on read, or moving it to a dedicated shard. Choose the shard key from the queries you run most."
+        },
+        {
+          "title": "Indexes recap",
+          "text": "An index is a separate structure, usually a B-tree, that keeps a column's values sorted with pointers to the rows. Without one, finding a row means scanning the table. With one, the database walks a shallow tree.\n\nB-tree nodes hold many keys each, so the tree is very flat. With about 100 keys per node, 100 million rows need only log base 100 of 10^8 = 4 levels, compared with roughly 27 levels for a binary tree. The top levels usually sit in memory, so a lookup costs very few disk reads.\n\nIndexes are not free. Every insert, update or delete must also update each index on the table, so heavy write tables should carry only the indexes their queries need. A composite index on (user_id, created_at) serves queries that filter on user_id, or on user_id and created_at, but generally cannot serve queries on created_at alone efficiently, because the index is sorted by user_id first. At scale, check slow queries with the database's query plan before reaching for sharding: a missing index is a far cheaper fix."
+        }
+      ],
+      "keyPoints": [
+        "Leader-follower replication scales reads, but every replica must still apply every write.",
+        "Asynchronous replication causes lag; protect read-your-writes by reading recent writers from the leader.",
+        "Sharding spreads writes and storage; hash sharding balances load, range sharding keeps ranges together.",
+        "Hot keys need caching, key splitting or dedicated capacity.",
+        "B-trees are flat, so indexed lookups touch few nodes; each index slows writes."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-databases-at-scale-q1",
+          "kind": "prediction",
+          "title": "Sizing read replicas",
+          "prompt": "Each database node can process 5,000 queries/s. The workload is 10,000 reads/s and 1,500 writes/s. Writes go to the leader, reads go only to replicas, and every replica must also apply all 1,500 writes/s, each costing as much as one query. What is the minimum number of replicas?",
+          "options": [
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "answer": 1,
+          "explanation": "Each replica has 5,000 − 1,500 = 3,500 queries/s left for reads, and 10,000 ÷ 3,500 ≈ 2.9, so 3 replicas. Two replicas comes from ignoring the write load on each replica and dividing 10,000 by 5,000.",
+          "hint": "Subtract the replicated writes from each replica before dividing up the reads."
+        },
+        {
+          "id": "challenge-system-design-databases-at-scale-q2",
+          "kind": "prediction",
+          "title": "The vanishing edit",
+          "prompt": "A user saves a profile change, which is written to the leader. The page reloads at once and reads from an asynchronous read replica. The old profile is shown. The leader and network are healthy. What is the cause?",
+          "options": [
+            "The write was rejected by the leader",
+            "The replica had not yet applied the change because of replication lag",
+            "The browser cached the old page",
+            "The index on the profile table is missing"
+          ],
+          "answer": 1,
+          "explanation": "Asynchronous replicas apply writes after a delay, so a read immediately after a write can hit a replica that is still behind. The write was not rejected; it is on the leader and will appear on the replica shortly.",
+          "hint": "Compare where the write went with where the read came from."
+        },
+        {
+          "id": "challenge-system-design-databases-at-scale-q3",
+          "kind": "prediction",
+          "title": "Range query on hash shards",
+          "prompt": "Orders are hash-sharded by order_id across 16 shards, with no secondary index or routing table. A report needs all orders placed yesterday, filtered by a created_at column. How many shards must the query touch?",
+          "options": [
+            "Exactly 1",
+            "About 2, the shards for yesterday",
+            "All 16"
+          ],
+          "answer": 2,
+          "explanation": "Hashing order_id scatters orders without regard to date, so yesterday's orders can be on any shard and the query must ask all 16. The idea that one or two shards hold a given day applies to range sharding by date, not to hashing by ID.",
+          "hint": "Think about whether the shard key tells you anything about the date."
+        },
+        {
+          "id": "challenge-system-design-databases-at-scale-q4",
+          "kind": "prediction",
+          "title": "One overloaded shard",
+          "prompt": "Posts are sharded by author_id with a good hash. One author has tens of millions of followers, and their shard is overloaded while others are idle. Which change targets this problem directly?",
+          "options": [
+            "Switch from hash sharding to range sharding by author_id",
+            "Double the number of shards",
+            "Split that author's key into several sub-keys or serve their posts from a cache",
+            "Add an index on author_id"
+          ],
+          "answer": 2,
+          "explanation": "The overload comes from one hot key, and all of its traffic still lands on one shard however many shards exist. Splitting the key or caching it spreads that one key's load. Doubling the shards only rebalances many keys, which were never the problem.",
+          "hint": "Count how many shards a single key can ever live on."
+        },
+        {
+          "id": "challenge-system-design-databases-at-scale-q5",
+          "kind": "prediction",
+          "title": "Depth of a B-tree",
+          "prompt": "In a B-tree index every internal node has exactly 200 children and every leaf holds exactly 200 keys. The index holds 8 million keys, all in the leaves. How many levels does the tree have, counting the root and the leaves?",
+          "options": [
+            "3",
+            "8",
+            "23"
+          ],
+          "answer": 0,
+          "explanation": "8,000,000 ÷ 200 = 40,000 leaves, 40,000 ÷ 200 = 200 internal nodes, and one root above them: three levels, since 200 × 200 × 200 = 8,000,000. 23 is close to log base 2 of 8 million, which is the depth of a binary tree, not a B-tree with 200 keys per node.",
+          "hint": "Multiply the fan-out by itself until you reach the number of keys."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-consistency-and-cap",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Consistency, CAP and quorums",
+      "order": 5,
+      "summary": "CAP says a replicated system cut by a network partition must choose between linearizable answers and always answering, while PACELC adds the latency trade-off that applies even without partitions.",
+      "sections": [
+        {
+          "title": "CAP stated precisely",
+          "text": "The CAP theorem talks about three properties of a replicated data store.\n\nConsistency here means linearizability: the system behaves as if there were a single copy of the data, so once a write completes, every later read, from any client and any node, returns that value or a newer one. This is much stronger than the C in ACID, which is about keeping invariants inside a transaction.\n\nAvailability means every request received by a node that has not crashed gets a non-error response, without waiting forever.\n\nPartition tolerance means the system keeps operating even when the network drops or delays messages between nodes.\n\nThe theorem: when a partition happens, a node that cannot reach the others must either refuse or delay some requests, giving up availability, or answer with data that may be out of date, giving up linearizability. Partitions are not optional in a real network, so the slogan 'pick two of three' is misleading. The real choice is what to give up during a partition. When the network is healthy, a system can provide both."
+        },
+        {
+          "title": "PACELC",
+          "text": "CAP says nothing about normal operation, yet that is where systems spend most of their time. PACELC fills the gap. It reads: if there is a Partition, choose between Availability and Consistency; Else, choose between Latency and Consistency.\n\nThe else half matters because keeping replicas in sync costs time even on a healthy network. If a write must be confirmed by replicas in another region, 80 ms away as a round trip, before it is acknowledged, every write pays at least those 80 ms. Acknowledging after one local copy is faster, but a read elsewhere may briefly see the old value.\n\nSystems are often described with labels such as PA/EL (stay available during partitions, favour low latency otherwise) or PC/EC (favour consistency in both cases). Many databases let you tune this per request, so treat the labels as a description of default behaviour rather than a fixed property. In an interview, saying which side you choose for each feature, and why, is more convincing than naming a category."
+        },
+        {
+          "title": "Strong versus eventual consistency",
+          "text": "Strong consistency, in the linearizable sense, makes a distributed store look like one machine. It suits data where a stale read causes real harm: account balances, inventory reservations, unique usernames, leader election.\n\nEventual consistency promises only that if writes stop, all replicas will converge to the same value at some point. In the meantime, reads may return older values, and two replicas may disagree. It suits data where a short delay is harmless: like counts, view counts, social feeds, product reviews.\n\nBetween the two are useful middle guarantees. Read-your-writes ensures a user always sees their own updates. Monotonic reads ensure a user never sees data go backwards in time. Causal consistency ensures that if one write could have influenced another, everyone sees them in that order, so a reply never appears before the message it answers.\n\nA practical design often mixes them: strong consistency for the few operations that need it, and eventual consistency plus a session guarantee for everything else."
+        },
+        {
+          "title": "Quorum reads and writes",
+          "text": "Leaderless replicated stores often use quorums. Each item is stored on N replicas. A write is acknowledged once W replicas confirm it, and a read asks R replicas and returns the newest version among their answers.\n\nIf R + W > N, the set of replicas a read contacts must overlap with the set that acknowledged the latest write, so at least one replica in every read has that write. With N = 3, W = 2 and R = 2, 2 + 2 = 4 > 3. With N = 3, W = 1 and R = 1, a read can hit a replica that missed the write and return stale data.\n\nQuorums also set fault tolerance. With N = 5 and W = 3, writes still succeed with 2 replicas down; with R = 3, reads also survive 2 failures. Lowering W speeds up writes, and lowering R speeds up reads, at the cost of overlap.\n\nOne caution: overlap alone does not make a system fully linearizable. Concurrent writes, failed partial writes and clock-based conflict resolution can still produce surprises, so real systems add version numbers, read repair or consensus on top."
+        }
+      ],
+      "keyPoints": [
+        "CAP's consistency is linearizability: every read sees the latest completed write, as if there were one copy.",
+        "During a partition a node must choose between answering (availability) and staying linearizable.",
+        "PACELC: with a Partition choose A or C; Else choose Latency or Consistency.",
+        "Eventual consistency only promises convergence once writes stop.",
+        "Quorums with R + W > N make every read overlap the latest acknowledged write; overlap alone is not linearizability."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-consistency-and-cap-q1",
+          "kind": "prediction",
+          "title": "CAP's C",
+          "prompt": "In the CAP theorem, what does the C (consistency) property mean?",
+          "options": [
+            "Transactions never violate database constraints",
+            "All replicas eventually hold the same data",
+            "Every read returns the result of the latest completed write, as if there were a single copy",
+            "Data is written to disk before acknowledging"
+          ],
+          "answer": 2,
+          "explanation": "CAP's consistency is linearizability: a single-copy illusion where a completed write is visible to every later read. Keeping constraints valid is the C in ACID, a different idea that is often confused with it.",
+          "hint": "CAP is about replicas and what readers see, not about transactions or disks."
+        },
+        {
+          "id": "challenge-system-design-consistency-and-cap-q2",
+          "kind": "prediction",
+          "title": "Picking a quorum",
+          "prompt": "A store keeps N = 5 replicas of each item. Which read and write quorum guarantees that every read overlaps the latest acknowledged write?",
+          "options": [
+            "R = 2, W = 3",
+            "R = 3, W = 3",
+            "R = 1, W = 4",
+            "R = 2, W = 2"
+          ],
+          "answer": 1,
+          "explanation": "Overlap needs R + W > N, so more than 5. Only R = 3, W = 3 gives 6. R = 2, W = 3 adds up to exactly 5, which allows a read set and a write set that share no replica.",
+          "hint": "Look for the read and write sets that can never be chosen without sharing a replica."
+        },
+        {
+          "id": "challenge-system-design-consistency-and-cap-q3",
+          "kind": "prediction",
+          "title": "Write fault tolerance",
+          "prompt": "A store keeps N = 5 replicas and requires W = 3 acknowledgements per write. Replicas fail by crashing. How many replicas can be down at the same time while writes still succeed?",
+          "options": [
+            "1",
+            "2",
+            "3"
+          ],
+          "answer": 1,
+          "explanation": "A write needs 3 live replicas out of 5, so up to 5 − 3 = 2 can be down. With 3 down only 2 remain, which is fewer than W.",
+          "hint": "Count how many live replicas a write needs."
+        },
+        {
+          "id": "challenge-system-design-consistency-and-cap-q4",
+          "kind": "prediction",
+          "title": "PACELC without a partition",
+          "prompt": "With the network healthy, a database acknowledges a write only after every replica, including ones in distant regions, has confirmed it. In PACELC terms, what is it choosing in the no-partition case?",
+          "options": [
+            "Latency over consistency",
+            "Availability over consistency",
+            "Consistency over latency"
+          ],
+          "answer": 2,
+          "explanation": "Waiting for every replica makes writes slower but keeps replicas in step, which is the EC choice: consistency over latency. Availability versus consistency is the choice PACELC describes during a partition, not when the network is healthy.",
+          "hint": "The E half of PACELC covers normal operation; ask what is being paid and what is gained."
+        },
+        {
+          "id": "challenge-system-design-consistency-and-cap-q5",
+          "kind": "prediction",
+          "title": "A CP node in a partition",
+          "prompt": "A system is designed to stay linearizable during partitions (it chooses C over A). A node is cut off from the majority of its peers and receives a read. How does it respond?",
+          "options": [
+            "It returns an error or waits, rather than risk returning stale data",
+            "It returns its local copy immediately",
+            "It returns its local copy and repairs it later"
+          ],
+          "answer": 0,
+          "explanation": "An isolated node cannot know whether newer writes happened on the other side, so to stay linearizable it must refuse or delay the read. Returning the local copy immediately is the availability choice, which can return stale data.",
+          "hint": "Ask what the node can know about writes on the other side of the partition."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-queues-and-async",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Queues and asynchronous processing",
+      "order": 6,
+      "summary": "Message queues and pub/sub let services hand off work without waiting, which needs idempotent consumers, back-pressure and a plan for messages that keep failing.",
+      "sections": [
+        {
+          "title": "Queues versus pub/sub",
+          "text": "Asynchronous messaging lets a producer hand work to someone else and move on. A sign-up request can return in milliseconds while welcome emails and analytics happen in the background.\n\nIn a message queue, each message is delivered to one consumer out of a group. Several workers pull from the same queue, and adding workers increases throughput because they share the messages. This is the work-queue model: resize images, send emails, process payments.\n\nIn publish/subscribe, a message published to a topic is delivered to every subscriber. An OrderPlaced event can reach the inventory, email and analytics services, each getting its own copy, and the producer does not need to know who is listening. Adding a new subscriber needs no change to the producer.\n\nMany systems combine the two: each subscribing service gets its own copy of the stream and spreads it among its own workers. RabbitMQ, Amazon SQS and Kafka are common examples of messaging tools, with different models for storing and replaying messages."
+        },
+        {
+          "title": "At-least-once delivery and idempotency",
+          "text": "Delivery guarantees describe what happens when something fails between receiving a message and confirming it. With at-most-once, the message is removed before processing, so a crash loses it. With at-least-once, the message is removed only after the consumer acknowledges it, so a crash causes redelivery and nothing is lost, but some messages are processed twice.\n\nAt-least-once is the usual choice, which means consumers must be idempotent: processing the same message twice must have the same effect as processing it once. Picture a consumer that charges a card, then crashes before acknowledging. The message comes back, and without protection the customer is charged twice.\n\nCommon techniques: give each message a unique ID and, when the work is a write to your own database, record processed IDs in the same transaction as that write, skipping any ID already seen; make operations naturally idempotent, such as 'set status to shipped' instead of 'add one to the count'; or, when the work is a call to another service such as a payment provider, pass the message ID as an idempotency key so that service ignores the repeat. Exactly-once delivery is not something the network can promise; exactly-once effects (often called effectively-once) come from at-least-once delivery plus idempotent processing."
+        },
+        {
+          "title": "Back-pressure and backlog",
+          "text": "A queue absorbs bursts, but only if consumers eventually catch up. Size consumers for the sustained rate: if producers send 1,200 messages per second and one worker handles 150, you need 1,200 ÷ 150 = 8 workers just to keep up.\n\nWhen producers outrun consumers, the backlog grows by the difference. Producers at 1,200 per second against consumers at 1,000 per second add 200 messages every second; after 10 minutes, 200 × 600 = 120,000 messages are waiting. If producers then drop to 600 per second, the backlog shrinks at 1,000 − 600 = 400 per second and takes 120,000 ÷ 400 = 300 seconds, five minutes, to clear.\n\nAn unbounded backlog eventually runs out of memory or disk, and messages grow so old they are useless. Back-pressure pushes the problem back to the source: bound the queue and make producers slow down, return a 'try later' error, or drop low-value messages. Watch queue depth and the age of the oldest message, and scale consumers automatically on those signals."
+        },
+        {
+          "title": "Retries and dead-letter queues",
+          "text": "Some messages fail for temporary reasons, such as a timeout from a downstream service, and succeed on retry. Retry with exponential backoff so a struggling dependency gets breathing room: waits of 1, 2, 4 and 8 seconds before the second to fifth attempts add up to 15 seconds.\n\nOther messages will never succeed: a malformed payload, or a reference to a record that was deleted. These poison messages can block a queue, or burn resources forever, if they are retried without limit.\n\nA dead-letter queue (DLQ) solves this. After a set number of failed attempts, the message moves to a separate queue instead of being retried again. Normal traffic keeps flowing, and the failed message is kept rather than discarded, so an engineer can inspect it, fix the bug, and replay it.\n\nAlert on DLQ growth; a silent DLQ is just data loss with extra steps. Keep the original message, the error and the attempt count together so that diagnosing the failure later does not require guesswork."
+        }
+      ],
+      "keyPoints": [
+        "A queue gives each message to one consumer; pub/sub gives every subscriber its own copy.",
+        "At-least-once delivery can redeliver, so consumers must be idempotent.",
+        "Backlog grows at producer rate minus consumer rate; size consumers for the sustained load.",
+        "Back-pressure bounds the queue and slows or rejects producers instead of growing forever.",
+        "Dead-letter queues park messages that keep failing so they stop blocking normal work."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-queues-and-async-q1",
+          "kind": "prediction",
+          "title": "Fan-out to services",
+          "prompt": "When an order is placed, the inventory, email and analytics services must each receive the event. Which messaging model fits this requirement directly?",
+          "options": [
+            "A single work queue shared by the three services",
+            "Publish/subscribe with one subscription per service",
+            "A direct synchronous call to one service, which forwards to the others"
+          ],
+          "answer": 1,
+          "explanation": "Pub/sub delivers a copy to every subscriber, so each service gets the event. A single shared work queue delivers each message to only one consumer, so each order would reach just one of the three services.",
+          "hint": "Ask how many receivers should get each individual message."
+        },
+        {
+          "id": "challenge-system-design-queues-and-async-q2",
+          "kind": "prediction",
+          "title": "The double charge",
+          "prompt": "A consumer uses at-least-once delivery. It charges a card through a payment provider that supports idempotency keys, then crashes before acknowledging, so the message is redelivered. Which change prevents a second charge without risking a lost payment?",
+          "options": [
+            "Acknowledge the message before charging the card",
+            "Increase the queue retention period",
+            "Add more consumers",
+            "Send the message ID as the idempotency key on the charge"
+          ],
+          "answer": 3,
+          "explanation": "Using the message ID as the idempotency key makes the charge idempotent: the redelivered message reaches the provider with the same key, and the provider returns the first result instead of charging again. Acknowledging before charging avoids duplicates only by switching to at-most-once, where a crash at the wrong moment loses the payment instead.",
+          "hint": "You want redelivery to stay, but you want its second arrival to do nothing."
+        },
+        {
+          "id": "challenge-system-design-queues-and-async-q3",
+          "kind": "prediction",
+          "title": "Growing backlog",
+          "prompt": "Producers send 900 messages/s and consumers process 750 messages/s, starting from an empty queue. Assuming both rates hold steady, how many messages are waiting after 20 minutes?",
+          "options": [
+            "15,000",
+            "180,000",
+            "1,080,000",
+            "900,000"
+          ],
+          "answer": 1,
+          "explanation": "The backlog grows by 900 − 750 = 150 messages each second, and 20 minutes is 1,200 seconds, so 150 × 1,200 = 180,000. 1,080,000 is the total number of messages produced, ignoring that consumers removed most of them.",
+          "hint": "Only the gap between the two rates accumulates."
+        },
+        {
+          "id": "challenge-system-design-queues-and-async-q4",
+          "kind": "prediction",
+          "title": "How many workers",
+          "prompt": "A queue receives a steady 2,400 messages/s. One worker processes 180 messages/s and workers scale linearly. What is the minimum number of workers that keeps the queue from growing?",
+          "options": [
+            "14",
+            "13",
+            "12",
+            "24"
+          ],
+          "answer": 0,
+          "explanation": "2,400 ÷ 180 ≈ 13.3, so 13 workers handle only 2,340 per second and the queue still grows; 14 is the minimum. Rounding down to 13 is the usual mistake.",
+          "hint": "A fractional worker does not exist, so think about which way to round."
+        },
+        {
+          "id": "challenge-system-design-queues-and-async-q5",
+          "kind": "prediction",
+          "title": "The poison message",
+          "prompt": "One message has a malformed payload and fails every time it is processed. The queue retries failed messages forever. What does a dead-letter queue change?",
+          "options": [
+            "It fixes the payload automatically",
+            "It deletes the message after the first failure",
+            "After a limited number of attempts it moves the message aside, keeping it for inspection"
+          ],
+          "answer": 2,
+          "explanation": "A dead-letter queue caps the retries and parks the message somewhere else, so normal traffic continues and the message can be examined and replayed later. It does not delete it; keeping the failed message is the point.",
+          "hint": "Think about both the queue and the engineer who will investigate later."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-rate-limiting-and-apis",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Rate limiting and API design",
+      "order": 7,
+      "summary": "Rate limiters cap how fast clients can call an API, and well-designed APIs add stable pagination, safe retries through idempotency keys, and versioning.",
+      "sections": [
+        {
+          "title": "Token bucket and leaky bucket",
+          "text": "A token bucket holds up to C tokens and is refilled at a steady rate r. Each request takes one token; if the bucket is empty, the request is rejected, usually with HTTP 429 Too Many Requests and a Retry-After header.\n\nThe key property is that it allows bursts. With C = 10 and r = 2 per second, a client that has been idle has a full bucket and can send 10 requests at once. After that it is held to 2 per second. Over the first 5 seconds starting from full, it can send at most 10 + 2 × 5 = 20 requests. This suits real users, whose traffic is naturally bursty, while still capping the long-run rate.\n\nA leaky bucket, in its queue form, puts incoming requests into a fixed-size queue that drains at a constant rate; requests that find the queue full are dropped. Output is perfectly smooth, which protects a downstream service that cannot handle spikes, but a burst is delayed or dropped rather than served quickly. Choose token bucket to allow bursts, leaky bucket to smooth them."
+        },
+        {
+          "title": "Fixed and sliding windows",
+          "text": "A fixed window counter counts requests per client in calendar-aligned windows, such as each clock minute, and rejects requests once the count passes the limit. It is cheap: one counter per client per window. Its flaw is the boundary. With a limit of 100 per minute, a client can send 100 requests at 12:00:59 and another 100 at 12:01:00, 200 requests in about two seconds, all allowed.\n\nA sliding window log stores the timestamp of every request and counts those within the last 60 seconds. It is exact, but memory grows with traffic.\n\nA sliding window counter approximates it with just two counters. It weights the previous window by how much of it still overlaps the last 60 seconds. If the previous minute had 80 requests, the current minute has 30 so far, and we are 25% of the way into the current minute, the estimate is 80 × 0.75 + 30 = 90, under a limit of 100, so the request is allowed. The estimate assumes the previous minute's requests were spread evenly, so it can be slightly off, which is usually acceptable. In a system with many servers, keep the counters in a shared store such as Redis, and update them atomically."
+        },
+        {
+          "title": "Pagination",
+          "text": "List endpoints should never return an unbounded result. Pagination returns a page at a time.\n\nOffset pagination uses parameters such as ?limit=20&offset=40. It is easy to build and lets users jump to page 50. It has two problems. Deep pages are slow, because the database still walks past all the skipped rows: offset 1,000,000 reads a million rows to discard them. And it is unstable under writes: in a newest-first list, if one item is inserted at the top between page 1 and page 2, every item shifts down by one, so the last item of page 1 appears again at the top of page 2.\n\nCursor pagination (also called keyset pagination) returns an opaque cursor that encodes where the page ended, for example the created_at and id of the last item. The next request asks for items after that position, which an index serves directly. Pages stay correct as items are added, and deep pages are as fast as the first. The trade-off is that users cannot jump to an arbitrary page number, which feeds and timelines rarely need."
+        },
+        {
+          "title": "Idempotency keys and versioning",
+          "text": "Networks fail in an awkward way: a client can send a request, the server can process it, and the response can be lost. Retrying a GET is harmless, but retrying a POST that creates a payment could charge twice.\n\nAn idempotency key fixes this. The client generates a unique key per logical operation and sends it in a header with the request. The server stores the key with the result. If the same key arrives again, the server returns the stored response instead of performing the operation again. Keys are kept for a limited time, such as a day, and a reused key with a different request body should be rejected as an error.\n\nVersioning lets an API evolve without breaking existing clients. Additive changes, such as a new optional field, are usually safe. Removing or renaming a field, or changing its meaning, is breaking and needs a new version, commonly in the path (/v2/orders) or in a header. Run old and new versions side by side, announce a deprecation date, and measure who still calls the old version before turning it off."
+        }
+      ],
+      "keyPoints": [
+        "Token bucket allows bursts up to its capacity while capping the long-run rate.",
+        "Leaky bucket smooths output to a constant rate; bursts are queued or dropped.",
+        "Fixed windows allow up to double the limit across a boundary; sliding windows fix this.",
+        "Cursor pagination stays fast and stable under inserts; offset pagination does not.",
+        "Idempotency keys make retried POSTs safe; version breaking changes, not additive ones."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-rate-limiting-and-apis-q1",
+          "kind": "prediction",
+          "title": "Token bucket burst",
+          "prompt": "A token bucket has capacity 20 and refills continuously at 5 tokens per second. It is full at t = 0, and the client sends requests as fast as it is allowed. How many requests can succeed between t = 0 and t = 4 seconds?",
+          "options": [
+            "20",
+            "25",
+            "40",
+            "100"
+          ],
+          "answer": 2,
+          "explanation": "The full bucket allows 20 requests immediately, and refills add 5 × 4 = 20 more over the 4 seconds, for 40 in total. 20 ignores the refill, treating the bucket as a one-time allowance.",
+          "hint": "Add what is already in the bucket to what flows in during the interval."
+        },
+        {
+          "id": "challenge-system-design-rate-limiting-and-apis-q2",
+          "kind": "prediction",
+          "title": "Fixed window boundary",
+          "prompt": "A fixed window limiter allows 50 requests per client per calendar minute. What is the largest number of requests a client can get accepted within a 2-second span?",
+          "options": [
+            "50",
+            "100",
+            "25",
+            "2"
+          ],
+          "answer": 1,
+          "explanation": "The client sends 50 in the last second of one minute and 50 in the first second of the next; both windows are within their limit, so 100 are accepted in about 2 seconds. 50 would be the cap under an exact sliding window log.",
+          "hint": "Place the 2-second span so that it straddles two windows."
+        },
+        {
+          "id": "challenge-system-design-rate-limiting-and-apis-q3",
+          "kind": "prediction",
+          "title": "Sliding window estimate",
+          "prompt": "A sliding window counter limits clients to 100 requests per minute. The previous minute had 60 requests, the current minute has 40 so far, and we are exactly halfway through the current minute. What is the estimated count for the last 60 seconds?",
+          "options": [
+            "40",
+            "70",
+            "100"
+          ],
+          "answer": 1,
+          "explanation": "Half of the previous window still overlaps the last 60 seconds, so the estimate is 60 × 0.5 + 40 = 70. 100 comes from adding both windows in full, which overcounts requests from more than a minute ago.",
+          "hint": "Weight the previous window by how much of it is still inside the last minute."
+        },
+        {
+          "id": "challenge-system-design-rate-limiting-and-apis-q4",
+          "kind": "prediction",
+          "title": "Offset pages under inserts",
+          "prompt": "A feed is sorted newest first and paginated with limit=10 and offset. A client loads page 1 (offset 0). Before it loads page 2 (offset 10), exactly one new item is added at the top. Nothing is deleted. What does the client see on page 2?",
+          "options": [
+            "One item it already saw on page 1 appears again",
+            "One item is skipped and never shown",
+            "Exactly the items it would have seen without the insert"
+          ],
+          "answer": 0,
+          "explanation": "The insert pushes every item down one place, so the item that was 10th is now 11th and opens page 2, a duplicate. A skipped item happens in the opposite case, when an item above the cut is deleted.",
+          "hint": "Track where the old 10th item ends up after everything shifts."
+        },
+        {
+          "id": "challenge-system-design-rate-limiting-and-apis-q5",
+          "kind": "prediction",
+          "title": "Retrying with an idempotency key",
+          "prompt": "A client sends POST /payments with an idempotency key. The server charges the card and stores the key with the response, but the response is lost. The client retries with the same key and identical body. What should the server do?",
+          "options": [
+            "Charge the card again and return a new response",
+            "Reject the request with an error because the key was used",
+            "Return a rate-limit error",
+            "Return the stored response without charging again"
+          ],
+          "answer": 3,
+          "explanation": "The key identifies the same logical operation, so the server replays the stored result and the client learns that the payment succeeded. Rejecting a matching retry with an error defeats the purpose; errors are for a reused key with a different body.",
+          "hint": "The client still needs to find out how the first attempt went."
+        }
+      ]
+    },
+    {
+      "id": "guide-system-design-case-study-url-shortener",
+      "kind": "guide",
+      "track": "system-design",
+      "title": "Case study: URL shortener",
+      "order": 8,
+      "summary": "An end-to-end design of a URL shortener, from requirements and estimates through ID generation, storage and caching to the choice of redirect status code.",
+      "sections": [
+        {
+          "title": "Requirements and estimates",
+          "text": "Start by pinning down scope. Functional requirements: given a long URL, return a short one; visiting the short URL redirects to the long one; optionally, custom aliases, expiry dates and click analytics. Non-functional requirements: redirects must be fast and highly available, short codes must not collide, and codes should not be trivially guessable if links can be private.\n\nNow the numbers. Assume 40 million new short URLs per month. A 30-day month has 2,592,000 seconds, so writes average 40,000,000 ÷ 2,592,000 ≈ 15 per second. Shorteners are read-heavy; assume 200 redirects per creation, about 3,100 redirects per second on average, with peaks a few times higher.\n\nStorage: keeping links for 6 years gives 40 million × 72 months ≈ 2.9 billion records. At roughly 400 bytes per record (code, long URL, owner, timestamps), that is 2.9 × 10^9 × 400 B ≈ 1.2 TB. The conclusion: writes are light, the data fits comfortably on a few machines, and the real job is serving redirects quickly."
+        },
+        {
+          "title": "Generating short codes",
+          "text": "Codes use base62: the characters 0-9, a-z and A-Z. Six characters give 62^6 ≈ 56.8 billion codes, and seven give about 3.5 trillion. Our 2.9 billion records fit within six characters with room to spare.\n\nCounter approach: give every URL a unique integer and convert it to base62, much like converting to binary but dividing by 62. With the alphabet ordered 0-9, a-z, A-Z, the number 1,000,000 becomes 4c92. A single counter is a bottleneck, so each application server leases a block of IDs, say 1,000 at a time, from a coordinating store and hands them out locally. There are no collisions, but codes are sequential and easy to enumerate; scrambling the number with a reversible permutation before encoding hides the order.\n\nHash approach: hash the long URL and keep the first 7 base62 characters. No coordination is needed, but at this scale collisions are practically certain. With 2.9 billion codes in a space of 3.5 trillion, the birthday estimate n² ÷ 2M predicts about 1.2 million colliding pairs, so every insert must check for an existing code and retry with a tweaked input."
+        },
+        {
+          "title": "Storage and caching",
+          "text": "The core table is simple: short code as the primary key, plus the long URL, creation time, expiry and owner. Access is almost entirely by exact key, with no joins, so a key-value store or a relational database with a primary key index both work. At about 1.2 TB, a relational database with read replicas is enough for years; if growth demands it, hash-shard by short code, which spreads keys evenly.\n\nRedirect traffic is highly skewed: a small share of links receives most clicks. Put a cache such as Redis in front of the database using cache-aside. Caching 10 million hot mappings at about 400 bytes each needs around 4 GB of memory, easily held on one node, with replicas for availability. With a high hit rate, the database sees only a small fraction of the 3,100 redirects per second.\n\nMappings rarely change, so long TTLs are safe. When a link is deleted or expires, delete its cache entry too, and cache 'not found' results briefly so repeated lookups for invalid codes do not all reach the database."
+        },
+        {
+          "title": "Redirects: 301 versus 302",
+          "text": "The redirect itself is an HTTP response with a Location header. The status code choice has real consequences.\n\n301 Moved Permanently tells the client the move is permanent. Browsers cache a 301 by default, unless cache headers on the response say otherwise, so after the first visit, later clicks on the same short link in that browser may go straight to the long URL without contacting your service. That cuts load, but you lose click counts for those visits, and you cannot reliably change or disable the link for users who have cached it.\n\n302 Found and 307 Temporary Redirect mark the move as temporary, so browsers cache them only if the response explicitly allows it, and by default every click passes through your service. That is what analytics, link editing and expiry need. 307 also guarantees the browser keeps the request method, which matters little for links clicked as GETs.\n\nA design that needs accurate click counts or editable links is therefore better served by 302 or 307, accepting the extra traffic and keeping redirects cheap with server-side caching. A service that values lower load over exact counts may reasonably choose 301 instead; state the trade-off either way. Record clicks asynchronously: push an event to a queue and return the redirect at once, so analytics never slows the user down."
+        }
+      ],
+      "keyPoints": [
+        "Estimate first: about 15 writes/s and 3,100 reads/s make this a read-heavy, cache-friendly system.",
+        "Base62 with 6 characters gives about 56.8 billion codes; 7 characters about 3.5 trillion.",
+        "Counters avoid collisions but are guessable; truncated hashes need collision checks.",
+        "Cache hot mappings and invalidate on delete or expiry; also cache misses briefly.",
+        "Without cache headers browsers cache 301 but not 302 or 307, so analytics and editable links favour 302 or 307."
+      ],
+      "challenges": [
+        {
+          "id": "challenge-system-design-case-study-url-shortener-q1",
+          "kind": "prediction",
+          "title": "Code length",
+          "prompt": "Short codes use base62 (0-9, a-z, A-Z) and all codes have the same length. The service must support 100 billion distinct codes. What is the shortest length that works?",
+          "options": [
+            "6",
+            "7",
+            "8",
+            "11"
+          ],
+          "answer": 1,
+          "explanation": "62^6 ≈ 56.8 billion is not enough, while 62^7 ≈ 3.5 trillion is, so 7 characters. 6 looks close but falls short by about 43 billion codes.",
+          "hint": "Compute 62 raised to successive powers and compare with the target."
+        },
+        {
+          "id": "challenge-system-design-case-study-url-shortener-q2",
+          "kind": "prediction",
+          "title": "Write rate",
+          "prompt": "A shortener creates 30 million new links per 30-day month, spread evenly. Roughly what is the average write rate?",
+          "options": [
+            "About 1.2 per second",
+            "About 120 per second",
+            "About 1,200 per second",
+            "About 12 per second"
+          ],
+          "answer": 3,
+          "explanation": "A 30-day month has 2,592,000 seconds, and 30,000,000 ÷ 2,592,000 ≈ 11.6, about 12 per second. 120 per second would mean about 311 million links a month, ten times the stated volume.",
+          "hint": "Convert the month to seconds before dividing."
+        },
+        {
+          "id": "challenge-system-design-case-study-url-shortener-q3",
+          "kind": "prediction",
+          "title": "Status code for analytics",
+          "prompt": "The product must count every click on a short link and let owners change the destination later. No special cache headers are added to redirect responses. Which status code should redirects use?",
+          "options": [
+            "301 Moved Permanently",
+            "302 Found",
+            "200 OK with the long URL in the body"
+          ],
+          "answer": 1,
+          "explanation": "A 302 is not cached by browsers by default, so every click comes back to the service, where it can be counted and the current destination looked up. A 301 is cached by default, so repeat clicks can skip the service entirely and go uncounted.",
+          "hint": "Ask which response the browser will remember and reuse without asking again."
+        },
+        {
+          "id": "challenge-system-design-case-study-url-shortener-q4",
+          "kind": "prediction",
+          "title": "Base62 encoding",
+          "prompt": "Short codes are the base62 form of an integer ID, using the digits 0-9, then a-z, then A-Z, with no padding. What is the code for ID 3,844?",
+          "options": [
+            "100",
+            "zz",
+            "ZZ",
+            "1000"
+          ],
+          "answer": 0,
+          "explanation": "3,844 = 62 × 62, which is written 100 in base 62, just as 100 in base 10 is 10 × 10. ZZ is one less, 3,843, the largest two-character code.",
+          "hint": "List the place values of a base-62 number (1, 62, 62 × 62, ...) and see how 3,844 splits across them."
+        },
+        {
+          "id": "challenge-system-design-case-study-url-shortener-q5",
+          "kind": "prediction",
+          "title": "Weakness of a plain counter",
+          "prompt": "Codes are created by base62-encoding a global counter that increases by 1 for each new link, with no scrambling. Which problem does this introduce?",
+          "options": [
+            "Two links can receive the same code",
+            "Codes become longer than with hashing",
+            "Anyone can enumerate other links by trying neighbouring codes"
+          ],
+          "answer": 2,
+          "explanation": "Sequential IDs give sequential codes, so trying the next or previous code reveals other people's links. Collisions are the weakness of truncated hashes; a counter hands each number out once, so it never repeats a code.",
+          "hint": "Imagine you just made a link and want to find one created a moment earlier."
         }
       ]
     }

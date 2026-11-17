@@ -65,4 +65,20 @@ class PrepContentTest {
       assertEquals(5, Store.items(g.get("challenges")).size(), g.get("id").toString());
     }
   }
+  @Test
+  void twentyPuzzlesAndEightSystemDesignGuidesAreComplete() {
+    var guides = Store.items(content.get("guides"));
+    var puzzles = guides.stream().filter(g -> "puzzles".equals(g.get("track"))).toList();
+    assertEquals(20, puzzles.size());
+    for (var g : puzzles) {
+      var puzzle = (Map<?, ?>) g.get("puzzle");
+      assertEquals(2, Store.strings(puzzle.get("hints")).size(), g.get("id").toString());
+      assertTrue(Store.strings(puzzle.get("solution")).size() >= 2, g.get("id").toString());
+      assertTrue(Store.items(g.get("challenges")).isEmpty());
+    }
+    assertTrue(puzzles.stream().filter(g -> ((Map<?, ?>) g.get("puzzle")).containsKey("answer")).count() >= 12, "most puzzles take a typed answer");
+    var design = guides.stream().filter(g -> "system-design".equals(g.get("track"))).toList();
+    assertEquals(8, design.size());
+    for (var g : design) assertEquals(5, Store.items(g.get("challenges")).size(), g.get("id").toString());
+  }
 }
