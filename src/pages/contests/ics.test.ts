@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { icsFor } from "./ics";
+import { countdown, icsFor } from "./ics";
 
 describe("icsFor", () => {
   it("writes one UTC event with the contest's link, CRLF line endings and escaped text", () => {
@@ -17,7 +17,6 @@ describe("icsFor", () => {
   });
 });
 
-import { countdown } from "./ics";
 describe("countdown", () => {
   const c = { id: "x", platform: "Codeforces", title: "R", start: "2026-11-21T12:00:00Z", durationMinutes: 120, url: "u" };
   const at = (iso: string) => new Date(iso).getTime();
@@ -27,5 +26,18 @@ describe("countdown", () => {
     expect(countdown(c, at("2026-11-21T11:20:00Z"))).toBe("in 40 min");
     expect(countdown(c, at("2026-11-21T13:00:00Z"))).toBe("live now");
     expect(countdown(c, at("2026-11-21T14:00:00Z"))).toBe("ended");
+  });
+});
+
+describe("calendar polish", () => {
+  const long = { id: "atcoder-x", platform: "AtCoder", title: "AtCoder Regular Contest 999 (Sponsored by a Very Long Company Name Incorporated, Div. 1 and Div. 2)", start: "2026-11-21T12:00:00Z", durationMinutes: 100, url: "https://atcoder.jp/contests/x" };
+  it("folds lines longer than 75 octets so strict calendar apps accept them", () => {
+    const ics = icsFor(long, new Date("2026-11-17T00:00:00Z"));
+    for (const line of ics.split("\r\n")) expect(new TextEncoder().encode(line).length).toBeLessThanOrEqual(75);
+    const unfolded = ics.replace(/\r\n /g, "");
+    expect(unfolded).toContain("SUMMARY:AtCoder Regular Contest 999 (Sponsored by a Very Long Company Name Incorporated\\, Div. 1 and Div. 2)");
+  });
+  it("says starting now in the last minute instead of in 0 min", () => {
+    expect(countdown(long, new Date("2026-11-21T11:59:40Z").getTime())).toBe("starting now");
   });
 });

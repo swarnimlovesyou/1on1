@@ -37,9 +37,12 @@ export default function Contests() {
 
   if (contests.isLoading) return <Loading />;
   if (contests.error || !contests.data) return <ErrorState error={contests.error} retry={() => contests.refetch()} />;
-  const shown = contests.data.contests.filter((c) => platform === "All" || c.platform === platform);
+  // contests that ended since the last fetch drop off without waiting for a refetch
+  const shown = contests.data.contests.filter((c) => (platform === "All" || c.platform === platform) && countdown(c) !== "ended");
   const days = [...new Set(shown.map((c) => day(c.start)))];
   const down = contests.data.sources.filter((s) => !s.ok);
+  const lastGood = down.map((s) => s.fetchedAt).filter((t): t is string => !!t).sort()[0];
+  const allDown = down.length === contests.data.sources.length;
 
   return (
     <>
@@ -50,7 +53,10 @@ export default function Contests() {
       {down.length > 0 && (
         <p className="inline-alert" role="status">
           {down.map((s) => s.platform).join(" and ")} couldn&apos;t be reached just now
-          {down.some((s) => s.fetchedAt) ? ", so its list is from the last successful check" : ""}. The others are current.
+          {lastGood
+            ? `, so ${down.length > 1 ? "these lists are" : "its list is"} from the last check that worked (last checked ${new Date(lastGood).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })})`
+            : ""}
+          .{allDown ? "" : " The other source is current."}
         </p>
       )}
       <div className="contest-filters" role="group" aria-label="Platform">

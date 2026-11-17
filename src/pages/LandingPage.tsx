@@ -110,6 +110,7 @@ export default function LandingPage() {
   }
   return (
     <div className="landing2">
+      <main>
       <section className="meadow-hero">
         <Landscape />
         <WindowFrame />
@@ -169,7 +170,7 @@ export default function LandingPage() {
         </a>
       </section>
 
-      <main className="landing2-body">
+      <div className="landing2-body">
         <dl className="landing-figures">
           {figures.map(([n, label]) => (
             <div key={label}>
@@ -220,6 +221,8 @@ export default function LandingPage() {
           Questions link to Codeforces, AtCoder, CSES and LeetCode; we keep titles and links, never their statements. Every list says where it
           came from.
         </p>
+      </div>
+
       </main>
 
       <footer className="landing2-footer">

@@ -51,3 +51,28 @@ test("the sidebar links to contests and the page fits a phone", async ({ page })
   await expect(page.locator(".contest-row").first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+test("when both sources are down the banner says so plainly, with the time of the last check, and ended contests are hidden", async ({ page }) => {
+  await page.unroute("**/api/v1/contests");
+  await page.route("**/api/v1/contests", (route) =>
+    route.fulfill({
+      json: {
+        contests: [
+          { id: "codeforces-1", platform: "Codeforces", title: "Already over", start: soon(-5), durationMinutes: 60, url: "https://codeforces.com/contests/1" },
+          { id: "codeforces-2", platform: "Codeforces", title: "Still to come", start: soon(10), durationMinutes: 60, url: "https://codeforces.com/contests/2" },
+        ],
+        sources: [
+          { platform: "Codeforces", ok: false, fetchedAt: soon(-3) },
+          { platform: "AtCoder", ok: false, fetchedAt: soon(-3) },
+        ],
+      },
+    }),
+  );
+  await page.goto("/contests");
+  const banner = page.getByRole("status");
+  await expect(banner).toContainText("Codeforces and AtCoder couldn't be reached");
+  await expect(banner).toContainText("last checked");
+  await expect(banner).not.toContainText("The others are current");
+  await expect(page.locator(".contest-row")).toHaveCount(1);
+  await expect(page.locator(".contest-row")).toContainText("Still to come");
+});

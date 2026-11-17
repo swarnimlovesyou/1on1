@@ -4,7 +4,7 @@
 
 **Goal:** Close the remaining gaps against DSABuddy (contests, profile-synced sheets, bank sorting), clear the deferred review items, add Phase 3's performance laboratory, and run the full regression the exit gate asks for.
 
-**Architecture:** A `ContestService` reads the Codeforces official `contest.list` and AtCoder Problems' `contests.json`, cached for an hour; LeetCode and CodeChef are linked, not scraped or guessed. The existing LeetCode connection's recent accepted submissions tick matching sheet items. The bank gains a `sort` parameter. The performance lab counts the steps of the existing Java traces over growing inputs.
+**Architecture:** A `ContestService` reads the Codeforces official `contest.list` and AtCoder's public contest page (AtCoder Problems lists only past contests; see the ledger), cached for an hour; LeetCode and CodeChef are linked, not scraped or guessed. The existing LeetCode connection's recent accepted submissions tick matching sheet items. The bank gains a `sort` parameter. The performance lab counts the steps of the existing Java traces over growing inputs.
 
 **Tech Stack:** Spring Boot 4 / Java 21 (`RestClient`), React + react-query, Vitest, Playwright.
 
