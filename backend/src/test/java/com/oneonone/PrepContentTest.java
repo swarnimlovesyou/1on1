@@ -54,4 +54,15 @@ class PrepContentTest {
       );
     }
   }
+  @Test
+  void aptitudeAndReasoningGuidesCoverEveryDrillTopic() {
+    var guides = Store.items(content.get("guides")).stream().filter(g -> DrillService.TOPICS.containsValue(Store.text(g, "track", ""))).toList();
+    assertEquals(8, guides.stream().filter(g -> "aptitude".equals(g.get("track"))).count());
+    assertEquals(5, guides.stream().filter(g -> "reasoning".equals(g.get("track"))).count());
+    assertEquals(DrillService.TOPICS.keySet(), guides.stream().map(g -> g.get("drill").toString()).collect(java.util.stream.Collectors.toSet()));
+    for (var g : guides) {
+      assertEquals(DrillService.TOPICS.get(g.get("drill").toString()), g.get("track"), g.get("id").toString());
+      assertEquals(5, Store.items(g.get("challenges")).size(), g.get("id").toString());
+    }
+  }
 }
