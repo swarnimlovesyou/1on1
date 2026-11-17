@@ -263,6 +263,11 @@ public class ChallengeService {
             challenge
           );
       }
+    // Prep guide quizzes are graded the same way; their attempts record the guide id
+    for (var guide : store.list("guide", "public"))
+      if (!Boolean.FALSE.equals(guide.get("published")))
+        for (var challenge : authored(guide))
+          if (id.equals(challenge.get("id"))) return new Found(guide.get("id").toString(), challenge);
     throw new ResponseStatusException(
       HttpStatus.NOT_FOUND,
       "This learning challenge could not be found."

@@ -36,7 +36,7 @@ public class ContentSeed implements CommandLineRunner {
       )
     );
     Set<String> seeded = new HashSet<>();
-    for (String key : List.of("lessons", "problems", "paths"))
+    for (String key : List.of("lessons", "problems", "paths", "guides"))
       for (var row : Store.items(data.get(key))) {
         String id = row.get("id").toString();
         seeded.add(id);
