@@ -162,5 +162,7 @@ def enrich(lessons):
         ]
         if entry.get('pitfall'):
             lesson['pitfall'] = entry['pitfall'].strip()
+        if entry.get('objectives'):
+            lesson['objectives'] = entry['objectives']
         lesson['prerequisiteNotes'] = {k: v.strip() for k, v in entry.get('prerequisiteNotes', {}).items()}
     assert not entries, f'prose for unknown lessons: {sorted(entries)}'

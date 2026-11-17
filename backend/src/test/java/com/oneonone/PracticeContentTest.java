@@ -8,13 +8,14 @@ import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-/** Every core lesson's graded practice, checked through the real grader against the real Java traces. */
+/** Every core and advanced lesson's graded practice, checked through the real grader against the real Java traces. */
 class PracticeContentTest {
 
   Store store;
   ChallengeService challenges;
   final TraceEngine traces = new TraceEngine();
   List<Map<String, Object>> core = new ArrayList<>();
+  List<Map<String, Object>> advanced = new ArrayList<>();
   Set<String> problems = new HashSet<>();
 
   @BeforeEach
@@ -33,6 +34,7 @@ class PracticeContentTest {
     for (var lesson : Store.items(content.get("lessons"))) {
       store.put(lesson.get("id").toString(), "lesson", "public", lesson);
       lessons.put(lesson.get("id").toString(), lesson);
+      if ("advanced".equals(lesson.get("branch"))) advanced.add(lesson);
     }
     for (var p : Store.items(content.get("problems"))) problems.add(p.get("id").toString());
     var curriculum = store.decode(new String(getClass().getResourceAsStream("/curriculum.json").readAllBytes(), StandardCharsets.UTF_8));
@@ -84,9 +86,33 @@ class PracticeContentTest {
   }
 
   @Test
+  void everyAdvancedLessonHasProseObjectivesAndADryRunThatGradesFromItsTrace() {
+    assertEquals(7, advanced.size());
+    for (var lesson : advanced) {
+      String id = lesson.get("id").toString();
+      assertTrue(Store.text(lesson, "body", "").length() >= 300, id + " opening is too thin");
+      var blocks = Store.items(lesson.get("blocks"));
+      assertEquals(List.of("worked", "invariant", "tradeoff"), blocks.stream().map(b -> b.get("id")).toList(), id);
+      for (var b : blocks) assertTrue(Store.text(b, "text", "").length() >= 200, id + " " + b.get("id") + " is too thin");
+      assertEquals(2, Store.strings(lesson.get("objectives")).size(), id + " objectives");
+      var list = ChallengeService.authored(lesson);
+      assertEquals(List.of("prediction", "prediction", "pattern", "dry-run"), list.stream().map(c -> c.get("kind")).toList(), id);
+      var dry = list.getLast();
+      var variables = (Map<String, Object>) Store.items(traces.trace((Map<String, Object>) dry.get("scene")).get("steps"))
+        .get(((Number) dry.get("traceStep")).intValue()).get("variables");
+      Map<String, Object> right = new LinkedHashMap<>();
+      for (var f : Store.items(dry.get("fields"))) right.put(f.get("key").toString(), String.valueOf(variables.get(f.get("key").toString())));
+      assertTrue(grade(dry, right).correct(), id + " dry run should accept its trace's values " + right);
+      for (String p : Store.strings(lesson.get("linkedProblems"))) assertTrue(problems.contains(p), id + " links unknown " + p);
+    }
+  }
+
+  @Test
   void everyDryRunPointsAtARealTraceStepAndGradesFromIt() {
     int checked = 0;
-    for (var lesson : core) for (var c : ChallengeService.authored(lesson)) {
+    var lessons = new ArrayList<>(core);
+    lessons.addAll(advanced);
+    for (var lesson : lessons) for (var c : ChallengeService.authored(lesson)) {
       if (!"dry-run".equals(c.get("kind"))) continue;
       var steps = Store.items(traces.trace((Map<String, Object>) c.get("scene")).get("steps"));
       int at = ((Number) c.get("traceStep")).intValue();
@@ -106,12 +132,14 @@ class PracticeContentTest {
       assertFalse(grade(c, wrong).correct(), c.get("id") + " accepted a wrong value");
       checked++;
     }
-    assertEquals(24, checked, "one dry run per core lesson");
+    assertEquals(31, checked, "one dry run per core and advanced lesson");
   }
 
   @Test
   void everyAuthoredChoiceGradesAsAuthoredAndTheOthersFail() {
-    for (var lesson : core) for (var c : ChallengeService.authored(lesson)) {
+    var lessons = new ArrayList<>(core);
+    lessons.addAll(advanced);
+    for (var lesson : lessons) for (var c : ChallengeService.authored(lesson)) {
       if (!List.of("prediction", "pattern").contains(c.get("kind"))) continue;
       // the kept checkpoint's answer lives on the lesson; authored challenges carry their own
       Object answer = c.containsKey("answer") ? c.get("answer") : ((Map<?, ?>) lesson.get("checkpoint")).get("answer");

@@ -100,9 +100,10 @@ class AdminChecksTest {
 
     // the same gap on an advanced lesson is advice, not a block
     var advanced = copy(lessons.get("lesson-avl"));
+    advanced.put("blocks", Store.items(advanced.get("blocks")).subList(0, 1));
     var advice = admin.check(advanced);
     assertEquals(true, advice.get("canPublish"));
-    assertFalse(messages(advice, "warnings").isEmpty());
+    assertTrue(String.join(" ", messages(advice, "warnings")).contains("worked, invariant and tradeoff"));
   }
 
   @Test
