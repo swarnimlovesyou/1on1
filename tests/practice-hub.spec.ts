@@ -55,8 +55,16 @@ test("a learner starts a mock, opens a problem with its timer and finishes with 
 });
 
 test("an external question opens in our editor, links to its statement and keeps the draft", async ({ page }) => {
+  await page.goto("/signup");
+  await page.getByLabel("Your name").fill("Solve verification");
+  await page.getByLabel("Email address").fill(`solve-${Date.now()}@example.test`);
+  await page.getByLabel("Password", { exact: true }).fill("solve-verification-password");
+  await page.getByRole("button", { name: "Create your account" }).click();
+  await page.getByRole("button", { name: "Find my first lightbulb moment" }).click();
   await page.goto("/practice?tab=bank");
   await page.getByLabel("Source").selectOption("Codeforces");
+  await page.getByLabel("Difficulty").selectOption("Hard");
+  await page.getByRole("button", { name: "Next" }).click();
   await page.getByRole("link", { name: "Solve here" }).first().click();
   await expect(page).toHaveURL(/\/practice\/q\/cf-/);
   const statement = page.getByRole("link", { name: /Read the full statement on Codeforces/ });
@@ -64,11 +72,28 @@ test("an external question opens in our editor, links to its statement and keeps
   await expect(statement).toHaveAttribute("href", /codeforces\.com/);
   await page.getByLabel("Your input").fill("3");
   await page.getByRole("button", { name: "Run" }).click();
-  // without a configured runner the server's own explanation shows; with one, the output does
-  await expect(page.locator(".run-output, .run-error")).toBeVisible({ timeout: 30000 });
+  // a signed-in run reaches the runner: either its output, or the server's runner message
+  await expect(page.locator(".run-output").or(page.locator(".run-error", { hasText: "Judge0" }))).toBeVisible({ timeout: 60000 });
   await page.locator(".monaco-editor textarea, textarea.code-fallback").first().focus();
   await page.keyboard.type("// my draft");
-  await page.waitForTimeout(600);
   await page.reload();
   await expect(page.locator(".solve-external")).toContainText("my draft", { timeout: 15000 });
+  // going back keeps the bank's filters and page
+  await page.getByRole("link", { name: "Back to the question bank" }).click();
+  await expect(page.getByLabel("Source")).toHaveValue("Codeforces");
+  await expect(page.getByLabel("Difficulty")).toHaveValue("Hard");
+  await expect(page.getByText(/Page 2 of/)).toBeVisible();
+});
+
+test("a failed result check is shown once instead of retried silently", async ({ page }) => {
+  await page.route("**/api/v1/submissions/**", (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ message: "Sign in to save your learning and continue." }) }));
+  await page.route("**/api/v1/submissions", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id: "submission-x", status: "QUEUED", results: [] }) }));
+  await page.goto("/practice/q/cf-1000A");
+  await page.getByRole("button", { name: "Run" }).click();
+  await expect(page.locator(".run-error")).toContainText("Sign in");
+});
+
+test("a LeetCode question explains how to run a function-style problem", async ({ page }) => {
+  await page.goto("/practice/q/lc-two-sum");
+  await expect(page.locator(".solve-statement")).toContainText("write a main");
 });

@@ -52,6 +52,16 @@ class ExternalRunTest {
   }
 
   @Test
+  void anUnknownIdOrAnOmittedOfficialFlagIsRefusedAndStoresNothing() {
+    var body = new HashMap<String, Object>(Map.of("problem", "cf-nope", "language", "python", "code", "x", "official", false, "requestId", "request-unknown-1"));
+    var missing = assertThrows(org.springframework.web.server.ResponseStatusException.class, () -> execution.submit("learner", body));
+    assertEquals(404, missing.getStatusCode().value());
+    var noFlag = new HashMap<String, Object>(Map.of("problem", "cf-1000A", "language", "python", "code", "x", "requestId", "request-noflag-1"));
+    assertThrows(IllegalArgumentException.class, () -> execution.submit("learner", noFlag));
+    assertEquals(0, store.list("submission", "learner").size());
+  }
+
+  @Test
   void anExternalQuestionRunsOnTheLearnersInputButIsNeverJudged() {
     var refused = assertThrows(IllegalArgumentException.class, () -> run(true));
     assertEquals("External questions run on your own input; they are judged on their own site.", refused.getMessage());

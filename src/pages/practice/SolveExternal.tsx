@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowUpRight, Play } from "@phosphor-icons/react";
 import { api } from "../../api";
@@ -30,6 +30,7 @@ function writeDraft(id: string, language: string, code: string) {
 /** An external question in our editor. The statement stays on its own site; runs use the learner's own input. */
 export default function SolveExternal() {
   const { id = "" } = useParams();
+  const navigate = useNavigate();
   const item = useQuery({ queryKey: ["bank-item", id], queryFn: () => api<BankItem>("/bank/item/" + id) });
   const [language, setLanguage] = useState("python"),
     [code, setCode] = useState(""),
@@ -51,7 +52,9 @@ export default function SolveExternal() {
     queryKey: ["submission", job],
     queryFn: () => api<Submission>("/submissions/" + job),
     enabled: !!job,
-    refetchInterval: (q) => (["QUEUED", "RUNNING"].includes(q.state.data?.status ?? "QUEUED") ? 1000 : false),
+    // stop on an error (an expired session, say) rather than retrying every second unseen
+    refetchInterval: (q) => (q.state.error ? false : ["QUEUED", "RUNNING"].includes(q.state.data?.status ?? "QUEUED") ? 1000 : false),
+    retry: false,
   });
   if (item.isLoading) return <Loading />;
   if (item.error || !item.data) return <ErrorState error={item.error} />;
@@ -59,8 +62,18 @@ export default function SolveExternal() {
   const row = result.data?.results?.[0];
   return (
     <div className="solve-external">
-      <Link className="back-link" to="/practice?tab=bank">
-        <ArrowLeft size={16} />
+      <Link
+        className="back-link"
+        to="/practice?tab=bank"
+        onClick={(e) => {
+          // back to the bank exactly as it was (filters and page live in its URL), when we came from inside the app
+          if ((window.history.state?.idx ?? 0) > 0) {
+            e.preventDefault();
+            navigate(-1);
+          }
+        }}
+      >
+        <ArrowLeft size={16} aria-hidden="true" />
         Back to the question bank
       </Link>
       <div className="problem-heading solve-heading">
@@ -83,6 +96,8 @@ export default function SolveExternal() {
         <span className="muted">
           {" "}
           1on1 doesn't copy statements. Write your solution here and run it on your own input.
+          {q.source === "LeetCode" &&
+            " LeetCode problems give a function signature: write a main that reads your input, calls your function and prints the result."}
         </span>
       </p>
       <div className="solve-workspace">
@@ -102,16 +117,16 @@ export default function SolveExternal() {
             <textarea rows={6} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Paste a sample input from the statement" />
           </label>
           <button className="button primary small" disabled={run.isPending || !code.trim()} onClick={() => run.mutate()}>
-            <Play size={16} /> Run
+            <Play size={16} aria-hidden="true" /> Run
           </button>
-          {run.error && (
+          {(run.error ?? result.error) && (
             <p className="run-error" role="alert">
-              {run.error.message}
+              {(run.error ?? result.error)!.message}
             </p>
           )}
           {result.data && (
-            <div className="run-output" role="status">
-              <strong>{result.data.status.replaceAll("_", " ").toLowerCase()}</strong>
+            <div className="run-output">
+              <strong role="status">{result.data.status.replaceAll("_", " ").toLowerCase()}</strong>
               {row?.actual !== undefined && <pre className="reference-code">{row.actual || "(no output)"}</pre>}
               {(row?.message || result.data.message) && <p className="muted">{row?.message ?? result.data.message}</p>}
             </div>
