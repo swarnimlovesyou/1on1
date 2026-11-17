@@ -41,6 +41,7 @@ import SolveExternal from "./pages/practice/SolveExternal";
 import PrepHome from "./pages/prep/PrepHome";
 import PrepTrack from "./pages/prep/PrepTrack";
 import GuidePage from "./pages/prep/GuidePage";
+import DrillPage from "./pages/prep/DrillPage";
 import {
   Planner,
   Notes,
@@ -324,6 +325,7 @@ export default function App() {
                 <Route path="/prep" element={<PrepHome />} />
                 <Route path="/prep/:track" element={<PrepTrack />} />
                 <Route path="/prep/guide/:id" element={<GuidePage />} />
+                <Route path="/prep/drill/:topic" element={<DrillPage />} />
                 <Route path="/plan" element={<Planner />} />
                 <Route path="/notebook" element={<Notes />} />
                 <Route path="/progress" element={<Analytics />} />

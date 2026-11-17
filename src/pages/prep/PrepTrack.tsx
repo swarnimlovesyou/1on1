@@ -43,6 +43,11 @@ export default function PrepTrack() {
                       <strong>{g.title}</strong>
                       <span>{g.summary}</span>
                     </Link>
+                    {g.drill && (
+                      <Link className="prep-practise" to={"/prep/drill/" + g.drill} aria-label="Practise">
+                        Practise
+                      </Link>
+                    )}
                   </li>
                 );
               })}

@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Lightbulb } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, Lightbulb } from "@phosphor-icons/react";
 import { api } from "../../api";
 import type { PrepGuide } from "../../types";
 import { Loading, ErrorState } from "../../components/Shared";
@@ -36,6 +36,14 @@ export default function GuidePage() {
           ))}
         </ul>
       </div>
+      {g.drill && (
+        <p>
+          <Link className="button" to={"/prep/drill/" + g.drill}>
+            Practise with unlimited questions
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </p>
+      )}
       {!!g.challenges.length && (
         <section className="prep-quiz">
           <h2>Check yourself</h2>

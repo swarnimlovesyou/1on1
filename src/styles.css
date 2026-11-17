@@ -6200,6 +6200,35 @@ section[id] {
 .prep-guide {
   max-width: 760px;
 }
+.prep-guides a.prep-practise {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+.drill-card {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface, transparent);
+}
+.drill-prompt {
+  font-size: 18px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.drill-answer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+.drill-answer input {
+  width: min(220px, 100%);
+}
+.drill-streak {
+  font-variant-numeric: tabular-nums;
+}
 .prep-guide section {
   margin-top: 28px;
 }
