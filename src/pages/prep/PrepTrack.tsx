@@ -23,6 +23,12 @@ export default function PrepTrack() {
         All of Prep
       </Link>
       <PageHeading title={info.title} description={info.summary} />
+      {track === "system-design" && (
+        <Link className="prep-feature" to="/prep/system-design/playground">
+          <strong>Traffic playground</strong>
+          <span>Set the load, servers, cache and database, and see where requests queue up.</span>
+        </Link>
+      )}
       {!guides.length && <p className="muted">Guides for this track are on their way.</p>}
       {groups.map((group) => (
         <section key={group} className="prep-group">
