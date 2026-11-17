@@ -6729,6 +6729,9 @@ button.global-search:hover {
   --m-ink: #14202E;
   --m-glass: rgba(255, 255, 255, 0.42);
   --m-glass-line: rgba(255, 255, 255, 0.65);
+  --frame-dark: #15110E;
+  --frame-light: #2A221C;
+  --frame-edge: #6B4A32;
 }
 :root[data-theme="dark"] {
   --m-sky-top: #070D1A;
@@ -6745,6 +6748,9 @@ button.global-search:hover {
   --m-ink: #F2EFE8;
   --m-glass: rgba(20, 30, 50, 0.45);
   --m-glass-line: rgba(255, 255, 255, 0.16);
+  --frame-dark: #07090D;
+  --frame-light: #151A22;
+  --frame-edge: #2F3A4C;
 }
 .meadow-hero {
   position: relative;
@@ -6758,6 +6764,13 @@ button.global-search:hover {
   color: var(--m-ink);
 }
 .meadow-landscape {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+.meadow-frame {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -6796,7 +6809,7 @@ button.global-search:hover {
   align-items: center;
   gap: 10px;
   justify-self: start;
-  color: var(--m-ink);
+  color: #FFFFFF;
   font-family: var(--font-sans);
   font-size: 20px;
   font-weight: 600;
@@ -6822,6 +6835,10 @@ button.global-search:hover {
 .meadow-pill a:focus-visible {
   background: var(--m-glass-line);
 }
+.meadow-pill a.lead {
+  background: rgba(255, 255, 255, 0.82);
+  color: #14202E;
+}
 .meadow-nav-end {
   display: flex;
   align-items: center;
@@ -6829,17 +6846,17 @@ button.global-search:hover {
   gap: 18px;
 }
 .meadow-signin {
-  color: var(--m-ink);
+  color: #FFFFFF;
   font-size: 14px;
   text-decoration: none;
 }
 .meadow-glass {
   padding: 9px 18px;
-  border: 1px solid var(--m-glass-line);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  background: var(--m-glass);
+  background: rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(14px);
-  color: var(--m-ink);
+  color: #FFFFFF;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -6849,7 +6866,7 @@ button.global-search:hover {
   flex-direction: column;
   align-items: center;
   width: min(860px, calc(100% - 32px));
-  margin: clamp(40px, 9vh, 96px) auto 0;
+  margin: clamp(48px, 10vh, 110px) auto 0;
   text-align: center;
 }
 .meadow-badge {
@@ -6861,6 +6878,12 @@ button.global-search:hover {
   backdrop-filter: blur(10px);
   font-size: 13px;
 }
+.meadow-copy h1 span {
+  background: linear-gradient(90deg, var(--m-ink) 0%, var(--m-ink) 48%, color-mix(in srgb, var(--m-ink) 50%, transparent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .meadow-copy h1 {
   display: flex;
   flex-direction: column;
@@ -6870,12 +6893,6 @@ button.global-search:hover {
   font-weight: 500;
   line-height: 1.02;
   letter-spacing: -0.035em;
-}
-.meadow-fade {
-  background: linear-gradient(180deg, var(--m-ink) 30%, color-mix(in srgb, var(--m-ink) 45%, transparent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 .meadow-sub {
   max-width: 540px;
@@ -6935,6 +6952,14 @@ button.global-search:hover {
   .meadow-nav {
     grid-template-columns: 1fr auto;
     padding: 16px;
+    background: var(--frame-dark);
+  }
+  /* one full-width window on a phone: side posts would cut through the text */
+  .meadow-frame {
+    display: none;
+  }
+  .meadow-hero {
+    box-shadow: inset 0 0 0 8px var(--frame-dark);
   }
   .meadow-pill,
   .meadow-signin {

@@ -63,6 +63,33 @@ function Landscape() {
   );
 }
 
+/** A train-window frame in the foreground: the landscape shows through three rounded windows. */
+function WindowFrame() {
+  return (
+    <svg className="meadow-frame" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="meadow-windows">
+          <rect width="1440" height="900" fill="white" />
+          <rect x="-60" y="112" width="190" height="900" rx="54" fill="black" />
+          <rect x="190" y="88" width="1060" height="900" rx="70" fill="black" />
+          <rect x="1310" y="112" width="190" height="900" rx="54" fill="black" />
+        </mask>
+        <linearGradient id="meadow-post" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="var(--frame-dark)" />
+          <stop offset="0.5" stopColor="var(--frame-light)" />
+          <stop offset="1" stopColor="var(--frame-dark)" />
+        </linearGradient>
+      </defs>
+      <rect width="1440" height="900" fill="url(#meadow-post)" mask="url(#meadow-windows)" />
+      <g fill="none" stroke="var(--frame-edge)" strokeWidth="3">
+        <rect x="-60" y="112" width="190" height="900" rx="54" />
+        <rect x="190" y="88" width="1060" height="900" rx="70" />
+        <rect x="1310" y="112" width="190" height="900" rx="54" />
+      </g>
+    </svg>
+  );
+}
+
 export default function LandingPage() {
   const lessons = useLessons();
   const prep = usePrep();
@@ -82,13 +109,16 @@ export default function LandingPage() {
     <div className="landing2">
       <section className="meadow-hero">
         <Landscape />
+        <WindowFrame />
         <header className="meadow-nav">
           <Link className="meadow-brand" to="/">
             <span className="brand-mark">1:1</span>
             1on1
           </Link>
           <nav aria-label="Site" className="meadow-pill">
-            <Link to="/learn">Learn</Link>
+            <Link className="lead" to="/learn">
+              Learn
+            </Link>
             <Link to="/practice">Practise</Link>
             <Link to="/prep">Prep</Link>
             <Link to="/practice?tab=sheets">Sheets</Link>
@@ -108,7 +138,7 @@ export default function LandingPage() {
           </p>
           <h1>
             <span>Skip the noise.</span>
-            <span className="meadow-fade">Make it click.</span>
+            <span>Make it click.</span>
           </h1>
           <p className="meadow-sub">
             Watch each algorithm work, one step and one sentence at a time. Then practise until you could explain it to someone else.
