@@ -59,6 +59,9 @@ function Landscape() {
       <rect y="540" width="1440" height="140" fill="url(#meadow-haze)" opacity="0.6" />
       <path fill="var(--m-hill)" d="M0 700 C 200 650 380 690 560 670 C 760 648 900 700 1100 676 C 1250 660 1350 680 1440 670 L1440 900 L0 900 Z" />
       <path fill="url(#meadow-grass)" d="M0 760 C 260 730 520 770 760 748 C 1000 726 1220 760 1440 742 L1440 900 L0 900 Z" />
+      {/* the photo covers the drawing once it loads; the drawing stays as the fallback */}
+      <image className="meadow-photo" href="/landing/meadow-grindelwald.jpg" y="86" width="1440" height="1062" preserveAspectRatio="xMidYMin slice" />
+      <rect className="meadow-wash" width="1440" height="900" />
     </svg>
   );
 }
@@ -156,6 +159,14 @@ export default function LandingPage() {
             Open your first notebook
           </Link>
         </div>
+        <a
+          className="meadow-credit"
+          href="https://unsplash.com/photos/green-valley-hills-and-snow-capped-mountains-under-a-blue-sky-eVvu0PIDrJI"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Photo: Georgi Kalaydzhiev on Unsplash
+        </a>
       </section>
 
       <main className="landing2-body">

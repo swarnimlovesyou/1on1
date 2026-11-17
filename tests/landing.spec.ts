@@ -4,6 +4,9 @@ test("the hero sits in a framed landscape with a glass nav, a badge, the headlin
   await page.goto("/");
   const hero = page.locator(".meadow-hero");
   await expect(hero.locator("svg.meadow-landscape")).toBeVisible();
+  await expect(hero.locator("image.meadow-photo")).toHaveAttribute("href", "/landing/meadow-grindelwald.jpg");
+  expect((await page.request.get("/landing/meadow-grindelwald.jpg")).ok()).toBeTruthy();
+  await expect(hero.getByRole("link", { name: /Georgi Kalaydzhiev/ })).toHaveAttribute("href", /unsplash\.com/);
   await expect(hero.getByRole("heading", { level: 1, name: /Make it click/ })).toBeVisible();
   const pill = hero.getByRole("navigation", { name: "Site" });
   for (const [name, href] of [["Learn", "/learn"], ["Practise", "/practice"], ["Prep", "/prep"], ["Sheets", "/practice?tab=sheets"]] as const)
