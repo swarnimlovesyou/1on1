@@ -52,13 +52,13 @@ function AnimationCard({ lesson, family }: { lesson: Lesson; family: FamilyId })
       {open ? (
         <Experiment scene={lesson.experiment!} compact />
       ) : (
-        <button className="button" type="button" onClick={() => setOpen(true)}>
+        <button className="button" type="button" onClick={() => setOpen(true)} aria-label={`Play this animation: ${lesson.title}`}>
           <Play size={16} aria-hidden="true" />
           Play this animation
         </button>
       )}
       <Link className="animation-lesson" to={"/learn/" + lesson.id}>
-        Open the lesson
+        Open the lesson<span className="sr-only">: {lesson.title}</span>
       </Link>
     </article>
   );

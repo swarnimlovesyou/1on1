@@ -364,7 +364,7 @@ public class DrillService {
         "Both groups sit inside the " + b + ", but they need not overlap at all, so neither conclusion is certain." };
       default -> throw new IllegalArgumentException("template " + template);
     };
-    String prompt = "Statements: " + capital(t[0]) + " " + capital(t[1]) + " Conclusions: I. " + capital(t[2]) + " II. " + capital(t[3]) + " Which conclusions follow?";
+    String prompt = "Statements: " + capital(t[0]) + " " + capital(t[1]) + "\nConclusions:\nI. " + capital(t[2]) + "\nII. " + capital(t[3]) + "\nWhich conclusions follow?";
     return new Drill(prompt, t[4], t[5], VERDICTS, null);
   }
 

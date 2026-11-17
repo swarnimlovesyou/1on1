@@ -10,9 +10,14 @@ import { nextStreak } from "./streak";
 type Question = { topic: string; seed: number; prompt: string; options?: string[]; unit?: string };
 type Result = { correct: boolean; expected: string; explanation: string };
 
-/** Unlimited generated questions for one aptitude or reasoning topic, graded on the server. */
-export default function DrillPage() {
+/** One page per topic: a new topic starts with a clean answer, result and streak. */
+export default function DrillRoute() {
   const { topic = "" } = useParams();
+  return <DrillPage key={topic} topic={topic} />;
+}
+
+/** Unlimited generated questions for one aptitude or reasoning topic, graded on the server. */
+function DrillPage({ topic }: { topic: string }) {
   const prep = usePrep();
   const [round, setRound] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -21,6 +26,8 @@ export default function DrillPage() {
     queryKey: ["drill", topic, round],
     queryFn: () => api<Question>(`/drills/${topic}/next`),
     staleTime: Infinity,
+    gcTime: 0, // coming back to a drill fetches a fresh question
+    placeholderData: (previous) => previous, // keep the card on screen while the next question loads
     retry: false,
   });
   const check = useMutation({
@@ -44,11 +51,12 @@ export default function DrillPage() {
       </article>
     );
   const q = question.data;
-  const unit = (value: string) => (q.unit === "₹" ? "₹" + value : q.unit ? `${value} ${q.unit}` : value);
+  const unit = (value: string) => (q.unit === "₹" ? "₹" + value : q.unit === "%" ? value + "%" : q.unit ? `${value} ${q.unit}` : value);
+  const loadingNext = question.isPlaceholderData;
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (answer.trim() && !check.isPending && !check.data) check.mutate(q);
+    if (answer.trim() && !check.isPending && !check.data && !loadingNext) check.mutate(q);
   }
   function next() {
     setAnswer("");
@@ -100,7 +108,7 @@ export default function DrillPage() {
               Check
             </button>
           )}
-          <button className="button" type="button" onClick={next}>
+          <button className="button" type="button" onClick={next} disabled={check.isPending || loadingNext}>
             Next question
             <ArrowRight size={16} aria-hidden="true" />
           </button>

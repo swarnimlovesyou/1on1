@@ -121,7 +121,7 @@ export default function PlaygroundPage() {
           )}
         </form>
 
-        <section className="playground-results" aria-live="polite">
+        <section className="playground-results">
           <dl>
             <div>
               <dt>Answered</dt>
@@ -129,7 +129,7 @@ export default function PlaygroundPage() {
             </div>
             <div>
               <dt>Dropped</dt>
-              <dd data-metric="dropped">{round(result.dropped)}</dd>
+              <dd data-metric="dropped">{round(result.dropped)}/s</dd>
             </div>
             <div>
               <dt>Average latency</dt>
@@ -148,7 +148,9 @@ export default function PlaygroundPage() {
             Bottleneck: <strong>{TIER_NAME[result.bottleneck]}</strong>
             {result.bottleneck === "none" ? " — every tier has room to spare." : " — this tier is above 80% busy, so its queue grows fast."}
           </p>
-          <p className="playground-change muted">{change}</p>
+          <p className="playground-change muted" aria-live="polite">
+            {change}
+          </p>
         </section>
       </div>
       <p className="muted small">

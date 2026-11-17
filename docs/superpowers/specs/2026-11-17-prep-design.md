@@ -131,7 +131,7 @@ Each puzzle is a guide with a `puzzle` block and no quiz. The page reveals hint 
   - App servers are M/M/c queues with a per-server service rate.
   - The database is an M/M/1 queue that sees only cache misses.
   - Load above capacity becomes dropped requests.
-- It reports throughput, the p50 latency estimate, utilisation per tier, drops and the bottleneck tier. Values are
+- It reports throughput, the average latency (mean response time, exact for these queue models), utilisation per tier, drops and the bottleneck tier. Values are
   clamped and documented.
 - Unit tests pin the model's monotonic behaviour and specific values.
 - The UI is sliders with a live diagram (client → load balancer → servers → cache → database) whose tiers colour by

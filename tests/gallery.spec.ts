@@ -21,3 +21,9 @@ test("the animations page fits a phone", async ({ page }) => {
   await expect(page.locator("h1")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+test("each play button names its animation for screen readers", async ({ page }) => {
+  await page.goto("/learn/animations");
+  await expect(page.getByRole("button", { name: /Play this animation: Binary Search$/ })).toHaveCount(1);
+  await expect(page.getByRole("link", { name: /Open the lesson\s*:\s*Binary Search$/ })).toHaveCount(1);
+});

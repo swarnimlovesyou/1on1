@@ -56,3 +56,25 @@ test("a failed question load offers a retry and a way back", async ({ page }) =>
   await page.getByRole("button", { name: /try again/i }).click();
   await expect(page.locator(".drill-prompt")).toBeVisible();
 });
+
+test("syllogism statements and conclusions are on separate lines, and a percent answer reads 15%", async ({ page }) => {
+  await page.goto("/prep/drill/syllogisms");
+  const text = await page.locator(".drill-prompt").innerText();
+  expect(text.split("\n").length).toBeGreaterThanOrEqual(4);
+  await page.route("**/api/v1/drills/percentages/next*", (r) => r.fulfill({ json: { topic: "percentages", seed: 7, prompt: "45 is what percent of 300?", unit: "%" } }));
+  await page.route("**/api/v1/drills/percentages/answer", (r) => r.fulfill({ json: { correct: false, expected: "15", explanation: "45 ÷ 300 × 100 = 15%." } }));
+  await page.goto("/prep/drill/percentages");
+  await page.getByRole("textbox", { name: "Your answer" }).fill("1");
+  await page.getByRole("button", { name: "Check" }).click();
+  await expect(page.getByRole("status")).toContainText("The answer is 15%.");
+});
+
+test("coming back to a drill brings a fresh question", async ({ page }) => {
+  let n = 0;
+  await page.route("**/api/v1/drills/averages/next*", (r) => r.fulfill({ json: { topic: "averages", seed: ++n, prompt: `Question ${n}` } }));
+  await page.goto("/prep/drill/averages");
+  await expect(page.locator(".drill-prompt")).toHaveText("Question 1");
+  await page.getByRole("link", { name: /Back to/ }).click();
+  await page.goBack();
+  await expect(page.locator(".drill-prompt")).toHaveText("Question 2");
+});

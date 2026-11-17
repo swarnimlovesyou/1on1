@@ -121,7 +121,7 @@ def atcoder_records(problems, models):
         model = models.get(p['id']) or {}
         if not re.fullmatch(r'a[brg]c\d+', p['contest_id']) or 'difficulty' not in model:
             continue
-        rating = round(atcoder_rating(model['difficulty']))
+        rating = max(1, round(atcoder_rating(model['difficulty'])))
         records.append(dict(id='ac-' + p['id'], source='AtCoder', title=p['name'].strip(),
                             url=f"https://atcoder.jp/contests/{p['contest_id']}/tasks/{p['id']}",
                             difficulty='Easy' if rating < 800 else 'Medium' if rating < 1600 else 'Hard',

@@ -27,3 +27,11 @@ test("a sheet fits a phone", async ({ page }) => {
   await expect(page.locator(".sheet-row").first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+test("a damaged saved tick list does not break the sheet, and row actions name their question", async ({ page }) => {
+  await page.goto("/practice?tab=sheets");
+  await page.evaluate(() => localStorage.setItem("1on1-sheet-ticks", "{}"));
+  await page.goto("/practice?tab=sheets&sheet=blind-75");
+  await expect(page.locator(".sheet-row")).toHaveCount(75);
+  await expect(page.getByRole("link", { name: /Solve here\s*:\s*Two Sum$/ })).toHaveCount(1);
+});

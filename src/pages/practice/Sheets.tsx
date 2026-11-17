@@ -15,7 +15,8 @@ const LOCAL = "1on1-sheet-ticks";
 
 function readLocal(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(LOCAL) ?? "[]");
+    const saved = JSON.parse(localStorage.getItem(LOCAL) ?? "[]");
+    return Array.isArray(saved) ? saved.filter((x) => typeof x === "string") : [];
   } catch {
     return [];
   }
@@ -130,11 +131,11 @@ function SheetView({ id, ticks, back }: { id: string; ticks: ReturnType<typeof u
                     </a>
                     <span className={"difficulty " + item.difficulty.toLowerCase()}>{item.difficulty}</span>
                     <Link className="sheet-action" to={`/practice/q/${item.id}`}>
-                      <Code size={15} aria-hidden="true" /> Solve here
+                      <Code size={15} aria-hidden="true" /> Solve here<span className="sr-only">: {item.title}</span>
                     </Link>
                     {lesson && (
                       <Link className="sheet-action" to={`/learn/${lesson}`}>
-                        <BookOpen size={15} aria-hidden="true" /> Learn
+                        <BookOpen size={15} aria-hidden="true" /> Learn<span className="sr-only">: {pattern}</span>
                       </Link>
                     )}
                   </li>

@@ -35,3 +35,10 @@ test("the playground fits a phone", async ({ page }) => {
   await expect(page.locator("h1")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+test("dropped requests carry a per-second unit and only the change sentence is announced", async ({ page }) => {
+  await page.goto("/prep/system-design/playground");
+  await expect(page.locator('[data-metric="dropped"]')).toHaveText(/\/s$/);
+  await expect(page.locator(".playground-results")).not.toHaveAttribute("aria-live", /.+/);
+  await expect(page.locator(".playground-change")).toHaveAttribute("aria-live", "polite");
+});
