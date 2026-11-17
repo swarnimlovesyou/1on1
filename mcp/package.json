@@ -1,0 +1,16 @@
+{
+  "name": "1on1-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A thin MCP adapter over 1on1's public learning API: library, lessons, traces, bank, contests, lab and drills.",
+  "bin": { "1on1-mcp": "server.mjs" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "zod": "3.25.76"
+  }
+}
