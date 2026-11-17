@@ -12,6 +12,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import {
   House,
   Books,
+  Exam,
   Code,
   CalendarBlank,
   Notebook,
@@ -37,6 +38,9 @@ import type { Progress, User } from "./types";
 import { Home, Library, NotebookPage, Landing } from "./pages/Learning";
 import { Practice, ProblemPage } from "./pages/Practice";
 import SolveExternal from "./pages/practice/SolveExternal";
+import PrepHome from "./pages/prep/PrepHome";
+import PrepTrack from "./pages/prep/PrepTrack";
+import GuidePage from "./pages/prep/GuidePage";
 import {
   Planner,
   Notes,
@@ -51,6 +55,7 @@ import {
 const navigation = [
   ["/home", "Home", House],
   ["/learn", "Explore concepts", Books],
+  ["/prep", "Prep", Exam],
   ["/practice", "Practice", Code],
   ["/plan", "My practice plan", CalendarBlank],
   ["/notebook", "My notebook", Notebook],
@@ -316,6 +321,9 @@ export default function App() {
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/practice/:id" element={<ProblemPage />} />
                 <Route path="/practice/q/:id" element={<SolveExternal />} />
+                <Route path="/prep" element={<PrepHome />} />
+                <Route path="/prep/:track" element={<PrepTrack />} />
+                <Route path="/prep/guide/:id" element={<GuidePage />} />
                 <Route path="/plan" element={<Planner />} />
                 <Route path="/notebook" element={<Notes />} />
                 <Route path="/progress" element={<Analytics />} />

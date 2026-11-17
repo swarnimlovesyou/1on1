@@ -457,3 +457,21 @@ export type MockView = {
   score: number;
   signals: { tabSwitches: number; fullscreenExits: number };
 };
+
+export type PrepTrack = { id: string; title: string; summary: string; order: number; guides: number };
+export type PrepGuideSummary = {
+  id: string;
+  track: string;
+  subject?: string;
+  title: string;
+  order: number;
+  summary: string;
+  challengeIds: string[];
+  puzzle: boolean;
+};
+export type PrepGuide = PrepGuideSummary & {
+  sections: { title: string; text: string }[];
+  keyPoints: string[];
+  challenges: Challenge[];
+  puzzle?: { statement: string; hints: string[]; solution: string[]; checkable: boolean };
+};

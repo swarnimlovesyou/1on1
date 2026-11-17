@@ -6142,3 +6142,74 @@ section[id] {
   align-items: center;
   gap: 4px;
 }
+
+/* prep */
+.prep-tracks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.prep-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.prep-track:hover {
+  border-color: var(--ink);
+}
+.prep-track h2 {
+  font-size: 22px;
+}
+.prep-track p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.prep-track small {
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+.prep-group {
+  margin-top: 24px;
+}
+.prep-guides {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.prep-guides li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.prep-guides a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.prep-guides span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.prep-guide {
+  max-width: 760px;
+}
+.prep-guide section {
+  margin-top: 28px;
+}
+.prep-subject {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.prep-guide .insight ul {
+  margin: 0;
+  padding-left: 18px;
+}
