@@ -9,7 +9,7 @@ import FamilyMark from "../../components/FamilyMark";
 import { familyOfProblem } from "../../families";
 
 export const BANK_CREDIT =
-  "Questions from Codeforces and LeetCode, metadata only. Company lists: community-reported (LeetCode company tags, 2022 snapshot), MIT © 2022 Huan Xu.";
+  "Titles and links only, never statements: Codeforces (official API), AtCoder (via AtCoder Problems), CSES and LeetCode. Pattern tags: NeetCode (MIT © 2022 neetcode-gh). Company lists: community-reported LeetCode tags, data as of May 2022 (MIT © 2022 Huan Xu).";
 
 const SIZE = 25;
 
@@ -56,6 +56,8 @@ export default function QuestionBank() {
           <option value="1on1">1on1 (solve here)</option>
           <option>Codeforces</option>
           <option>LeetCode</option>
+          <option>AtCoder</option>
+          <option>CSES</option>
         </select>
         <select aria-label="Difficulty" value={difficulty} onChange={(e) => set("difficulty", e.target.value)}>
           <option value="">All difficulties</option>

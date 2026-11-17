@@ -20,7 +20,7 @@ export default function Companies() {
   return (
     <div className="companies">
       <p className="muted">
-        Community-reported (LeetCode company tags, 2022 snapshot). These are questions people reported seeing, not
+        Community-reported LeetCode company tags, data as of May 2022. These are questions people reported seeing, not
         confirmed interview content.
       </p>
       <div className="practice-filters">

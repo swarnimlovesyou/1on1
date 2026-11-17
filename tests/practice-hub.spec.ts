@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const CREDIT = "Company lists: community-reported (LeetCode company tags, 2022 snapshot), MIT © 2022 Huan Xu.";
+const CREDIT = "Company lists: community-reported LeetCode tags, data as of May 2022 (MIT © 2022 Huan Xu).";
 
 test("the question bank filters external questions and credits its sources", async ({ page }) => {
   await page.goto("/practice?tab=bank");

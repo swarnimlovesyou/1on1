@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from import_questions import cf_difficulty, cf_record, lc_records  # noqa: E402
+from import_questions import atcoder_records, cf_difficulty, cf_record, cses_records, lc_records, merge_neetcode, sheets  # noqa: E402
 
 PROBLEMS = """name,link,difficulty,solution
 Two Sum,https://leetcode.com/problems/two-sum/,Easy    ,x
