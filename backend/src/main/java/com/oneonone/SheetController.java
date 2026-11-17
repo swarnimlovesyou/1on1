@@ -14,11 +14,33 @@ import org.springframework.web.server.ResponseStatusException;
 public class SheetController {
 
   final Store store;
+  final BankService bank;
   private volatile List<Map<String, Object>> sheets;
   private volatile Set<String> itemIds;
 
-  public SheetController(Store store) {
+  SheetController(Store store) {
+    this(store, null);
+  }
+
+  @org.springframework.beans.factory.annotation.Autowired
+  public SheetController(Store store, BankService bank) {
     this.store = store;
+    this.bank = bank;
+  }
+
+  /** The five companies that reported a question most often, from the bank's community data. */
+  List<Map<String, Object>> topCompanies(String id) {
+    if (bank == null) return List.of();
+    return bank.external(id)
+      .map(r -> r.get("companies") instanceof Map<?, ?> m ? m : Map.of())
+      .orElse(Map.of())
+      .entrySet()
+      .stream()
+      .filter(e -> e.getValue() instanceof Number)
+      .sorted((a, b) -> Integer.compare(((Number) b.getValue()).intValue(), ((Number) a.getValue()).intValue()))
+      .limit(5)
+      .map(e -> (Map<String, Object>) new LinkedHashMap<String, Object>(Map.of("name", e.getKey().toString(), "count", e.getValue())))
+      .toList();
   }
 
   List<Map<String, Object>> all() {
@@ -46,8 +68,17 @@ public class SheetController {
 
   @GetMapping("/{id}")
   public Map<String, Object> sheet(@PathVariable String id) {
-    return all().stream().filter(s -> id.equals(s.get("id"))).findFirst()
+    var sheet = all().stream().filter(s -> id.equals(s.get("id"))).findFirst()
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "That sheet doesn't exist."));
+    if (bank == null) return sheet;
+    var out = new LinkedHashMap<>(sheet);
+    out.put("items", Store.items(sheet.get("items")).stream().map(item -> {
+      var row = new LinkedHashMap<>(item);
+      var companies = topCompanies(item.get("id").toString());
+      if (!companies.isEmpty()) row.put("companies", companies);
+      return (Map<String, Object>) row;
+    }).toList());
+    return out;
   }
 
   @GetMapping("/ticks/mine")

@@ -90,13 +90,7 @@ class BankTest {
     assertTrue(mix.keySet().stream().allMatch(Set.of("Easy", "Medium", "Hard")::contains), mix.toString());
   }
   static int score(Map<String, Object> r) {
-    if (r.get("rating") instanceof Number n) return n.intValue();
-    return switch (String.valueOf(r.get("difficulty"))) {
-      case "Easy" -> 1000;
-      case "Medium" -> 1600;
-      case "Hard" -> 2200;
-      default -> Integer.MAX_VALUE;
-    };
+    return BankService.difficultyScore(r);
   }
 
   @Test
@@ -105,10 +99,11 @@ class BankTest {
     for (int i = 1; i < all.size(); i++) assertTrue(score(all.get(i - 1)) <= score(all.get(i)), "easiest first at " + i);
     var hardest = items(bank.search("", "", "", "", "", 0, 100, "hardest"));
     assertTrue(score(hardest.get(0)) >= score(hardest.get(1)));
-    var cses = items(bank.search("", "CSES", "", "", "", 0, 5, "hardest"));
-    var lastPage = bank.search("", "", "", "", "", 9999, 100, "easiest");
-    assertTrue(cses.isEmpty() || score(cses.get(0)) == Integer.MAX_VALUE, "CSES questions carry no difficulty");
-    assertNotNull(lastPage);
+    int total = ((Number) bank.search("", "", "", "", "", 0, 1, "hardest").get("total")).intValue();
+    var tail = items(bank.search("", "", "", "", "", (total - 1) / 100, 100, "hardest"));
+    assertEquals(Integer.MAX_VALUE, score(tail.getLast()), "unrated questions come last under hardest too");
+    var ratedFirst = items(bank.search("", "", "", "", "", 0, 100, "hardest"));
+    for (int i = 1; i < ratedFirst.size(); i++) assertTrue(score(ratedFirst.get(i - 1)) >= score(ratedFirst.get(i)), "hardest first at " + i);
     var first = items(bank.search("", "Codeforces", "", "", "", 0, 30, "easiest"));
     var second = items(bank.search("", "Codeforces", "", "", "", 1, 30, "easiest"));
     var both = items(bank.search("", "Codeforces", "", "", "", 0, 60, "easiest"));

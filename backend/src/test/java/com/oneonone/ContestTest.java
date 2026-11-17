@@ -101,4 +101,43 @@ class ContestTest {
     var titles = contests(s.upcoming()).stream().map(c -> c.get("title")).toList();
     assertFalse(titles.contains("AtCoder Beginner Contest 485"));
   }
+  @Test
+  void aSlowSourceNeverMakesOtherRequestsWait() throws Exception {
+    var entered = new java.util.concurrent.CountDownLatch(1);
+    var release = new java.util.concurrent.CountDownLatch(1);
+    var s = new ContestService(url -> {
+      if (url.contains("codeforces")) {
+        entered.countDown();
+        try {
+          release.await();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+        return CF;
+      }
+      return ATC;
+    }, () -> now);
+    var slow = new Thread(s::upcoming);
+    slow.start();
+    assertTrue(entered.await(2, java.util.concurrent.TimeUnit.SECONDS));
+    var quick = assertTimeoutPreemptively(java.time.Duration.ofMillis(800), s::upcoming, "a second request must not wait for the slow fetch");
+    assertNotNull(quick.get("contests"));
+    release.countDown();
+    slow.join(2000);
+    assertEquals(3, contests(s.upcoming()).size(), "the slow fetch still lands");
+  }
+  @Test
+  void oneBadRowIsSkippedAndHtmlEntitiesInTitlesAreDecoded() {
+    responses.put("cf", """
+      {"status":"OK","result":[
+        {"id":2291,"name":"Round with no start","phase":"BEFORE","durationSeconds":7200},
+        {"id":2290,"name":"Codeforces Round 1100 (Div. 2)","phase":"BEFORE","durationSeconds":7200,"startTimeSeconds":1797000000}
+      ]}""");
+    responses.put("atc", ATC.replace("AtCoder Beginner Contest 485", "AtCoder Beginner Contest 485 &amp; Friends&#39; Cup"));
+    var result = service().upcoming();
+    var titles = contests(result).stream().map(c -> c.get("title")).toList();
+    assertTrue(titles.contains("Codeforces Round 1100 (Div. 2)"), "the good Codeforces row still shows");
+    assertTrue(titles.contains("AtCoder Beginner Contest 485 & Friends' Cup"), titles.toString());
+    assertTrue(Store.items(result.get("sources")).stream().allMatch(x -> Boolean.TRUE.equals(x.get("ok"))));
+  }
 }

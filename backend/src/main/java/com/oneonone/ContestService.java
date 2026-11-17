@@ -77,20 +77,35 @@ public class ContestService {
     }
   }
 
-  public synchronized Map<String, Object> upcoming() {
+  public Map<String, Object> upcoming() {
     Instant now = clock.get();
-    for (var s : sources.values()) {
-      boolean due = s.checkedAt == null || !now.isBefore(s.checkedAt.plus(s.ok ? FRESH : RETRY));
-      if (!due) continue;
-      s.checkedAt = now;
+    // claim due sources under the lock, fetch outside it, so a slow site never makes other requests wait
+    var due = new ArrayList<Source>();
+    synchronized (this) {
+      for (var s : sources.values())
+        if (s.checkedAt == null || !now.isBefore(s.checkedAt.plus(s.ok ? FRESH : RETRY))) {
+          s.checkedAt = now;
+          due.add(s);
+        }
+    }
+    for (var s : due) {
       try {
-        s.contests = s.parse.apply(http.apply(s.url));
-        s.fetchedAt = now;
-        s.ok = true;
+        var fresh = s.parse.apply(http.apply(s.url));
+        synchronized (this) {
+          s.contests = fresh;
+          s.fetchedAt = now;
+          s.ok = true;
+        }
       } catch (RuntimeException failure) {
-        s.ok = false; // keep the last good list
+        synchronized (this) {
+          s.ok = false; // keep the last good list
+        }
       }
     }
+    return snapshot(now);
+  }
+
+  synchronized Map<String, Object> snapshot(Instant now) {
     var contests = sources.values().stream()
       .flatMap(s -> s.contests.stream())
       .filter(c -> Instant.parse(c.get("start").toString()).plus(Duration.ofMinutes(((Number) c.get("durationMinutes")).longValue())).isAfter(now))
@@ -124,8 +139,9 @@ public class ContestService {
     for (var c : Store.items(data.get("result"))) {
       String phase = String.valueOf(c.get("phase"));
       if (!phase.equals("BEFORE") && !phase.equals("CODING")) continue;
-      out.add(contest("Codeforces", c.get("name").toString(), Instant.ofEpochSecond(((Number) c.get("startTimeSeconds")).longValue()),
-        ((Number) c.get("durationSeconds")).longValue() / 60, "https://codeforces.com/contests/" + c.get("id")));
+      // one malformed row is skipped rather than taking the whole source down
+      if (!(c.get("name") instanceof String name) || !(c.get("startTimeSeconds") instanceof Number start) || !(c.get("durationSeconds") instanceof Number length)) continue;
+      out.add(contest("Codeforces", name, Instant.ofEpochSecond(start.longValue()), length.longValue() / 60, "https://codeforces.com/contests/" + c.get("id")));
     }
     return out;
   }
@@ -135,6 +151,15 @@ public class ContestService {
     Pattern.DOTALL
   );
   static final DateTimeFormatter ATCODER_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssxx");
+
+  /** Decodes the HTML entities a contest title can carry, so React does not show them literally. */
+  static String unescape(String html) {
+    var m = Pattern.compile("&#(x?)([0-9A-Fa-f]+);").matcher(html);
+    var sb = new StringBuilder();
+    while (m.find()) m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(new String(Character.toChars(Integer.parseInt(m.group(2), m.group(1).isEmpty() ? 10 : 16)))));
+    m.appendTail(sb);
+    return sb.toString().replace("&quot;", "\"").replace("&lt;", "<").replace("&gt;", ">").replace("&apos;", "'").replace("&amp;", "&");
+  }
 
   static List<Map<String, Object>> atcoder(String html) {
     int from = html.indexOf("id=\"contest-table-upcoming\"");
@@ -146,7 +171,7 @@ public class ContestService {
     while (m.find()) {
       var start = OffsetDateTime.parse(m.group(1).trim(), ATCODER_TIME).toInstant();
       long minutes = Long.parseLong(m.group(4)) * 60 + Long.parseLong(m.group(5));
-      out.add(contest("AtCoder", m.group(3).trim(), start, minutes, "https://atcoder.jp/contests/" + m.group(2)));
+      out.add(contest("AtCoder", unescape(m.group(3).trim()), start, minutes, "https://atcoder.jp/contests/" + m.group(2)));
     }
     return out;
   }

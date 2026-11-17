@@ -89,6 +89,7 @@ public class LeetcodeController {
       old.put("sheetTicksAdded", sheets.tickAll(u, acceptedIds(data)));
       old.remove("message");
     } catch (Exception e) {
+      old.remove("sheetTicksAdded"); // a failed refresh ticked nothing
       old.put("status", "unavailable");
       old.put(
         "message",

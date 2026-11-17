@@ -82,4 +82,15 @@ class SheetTest {
     assertEquals(List.of("lc-two-sum"), LeetcodeController.acceptedIds(data));
     assertEquals(List.of(), LeetcodeController.acceptedIds(Map.of()));
   }
+  @Test
+  void sheetRowsShowWhereTheQuestionWasReportedMostReportedFirst() throws Exception {
+    var withBank = new SheetController(sheets.store, new BankService(sheets.store));
+    var twoSum = Store.items(withBank.sheet("blind-75").get("items")).stream().filter(i -> "lc-two-sum".equals(i.get("id"))).findFirst().orElseThrow();
+    var companies = Store.items(twoSum.get("companies"));
+    assertEquals("Amazon", companies.get(0).get("name"));
+    assertTrue(companies.size() <= 5, "at most five");
+    for (int i = 1; i < companies.size(); i++)
+      assertTrue(((Number) companies.get(i - 1).get("count")).intValue() >= ((Number) companies.get(i).get("count")).intValue());
+    assertFalse(Store.items(sheets.sheet("blind-75").get("items")).getFirst().containsKey("companies"), "without the bank, rows carry no company data");
+  }
 }
