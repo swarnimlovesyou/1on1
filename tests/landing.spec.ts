@@ -34,3 +34,9 @@ test("the landing page fits a phone in both themes", async ({ page }) => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
   }
 });
+
+test("a returning learner can sign in from the landing page on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".meadow-hero").getByRole("link", { name: "Sign in" })).toBeVisible();
+});

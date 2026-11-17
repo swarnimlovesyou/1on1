@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import * as Dialog from "@radix-ui/react-dialog";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { useLessons } from "../pages/Learning";
 import { usePrep } from "../pages/prep/usePrep";
@@ -51,13 +52,19 @@ export default function CommandPalette({ open, setOpen }: { open: boolean; setOp
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const input = useRef<HTMLInputElement>(null);
+  const returnTo = useRef<HTMLElement | null>(null);
+  // remember what had focus before the dialog took it, so closing hands it straight back
+  useLayoutEffect(() => {
+    if (open) returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  }, [open]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setOpen(!open);
-      }
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "k") return;
+      // inside a code editor, Ctrl+K belongs to the editor's own shortcuts
+      if (e.target instanceof Element && e.target.closest(".monaco-editor, .cm-editor")) return;
+      e.preventDefault();
+      setOpen(!open);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -67,7 +74,6 @@ export default function CommandPalette({ open, setOpen }: { open: boolean; setOp
     if (open) {
       setQuery("");
       setActive(0);
-      requestAnimationFrame(() => input.current?.focus());
     }
   }, [open]);
 
@@ -80,52 +86,64 @@ export default function CommandPalette({ open, setOpen }: { open: boolean; setOp
     ],
     [lessons.data, prep.data],
   );
-  const results = rank(entries, query);
+  const text = query.trim();
+  // anything typed can still search the library, as the old search box did
+  const results = text ? [...rank(entries, query), { title: `Search the library for "${text}"`, group: "Search", to: "/learn?q=" + encodeURIComponent(text) }] : rank(entries, query);
 
-  if (!open) return null;
   function go(entry: Entry | undefined) {
     if (!entry) return;
     setOpen(false);
     navigate(entry.to);
   }
   return (
-    <div className="palette-backdrop" onMouseDown={() => setOpen(false)}>
-      <div
-        className="palette"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Jump to"
-        onMouseDown={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setOpen(false);
-          else if (e.key === "ArrowDown") {
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="palette-backdrop" />
+        <Dialog.Content
+          className="palette"
+          aria-describedby={undefined}
+          onOpenAutoFocus={(e) => {
             e.preventDefault();
-            setActive((a) => Math.min(a + 1, results.length - 1));
-          } else if (e.key === "ArrowUp") {
+            input.current?.focus();
+          }}
+          onCloseAutoFocus={(e) => {
+            if (!returnTo.current?.isConnected) return;
             e.preventDefault();
-            setActive((a) => Math.max(a - 1, 0));
-          } else if (e.key === "Enter") {
-            e.preventDefault();
-            go(results[active]);
-          }
-        }}
-      >
-        <label className="palette-search">
-          <MagnifyingGlass size={18} aria-hidden="true" />
-          <input
-            ref={input}
-            value={query}
-            placeholder="Jump to a page, lesson, guide or sheet"
-            aria-label="Search pages, lessons, guides and sheets"
-            aria-controls="palette-results"
-            aria-activedescendant={results[active] ? `palette-${active}` : undefined}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setActive(0);
-            }}
-          />
-          <kbd>Esc</kbd>
-        </label>
+            returnTo.current.focus();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setActive((a) => Math.min(a + 1, results.length - 1));
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActive((a) => Math.max(a - 1, 0));
+            } else if (e.key === "Enter" && e.target === input.current) {
+              e.preventDefault();
+              go(results[active]);
+            }
+          }}
+        >
+          <Dialog.Title className="sr-only">Jump to</Dialog.Title>
+          <label className="palette-search">
+            <MagnifyingGlass size={18} aria-hidden="true" />
+            <input
+              ref={input}
+              value={query}
+              role="combobox"
+              aria-expanded="true"
+              aria-autocomplete="list"
+              placeholder="Jump to a page, lesson, guide or sheet"
+              aria-label="Search pages, lessons, guides and sheets"
+              aria-controls="palette-results"
+              aria-activedescendant={results[active] ? `palette-${active}` : undefined}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActive(0);
+              }}
+            />
+            <kbd>Esc</kbd>
+          </label>
         <ul id="palette-results" role="listbox" aria-label="Results">
           {results.map((r, i) => (
             <li
@@ -143,7 +161,8 @@ export default function CommandPalette({ open, setOpen }: { open: boolean; setOp
           ))}
           {!results.length && <li className="palette-empty">Nothing matches that yet.</li>}
         </ul>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

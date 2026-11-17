@@ -29,3 +29,28 @@ test("the sidebar groups pages and links straight to sheets and animations", asy
   await expect(nav.getByRole("link", { name: "Sheets" })).toHaveAttribute("href", "/practice?tab=sheets");
   await expect(page.getByRole("button", { name: /Jump to anything/ })).toBeVisible();
 });
+
+test("the palette keeps focus inside, closes with Escape after tabbing, and gives focus back", async ({ page }) => {
+  await page.goto("/home");
+  const trigger = page.getByRole("button", { name: /Jump to anything/ });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Jump to" });
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBeTruthy();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await expect(page.getByRole("combobox", { name: /Search pages/ })).toHaveCount(0);
+});
+
+test("text that matches no page still searches the library", async ({ page }) => {
+  await page.goto("/home");
+  await page.keyboard.press("Control+k");
+  await expect(page.getByRole("combobox", { name: /Search pages/ })).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.type("sliding window maximum");
+  await expect(page.getByRole("option").last()).toContainText('Search the library for "sliding window maximum"');
+  await page.getByRole("option").last().click();
+  await expect(page).toHaveURL(/\/learn\?q=sliding/);
+});

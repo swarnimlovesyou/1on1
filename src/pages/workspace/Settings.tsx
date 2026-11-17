@@ -76,11 +76,13 @@ function SettingsContent() {
   });
   const sync = useMutation({
     mutationFn: () =>
-      api<{ sheetTicksAdded?: number }>("/connections/leetcode", { username: username || q.data?.username }),
+      api<{ status?: string; message?: string; sheetTicksAdded?: number }>("/connections/leetcode", { username: username || q.data?.username }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["leetcode"] });
       qc.invalidateQueries({ queryKey: ["sheet-ticks"] });
-      const ticked = data?.sheetTicksAdded ?? 0;
+      // a refresh that could not reach LeetCode ticked nothing, whatever an older record says
+      if (data?.status !== "synced") return notify(data?.message ?? "LeetCode couldn't be reached, so nothing changed.");
+      const ticked = data.sheetTicksAdded ?? 0;
       notify(ticked ? `Profile refreshed. ${ticked} sheet question${ticked === 1 ? "" : "s"} ticked from your recent solves.` : "Profile refresh finished");
     },
   });
