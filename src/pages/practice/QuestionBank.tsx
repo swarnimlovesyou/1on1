@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, MagnifyingGlass } from "@phosphor-icons/react";
@@ -21,23 +21,37 @@ export default function QuestionBank() {
     source = params.get("source") ?? "",
     difficulty = params.get("difficulty") ?? "",
     topic = params.get("topic") ?? "",
+    sort = params.get("sort") ?? "",
     page = Number(params.get("page") ?? 0) || 0;
+  // build from the URL as it is now, so a filter chosen while a search is pending is never lost
+  // the router's updater can hand back a stale copy when two updates land together, so read the address bar
   const set = (key: string, value: string) => {
-    const next = new URLSearchParams(params);
+    const next = new URLSearchParams(window.location.search);
     if (value) next.set(key, value);
     else next.delete(key);
     if (key !== "page") next.delete("page");
     setParams(next, { replace: true });
   };
   const [typed, setTyped] = useState(q);
+  const sent = useRef(q);
+  // back and forward change q without typing; our own debounced writes must not overwrite newer keystrokes
+  useEffect(() => {
+    if (q !== sent.current) {
+      sent.current = q;
+      setTyped(q);
+    }
+  }, [q]);
   // search once typing pauses, not on every keystroke
   useEffect(() => {
     if (typed === q) return;
-    const t = setTimeout(() => set("q", typed), 250);
+    const t = setTimeout(() => {
+      sent.current = typed;
+      set("q", typed);
+    }, 250);
     return () => clearTimeout(t);
   }, [typed]);
   const topics = useQuery({ queryKey: ["bank-topics"], queryFn: () => api<string[]>("/bank/topics"), staleTime: Infinity });
-  const query = new URLSearchParams({ q, source, difficulty, topic, company, page: String(page), size: String(SIZE) });
+  const query = new URLSearchParams({ q, source, difficulty, topic, company, sort, page: String(page), size: String(SIZE) });
   const bank = useQuery({
     queryKey: ["bank", query.toString()],
     queryFn: () => api<BankPage>("/bank?" + query),
@@ -71,6 +85,12 @@ export default function QuestionBank() {
             <option key={t}>{t}</option>
           ))}
         </select>
+        <select aria-label="Sort" value={sort} onChange={(e) => set("sort", e.target.value)}>
+          <option value="">{company ? "Most reported" : "Suggested order"}</option>
+          <option value="easiest">Easiest first</option>
+          <option value="hardest">Hardest first</option>
+          <option value="title">A to Z</option>
+        </select>
         {company && (
           <button
             className="button secondary small"
@@ -101,7 +121,7 @@ export default function QuestionBank() {
               </thead>
               <tbody>
                 {bank.data!.items.map((item) => (
-                  <tr key={item.id}>
+                  <tr key={item.id} className="bank-row">
                     <td>
                       <FamilyMark family={familyOfProblem(item.tags)} />
                       {item.source === "1on1" ? (

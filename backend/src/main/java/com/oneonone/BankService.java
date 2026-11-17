@@ -83,6 +83,34 @@ public class BankService {
   }
 
   public Map<String, Object> search(String q, String source, String difficulty, String topic, String company, int page, int size) {
+    return search(q, source, difficulty, topic, company, page, size, "relevance");
+  }
+
+  /** Codeforces and AtCoder ratings where present, otherwise a rating-like value for Easy, Medium and Hard; unrated last. */
+  static int difficultyScore(Map<String, Object> r) {
+    if (r.get("rating") instanceof Number n) return n.intValue();
+    return switch (String.valueOf(r.get("difficulty"))) {
+      case "Easy" -> 1000;
+      case "Medium" -> 1600;
+      case "Hard" -> 2200;
+      default -> Integer.MAX_VALUE;
+    };
+  }
+
+  static Comparator<Map<String, Object>> order(String sort, String company) {
+    Comparator<Map<String, Object>> byId = Comparator.comparing(r -> r.get("id").toString());
+    return switch (sort == null ? "" : sort) {
+      case "easiest" -> Comparator.comparingInt(BankService::difficultyScore).thenComparing(byId);
+      case "hardest" -> Comparator.<Map<String, Object>>comparingInt(r -> {
+        int score = difficultyScore(r);
+        return score == Integer.MAX_VALUE ? Integer.MAX_VALUE : -score;
+      }).thenComparing(byId);
+      case "title" -> Comparator.comparing((Map<String, Object> r) -> r.get("title").toString(), String.CASE_INSENSITIVE_ORDER).thenComparing(byId);
+      default -> has(company) ? Comparator.comparingInt((Map<String, Object> r) -> companyCount(r, company)).reversed() : null;
+    };
+  }
+
+  public Map<String, Object> search(String q, String source, String difficulty, String topic, String company, int page, int size, String sort) {
     int pageSize = Math.max(1, Math.min(100, size));
     String needle = has(q) ? q.strip().toLowerCase(Locale.ROOT) : "";
     var rows = Stream.concat(own().stream(), external().stream())
@@ -91,7 +119,8 @@ public class BankService {
       .filter(r -> !has(difficulty) || difficulty.equalsIgnoreCase(String.valueOf(r.get("difficulty"))))
       .filter(r -> !has(topic) || Store.strings(r.get("tags")).stream().anyMatch(topic::equalsIgnoreCase))
       .filter(r -> !has(company) || companyCount(r, company) > 0);
-    if (has(company)) rows = rows.sorted(Comparator.comparingInt((Map<String, Object> r) -> companyCount(r, company)).reversed());
+    var order = order(sort, company);
+    if (order != null) rows = rows.sorted(order);
     var all = rows.toList();
     int from = (int) Math.min((long) Math.max(0, page) * pageSize, all.size());
     var out = new LinkedHashMap<String, Object>();

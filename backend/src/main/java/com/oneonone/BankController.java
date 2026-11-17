@@ -22,9 +22,10 @@ public class BankController {
     @RequestParam(defaultValue = "") String topic,
     @RequestParam(defaultValue = "") String company,
     @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "25") int size
+    @RequestParam(defaultValue = "25") int size,
+    @RequestParam(defaultValue = "relevance") String sort
   ) {
-    return bank.search(q, source, difficulty, topic, company, page, size);
+    return bank.search(q, source, difficulty, topic, company, page, size, sort);
   }
 
   @GetMapping("/item/{id}")

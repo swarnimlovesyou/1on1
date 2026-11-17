@@ -89,4 +89,41 @@ class BankTest {
     assertTrue(rated > 0 && rated <= ((Number) google.get("count")).longValue(), mix.toString());
     assertTrue(mix.keySet().stream().allMatch(Set.of("Easy", "Medium", "Hard")::contains), mix.toString());
   }
+  static int score(Map<String, Object> r) {
+    if (r.get("rating") instanceof Number n) return n.intValue();
+    return switch (String.valueOf(r.get("difficulty"))) {
+      case "Easy" -> 1000;
+      case "Medium" -> 1600;
+      case "Hard" -> 2200;
+      default -> Integer.MAX_VALUE;
+    };
+  }
+
+  @Test
+  void sortingByDifficultyPutsUnratedLastAndStaysStableAcrossPages() {
+    var all = items(bank.search("", "", "", "", "", 0, 100, "easiest"));
+    for (int i = 1; i < all.size(); i++) assertTrue(score(all.get(i - 1)) <= score(all.get(i)), "easiest first at " + i);
+    var hardest = items(bank.search("", "", "", "", "", 0, 100, "hardest"));
+    assertTrue(score(hardest.get(0)) >= score(hardest.get(1)));
+    var cses = items(bank.search("", "CSES", "", "", "", 0, 5, "hardest"));
+    var lastPage = bank.search("", "", "", "", "", 9999, 100, "easiest");
+    assertTrue(cses.isEmpty() || score(cses.get(0)) == Integer.MAX_VALUE, "CSES questions carry no difficulty");
+    assertNotNull(lastPage);
+    var first = items(bank.search("", "Codeforces", "", "", "", 0, 30, "easiest"));
+    var second = items(bank.search("", "Codeforces", "", "", "", 1, 30, "easiest"));
+    var both = items(bank.search("", "Codeforces", "", "", "", 0, 60, "easiest"));
+    var joined = new ArrayList<>(first);
+    joined.addAll(second);
+    assertEquals(both.stream().map(r -> r.get("id")).toList(), joined.stream().map(r -> r.get("id")).toList(), "pages join without gaps or repeats");
+  }
+
+  @Test
+  void sortingByTitleIsAlphabeticalAndAnUnknownSortFallsBackToRelevance() {
+    var titles = items(bank.search("", "LeetCode", "", "", "", 0, 50, "title")).stream().map(r -> r.get("title").toString()).toList();
+    var sorted = new ArrayList<>(titles);
+    sorted.sort(String.CASE_INSENSITIVE_ORDER);
+    assertEquals(sorted, titles);
+    assertEquals(items(bank.search("", "", "", "", "", 0, 25)).stream().map(r -> r.get("id")).toList(),
+      items(bank.search("", "", "", "", "", 0, 25, "nonsense")).stream().map(r -> r.get("id")).toList());
+  }
 }

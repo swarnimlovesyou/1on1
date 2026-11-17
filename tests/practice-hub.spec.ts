@@ -97,3 +97,15 @@ test("a LeetCode question explains how to run a function-style problem", async (
   await page.goto("/practice/q/lc-two-sum");
   await expect(page.locator(".solve-statement")).toContainText("write a main");
 });
+
+test("the bank sorts hardest first, keeps the sort in the URL, and a filter picked mid-typing survives", async ({ page }) => {
+  await page.goto("/practice?tab=bank");
+  await page.getByRole("combobox", { name: "Sort" }).selectOption("hardest");
+  await expect(page).toHaveURL(/sort=hardest/);
+  await expect(page.locator(".bank-row").first().locator(".difficulty")).toHaveText("Hard");
+  await page.getByRole("textbox", { name: "Search the question bank" }).fill("tree");
+  await page.getByRole("combobox", { name: "Source" }).selectOption("Codeforces");
+  await expect(page).toHaveURL(/q=tree/);
+  await expect(page).toHaveURL(/source=Codeforces/);
+  await expect(page).toHaveURL(/sort=hardest/);
+});
