@@ -42,6 +42,8 @@ import PrepHome from "./pages/prep/PrepHome";
 import PrepTrack from "./pages/prep/PrepTrack";
 import GuidePage from "./pages/prep/GuidePage";
 import DrillPage from "./pages/prep/DrillPage";
+import Animations from "./pages/Animations";
+import PlaygroundPage from "./pages/prep/PlaygroundPage";
 import {
   Planner,
   Notes,
@@ -318,6 +320,7 @@ export default function App() {
               <Routes>
                 <Route path="/home" element={<Home />} />
                 <Route path="/learn" element={<Library />} />
+                <Route path="/learn/animations" element={<Animations />} />
                 <Route path="/learn/:id" element={<NotebookPage />} />
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/practice/:id" element={<ProblemPage />} />
@@ -325,6 +328,7 @@ export default function App() {
                 <Route path="/prep" element={<PrepHome />} />
                 <Route path="/prep/:track" element={<PrepTrack />} />
                 <Route path="/prep/guide/:id" element={<GuidePage />} />
+                <Route path="/prep/system-design/playground" element={<PlaygroundPage />} />
                 <Route path="/prep/drill/:topic" element={<DrillPage />} />
                 <Route path="/plan" element={<Planner />} />
                 <Route path="/notebook" element={<Notes />} />

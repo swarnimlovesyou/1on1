@@ -492,6 +492,10 @@ export function Library() {
               </button>
             ))}
           </div>
+          <Link className="prep-feature" to="/learn/animations">
+            <strong>All animations</strong>
+            <span>Every algorithm's step-by-step animation on one page, to play, step and scrub.</span>
+          </Link>
           <div className="library-list-header">
             <span>The notebook collection</span>
             <span>{rows?.length} notebooks</span>
