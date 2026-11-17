@@ -16,6 +16,7 @@ const PAGES: Entry[] = [
   { title: "Mock assessment", group: "Page", to: "/practice?tab=mock" },
   { title: "Blind 75", group: "Sheet", to: "/practice?tab=sheets&sheet=blind-75" },
   { title: "NeetCode 150", group: "Sheet", to: "/practice?tab=sheets&sheet=neetcode-150" },
+  { title: "Contests", group: "Page", to: "/contests" },
   { title: "Prep", group: "Page", to: "/prep" },
   { title: "Traffic playground", group: "Prep", to: "/prep/system-design/playground" },
   { title: "My practice plan", group: "Page", to: "/plan" },

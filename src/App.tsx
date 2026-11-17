@@ -22,6 +22,7 @@ import {
   MagnifyingGlass,
   PlayCircle,
   ListChecks,
+  Trophy,
   Sun,
   Moon,
   SidebarSimple,
@@ -45,6 +46,7 @@ import PrepTrack from "./pages/prep/PrepTrack";
 import GuidePage from "./pages/prep/GuidePage";
 import DrillPage from "./pages/prep/DrillPage";
 import Animations from "./pages/Animations";
+import Contests from "./pages/contests/Contests";
 import CommandPalette from "./components/CommandPalette";
 import PlaygroundPage from "./pages/prep/PlaygroundPage";
 import {
@@ -72,6 +74,7 @@ const navigation: [string, [string, string, typeof House][]][] = [
     [
       ["/practice", "Practice", Code],
       ["/practice?tab=sheets", "Sheets", ListChecks],
+      ["/contests", "Contests", Trophy],
       ["/prep", "Prep", Exam],
     ],
   ],
@@ -349,6 +352,7 @@ export default function App() {
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/practice/:id" element={<ProblemPage />} />
                 <Route path="/practice/q/:id" element={<SolveExternal />} />
+                <Route path="/contests" element={<Contests />} />
                 <Route path="/prep" element={<PrepHome />} />
                 <Route path="/prep/:track" element={<PrepTrack />} />
                 <Route path="/prep/guide/:id" element={<GuidePage />} />
