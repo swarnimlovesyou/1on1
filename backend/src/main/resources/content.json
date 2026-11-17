@@ -12575,5 +12575,38 @@
       ],
       "color": "orange"
     }
-  ]
+  ],
+  "prepTracks": [
+    {
+      "id": "aptitude",
+      "order": 1,
+      "title": "Aptitude",
+      "summary": "Formulas, shortcuts and unlimited practice for quantitative questions."
+    },
+    {
+      "id": "reasoning",
+      "order": 2,
+      "title": "Reasoning",
+      "summary": "Series, codes, directions and syllogisms, with practice that never runs out."
+    },
+    {
+      "id": "puzzles",
+      "order": 3,
+      "title": "Puzzles",
+      "summary": "Classic brainteasers with hints first and a full solution when you want it."
+    },
+    {
+      "id": "cs-fundamentals",
+      "order": 4,
+      "title": "CS fundamentals",
+      "summary": "OOP, DBMS, operating systems, networks and SQL, each guide ending in a quiz."
+    },
+    {
+      "id": "system-design",
+      "order": 5,
+      "title": "System design",
+      "summary": "Caching, load balancing, scaling and queues, plus a traffic playground."
+    }
+  ],
+  "guides": []
 }

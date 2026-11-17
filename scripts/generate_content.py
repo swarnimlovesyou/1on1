@@ -230,5 +230,8 @@ enrich_problem_references(problems)
 from lesson_content import enrich as enrich_lesson_prose
 enrich_lesson_prose(lessons)
 write_artifacts(curriculum)
-out=ROOT/'backend/src/main/resources/content.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(lessons=lessons,problems=problems,paths=paths),ensure_ascii=False,indent=2),encoding='utf-8')
+from prep_content import enrich as enrich_prep
+bundle = dict(lessons=lessons, problems=problems, paths=paths)
+enrich_prep(bundle)
+out=ROOT/'backend/src/main/resources/content.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(bundle,ensure_ascii=False,indent=2),encoding='utf-8')
 print(f'Authored {len(lessons)} lessons, {len(problems)} problems, {sum(len(p["tests"]) for p in problems)} judge fixtures, {len(paths)} paths.')
