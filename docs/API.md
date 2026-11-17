@@ -117,6 +117,13 @@ The coach never writes credit, attempts or learning events: plans, nudges, a rev
 - GET `/sheets/ticks/mine` and PUT `/sheets/ticks/mine/{itemId} {done: boolean}` (signed in, CSRF): the learner's ticked items. An id on no sheet is 404; a missing `done` is 400. Guests keep ticks in the browser.
 - Striver's sheets and other lists whose terms forbid copying are linked, not imported.
 
+## Contests and the performance lab
+
+- GET `/contests` (public): `{contests: [{id, platform, title, start (UTC ISO), durationMinutes, url}], sources: [{platform, ok, fetchedAt}]}`. Codeforces comes from its official `contest.list` API; AtCoder from its public contest page (its robots.txt allows `/contests/`). Each source is fetched at most once an hour; a failed source keeps its last good list, reports `ok: false`, and is retried after 10 minutes. Contests that have ended drop off. LeetCode and CodeChef are linked from the page, not read.
+- GET `/lab/{algorithm}` (public) for `binary-search`, `two-pointers`, `sliding-window`, `merge-sort`, `quick-sort`: `{sizes: [4, 8, 16, 32], steps, curves: {"log n", "n", "n log n", "n²"}, closest}`. Steps are the real Java trace's step counts, averaged over three seeded random inputs per size; curves are scaled to meet the measurement at n = 32, and `closest` is the best fit on log error. Inputs stop at 32 values, the trace engine's teaching limit. Unknown algorithms are 404.
+- The bank accepts `sort` = `easiest` | `hardest` | `title` (default: 1on1 first, or most reported for a company). Ratings come from Codeforces and AtCoder, then Easy/Medium/Hard; unrated questions sort last.
+- A successful LeetCode sync (`POST /connections/leetcode`) also ticks sheet questions found among the profile's last 20 accepted submissions and returns `sheetTicksAdded`.
+
 ## Challenges and saved context
 
 POST `/challenges/{id}/attempts` accepts `{answer,requestId}` and returns typed `{id,challengeId,kind,correct,feedback,explanation,saved}`. CSRF is mandatory; guests receive grading with `saved:false`, while signed-in attempts are persisted/idempotent by `(member,requestId)`. Public challenge definitions include prompt, options/fields and input metadata, never private grading rules.
