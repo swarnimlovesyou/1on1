@@ -10,7 +10,9 @@ test("a puzzle reveals hints in order, then the solution, and checks a typed ans
   await page.locator(".prep-guides li a").first().click();
   await expect(page.locator(".puzzle-statement")).toBeVisible();
   await expect(page.locator(".puzzle-hints li")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Show the solution" })).toHaveCount(0);
   await page.getByRole("button", { name: "Show a hint" }).click();
+  await expect(page.getByRole("button", { name: "Show the solution" })).toHaveCount(0);
   await expect(page.locator(".puzzle-hints li")).toHaveCount(1);
   await page.getByRole("button", { name: "Show the next hint" }).click();
   await expect(page.locator(".puzzle-hints li")).toHaveCount(2);

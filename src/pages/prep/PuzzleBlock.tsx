@@ -62,7 +62,7 @@ export default function PuzzleBlock({ id, puzzle }: { id: string; puzzle: Puzzle
             {hints === 0 ? "Show a hint" : "Show the next hint"}
           </button>
         )}
-        {!solution && (
+        {!solution && hints >= puzzle.hints.length && (
           <button className="button" type="button" onClick={() => setSolution(true)}>
             Show the solution
           </button>

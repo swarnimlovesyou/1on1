@@ -141,6 +141,12 @@ def cses_records(html):
     return records
 
 
+def check_floor(source, records, floor):
+    # a changed page or API would otherwise replace a whole source with nothing on the next refresh
+    assert len(records) >= floor, f'{source}: only {len(records)} records (expected at least {floor}); the source may have changed'
+    return records
+
+
 def fetch(url):
     request = urllib.request.Request(url, headers={'User-Agent': '1on1-question-import'})
     with urllib.request.urlopen(request, timeout=60) as response:
@@ -153,12 +159,12 @@ def main():
     records = [cf_record(p) for p in cf['result']['problems']]
     records += lc_records(fetch(DATASET + 'leetcode_problems.csv'), fetch(DATASET + 'leetcode_problems_and_companies.csv'))
     neet = json.loads(fetch(NEET_URL))
-    records = merge_neetcode(records, neet)
+    records = merge_neetcode(records, check_floor('NeetCode', neet, 400))
     SHEETS_OUT.write_text(json.dumps(sheets(neet), ensure_ascii=False, indent=1), encoding='utf-8')
     problems = json.loads(fetch(ATCODER_URL + 'merged-problems.json'))
     time.sleep(2)  # the AtCoder Problems API asks for more than a second between requests
-    records += atcoder_records(problems, json.loads(fetch(ATCODER_URL + 'problem-models.json')))
-    records += cses_records(fetch(CSES_URL))
+    records += check_floor('AtCoder', atcoder_records(problems, json.loads(fetch(ATCODER_URL + 'problem-models.json'))), 2000)
+    records += check_floor('CSES', cses_records(fetch(CSES_URL)), 300)
     records.sort(key=lambda r: (r['source'], r['id']))
     OUT.write_text(json.dumps(records, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     counts = {}

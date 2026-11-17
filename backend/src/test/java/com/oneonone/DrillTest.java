@@ -79,6 +79,16 @@ class DrillTest {
   }
 
   @Test
+  void aHugeAnswerIsRejectedQuicklyOnBothPublicAnswerPaths() {
+    String huge = "a".repeat(100_000) + "1";
+    assertTimeoutPreemptively(java.time.Duration.ofSeconds(1), () -> {
+      assertFalse(DrillService.matches("15", huge));
+      assertFalse(DrillService.matches("ECV", huge));
+      assertEquals(false, drills.answer(null, "averages", 3, huge).get("correct"));
+    });
+  }
+
+  @Test
   void aNumberTypedWithItsUnitIsStillRight() {
     assertTrue(DrillService.matches("15", "15%"));
     assertTrue(DrillService.matches("15", "15 %"));
@@ -88,6 +98,10 @@ class DrillTest {
     assertTrue(DrillService.matches("12", "12 days"));
     assertTrue(DrillService.matches("10", "10 seconds"));
     assertTrue(DrillService.matches("5", "5 m"));
+    assertTrue(DrillService.matches("78", "78°"));
+    assertTrue(DrillService.matches("15", "15 seconds."));
+    assertTrue(DrillService.matches("1200", "1200 ₹"));
+    assertTrue(DrillService.matches("17", "17."));
     assertFalse(DrillService.matches("40", "41%"));
     assertFalse(DrillService.matches("40", "forty"));
     assertFalse(DrillService.matches("40", "%"));

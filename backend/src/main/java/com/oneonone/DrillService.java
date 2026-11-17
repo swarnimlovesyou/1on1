@@ -57,11 +57,16 @@ public class DrillService {
     return Map.of("correct", matches(d.answer(), given), "expected", d.answer(), "explanation", d.explanation());
   }
 
-  /** Numbers compare by value, ignoring thousands commas and a typed unit (₹, Rs, %, days…); text compares ignoring case. */
+  static final int MAX_ANSWER = 64;
+
+  /** Numbers compare by value, ignoring thousands commas and a typed unit (₹, Rs, %, °, days…); text compares ignoring case. */
   static boolean matches(String expected, String given) {
     String g = given.trim();
+    // no real answer is this long, and the unit patterns below would otherwise run on unbounded public input
+    if (g.length() > MAX_ANSWER) return false;
     if (!expected.matches("-?\\d+(\\.\\d+)?")) return expected.trim().equalsIgnoreCase(g);
-    g = g.replaceAll("(?<=\\d),(?=\\d)", "").replaceFirst("^(₹|(?i:rs\\.?))\\s*", "").replaceFirst("\\s*(%|[A-Za-z]+)$", "");
+    g = g.replaceAll("(?<=\\d),(?=\\d)", "").replaceFirst("\\.$", "").replaceFirst("^(₹|(?i:rs\\.?))\\s*", "")
+      .replaceFirst("\\s*(%|°|₹|[A-Za-z]+)$", "");
     try {
       return new BigDecimal(expected).compareTo(new BigDecimal(g)) == 0;
     } catch (NumberFormatException notANumber) {
