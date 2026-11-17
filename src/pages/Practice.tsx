@@ -1,6 +1,7 @@
 import QuestionBank from "./practice/QuestionBank";
 import Companies from "./practice/Companies";
 import MockOA from "./practice/MockOA";
+import Sheets from "./practice/Sheets";
 import { clock, useCountdown, useIntegritySignals } from "./practice/mockTime";
 import type { MockView } from "../types";
 import FamilyMark from "../components/FamilyMark";
@@ -44,6 +45,7 @@ export const starters: Record<string, string> = {
 const PRACTICE_TABS: [string, string][] = [
   ["problems", "Our problems"],
   ["bank", "Question bank"],
+  ["sheets", "Sheets"],
   ["companies", "Companies"],
   ["mock", "Mock OA"],
 ];
@@ -94,7 +96,9 @@ export function Practice() {
           </button>
         ))}
       </div>
-      {tab === "bank" ? (
+      {tab === "sheets" ? (
+        <Sheets />
+      ) : tab === "bank" ? (
         <QuestionBank />
       ) : tab === "companies" ? (
         <Companies />
