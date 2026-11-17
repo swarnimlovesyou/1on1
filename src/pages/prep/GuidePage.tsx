@@ -5,6 +5,7 @@ import { api } from "../../api";
 import type { PrepGuide } from "../../types";
 import { Loading, ErrorState } from "../../components/Shared";
 import ChallengeCard from "../../components/ChallengeCard";
+import PuzzleBlock from "./PuzzleBlock";
 
 /** A Prep guide: sections, key points, then its quiz graded on the server. */
 export default function GuidePage() {
@@ -22,6 +23,7 @@ export default function GuidePage() {
       {g.subject && <span className="prep-subject">{g.subject}</span>}
       <h1 className="display">{g.title}</h1>
       <p className="prose">{g.summary}</p>
+      {g.puzzle && <PuzzleBlock id={g.id} puzzle={g.puzzle} />}
       {g.sections.map((s) => (
         <section key={s.title}>
           <h2>{s.title}</h2>

@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -13,10 +15,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class PrepController {
 
   final Store store;
+  final ProgressService progress;
   private volatile List<Map<String, Object>> tracks;
 
-  public PrepController(Store store) {
+  public PrepController(Store store, ProgressService progress) {
     this.store = store;
+    this.progress = progress;
   }
 
   List<Map<String, Object>> tracks() {
@@ -67,5 +71,28 @@ public class PrepController {
       out.put("puzzle", safe);
     }
     return out;
+  }
+
+  @PostMapping("/puzzles/{id}/check")
+  public Map<String, Object> checkPuzzle(Authentication auth, @PathVariable String id, @RequestBody Map<String, Object> body) {
+    String user = auth == null || auth instanceof AnonymousAuthenticationToken ? null : AuthController.user(auth);
+    return check(user, id, body);
+  }
+
+  /** Grades a puzzle's typed answer on the server; a signed-in correct answer logs one practice event. */
+  Map<String, Object> check(String user, String id, Map<String, Object> body) {
+    var puzzle = store.find(id)
+      .filter(g -> id.startsWith("guide-") && "guide".equals(g.get("kind")) && !Boolean.FALSE.equals(g.get("published")))
+      .map(g -> g.get("puzzle"))
+      .filter(Map.class::isInstance)
+      .map(m -> (Map<?, ?>) m)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "That puzzle doesn't exist."));
+    if (!(puzzle.get("answer") instanceof String expected))
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This puzzle has no single answer to check.");
+    var given = body.get("answer");
+    if (given == null || given.toString().isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type an answer first.");
+    boolean correct = DrillService.matches(expected, given.toString());
+    if (correct && user != null) progress.record(user, "puzzle", id);
+    return Map.of("correct", correct);
   }
 }

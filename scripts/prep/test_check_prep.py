@@ -61,5 +61,26 @@ class ValidateTest(unittest.TestCase):
         self.assertEqual('', self.errors_for(make('aptitude', 'percentages')))
         self.assertEqual('', self.errors_for(make('reasoning', 'syllogisms')))
 
+    def test_a_puzzle_needs_a_statement_two_hints_a_solution_and_no_quiz(self):
+        def puzzle(**change):
+            def edit(g):
+                g.update(id='guide-puzzles-sample', track='puzzles', sections=[], challenges=[], keyPoints=['Work backwards'])
+                g.pop('subject')
+                g['puzzle'] = dict(statement='Nine coins, one heavier.', hints=['Split in three.', 'Weigh three against three.'],
+                                   solution=['Weigh 3 v 3.', 'Weigh 1 v 1.'], answer='2')
+                g['puzzle'].update(change)
+            return edit
+        self.assertEqual('', self.errors_for(puzzle()))
+        g = copy.deepcopy(GOOD)
+        puzzle()(g)
+        del g['puzzle']['answer']
+        self.assertEqual([], validate(g), 'a puzzle may have no typed answer')
+        self.assertIn('hints', self.errors_for(puzzle(hints=['only one'])))
+        self.assertIn('solution', self.errors_for(puzzle(solution=['one step'])))
+        self.assertIn('statement', self.errors_for(puzzle(statement=' ')))
+        self.assertIn('answer', self.errors_for(puzzle(answer='')))
+        self.assertIn('sections', self.errors_for(lambda g: (puzzle()(g), g.update(sections=[dict(title='x', text='y')] * 3))))
+        self.assertIn('puzzle', self.errors_for(lambda g: (g.update(id='guide-puzzles-sample', track='puzzles'), g.pop('subject'))))
+
 if __name__ == '__main__':
     unittest.main()

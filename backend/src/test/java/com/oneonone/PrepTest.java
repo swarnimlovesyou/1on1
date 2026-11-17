@@ -40,7 +40,7 @@ class PrepTest {
       "sections", List.of(Map.of("title", "One", "text", "t")), "keyPoints", List.of("k"), "challenges", questions
     ));
     challenges = new ChallengeService(store, new TraceEngine(), new ProgressService(store));
-    prep = new PrepController(store);
+    prep = new PrepController(store, new ProgressService(store));
   }
 
   int attempts() {
@@ -97,5 +97,44 @@ class PrepTest {
       "summary", "s", "drill", "percentages", "challenges", questions));
     var row = Store.items(prep.overview().get("guides")).stream().filter(g -> "guide-aptitude-test".equals(g.get("id"))).findFirst().orElseThrow();
     assertEquals("percentages", row.get("drill"));
+  }
+  void puzzle(String id, String answer) {
+    var block = new LinkedHashMap<String, Object>(Map.of("statement", "s", "hints", List.of("a", "b"), "solution", List.of("x", "y")));
+    if (answer != null) block.put("answer", answer);
+    store.put(id, "guide", "public", Map.of("kind", "guide", "track", "puzzles", "title", "P", "order", 1, "summary", "s", "puzzle", block));
+  }
+
+  int puzzleEvents() {
+    return store.db.queryForObject("select count(*) from learning_events where kind='puzzle'", Integer.class);
+  }
+
+  @Test
+  void aPuzzleAnswerIsCheckedOnTheServerAndNeverSentAhead() {
+    puzzle("guide-puzzles-coins", "17");
+    assertEquals(Map.of("correct", true), prep.check(null, "guide-puzzles-coins", Map.of("answer", " 17 ")));
+    assertEquals(Map.of("correct", true), prep.check(null, "guide-puzzles-coins", Map.of("answer", "17.0")));
+    assertEquals(Map.of("correct", false), prep.check(null, "guide-puzzles-coins", Map.of("answer", "seventeen")));
+    assertEquals(0, puzzleEvents(), "a guest's answer is not recorded");
+    prep.check("user-1", "guide-puzzles-coins", Map.of("answer", "16"));
+    assertEquals(0, puzzleEvents(), "a wrong answer is not recorded");
+    prep.check("user-1", "guide-puzzles-coins", Map.of("answer", "17"));
+    assertEquals(1, puzzleEvents());
+    var served = (Map<?, ?>) prep.guide("guide-puzzles-coins").get("puzzle");
+    assertFalse(served.containsKey("answer"));
+    assertEquals(true, served.get("checkable"));
+  }
+
+  @Test
+  void checkingSomethingThatIsNotACheckablePuzzleSaysWhy() {
+    puzzle("guide-puzzles-open", null);
+    for (var call : List.<Runnable>of(
+      () -> prep.check(null, "guide-puzzles-missing", Map.of("answer", "1")),
+      () -> prep.check(null, "guide-cs-fundamentals-test", Map.of("answer", "1"))
+    )) assertEquals(404, assertThrows(ResponseStatusException.class, call::run).getStatusCode().value());
+    var none = assertThrows(ResponseStatusException.class, () -> prep.check(null, "guide-puzzles-open", Map.of("answer", "1")));
+    assertEquals(400, none.getStatusCode().value());
+    assertEquals("This puzzle has no single answer to check.", none.getReason());
+    puzzle("guide-puzzles-coins", "17");
+    assertEquals(400, assertThrows(ResponseStatusException.class, () -> prep.check(null, "guide-puzzles-coins", Map.of("answer", "  "))).getStatusCode().value());
   }
 }

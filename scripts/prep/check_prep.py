@@ -36,16 +36,32 @@ def validate(g):
             errors.append(f'{key} is required')
     if not isinstance(g.get('order'), int):
         errors.append('order must be an integer')
+    puzzle = g.get('puzzle')
+    if g.get('track') == 'puzzles' and not puzzle:
+        errors.append('a puzzles guide needs a puzzle block')
     sections = g.get('sections') or []
-    if not 3 <= len(sections) <= 5:
+    if puzzle and sections:
+        errors.append('a puzzle has no sections: the statement, hints and solution carry it')
+    if not puzzle and not 3 <= len(sections) <= 5:
         errors.append(f'sections: need 3-5, have {len(sections)}')
     for i, s in enumerate(sections):
         if not (_text(s.get('title')) and _text(s.get('text'))):
             errors.append(f'sections[{i}] needs a title and text')
     points = g.get('keyPoints') or []
-    if not 3 <= len(points) <= 6 or not all(_text(p) for p in points):
-        errors.append(f'keyPoints: need 3-6 non-empty, have {len(points)}')
-    puzzle = g.get('puzzle')
+    low, high = (1, 3) if puzzle else (3, 6)
+    if not low <= len(points) <= high or not all(_text(p) for p in points):
+        errors.append(f'keyPoints: need {low}-{high} non-empty, have {len(points)}')
+    if puzzle:
+        if not _text(puzzle.get('statement')):
+            errors.append('puzzle statement is required')
+        hints = puzzle.get('hints') or []
+        if len(hints) != 2 or not all(_text(h) for h in hints):
+            errors.append('puzzle hints: need exactly 2')
+        steps = puzzle.get('solution') or []
+        if len(steps) < 2 or not all(_text(x) for x in steps):
+            errors.append('puzzle solution: need at least 2 steps')
+        if 'answer' in puzzle and not _text(puzzle.get('answer')):
+            errors.append('puzzle answer, when given, must be non-empty')
     challenges = g.get('challenges') or []
     expected = 0 if puzzle else 5
     if len(challenges) != expected:
