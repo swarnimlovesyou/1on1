@@ -432,3 +432,28 @@ export type CoachView = {
   transfer: string;
   execution: boolean;
 };
+
+export type BankItem = {
+  id: string;
+  source: "1on1" | "Codeforces" | "LeetCode";
+  title: string;
+  url: string;
+  difficulty: string | null;
+  tags: string[];
+  rating: number | null;
+  companies: Record<string, number>;
+};
+export type BankPage = { items: BankItem[]; total: number; page: number; size: number };
+export type MockView = {
+  id: string;
+  style: string;
+  minutes: number;
+  problems: { id: string; title: string; difficulty: string; accepted: boolean; acceptedAt?: string }[];
+  startedAt: string;
+  deadline: string;
+  finishedAt?: string;
+  finished: boolean;
+  remainingSeconds: number;
+  score: number;
+  signals: { tabSwitches: number; fullscreenExits: number };
+};

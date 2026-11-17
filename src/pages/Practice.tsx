@@ -1,7 +1,11 @@
+import QuestionBank from "./practice/QuestionBank";
+import Companies from "./practice/Companies";
+import MockOA, { clock, useCountdown } from "./practice/MockOA";
+import type { MockView } from "../types";
 import FamilyMark from "../components/FamilyMark";
 import { familyOfProblem, familyStyle } from "../families";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   MagnifyingGlass,
@@ -36,7 +40,15 @@ export const starters: Record<string, string> = {
     'import sys\n\ndef solve():\n    data = sys.stdin.read().strip()\n    # Read the problem input and write your solution here.\n\nif __name__ == "__main__":\n    solve()\n',
   cpp: "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    // Read the problem input and write your solution here.\n    return 0;\n}\n",
 };
+const PRACTICE_TABS: [string, string][] = [
+  ["problems", "Our problems"],
+  ["bank", "Question bank"],
+  ["companies", "Companies"],
+  ["mock", "Mock OA"],
+];
 export function Practice() {
+  const [params, setParams] = useSearchParams();
+  const tab = params.get("tab") ?? "problems";
   const q = useProblems(),
     { progress } = useApp(),
     [search, setSearch] = useState(""),
@@ -68,6 +80,27 @@ export function Practice() {
           </span>
         }
       />
+      <div className="tabs practice-tabs" role="tablist">
+        {PRACTICE_TABS.map(([key, label]) => (
+          <button
+            key={key}
+            role="tab"
+            aria-selected={tab === key}
+            className={tab === key ? "active" : ""}
+            onClick={() => setParams(key === "problems" ? {} : { tab: key })}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === "bank" ? (
+        <QuestionBank />
+      ) : tab === "companies" ? (
+        <Companies />
+      ) : tab === "mock" ? (
+        <MockOA />
+      ) : (
+        <>
       <div className="practice-banner">
         <span className="practice-icon">
           <Code size={29} />
@@ -185,10 +218,25 @@ export function Practice() {
           <p>Change your filters to find another way in.</p>
         </div>
       )}
+        </>
+      )}
     </>
   );
 }
+function MockBanner({ id }: { id: string }) {
+  const mock = useQuery({ queryKey: ["mock", id], queryFn: () => api<MockView>("/mocks/" + id), refetchInterval: 30000 });
+  const remaining = useCountdown(mock.data?.finished ? undefined : mock.data?.deadline);
+  if (!mock.data) return null;
+  return (
+    <div className="mock-banner" role="status">
+      {mock.data.finished ? "This mock has ended; new runs no longer count." : `Mock in progress: ${clock(remaining)} left.`}
+      <Link to="/practice?tab=mock">Back to the mock</Link>
+    </div>
+  );
+}
 export function ProblemPage() {
+  const [searchParams] = useSearchParams();
+  const mockId = searchParams.get("mock");
   const { id } = useParams(),
     { user, progress, progressReady, reload, notify } = useApp();
   const query = useQuery({
@@ -289,6 +337,7 @@ export function ProblemPage() {
       ["QUEUED", "RUNNING"].includes(submission.data?.status ?? "");
   return (
     <>
+      {mockId && <MockBanner id={mockId} />}
       <Link className="back-link" to="/practice">
         <ArrowLeft size={16} />
         Back to practice

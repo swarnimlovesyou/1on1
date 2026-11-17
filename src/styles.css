@@ -5978,3 +5978,110 @@ section[id] {
   margin-right: 8px;
   vertical-align: 1px;
 }
+
+/* practice hub: tabs, question bank, companies and mock OA */
+.practice-tabs {
+  margin: 4px 0 22px;
+  border-bottom: 1px solid var(--line);
+  gap: 22px;
+}
+.bank-table td .family-mark {
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+.bank-table a svg {
+  vertical-align: -1px;
+  color: var(--muted);
+}
+.bank-source {
+  color: var(--muted);
+  font-size: 12px;
+}
+.bank-count,
+.bank-credit {
+  font-size: 12px;
+  margin: 10px 0;
+}
+.bank-pager {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 16px 0;
+  font-size: 12px;
+}
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.company-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.company-card:hover {
+  border-color: var(--ink);
+}
+.company-card small {
+  color: var(--muted);
+}
+.mock-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface-soft);
+}
+.mock-problems {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+}
+.mock-problems li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mock-start label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.mock-history {
+  margin-top: 32px;
+}
+.mock-report {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mock-report ul {
+  margin: 4px 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.mock-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-control);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-size: 13px;
+}
