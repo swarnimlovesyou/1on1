@@ -32,6 +32,18 @@ public class BankService {
   private volatile List<Map<String, Object>> ownCache;
   private volatile long ownLoadedAt;
 
+  private volatile Map<String, Map<String, Object>> byId;
+
+  /** One external question's metadata by id (cf-…, lc-…); empty for unknown ids and 1on1's own problems. */
+  public Optional<Map<String, Object>> external(String id) {
+    if (byId == null) {
+      var index = new HashMap<String, Map<String, Object>>();
+      for (var r : external()) index.put(r.get("id").toString(), r);
+      byId = index;
+    }
+    return Optional.ofNullable(byId.get(id));
+  }
+
   List<Map<String, Object>> own() {
     // shortcut: a 60 s cache, so an admin's edit appears within a minute; invalidate on save if that matters
     if (ownCache == null || System.currentTimeMillis() - ownLoadedAt > 60_000) {

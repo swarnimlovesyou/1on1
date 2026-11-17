@@ -30,6 +30,10 @@ public class ExecutionService {
   @Value("${app.judge-mode:self-hosted}")
   String mode = "self-hosted";
 
+  /** Optional so tests can build this service alone; when present, bank questions can be run on custom input. */
+  @org.springframework.beans.factory.annotation.Autowired(required = false)
+  BankService bank;
+
   @Value("${app.judge-auth-token:}")
   String token = "";
 
@@ -140,10 +144,15 @@ public class ExecutionService {
     ) throw new IllegalArgumentException(
       "Choose a supported language, code under 50000 characters, and input under 10000 characters."
     );
-    var content = s.owned(problem, "public");
+    boolean external = bank != null && bank.external(problem).isPresent();
+    // external questions have no tests here; they run on the learner's input and are judged on their own site
+    if (external && !Boolean.FALSE.equals(body.get("official"))) throw new IllegalArgumentException(
+      "External questions run on your own input; they are judged on their own site."
+    );
+    var content = external ? Map.<String, Object>of() : s.owned(problem, "public");
     if (
-      !content.containsKey("tests") ||
-      Boolean.FALSE.equals(content.get("published"))
+      !external && (!content.containsKey("tests") ||
+      Boolean.FALSE.equals(content.get("published")))
     ) throw new IllegalArgumentException(
       "Choose a published practice problem."
     );

@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/api/v1/bank",
             "/api/v1/bank/companies",
             "/api/v1/bank/topics",
+            "/api/v1/bank/item/*",
             "/api/v1/experiments",
             "/api/v1/challenges/*/attempts",
             "/error"

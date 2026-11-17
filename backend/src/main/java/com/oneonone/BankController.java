@@ -27,6 +27,11 @@ public class BankController {
     return bank.search(q, source, difficulty, topic, company, page, size);
   }
 
+  @GetMapping("/item/{id}")
+  public Map<String, Object> item(@PathVariable String id) {
+    return bank.external(id).orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+  }
+
   @GetMapping("/topics")
   public List<String> topics() {
     return bank.topics();
