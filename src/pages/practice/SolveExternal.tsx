@@ -1,0 +1,124 @@
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ArrowLeft, ArrowUpRight, Play } from "@phosphor-icons/react";
+import { api } from "../../api";
+import type { BankItem, Submission } from "../../types";
+import { Loading, ErrorState } from "../../components/Shared";
+import FamilyMark from "../../components/FamilyMark";
+import { familyOfProblem } from "../../families";
+import { starters } from "../Practice";
+
+const CodeEditor = lazy(() => import("../../components/CodeEditor"));
+
+const draftKey = (id: string, language: string) => `1on1-external-draft:${id}:${language}`;
+function readDraft(id: string, language: string) {
+  try {
+    return localStorage.getItem(draftKey(id, language));
+  } catch {
+    return null;
+  }
+}
+function writeDraft(id: string, language: string, code: string) {
+  try {
+    localStorage.setItem(draftKey(id, language), code);
+  } catch {
+    // private windows can block storage; the editor still works without saving
+  }
+}
+
+/** An external question in our editor. The statement stays on its own site; runs use the learner's own input. */
+export default function SolveExternal() {
+  const { id = "" } = useParams();
+  const item = useQuery({ queryKey: ["bank-item", id], queryFn: () => api<BankItem>("/bank/item/" + id) });
+  const [language, setLanguage] = useState("python"),
+    [code, setCode] = useState(""),
+    [input, setInput] = useState(""),
+    [job, setJob] = useState<string>();
+  useEffect(() => {
+    setCode(readDraft(id, language) ?? starters[language]);
+  }, [id, language]);
+  const edit = (value: string) => {
+    setCode(value);
+    writeDraft(id, language, value);
+  };
+  const run = useMutation({
+    mutationFn: () =>
+      api<Submission>("/submissions", { problem: id, official: false, language, code, input, requestId: crypto.randomUUID() }),
+    onSuccess: (s) => setJob(s.id),
+  });
+  const result = useQuery({
+    queryKey: ["submission", job],
+    queryFn: () => api<Submission>("/submissions/" + job),
+    enabled: !!job,
+    refetchInterval: (q) => (["QUEUED", "RUNNING"].includes(q.state.data?.status ?? "QUEUED") ? 1000 : false),
+  });
+  if (item.isLoading) return <Loading />;
+  if (item.error || !item.data) return <ErrorState error={item.error} />;
+  const q = item.data;
+  const row = result.data?.results?.[0];
+  return (
+    <div className="solve-external">
+      <Link className="back-link" to="/practice?tab=bank">
+        <ArrowLeft size={16} />
+        Back to the question bank
+      </Link>
+      <div className="problem-heading solve-heading">
+        <div>
+          <FamilyMark family={familyOfProblem(q.tags)} label />
+          <h1 className="display">{q.title}</h1>
+          <div className="problem-title-meta">
+            <span>{q.source}</span>
+            {q.difficulty && <span className={"difficulty " + q.difficulty.toLowerCase()}>{q.difficulty}</span>}
+            {q.tags.slice(0, 4).map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="solve-statement">
+        <a href={q.url} target="_blank" rel="noopener noreferrer">
+          Read the full statement on {q.source} <ArrowUpRight size={14} aria-hidden="true" />
+        </a>
+        <span className="muted">
+          {" "}
+          1on1 doesn't copy statements. Write your solution here and run it on your own input.
+        </span>
+      </p>
+      <div className="solve-workspace">
+        <div className="solve-editor">
+          <select aria-label="Coding language" value={language} onChange={(e) => setLanguage(e.target.value)}>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+          </select>
+          <Suspense fallback={<textarea className="code-fallback" aria-label="Code editor loading" value={code} onChange={(e) => edit(e.target.value)} />}>
+            <CodeEditor value={code} onChange={edit} language={language} />
+          </Suspense>
+        </div>
+        <div className="solve-run">
+          <label>
+            Your input
+            <textarea rows={6} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Paste a sample input from the statement" />
+          </label>
+          <button className="button primary small" disabled={run.isPending || !code.trim()} onClick={() => run.mutate()}>
+            <Play size={16} /> Run
+          </button>
+          {run.error && (
+            <p className="run-error" role="alert">
+              {run.error.message}
+            </p>
+          )}
+          {result.data && (
+            <div className="run-output" role="status">
+              <strong>{result.data.status.replaceAll("_", " ").toLowerCase()}</strong>
+              {row?.actual !== undefined && <pre className="reference-code">{row.actual || "(no output)"}</pre>}
+              {(row?.message || result.data.message) && <p className="muted">{row?.message ?? result.data.message}</p>}
+            </div>
+          )}
+          <p className="muted">There's no verdict here: compare your output with the statement's examples.</p>
+        </div>
+      </div>
+    </div>
+  );
+}

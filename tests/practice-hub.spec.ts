@@ -53,3 +53,22 @@ test("a learner starts a mock, opens a problem with its timer and finishes with 
   await expect(page.locator(".mock-report")).toContainText("0 of 3");
   await expect(page.locator(".mock-report")).toContainText("Time used");
 });
+
+test("an external question opens in our editor, links to its statement and keeps the draft", async ({ page }) => {
+  await page.goto("/practice?tab=bank");
+  await page.getByLabel("Source").selectOption("Codeforces");
+  await page.getByRole("link", { name: "Solve here" }).first().click();
+  await expect(page).toHaveURL(/\/practice\/q\/cf-/);
+  const statement = page.getByRole("link", { name: /Read the full statement on Codeforces/ });
+  await expect(statement).toHaveAttribute("target", "_blank");
+  await expect(statement).toHaveAttribute("href", /codeforces\.com/);
+  await page.getByLabel("Your input").fill("3");
+  await page.getByRole("button", { name: "Run" }).click();
+  // without a configured runner the server's own explanation shows; with one, the output does
+  await expect(page.locator(".run-output, .run-error")).toBeVisible({ timeout: 30000 });
+  await page.locator(".monaco-editor textarea, textarea.code-fallback").first().focus();
+  await page.keyboard.type("// my draft");
+  await page.waitForTimeout(600);
+  await page.reload();
+  await expect(page.locator(".solve-external")).toContainText("my draft", { timeout: 15000 });
+});

@@ -36,6 +36,7 @@ import { emptyProgress } from "./types";
 import type { Progress, User } from "./types";
 import { Home, Library, NotebookPage, Landing } from "./pages/Learning";
 import { Practice, ProblemPage } from "./pages/Practice";
+import SolveExternal from "./pages/practice/SolveExternal";
 import {
   Planner,
   Notes,
@@ -314,6 +315,7 @@ export default function App() {
                 <Route path="/learn/:id" element={<NotebookPage />} />
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/practice/:id" element={<ProblemPage />} />
+                <Route path="/practice/q/:id" element={<SolveExternal />} />
                 <Route path="/plan" element={<Planner />} />
                 <Route path="/notebook" element={<Notes />} />
                 <Route path="/progress" element={<Analytics />} />

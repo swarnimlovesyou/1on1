@@ -108,9 +108,16 @@ export default function QuestionBank() {
                       {item.source === "1on1" ? (
                         <Link to={item.url}>{item.title}</Link>
                       ) : (
-                        <a href={item.url} target="_blank" rel="noopener noreferrer">
-                          {item.title} <ArrowUpRight size={13} aria-label="opens on the original site" />
-                        </a>
+                        <>
+                          <Link to={"/practice/q/" + item.id}>{item.title}</Link>{" "}
+                          <Link className="solve-here" to={"/practice/q/" + item.id}>
+                            Solve here
+                          </Link>{" "}
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="external-link">
+                            <ArrowUpRight size={13} aria-hidden="true" />
+                            <span className="sr-only">Open on {item.source}</span>
+                          </a>
+                        </>
                       )}
                     </td>
                     <td className="bank-source">{item.source}</td>

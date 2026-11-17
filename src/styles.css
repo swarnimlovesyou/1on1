@@ -6085,3 +6085,60 @@ section[id] {
   color: var(--ink);
   font-size: 13px;
 }
+.bank-table .solve-here {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 6px;
+}
+.bank-table .solve-here:hover,
+.bank-table .external-link:hover {
+  color: var(--ink);
+}
+.solve-statement {
+  margin: 4px 0 18px;
+  font-size: 13px;
+}
+.solve-statement a {
+  font-weight: 500;
+}
+.solve-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+}
+.solve-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.solve-editor select {
+  align-self: flex-start;
+}
+.solve-run {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+.solve-run textarea {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.run-error {
+  color: var(--error);
+}
+@media (max-width: 900px) {
+  .solve-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* the shared heading turns its last child into a row of actions; this page has no actions */
+.solve-heading > div:last-child {
+  display: block;
+}
+.solve-statement a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
