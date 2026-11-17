@@ -8,6 +8,7 @@ from import_questions import cf_difficulty, cf_record, lc_records  # noqa: E402
 PROBLEMS = """name,link,difficulty,solution
 Two Sum,https://leetcode.com/problems/two-sum/,Easy    ,x
 LRU Cache,https://leetcode.com/problems/lru-cache/,Medium   ,y
+Odd Row,https://leetcode.com/problems/odd-row/,Binary Search,z
 """
 COMPANIES = """problem_link,problem_name,company_name,num_occur
 https://leetcode.com/problems/two-sum/,Two Sum,Google,3
@@ -38,7 +39,9 @@ class ImportTest(unittest.TestCase):
 
     def test_leetcode_records_join_companies_by_link(self):
         rows = {r["id"]: r for r in lc_records(PROBLEMS, COMPANIES)}
-        self.assertEqual(set(rows), {"lc-two-sum", "lc-lru-cache"})
+        self.assertEqual(set(rows), {"lc-two-sum", "lc-lru-cache", "lc-odd-row"})
+        # a difficulty column holding anything else is malformed source data
+        self.assertIsNone(rows["lc-odd-row"]["difficulty"])
         self.assertEqual(rows["lc-two-sum"]["difficulty"], "Easy")
         # a row with no count is malformed and skipped, never guessed
         self.assertEqual(rows["lc-two-sum"]["companies"], {"Google": 3, "Amazon": 1})

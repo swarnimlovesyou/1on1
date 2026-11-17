@@ -40,6 +40,8 @@ public class SecurityConfig {
             "/api/v1/curriculum",
             "/api/v1/learning-map",
             "/api/v1/search",
+            "/api/v1/bank",
+            "/api/v1/bank/companies",
             "/api/v1/experiments",
             "/api/v1/challenges/*/attempts",
             "/error"

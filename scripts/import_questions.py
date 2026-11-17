@@ -54,7 +54,8 @@ def lc_records(problems_csv, companies_csv):
         s = slug(row['link'])
         records.append(dict(
             id='lc-' + s, source='LeetCode', title=row['name'].strip(), url=row['link'].strip(),
-            difficulty=row['difficulty'].strip() or None, tags=[], rating=None, companies=companies.get(s, {}),
+            difficulty=row['difficulty'].strip() if row['difficulty'].strip() in ('Easy', 'Medium', 'Hard') else None,
+            tags=[], rating=None, companies=companies.get(s, {}),
         ))
     return records
 
