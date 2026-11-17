@@ -75,4 +75,18 @@ class PrepTest {
     assertEquals(5, Store.strings(listed.getFirst().get("challengeIds")).size());
     assertFalse(listed.getFirst().containsKey("sections"), "the overview lists guides without their text");
   }
+  @Test
+  void aGuideRemovedFromContentIsUnpublishedUnlessAnAdminEditedIt() throws Exception {
+    store.put("guide-cs-fundamentals-stale", "guide", "public", Map.of("kind", "guide", "track", "cs-fundamentals", "title", "Stale"));
+    store.put("guide-cs-fundamentals-kept", "guide", "public", Map.of("kind", "guide", "track", "cs-fundamentals", "title", "Kept", "edited", true));
+    var seed = new ContentSeed(store, new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder());
+    seed.adminEmail = "";
+    seed.adminPassword = "";
+    seed.run();
+    assertEquals(false, store.get("guide-cs-fundamentals-stale").get("published"));
+    assertNotEquals(false, store.get("guide-cs-fundamentals-kept").get("published"));
+    var listed = Store.items(prep.overview().get("guides")).stream().map(g -> g.get("id")).toList();
+    assertFalse(listed.contains("guide-cs-fundamentals-stale"));
+    assertTrue(listed.contains("guide-cs-fundamentals-kept"));
+  }
 }

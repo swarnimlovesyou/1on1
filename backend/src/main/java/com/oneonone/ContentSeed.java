@@ -44,14 +44,15 @@ public class ContentSeed implements CommandLineRunner {
           s.find(id).isEmpty() || !Boolean.TRUE.equals(s.get(id).get("edited"))
         ) s.put(id, row.get("kind").toString(), "public", row);
       }
-    for (var existing : s.list("problem", "public"))
-      if (
-        !seeded.contains(existing.get("id")) &&
-        !Boolean.TRUE.equals(existing.get("edited"))
-      ) {
-        existing.put("published", false);
-        s.put(existing.get("id").toString(), "problem", "public", existing);
-      }
+    for (String kind : List.of("problem", "guide"))
+      for (var existing : s.list(kind, "public"))
+        if (
+          !seeded.contains(existing.get("id")) &&
+          !Boolean.TRUE.equals(existing.get("edited"))
+        ) {
+          existing.put("published", false);
+          s.put(existing.get("id").toString(), kind, "public", existing);
+        }
     if (
       !adminEmail.isBlank() &&
       adminPassword.length() >= 12 &&

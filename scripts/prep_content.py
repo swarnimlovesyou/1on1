@@ -16,6 +16,18 @@ TRACKS = [
 ]
 
 
+def check_ids(guides, lessons):
+    ids = [g['id'] for g in guides]
+    assert len(ids) == len(set(ids)), 'a guide id is used twice'
+    challenge_ids = [c['id'] for g in guides for c in g.get('challenges', [])]
+    assert len(challenge_ids) == len(set(challenge_ids)), 'a challenge id is used twice'
+    # The challenge engine searches lessons first, so a shared id would grade and count as a DSA lesson.
+    lesson_ids = {c['id'] for l in lessons for c in l.get('challenges', [])}
+    lesson_ids |= {f"challenge-{l['id']}-checkpoint" for l in lessons if l.get('checkpoint')}
+    clash = sorted(set(challenge_ids) & lesson_ids)
+    assert not clash, f'guide challenge ids already used by lessons: {clash}'
+
+
 def enrich(content):
     guides = []
     for path in sorted(HERE.glob('*_batch*.py')):
@@ -23,9 +35,6 @@ def enrich(content):
             errors = validate(g)
             assert not errors, f'{g.get("id")} in {path.name}: {errors}'
             guides.append(g)
-    ids = [g['id'] for g in guides]
-    assert len(ids) == len(set(ids)), 'a guide id is used twice'
-    challenge_ids = [c['id'] for g in guides for c in g.get('challenges', [])]
-    assert len(challenge_ids) == len(set(challenge_ids)), 'a challenge id is used twice'
+    check_ids(guides, content.get('lessons', []))
     content['prepTracks'] = TRACKS
     content['guides'] = sorted(guides, key=lambda g: (g['track'], g.get('subject', ''), g['order']))
