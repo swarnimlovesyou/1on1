@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, MagnifyingGlass } from "@phosphor-icons/react";
 import { api } from "../../api";
+import CompanyTags from "../../components/CompanyTags";
 import type { BankPage } from "../../types";
 import { Loading, ErrorState } from "../../components/Shared";
 import FamilyMark from "../../components/FamilyMark";
@@ -138,6 +139,7 @@ export default function QuestionBank() {
                           </a>
                         </>
                       )}
+                      <CompanyTags companies={item.companies} />
                     </td>
                     <td className="bank-source">{item.source}</td>
                     <td>

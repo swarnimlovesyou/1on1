@@ -6,9 +6,10 @@ import { api } from "../../api";
 import { useApp } from "../../context";
 import { Loading, ErrorState } from "../../components/Shared";
 import { lessonForPattern, toggle } from "./sheetTicks";
+import CompanyTags from "../../components/CompanyTags";
 
 type SheetSummary = { id: string; title: string; summary: string; credit: string; count: number };
-type Item = { id: string; title: string; difficulty: string; pattern: string; url: string };
+type Item = { id: string; title: string; difficulty: string; pattern: string; url: string; companies?: { name: string; count: number }[] };
 type Sheet = SheetSummary & { items: Item[] };
 
 const LOCAL = "1on1-sheet-ticks";
@@ -138,6 +139,7 @@ function SheetView({ id, ticks, back }: { id: string; ticks: ReturnType<typeof u
                         <BookOpen size={15} aria-hidden="true" /> Learn<span className="sr-only">: {pattern}</span>
                       </Link>
                     )}
+                    <CompanyTags companies={item.companies} />
                   </li>
                 ))}
             </ul>

@@ -435,7 +435,7 @@ export type CoachView = {
 
 export type BankItem = {
   id: string;
-  source: "1on1" | "Codeforces" | "LeetCode";
+  source: "1on1" | "Codeforces" | "LeetCode" | "AtCoder" | "CSES";
   title: string;
   url: string;
   difficulty: string | null;

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowUpRight, Play } from "@phosphor-icons/react";
 import { api } from "../../api";
 import type { BankItem, Submission } from "../../types";
+import CompanyTags from "../../components/CompanyTags";
 import { Loading, ErrorState } from "../../components/Shared";
 import FamilyMark from "../../components/FamilyMark";
 import { familyOfProblem } from "../../families";
@@ -87,6 +88,7 @@ export default function SolveExternal() {
               <span key={t}>{t}</span>
             ))}
           </div>
+          <CompanyTags companies={q.companies} limit={4} />
         </div>
       </div>
       <p className="solve-statement">
