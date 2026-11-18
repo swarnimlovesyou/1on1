@@ -229,6 +229,11 @@ public class AuthController {
   }
 
   String hash(String value) {
+    return sha256(value);
+  }
+
+  /** Reset tokens are stored only as this hash. */
+  static String sha256(String value) {
     try {
       return HexFormat.of().formatHex(
         MessageDigest.getInstance("SHA-256").digest(

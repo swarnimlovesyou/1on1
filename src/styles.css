@@ -8942,3 +8942,24 @@ kbd {
     display: none;
   }
 }
+
+/* ---- Admin tools ---- */
+.admin-reports,
+.admin-reset {
+  margin-top: 28px;
+}
+.admin-reset form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+.admin-reset-link {
+  display: flex;
+  gap: 8px;
+}
+.admin-reset-link input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}

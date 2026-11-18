@@ -28,6 +28,7 @@ import {
   Lightbulb,
 } from "@phosphor-icons/react";
 import { api, download, resetCsrf } from "../../api";
+import { ReportModeration, ResetLink } from "./AdminTools";
 import { useApp } from "../../context";
 import type { Note, Plan, User } from "../../types";
 import { useLessons, useProblems } from "../Learning";
@@ -276,6 +277,8 @@ function AdminContent() {
           </tbody>
         </table>
       </section>
+      <ReportModeration />
+      <ResetLink />
     </>
   );
 }
