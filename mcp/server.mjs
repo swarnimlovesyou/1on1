@@ -96,16 +96,6 @@ tool("upcoming_contests", "List upcoming Codeforces and AtCoder contests (start 
   return [...(down.length ? [`Not reachable just now: ${down.join(", ")}.`] : []), ...(rows.length ? rows : ["No upcoming contests listed."])].join("\n");
 });
 
-tool(
-  "measure_growth",
-  "Count the steps of 1on1's Java trace for an algorithm at n = 4, 8, 16 and 32, and name the closest growth curve.",
-  { algorithm: z.string().min(1).describe("binary-search, two-pointers, sliding-window, merge-sort or quick-sort") },
-  async ({ algorithm }) => {
-    const m = await get("/lab/" + encodeURIComponent(algorithm));
-    return `${algorithm}: steps ${m.sizes.map((n, i) => `n=${n}: ${Number(m.steps[i]).toFixed(1)}`).join(", ")}. Closest growth: ${m.closest}. These are trace steps, not time.`;
-  },
-);
-
 tool("get_drill", "Get a fresh aptitude or reasoning practice question for a topic (the answer stays on the server).", { topic: z.string().min(1) }, async ({ topic }) => {
   const q = await get(`/drills/${encodeURIComponent(topic)}/next`);
   return `Seed ${q.seed}\n${q.prompt}${q.options ? "\nOptions: " + q.options.join(" | ") : ""}${q.unit ? `\nUnit: ${q.unit}` : ""}`;

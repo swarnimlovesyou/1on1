@@ -281,6 +281,7 @@ export function NotebookPage() {
   const { id } = useParams(),
     { user, progress, progressReady, notify, reload } = useApp();
   const [sceneParams] = useSearchParams();
+  const lessonsAll = useLessons();
   const curriculum = useQuery({
     queryKey: ["curriculum"],
     queryFn: () => api<CurriculumManifest>("/curriculum"),
@@ -393,10 +394,13 @@ export function NotebookPage() {
         </Link>
         <span className="chapter-label">Inside this notebook</span>
         {[
-          ["idea", "The idea"],
+          ["idea", "What it is"],
+          ["why", "Why it matters"],
           ["experiment", "See it in action"],
-          ["code", "Connect it to code"],
-          ["pattern", "The pattern"],
+          ["pattern", "The logic"],
+          ["code", "Its code"],
+          ["uses", "Where it's used"],
+          ["connects", "How it connects"],
           ["checkpoint", "Check your intuition"],
           ["practice", "Make it stick"],
         ].map(([href, label]) => (
@@ -432,8 +436,14 @@ export function NotebookPage() {
           return (
             <section id="idea" className="lesson-idea">
               <div className="idea-main">
-                <h2>The idea</h2>
+                <h2>What it is</h2>
                 <p className="lesson-prose lesson-lead">{lead}</p>
+                {l.teaching?.mentalModel && (
+                  <p className="mental-model">
+                    <span>In one picture</span>
+                    {l.teaching.mentalModel}
+                  </p>
+                )}
                 {rest && (
                   <details className="read-more">
                     <summary>Read the full idea</summary>
@@ -474,6 +484,12 @@ export function NotebookPage() {
             </section>
           );
         })()}
+        {l.why && (
+          <section id="why" className="why-card">
+            <h2>Why it matters</h2>
+            <p>{l.why}</p>
+          </section>
+        )}
         <section id="experiment">
           {savedContext?.scene && savedContext.step > 0 && savedContext.traceRevision !== 3 && (
             <p className="inline-alert">The visualization has been rebuilt. Your input is preserved; playback restarts from the beginning.</p>
@@ -532,40 +548,8 @@ export function NotebookPage() {
             );
           })()}
         </section>
-        {l.teaching && (
-          <section id="code">
-            <h2>Connect it to code</h2>
-            <p className="muted code-caption">{l.teaching.workedExample}</p>
-            <div className="code-layout">
-              <div className="code-main">
-                <pre className="reference-code">{l.teaching.java.implementation}</pre>
-                {l.teaching.java.lineAnnotations.length > 0 && (
-                  <ul className="line-notes">
-                    {l.teaching.java.lineAnnotations.map((annotation) => (
-                      <li key={annotation.line}>
-                        <span className="line-chip">Line {annotation.line}</span>
-                        {annotation.explanation}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <aside className="code-side">
-                <div>
-                  <span>Time</span>
-                  <strong>{l.teaching.complexity.time}</strong>
-                </div>
-                <div>
-                  <span>Space</span>
-                  <strong>{l.teaching.complexity.space}</strong>
-                </div>
-                <p className="muted">{l.teaching.complexity.assumptions}</p>
-              </aside>
-            </div>
-          </section>
-        )}
         <section id="pattern">
-          <h2>The pattern to hold onto</h2>
+          <h2>The logic</h2>
           <div className="pattern-grid">
             <div className="insight">
               <Lightbulb size={22} />
@@ -600,6 +584,77 @@ export function NotebookPage() {
             </details>
           )}
         </section>
+        {l.teaching && (
+          <section id="code">
+            <h2>Its code</h2>
+            <p className="muted code-caption">{l.teaching.workedExample}</p>
+            <div className="code-layout">
+              <div className="code-main">
+                <pre className="reference-code">{l.teaching.java.implementation}</pre>
+                {l.teaching.java.lineAnnotations.length > 0 && (
+                  <ul className="line-notes">
+                    {l.teaching.java.lineAnnotations.map((annotation) => (
+                      <li key={annotation.line}>
+                        <span className="line-chip">Line {annotation.line}</span>
+                        {annotation.explanation}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <aside className="code-side">
+                <div>
+                  <span>Time</span>
+                  <strong>{l.teaching.complexity.time}</strong>
+                </div>
+                <div>
+                  <span>Space</span>
+                  <strong>{l.teaching.complexity.space}</strong>
+                </div>
+                <p className="muted">{l.teaching.complexity.assumptions}</p>
+              </aside>
+            </div>
+          </section>
+        )}
+        {!!l.uses?.length && (
+          <section id="uses">
+            <h2>Where it's used</h2>
+            <div className="use-grid">
+              {l.uses.map((use) => (
+                <div className="use-card" key={use.where}>
+                  <strong>{use.where}</strong>
+                  <p>{use.how}</p>
+                </div>
+              ))}
+            </div>
+            <p className="muted">
+              Then use it yourself: the questions in <a href="#practice">Make it stick</a> are picked for this idea.
+            </p>
+          </section>
+        )}
+        {(() => {
+          const before = (l.prerequisites ?? []).map((id) => lessonsAll.data?.find((x) => x.id === id)).filter(Boolean) as Lesson[];
+          const after = (lessonsAll.data ?? []).filter((x) => x.prerequisites?.includes(l.id));
+          return (
+            <section id="connects">
+              <h2>How it connects</h2>
+              <div className="connect-row">
+                <div className="connect-before">
+                  <span>Builds on</span>
+                  {before.length ? before.map((x) => <Link key={x.id} to={"/learn/" + x.id}>{x.title}</Link>) : <small>Nothing: a good place to start.</small>}
+                </div>
+                <div className="connect-now">
+                  <span>This lesson</span>
+                  <strong>{l.title}</strong>
+                </div>
+                <div className="connect-after">
+                  <span>Unlocks</span>
+                  {after.length ? after.map((x) => <Link key={x.id} to={"/learn/" + x.id}>{x.title}</Link>) : <small>The end of this branch.</small>}
+                </div>
+              </div>
+            </section>
+          );
+        })()}
         <div id="checkpoint" className="lesson-challenges">
           <h2>Try the idea yourself.</h2>
           <p className="muted">

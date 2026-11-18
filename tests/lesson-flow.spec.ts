@@ -41,3 +41,18 @@ test("the execution transcript reads cleanly and the page fits a phone", async (
   await expect(page.locator("h1")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+test("the lesson reads as what, why, see it, logic, code, where it's used and how it connects", async ({ page }) => {
+  await page.goto("/learn/lesson-hashing");
+  const chapters = await page.locator(".chapter-nav a[href^='#']").allInnerTexts();
+  expect(chapters.map((c) => c.trim())).toEqual([
+    "What it is", "Why it matters", "See it in action", "The logic", "Its code", "Where it's used", "How it connects", "Check your intuition", "Make it stick",
+  ]);
+  await expect(page.locator("#idea .mental-model")).not.toBeEmpty();
+  await expect(page.locator("#why p")).not.toBeEmpty();
+  await expect(page.locator("#uses .use-card")).toHaveCount(3);
+  const connects = page.locator("#connects");
+  await expect(connects.locator(".connect-before a").first()).toHaveAttribute("href", /\/learn\/lesson-/);
+  await expect(connects.locator(".connect-after a").first()).toHaveAttribute("href", /\/learn\/lesson-/);
+  await expect(connects.locator(".connect-now")).toContainText("Hash");
+});

@@ -62,6 +62,8 @@ export interface Lesson {
   /** Why each prerequisite concept matters here, keyed by concept id. */
   prerequisiteNotes?: Record<string, string>;
   objectives?: string[];
+  why?: string;
+  uses?: { where: string; how: string }[];
   challenges: Challenge[];
   referenceJourney?: boolean;
   linkedProblems?: string[];

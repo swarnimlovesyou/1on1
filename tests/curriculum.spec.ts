@@ -61,7 +61,7 @@ test("new interactive lesson saves notes and location without inflated activity"
     .click();
   await page.goto("/learn/lesson-arrays");
   await page
-    .getByRole("link", { name: "Connect it to code", exact: true })
+    .getByRole("link", { name: "Its code", exact: true })
     .click();
   await page
     .getByLabel("Personal lesson note")

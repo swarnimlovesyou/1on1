@@ -11,7 +11,6 @@ const PAGES: Entry[] = [
   { title: "Home", group: "Page", to: "/home" },
   { title: "Explore concepts", group: "Page", to: "/learn" },
   { title: "Animations", group: "Page", to: "/learn/animations" },
-  { title: "Performance lab", group: "Page", to: "/learn/lab" },
   { title: "Practice problems", group: "Page", to: "/practice" },
   { title: "Question bank", group: "Page", to: "/practice?tab=bank" },
   { title: "Companies", group: "Page", to: "/practice?tab=companies" },

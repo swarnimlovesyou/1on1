@@ -141,9 +141,20 @@ LESSON_TEACHING = {
 }
 
 
+def load_uses():
+    spec = importlib.util.spec_from_file_location('uses', BATCHES / 'uses.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.USES
+
+
 def enrich(lessons):
     entries = load()
+    uses = load_uses()
     for lesson in lessons:
+        assert lesson['id'] in uses, f"{lesson['id']} has no why/uses entry in lesson_prose/uses.py"
+        lesson['why'] = uses[lesson['id']]['why']
+        lesson['uses'] = uses[lesson['id']]['uses']
         if lesson['id'] in LESSON_TEACHING:
             override = LESSON_TEACHING[lesson['id']]
             teaching = dict(lesson['teaching'])

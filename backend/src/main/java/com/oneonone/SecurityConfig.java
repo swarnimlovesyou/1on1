@@ -49,7 +49,6 @@ public class SecurityConfig {
             "/api/v1/drills/**",
             "/api/v1/contests",
             "/api/v1/reports/recent",
-            "/api/v1/lab/*",
             "/api/v1/sheets",
             "/api/v1/sheets/*",
             "/api/v1/experiments",

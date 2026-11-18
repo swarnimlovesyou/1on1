@@ -18,8 +18,6 @@ const api = http.createServer((req, res) => {
     if (req.url.startsWith("/api/v1/auth/session")) return send(200, { user: null, csrf: "token-1" }, { "set-cookie": "JSESSIONID=abc; Path=/" });
     if (req.url.startsWith("/api/v1/bank?")) return send(200, { total: 1, items: [{ id: "lc-two-sum", title: "Two Sum", source: "LeetCode", difficulty: "Easy", url: "https://leetcode.com/problems/two-sum/", companies: { Amazon: 117, Google: 44 } }] });
     if (req.url === "/api/v1/experiments") return send(200, { steps: [{ narration: "Start." }, { narration: "Done." }], result: "9" });
-    if (req.url === "/api/v1/lab/merge-sort") return send(200, { sizes: [4, 8, 16, 32], steps: [9, 31, 89, 223], closest: "n log n" });
-    if (req.url === "/api/v1/lab/nonsense") return send(404, { message: "The lab measures binary-search, two-pointers, sliding-window, merge-sort, quick-sort." });
     send(404, { message: "Not found." });
   });
 });
@@ -40,7 +38,7 @@ const text = (result) => result.content.map((c) => c.text).join("\n");
 
 test("lists the learning tools and nothing that touches a learner's private data", async () => {
   const names = (await client.listTools()).tools.map((t) => t.name).sort();
-  assert.deepEqual(names, ["check_drill", "get_drill", "get_lesson", "measure_growth", "run_trace", "search_library", "search_questions", "upcoming_contests"]);
+  assert.deepEqual(names, ["check_drill", "get_drill", "get_lesson", "run_trace", "search_library", "search_questions", "upcoming_contests"]);
 });
 
 test("question search passes filters and reports companies", async () => {
@@ -65,9 +63,7 @@ test("a trace posts the scene with the session's CSRF token and cookie", async (
 });
 
 test("an API error comes back as a tool error with the API's own sentence", async () => {
-  const result = await client.callTool({ name: "measure_growth", arguments: { algorithm: "nonsense" } });
+  const result = await client.callTool({ name: "get_drill", arguments: { topic: "nonsense" } });
   assert.equal(result.isError, true);
-  assert.match(text(result), /The lab measures/);
-  const ok = await client.callTool({ name: "measure_growth", arguments: { algorithm: "merge-sort" } });
-  assert.match(text(ok), /n log n/);
+  assert.match(text(result), /Not found/);
 });

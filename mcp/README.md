@@ -16,7 +16,6 @@ is not built).
 | `run_trace` | Run an algorithm in the Java trace engine and return each step's narration |
 | `search_questions` | Search the question bank with source, difficulty, company and sort filters |
 | `upcoming_contests` | Upcoming Codeforces and AtCoder contests |
-| `measure_growth` | The performance lab's step counts and closest growth curve |
 | `get_drill` / `check_drill` | A generated aptitude or reasoning question, and checking an answer |
 
 ## Run

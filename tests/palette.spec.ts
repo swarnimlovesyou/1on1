@@ -54,3 +54,11 @@ test("text that matches no page still searches the library", async ({ page }) =>
   await page.getByRole("option").last().click();
   await expect(page).toHaveURL(/\/learn\?q=sliding/);
 });
+
+test("the performance lab is gone from navigation and search", async ({ page }) => {
+  await page.goto("/home");
+  await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: /Performance lab/ })).toHaveCount(0);
+  await page.keyboard.press("Control+k");
+  await page.keyboard.type("performance lab");
+  await expect(page.getByRole("option", { name: /Performance lab/ })).toHaveCount(0);
+});

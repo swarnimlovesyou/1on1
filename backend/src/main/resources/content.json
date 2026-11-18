@@ -260,6 +260,21 @@
         "problem-zero-tail",
         "problem-mirror-word"
       ],
+      "why": "Checking every pair of n items costs about n²/2 comparisons, which is too slow once n reaches the hundreds of thousands. On ordered data, two cursors rule out whole groups of pairs per step and finish in one pass.",
+      "uses": [
+        {
+          "where": "Sort-merge joins",
+          "how": "A database joins two inputs sorted on the join key by advancing a cursor in each, always stepping the side with the smaller key."
+        },
+        {
+          "where": "Unix comm",
+          "how": "comm compares two sorted files line by line with one position in each file, reporting lines unique to either file or common to both."
+        },
+        {
+          "where": "C++ std::unique and std::remove",
+          "how": "Both compact a range in place with a read position and a write position, copying forward only the elements that should stay."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-strings": "Strings use the same indexed positions, and checking a palindrome is the same inward walk from both ends.",
         "concept-sorting": "The discard rule relies on sorted order, so you need to know what sorting costs and that it changes positions."
@@ -540,6 +555,21 @@
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
       "traceRevision": 3,
+      "why": "Recomputing the sum of every window of size k from scratch costs O(nk). Adding the value that enters and subtracting the value that leaves makes each step O(1).",
+      "uses": [
+        {
+          "where": "rsync rolling checksum",
+          "how": "rsync slides a fixed-size block over a file and updates a weak checksum in constant time per byte to find blocks the receiver already has."
+        },
+        {
+          "where": "pandas rolling means",
+          "how": "Series.rolling(k).mean() keeps a running total, adding the newest value and removing the oldest instead of summing each window again."
+        },
+        {
+          "where": "Box blur in image processing",
+          "how": "A box blur averages a fixed-width neighbourhood, and fast implementations slide a running sum along each row and column."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-arrays": "A window is a run of adjacent indexes, so you need constant-time access by position.",
         "concept-prefix-sums": "Both reuse a running total; the window adds one value and removes one instead of recomputing."
@@ -805,6 +835,21 @@
       "linkedProblems": [
         "problem-rising-subsequence",
         "problem-ordered-check"
+      ],
+      "why": "A linear scan of a million sorted items can take a million comparisons, while halving the range needs about twenty. The same halving works on any yes/no question that flips once, not only on arrays.",
+      "uses": [
+        {
+          "where": "git bisect",
+          "how": "git bisect checks out a commit roughly halfway between a known good and a known bad commit, halving the suspects until the first bad commit remains."
+        },
+        {
+          "where": "PostgreSQL B-tree indexes",
+          "how": "Keys inside each B-tree page are kept sorted, and the lookup binary-searches the page to choose which child page to read next."
+        },
+        {
+          "where": "Python bisect and Java Arrays.binarySearch",
+          "how": "These library functions return a match or the insertion point in a sorted sequence, which keeps lists sorted and answers range queries."
+        }
       ],
       "prerequisiteNotes": {
         "concept-sorting": "Binary search is only valid on sorted input, and the sort it depends on usually costs more than the search."
@@ -1079,6 +1124,21 @@
       "linkedProblems": [
         "problem-ordered-parcels",
         "problem-out-of-order"
+      ],
+      "why": "Merge sort guarantees O(n log n) time on every input and keeps equal items in their original order. Its merge step reads data sequentially, so it also sorts data far larger than memory.",
+      "uses": [
+        {
+          "where": "Timsort in Python and Java",
+          "how": "Python's list.sort and Java's object-array sort use Timsort, which finds already sorted runs and merges them pairwise."
+        },
+        {
+          "where": "Database external sorts",
+          "how": "When a sort does not fit in memory, PostgreSQL writes sorted runs to disk and merges them, shown as 'external merge' in EXPLAIN ANALYZE."
+        },
+        {
+          "where": "LSM-tree compaction",
+          "how": "Stores such as RocksDB merge several sorted files into one sorted file, the same merge step applied to files on disk."
+        }
       ],
       "prerequisiteNotes": {
         "concept-arrays": "Merging copies values by index into a new array, and each split works on a range of array positions."
@@ -1359,6 +1419,21 @@
         "problem-lower-middle",
         "problem-minimum-gap"
       ],
+      "why": "Quicksort sorts in place with little extra memory and is usually fast in practice because its partition scan is cache-friendly. Knowing its O(n²) worst case explains why libraries guard against bad pivots.",
+      "uses": [
+        {
+          "where": "Java Arrays.sort for primitives",
+          "how": "Since Java 7, sorting int, long and double arrays uses Dual-Pivot Quicksort, which partitions around two pivots instead of one."
+        },
+        {
+          "where": "C++ std::sort",
+          "how": "libstdc++ implements std::sort as introsort: quicksort that switches to heapsort when recursion gets too deep, capping the worst case at O(n log n)."
+        },
+        {
+          "where": "Go's sort package",
+          "how": "Since Go 1.19, sort.Sort uses pattern-defeating quicksort, which detects bad pivot patterns and falls back to heapsort; slices.Sort, added in Go 1.21, does too."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-arrays": "Partitioning swaps values in place by index, so you need to read and swap array positions with confidence."
       }
@@ -1618,6 +1693,21 @@
         "problem-reverse-route",
         "problem-remove-adjacent"
       ],
+      "why": "Arrays must shift elements to insert or delete in the middle, which costs O(n). A linked list does it in O(1) once you hold the neighbouring node, at the cost of no random access.",
+      "uses": [
+        {
+          "where": "Java LinkedHashMap",
+          "how": "LinkedHashMap threads a doubly linked list through its entries to remember insertion or access order, which makes it a simple LRU cache."
+        },
+        {
+          "where": "Hash table chaining",
+          "how": "Java's HashMap stores colliding entries in a bucket as a linked list of nodes, converting long chains to trees."
+        },
+        {
+          "where": "Linux kernel lists",
+          "how": "The kernel's list_head embeds next and prev pointers inside structures, so processes, modules and devices are linked without separate allocations."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-arrays": "Contrasting with arrays shows what a list gives up: no index jumps, so reaching a node means following links."
       }
@@ -1872,6 +1962,21 @@
       "linkedProblems": [
         "problem-next-taller",
         "problem-parenthesis-depth"
+      ],
+      "why": "Many problems need to resume the most recently started task first, such as returning from nested calls or matching nested brackets. A stack gives that last-in, first-out order with O(1) push and pop.",
+      "uses": [
+        {
+          "where": "Program call stack",
+          "how": "Each function call pushes a frame holding its locals and return address, and returning pops it, so the latest call always finishes first."
+        },
+        {
+          "where": "JVM bytecode",
+          "how": "The JVM is a stack machine: instructions such as iadd pop their operands from the operand stack and push the result back."
+        },
+        {
+          "where": "Undo in editors",
+          "how": "Each edit is pushed onto an undo stack, so undo reverses the most recent change first."
+        }
       ],
       "prerequisiteNotes": {
         "concept-arrays": "ArrayDeque keeps the stack in an array that grows when full, which explains the amortized O(1) cost."
@@ -2129,6 +2234,21 @@
       ],
       "linkedProblems": [
         "problem-first-single"
+      ],
+      "why": "When work must be handled in the order it arrived, a queue gives that first-in, first-out order with O(1) enqueue and dequeue. A deque adds O(1) access at both ends, which some schedulers rely on.",
+      "uses": [
+        {
+          "where": "Java ThreadPoolExecutor",
+          "how": "Submitted tasks wait in a BlockingQueue, and worker threads take them from the front as they become free."
+        },
+        {
+          "where": "Java ForkJoinPool",
+          "how": "Each worker keeps a deque of tasks, working from one end while idle workers steal from the other end."
+        },
+        {
+          "where": "Router packet buffers",
+          "how": "Packets waiting for an outgoing link are held in a FIFO queue, and the simplest policy drops new arrivals when it is full."
+        }
       ],
       "prerequisiteNotes": {
         "concept-arrays": "ArrayDeque stores the queue in a circular array, so knowing how arrays grow explains the amortized O(1) cost.",
@@ -2388,6 +2508,21 @@
       "linkedProblems": [
         "problem-factorial-lock",
         "problem-balanced-tree-nodes"
+      ],
+      "why": "Nested data such as folders, expressions and documents is defined in terms of smaller copies of itself, and recursion lets the code follow that shape directly. Every call uses stack space, so deep inputs can overflow the stack.",
+      "uses": [
+        {
+          "where": "Recursive descent parsers",
+          "how": "Clang parses C and C++ with a hand-written recursive descent parser, where each grammar rule is a function that calls the functions for its parts."
+        },
+        {
+          "where": "Python's json module",
+          "how": "Encoding a nested dict or list calls the encoder again for each nested value, so very deep nesting raises RecursionError."
+        },
+        {
+          "where": "Directory tools",
+          "how": "du totals a folder as its own files plus the totals of its subfolders, applying the same rule at every level until only plain files remain."
+        }
       ],
       "prerequisiteNotes": {
         "concept-stacks": "Each call pushes a frame and each return pops one, so the call stack follows the same last-in, first-out rule."
@@ -2649,6 +2784,21 @@
       "linkedProblems": [
         "problem-subset-count",
         "problem-binary-ones"
+      ],
+      "why": "Some problems can only be solved by trying choices, but listing every complete combination grows exponentially. Backtracking abandons a partial choice as soon as it cannot work, pruning whole branches of the search.",
+      "uses": [
+        {
+          "where": "Backtracking regex engines",
+          "how": "Engines such as java.util.regex and PCRE try one alternative, and on failure undo it and try the next, which is why some patterns backtrack catastrophically."
+        },
+        {
+          "where": "SAT solvers",
+          "how": "DPLL-style solvers assign a variable, propagate consequences, and undo assignments when a clause becomes false."
+        },
+        {
+          "where": "Prolog",
+          "how": "Prolog answers a query by trying clauses in order and backing up to the latest choice point whenever a goal fails."
+        }
       ],
       "prerequisiteNotes": {
         "concept-recursion": "Each choice is a recursive call, and returning from it is the moment the path must be restored."
@@ -2918,6 +3068,21 @@
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
       "traceRevision": 3,
+      "why": "A sorted array makes inserts O(n), and a hash table loses key order. A binary search tree keeps keys ordered while supporting search, insert and nearest-key queries in time proportional to its height.",
+      "uses": [
+        {
+          "where": "Java TreeMap",
+          "how": "TreeMap is a red-black tree, a balanced binary search tree, which gives sorted iteration and floorKey or ceilingKey lookups."
+        },
+        {
+          "where": "C++ std::map",
+          "how": "The common standard library implementations store std::map as a red-black tree, so iteration visits keys in sorted order."
+        },
+        {
+          "where": "Linux CFS scheduler",
+          "how": "Until Linux 6.6, the Completely Fair Scheduler kept runnable tasks in a red-black tree keyed by virtual runtime and ran the leftmost task next."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-binary-search": "Each comparison discards one side, the same halving idea applied to a linked structure.",
         "concept-binary-trees": "Insertion and search walk left and right child links, and in-order traversal reads the keys back."
@@ -3040,6 +3205,21 @@
         }
       ],
       "linkedProblems": [],
+      "why": "Inserting sorted keys into a plain BST builds a chain, and every operation degrades to O(n). AVL rotations keep the height at O(log n), so the worst case stays logarithmic.",
+      "uses": [
+        {
+          "where": "OpenZFS",
+          "how": "OpenZFS ships the AVL tree library inherited from Solaris and uses it for many of the file system's in-memory sorted structures."
+        },
+        {
+          "where": "OCaml Map and Set",
+          "how": "OCaml's standard Map and Set are height-balanced binary trees in the AVL style, rebalancing by rotation when child heights differ by more than two."
+        },
+        {
+          "where": "LLVM immutable containers",
+          "how": "LLVM's ImmutableMap and ImmutableSet are built on persistent AVL trees, which the Clang Static Analyzer uses to store program states cheaply."
+        }
+      ],
       "blocks": [
         {
           "id": "worked",
@@ -3323,6 +3503,21 @@
         "problem-bst-inorder",
         "problem-tree-height"
       ],
+      "why": "Most work on a tree is a visit to every node in a specific order, such as children before parent for evaluation or left-node-right for sorted output. Choosing the order is often the whole algorithm.",
+      "uses": [
+        {
+          "where": "Compilers",
+          "how": "Code generation and constant folding walk the syntax tree in post-order, handling operands before the operator that uses them."
+        },
+        {
+          "where": "Browser DOM",
+          "how": "querySelectorAll returns matches in document order, which is a pre-order depth-first traversal of the element tree."
+        },
+        {
+          "where": "Ordered map iteration",
+          "how": "Iterating a Java TreeMap visits its search tree in-order, which is why keys come out sorted."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-linked-lists": "A tree node is a linked-list node with two next references, so following and null-checking links carries over.",
         "concept-recursion": "walk calls itself on each child and resumes the parent's frame afterwards, which is the suspended-frame idea."
@@ -3577,6 +3772,21 @@
       "linkedProblems": [
         "problem-heap-root",
         "problem-lower-middle"
+      ],
+      "why": "Many programs repeatedly need the smallest or largest item while new items keep arriving. A heap gives the top item in O(1) and insert or remove in O(log n), without sorting everything.",
+      "uses": [
+        {
+          "where": "Timer queues",
+          "how": "Event loops such as libevent keep pending timeouts in a min-heap, so the next timer to fire is always at the root."
+        },
+        {
+          "where": "Top-k selection",
+          "how": "Python's heapq.nlargest keeps a heap of only k items while scanning, so it handles long streams in O(n log k)."
+        },
+        {
+          "where": "Merging sorted inputs",
+          "how": "heapq.merge holds the current head of each sorted input in a heap and repeatedly emits the smallest."
+        }
       ],
       "prerequisiteNotes": {
         "concept-sorting": "Comparing with a full sort shows what a heap gives up: only the maximum is in place, so insertion is cheaper.",
@@ -3847,6 +4057,21 @@
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
       "traceRevision": 3,
+      "why": "When every edge counts as one step, BFS finds the fewest-hop path from a source to every reachable vertex in O(V + E). It explores in rings of increasing distance, so the first time it reaches a vertex is the shortest.",
+      "uses": [
+        {
+          "where": "Web crawlers",
+          "how": "A breadth-first crawler keeps a FIFO frontier of discovered URLs, so pages one link from the seeds are fetched before pages two links away."
+        },
+        {
+          "where": "Degrees of separation",
+          "how": "Counting the fewest friendship links between two people is a shortest path in an unweighted graph, which BFS answers."
+        },
+        {
+          "where": "Cheney's copying garbage collector",
+          "how": "Cheney's algorithm copies reachable objects breadth-first, using the copied region itself as the queue."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-queues": "The FIFO queue is what makes nearer vertices finish before farther ones.",
         "concept-graphs": "BFS walks adjacency lists, so you need to read a vertex's outgoing edges."
@@ -4107,6 +4332,21 @@
         "problem-island-groups",
         "problem-dependency-order"
       ],
+      "why": "DFS follows one path as far as it goes before backing up, which exposes structure such as cycles, dependency order and connected regions in O(V + E). It is the basis of topological sort and cycle detection.",
+      "uses": [
+        {
+          "where": "Make",
+          "how": "make builds a target by first visiting each prerequisite depth-first, and reports a circular dependency when it meets a target already in progress."
+        },
+        {
+          "where": "Mark-and-sweep garbage collection",
+          "how": "The mark phase follows references from roots, often with an explicit stack, marking every reachable object before unmarked ones are freed."
+        },
+        {
+          "where": "Flood fill",
+          "how": "A paint program's bucket tool can fill a region by depth-first visiting neighbouring pixels of the same colour."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-recursion": "explore calls itself for each unvisited neighbour, and the call stack remembers where to resume when a deeper call returns.",
         "concept-graphs": "The search walks the lists built by adjacency, reading each vertex's row of outgoing neighbours."
@@ -4231,6 +4471,21 @@
         }
       ],
       "linkedProblems": [],
+      "why": "When edges have different costs, the fewest-hop path is often not the cheapest, so BFS is not enough. Dijkstra finds cheapest paths from a source when no edge cost is negative.",
+      "uses": [
+        {
+          "where": "OSPF and IS-IS routing",
+          "how": "Each router runs Dijkstra's shortest-path-first over its link-state database to build its routing table."
+        },
+        {
+          "where": "Road routing engines",
+          "how": "Engines such as OSRM answer route queries with Dijkstra-style search, sped up by preprocessing like contraction hierarchies."
+        },
+        {
+          "where": "A* pathfinding in games",
+          "how": "A* is Dijkstra with a heuristic added to the priority, steering the search toward the goal on game maps."
+        }
+      ],
       "blocks": [
         {
           "id": "worked",
@@ -4378,6 +4633,21 @@
         }
       ],
       "linkedProblems": [],
+      "why": "Many allocation problems ask how much can move from a source to a sink through limited capacities. Max flow answers them exactly, and its minimum cut shows the bottleneck that limits the total.",
+      "uses": [
+        {
+          "where": "Bipartite matching",
+          "how": "Assigning workers to jobs they can do becomes a flow network with capacity one per edge, and the maximum flow is the largest matching."
+        },
+        {
+          "where": "Image segmentation",
+          "how": "Graph-cut segmentation splits foreground from background by computing a minimum cut between source and sink terminals."
+        },
+        {
+          "where": "Open-pit mine planning",
+          "how": "Choosing which blocks to dig for most profit, when each block needs the blocks above it removed, is project selection solved by a minimum cut."
+        }
+      ],
       "blocks": [
         {
           "id": "worked",
@@ -4670,6 +4940,21 @@
         "problem-small-coins",
         "problem-nonadjacent-stops"
       ],
+      "why": "Naive recursion can solve the same subproblem many times, as in Fibonacci where the work grows exponentially. Caching each result after its first computation makes the cost proportional to the number of distinct states.",
+      "uses": [
+        {
+          "where": "Python functools.lru_cache",
+          "how": "Decorating a function with lru_cache or cache stores results keyed by arguments, so repeat calls return the stored value."
+        },
+        {
+          "where": "Bazel build cache",
+          "how": "Bazel keys each build action by a hash of its inputs and command, and reuses the stored output when that key has been seen."
+        },
+        {
+          "where": "Packrat parsers",
+          "how": "A packrat parser memoizes the result of each grammar rule at each input position, which makes PEG parsing linear time."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-prefix-sums": "fibTable fills dp left to right, each entry built from earlier entries, the same pattern as building a prefix table.",
         "concept-recursion": "solve calls itself twice, and reading the trace means following how frames open, return and resume their callers."
@@ -4945,6 +5230,21 @@
       "contentStatus": "authored",
       "interactiveStatus": "interactive",
       "traceRevision": 3,
+      "why": "Tabulation computes the same dynamic program bottom-up in a loop, so it avoids recursion depth limits and call overhead. Filling in dependency order also makes it easy to see when only the last row needs to be kept.",
+      "uses": [
+        {
+          "where": "Spelling suggestions",
+          "how": "Levenshtein edit distance, used to rank spelling suggestions, fills a table where each cell depends on its left, upper and upper-left neighbours."
+        },
+        {
+          "where": "Sequence alignment",
+          "how": "Needleman-Wunsch and Smith-Waterman align DNA or protein sequences by filling a scoring table cell by cell."
+        },
+        {
+          "where": "Viterbi decoding",
+          "how": "The Viterbi algorithm fills a table of best path scores over time steps to decode hidden Markov models and convolutional codes."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-prefix-sums": "A table filled left to right from earlier entries is the same habit as building prefix sums.",
         "concept-recursion": "The recurrence you tabulate is the recursive definition, evaluated bottom-up instead of by calls."
@@ -5068,6 +5368,21 @@
         }
       ],
       "linkedProblems": [],
+      "why": "Searching a word list for every entry that starts with a prefix scans the whole list. A trie walks one node per character to the prefix and finds all matches below it.",
+      "uses": [
+        {
+          "where": "Autocomplete",
+          "how": "Typing a prefix walks the trie to that prefix's node, and the completions are the words stored in its subtree."
+        },
+        {
+          "where": "Linux IP routing",
+          "how": "The kernel's IPv4 forwarding table is an LC-trie over address bits, so a lookup finds the longest matching prefix."
+        },
+        {
+          "where": "Ethereum state",
+          "how": "Ethereum stores account state in a Merkle Patricia trie, a compressed trie whose root hash commits to the entire state."
+        }
+      ],
       "blocks": [
         {
           "id": "worked",
@@ -5211,6 +5526,21 @@
         }
       ],
       "linkedProblems": [],
+      "why": "Finding the fewest sets that cover everything is NP-hard, so exact search becomes impractical at scale. Greedy set cover is fast and provably within a logarithmic factor of the best answer.",
+      "uses": [
+        {
+          "where": "Test suite minimisation",
+          "how": "Choosing the fewest tests that still cover every requirement or code line is set cover, and greedy selection is a standard heuristic."
+        },
+        {
+          "where": "Facility and sensor placement",
+          "how": "Picking the fewest sites, such as cell towers, whose coverage areas include every region is a set-cover problem."
+        },
+        {
+          "where": "Airline crew scheduling",
+          "how": "Selecting crew pairings so every flight is staffed is formulated as set covering and solved with integer programming."
+        }
+      ],
       "blocks": [
         {
           "id": "worked",
@@ -5355,6 +5685,21 @@
       ],
       "linkedProblems": [
         "problem-lower-middle"
+      ],
+      "why": "Finding the median or the k-th smallest value does not require sorting all n items. Quickselect recurses into only one side of each partition, giving O(n) expected time instead of O(n log n).",
+      "uses": [
+        {
+          "where": "C++ std::nth_element",
+          "how": "std::nth_element places the k-th element in its sorted position with smaller elements before it, typically using introselect."
+        },
+        {
+          "where": "NumPy partition and median",
+          "how": "np.partition uses introselect by default, and np.median relies on partitioning rather than a full sort."
+        },
+        {
+          "where": "k-d tree construction",
+          "how": "Building a balanced k-d tree splits points at the median along an axis, which selection finds without sorting."
+        }
       ],
       "blocks": [
         {
@@ -5502,6 +5847,21 @@
         }
       ],
       "linkedProblems": [],
+      "why": "Checking whether a key exists can mean an expensive disk or network read even when the answer is no. A Bloom filter answers 'definitely not present' from a small bit array, accepting occasional false positives.",
+      "uses": [
+        {
+          "where": "LSM-tree stores",
+          "how": "RocksDB and Cassandra keep a Bloom filter per sorted file, skipping files that cannot contain the key before reading from disk."
+        },
+        {
+          "where": "Cache admission",
+          "how": "A cache can record keys in a Bloom filter and store an object only on its second request, so one-time requests do not evict useful entries."
+        },
+        {
+          "where": "PostgreSQL bloom index",
+          "how": "The bloom extension builds an index of per-row signatures that can filter rows on equality tests over many columns at once."
+        }
+      ],
       "blocks": [
         {
           "id": "worked",
@@ -5776,6 +6136,21 @@
           "hint": "Rows 0 and 1 have each contributed n visits."
         }
       ],
+      "why": "Code that runs instantly on test data can become unusable when the input grows, and growth rates predict that before it happens. Comparing O(n) with O(n²) tells you which design will still work at a million items.",
+      "uses": [
+        {
+          "where": "Query planners",
+          "how": "PostgreSQL's planner estimates the cost of sequential scans, index scans and join methods from row counts and picks the cheapest plan."
+        },
+        {
+          "where": "Library documentation",
+          "how": "Java's collections docs and the C++ standard state operation costs, such as O(log n) for TreeMap get, so users can choose structures."
+        },
+        {
+          "where": "Hash-flooding defences",
+          "how": "Attackers sent keys that collide to turn O(1) lookups into O(n), so Python and others adopted randomised string hashing."
+        }
+      ],
       "prerequisiteNotes": {}
     },
     {
@@ -6022,6 +6397,21 @@
           ],
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Indices start at zero, and the total includes every slot read so far."
+        }
+      ],
+      "why": "An array stores items contiguously, so any index is reached in O(1) and scans run at memory speed. Most other structures, including heaps, hash tables and matrices, are built on top of arrays.",
+      "uses": [
+        {
+          "where": "Dynamic arrays",
+          "how": "Java's ArrayList and Python's list are arrays that grow by reallocating to a larger capacity, giving amortised O(1) appends."
+        },
+        {
+          "where": "NumPy",
+          "how": "An ndarray stores values of one fixed type in a single memory buffer, so vectorised operations run as C loops without per-element Python objects."
+        },
+        {
+          "where": "Linux io_uring",
+          "how": "io_uring passes requests and completions through ring buffers, arrays whose head and tail indexes wrap around modulo the size."
         }
       ],
       "prerequisiteNotes": {
@@ -6275,6 +6665,21 @@
           ],
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "The first copy read index 2. Type the output without quotes."
+        }
+      ],
+      "why": "Strings look simple, but repeated concatenation can copy the whole text each time and turn a loop into O(n²). Knowing how characters are stored also avoids bugs with text outside basic ASCII.",
+      "uses": [
+        {
+          "where": "Java StringBuilder",
+          "how": "StringBuilder appends into a growable character buffer, avoiding the new string each += creates on an immutable String."
+        },
+        {
+          "where": "Java StringBuilder.reverse",
+          "how": "Java strings are UTF-16, and reverse keeps each surrogate pair together so emoji survive, though combining accents can still detach from their letters."
+        },
+        {
+          "where": "GNU grep",
+          "how": "For a fixed search string, GNU grep uses Boyer-Moore, which checks the pattern's last character first and skips ahead on a mismatch instead of reading every byte."
         }
       ],
       "prerequisiteNotes": {
@@ -6552,6 +6957,21 @@
           "hint": "Three different keys (2, 1, 6) had been inserted before the repeat."
         }
       ],
+      "why": "Finding whether a value was seen before by scanning a list costs O(n) per lookup. A hash table answers in expected O(1) time, which turns many O(n²) algorithms into O(n).",
+      "uses": [
+        {
+          "where": "Hash joins",
+          "how": "A database builds a hash table on the join key of the smaller input, then probes it once for each row of the larger input."
+        },
+        {
+          "where": "Key-value caches",
+          "how": "Redis and memcached look up keys in in-memory hash tables, so a get takes about the same time however many keys are stored."
+        },
+        {
+          "where": "Deduplicating backups",
+          "how": "Tools such as restic and Borg split files into chunks and store each chunk once, finding duplicates by looking up its hash."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-arrays": "A hash table keeps its buckets in an array, and the trace scans the input array once, position by position.",
         "concept-strings": "Strings are the most common hash keys, and key equality compares content the same way two strings are compared."
@@ -6825,6 +7245,21 @@
           "hint": "prefix = 0, 2, 3, 8. Subtract the value at the left boundary from the value at the right boundary."
         }
       ],
+      "why": "Summing a range from scratch costs O(n) per query, which adds up when there are many queries. After one O(n) pass, any range sum is the difference of two prefix values in O(1).",
+      "uses": [
+        {
+          "where": "Integral images",
+          "how": "Viola-Jones face detection uses a 2-D prefix sum, the integral image, so the sum of any rectangle of pixels takes four lookups."
+        },
+        {
+          "where": "Weighted random choice",
+          "how": "Python's random.choices with weights builds cumulative weights and binary-searches a random number into them."
+        },
+        {
+          "where": "GPU parallel scan",
+          "how": "Parallel prefix sum is a basic GPU primitive used for stream compaction and radix sort, computing all prefix values in parallel."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-arrays": "The table is an array one slot longer than the input, and the build loop reads a[i] while writing p[i + 1]."
       }
@@ -7092,6 +7527,21 @@
           "hint": "Both letters at the front must leave before the window holds only the new \"b\"."
         }
       ],
+      "why": "Many questions ask for the longest or shortest run that satisfies a condition, and checking every start and end pair is O(n²). Growing the right edge and shrinking the left only when needed visits each item at most twice.",
+      "uses": [
+        {
+          "where": "TCP sliding window",
+          "how": "The sender may have bytes in flight up to the window, whose left edge advances on acknowledgements and whose size is capped by the receiver's window and the congestion window."
+        },
+        {
+          "where": "Sliding-log rate limiting",
+          "how": "A limiter stores timestamps of recent requests, dropping those older than the time limit from the front before counting."
+        },
+        {
+          "where": "Prometheus range queries",
+          "how": "rate(metric[5m]) uses the samples inside a trailing five-minute range, so how many samples the window holds varies."
+        }
+      ],
       "prerequisiteNotes": {
         "concept-hashing": "The set window tells you in expected constant time whether the incoming character is already in the frame.",
         "concept-fixed-window": "You already slide a frame by adding on the right and removing on the left; here the frame's width is allowed to change."
@@ -7339,6 +7789,21 @@
           ],
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "An overlapping interval extends the last one rather than adding a new one."
+        }
+      ],
+      "why": "Ranges of time, memory or positions often overlap, and comparing every pair is O(n²). Sorting by start lets one pass merge overlaps or find gaps in O(n log n).",
+      "uses": [
+        {
+          "where": "Calendar free/busy",
+          "how": "Finding a meeting time merges each person's busy intervals and reports the gaps between merged intervals as free slots."
+        },
+        {
+          "where": "Memory allocators",
+          "how": "Allocators such as dlmalloc coalesce a freed block with adjacent free blocks, merging touching address ranges into one."
+        },
+        {
+          "where": "bedtools merge",
+          "how": "bedtools merge combines overlapping or adjacent genomic intervals from a sorted file into single intervals."
         }
       ],
       "prerequisiteNotes": {
@@ -7595,6 +8060,21 @@
           ],
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "The transpose maps (r, c) to (c, r)."
+        }
+      ],
+      "why": "Grids appear in images, maps, games and spreadsheets, and most bugs come from swapping row and column or stepping outside the bounds. Knowing how (row, col) maps to memory also explains why scan order affects speed.",
+      "uses": [
+        {
+          "where": "Image rotation",
+          "how": "Rotating an image 90 degrees clockwise is a transpose of its pixel grid followed by reversing each row."
+        },
+        {
+          "where": "NumPy transpose",
+          "how": "Calling .T on a NumPy array returns a view with its strides swapped, so element [r][c] appears at [c][r] without copying."
+        },
+        {
+          "where": "Grid pathfinding",
+          "how": "Tile-based game maps treat each cell as (row, col) with up to four or eight neighbours and run BFS or A* over them."
         }
       ],
       "prerequisiteNotes": {
@@ -7860,6 +8340,21 @@
           ],
           "explanation": "Your entries agree with the actual Java trace for this input.",
           "hint": "Edges are stored in the order given."
+        }
+      ],
+      "why": "Networks of roads, dependencies or friendships are graphs, and the representation decides how fast you can list a vertex's neighbours. Adjacency lists suit sparse graphs, while matrices suit dense ones and O(1) edge checks.",
+      "uses": [
+        {
+          "where": "NetworkX",
+          "how": "NetworkX stores a graph as a dict of dicts, an adjacency list where each vertex maps to its neighbours and their edge data."
+        },
+        {
+          "where": "Package managers",
+          "how": "pip and npm treat packages as vertices and dependencies as directed edges, then traverse that graph to resolve versions and install order."
+        },
+        {
+          "where": "OpenStreetMap routing",
+          "how": "Routing engines convert OpenStreetMap ways into a sparse graph of intersections and road segments before running shortest-path search."
         }
       ],
       "prerequisiteNotes": {
