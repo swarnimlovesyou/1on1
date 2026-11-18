@@ -38,6 +38,7 @@ import {
   Gate,
 } from "../../components/Shared";
 import Experiment from "../../components/Experiment";
+import Journey from "./Journey";
 export function Analytics() {
   return (
     <Gate>
@@ -89,7 +90,7 @@ function AnalyticsContent() {
           <span>Problems solved here</span>
           <strong>
             {progress.solved.length}
-            <small> / 60</small>
+            <small> / {problems.data?.length ?? "…"}</small>
           </strong>
         </div>
         <div>
@@ -104,6 +105,7 @@ function AnalyticsContent() {
           <strong>{progress.notes.length}</strong>
         </div>
       </div>
+      <Journey />
       <section className="activity-section">
         <div className="section-heading">
           <h2>Showing up counts.</h2>
