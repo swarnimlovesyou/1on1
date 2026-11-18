@@ -11,19 +11,55 @@ type Quiz = { id: string; minutes: number; deadline: string; questions: Question
 type Review = { id: string; section: string; prompt: string; given: string; expected: string; correct: boolean; explanation: string };
 type Result = { score: number; total: number; late: boolean; sections: { section: string; score: number; total: number }[]; review: Review[] };
 
+const SAVED = "1on1-quiz";
+type Saved = { user: string; quiz: Quiz; answers: Record<string, string> };
+
+/** The quiz this learner was taking before a refresh, while its time has not run out. */
+function restore(user?: string): Saved | undefined {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(SAVED) ?? "null") as Saved | null;
+    if (saved && saved.user === user && new Date(saved.quiz.deadline).getTime() > Date.now()) return saved;
+  } catch {
+    // storage blocked or corrupt: start fresh
+  }
+  return undefined;
+}
+function persist(saved?: Saved) {
+  try {
+    if (saved) sessionStorage.setItem(SAVED, JSON.stringify(saved));
+    else sessionStorage.removeItem(SAVED);
+  } catch {
+    // a quiz still works without storage; it just won't survive a refresh
+  }
+}
+
 /** Timed quiz: aptitude, reasoning and CS fundamentals, one question at a time; graded on the server. */
 export default function QuizRunner() {
   const { user } = useApp();
   const autoSubmitted = useRef("");
   const [size, setSize] = useState(15);
   const [minutes, setMinutes] = useState(20);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [restored] = useState(() => restore(user?.id));
+  const [answers, setAnswers] = useState<Record<string, string>>(restored?.answers ?? {});
+  const [current, setCurrent] = useState<Quiz | undefined>(restored?.quiz);
   const [at, setAt] = useState(0);
   const [confirm, setConfirm] = useState(false);
   const [now, setNow] = useState(Date.now());
-  const start = useMutation({ mutationFn: () => api<Quiz>("/quizzes", { questions: size, minutes }), onSuccess: () => (setAnswers({}), setAt(0)) });
-  const submit = useMutation({ mutationFn: (id: string) => api<Result>(`/quizzes/${id}/submit`, { answers }) });
-  const quiz = start.data;
+  const start = useMutation({
+    mutationFn: () => api<Quiz>("/quizzes", { questions: size, minutes }),
+    onSuccess: (q) => (setAnswers({}), setAt(0), setCurrent(q)),
+  });
+  const submit = useMutation({ mutationFn: (id: string) => api<Result>(`/quizzes/${id}/submit`, { answers }), onSuccess: () => persist() });
+  const quiz = current;
+  useEffect(() => {
+    // the session can arrive after the first render; restore then
+    if (current || !user) return;
+    const saved = restore(user.id);
+    if (saved) (setCurrent(saved.quiz), setAnswers(saved.answers));
+  }, [user]);
+  useEffect(() => {
+    if (quiz && user && !submit.data) persist({ user: user.id, quiz, answers });
+  }, [quiz, answers, user, submit.data]);
   const left = quiz ? Math.max(0, Math.round((new Date(quiz.deadline).getTime() - now) / 1000)) : 0;
 
   useEffect(() => {
@@ -84,7 +120,7 @@ export default function QuizRunner() {
             </li>
           ))}
         </ol>
-        <button className="button primary" type="button" onClick={() => (submit.reset(), start.reset())}>
+        <button className="button primary" type="button" onClick={() => (submit.reset(), start.reset(), setCurrent(undefined), persist())}>
           Take another quiz
         </button>
       </section>
