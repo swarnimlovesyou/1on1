@@ -39,6 +39,90 @@ import {
   Gate,
 } from "../../components/Shared";
 import Experiment from "../../components/Experiment";
+type Suggestion = { source: "ai" | "rules"; title: string; topics: string[]; difficulty: string; perDay: number; reasons: string[]; note?: string };
+
+/** Asks the server to plan from the learner's record (with AI when it's set up), then builds the plan on approval. */
+function PlanAdvisor({ onBuild, building }: { onBuild: (s: Suggestion) => void; building: boolean }) {
+  const [goal, setGoal] = useState("placements"),
+    [weeks, setWeeks] = useState("4"),
+    [minutes, setMinutes] = useState("60");
+  const suggest = useMutation({
+    mutationFn: () => api<Suggestion>("/plans/suggest", { goal, weeks: Number(weeks), minutesPerDay: Number(minutes) }),
+  });
+  const s = suggest.data;
+  return (
+    <section className="plan-advisor">
+      <div className="plan-advisor-form">
+        <div>
+          <h2>
+            <Lightbulb size={20} aria-hidden="true" /> Plan it for me
+          </h2>
+          <p className="muted">From the checks you missed and the problems you've solved, sized to the time you have.</p>
+        </div>
+        <label>
+          Goal
+          <select value={goal} onChange={(e) => setGoal(e.target.value)}>
+            <option value="placements">Get placement-ready</option>
+            <option value="foundations">Build the foundations</option>
+          </select>
+        </label>
+        <label>
+          Weeks
+          <select value={weeks} onChange={(e) => setWeeks(e.target.value)}>
+            {[1, 2, 4, 6, 8, 12].map((w) => (
+              <option key={w} value={w}>
+                {w}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Time a day
+          <select value={minutes} onChange={(e) => setMinutes(e.target.value)}>
+            {[30, 60, 90, 120, 180].map((m) => (
+              <option key={m} value={m}>
+                {m < 60 ? m + " min" : m / 60 + (m === 60 ? " hour" : " hours")}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button className="button primary" type="button" disabled={suggest.isPending} onClick={() => suggest.mutate()}>
+          {suggest.isPending ? "Reading your record…" : "Suggest my plan"}
+        </button>
+      </div>
+      {suggest.error && <ErrorState error={suggest.error} />}
+      {s && (
+        <div className="plan-suggestion">
+          <div className="section-heading">
+            <div>
+              <span className="muted">{s.source === "ai" ? "Planned with AI from your record" : "Planned from your record"}</span>
+              <h3>{s.title}</h3>
+            </div>
+            <span className="chip">
+              {s.difficulty}, {s.perDay} a day
+            </span>
+          </div>
+          {s.note && <p className="muted">{s.note}</p>}
+          <ol className="advisor-topics">
+            {s.topics.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ol>
+          <ul className="advisor-reasons">
+            {s.reasons.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+          <button className="button primary" type="button" disabled={building} onClick={() => onBuild(s)}>
+            {building ? "Building…" : "Build this plan"}
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function Planner() {
   return (
     <Gate>
@@ -55,8 +139,8 @@ function PlanContent() {
     [title, setTitle] = useState("My next chapter"),
     [active, setActive] = useState<Plan>();
   const create = useMutation({
-    mutationFn: () =>
-      api<Plan>("/plans", { topics, difficulty, perDay, title }),
+    mutationFn: (choice?: { topics: string[]; difficulty: string; perDay: number; title: string }) =>
+      api<Plan>("/plans", choice ?? { topics, difficulty, perDay, title }),
     onSuccess: (p) => {
       setActive(p);
       reload();
@@ -72,6 +156,16 @@ function PlanContent() {
         description="Choose what you want to understand. We’ll connect it to a purposeful set of problems."
       />
       <ReviewsDue />
+      <PlanAdvisor
+        building={create.isPending}
+        onBuild={(s) => {
+          setTopics(s.topics);
+          setDifficulty(s.difficulty);
+          setPerDay(s.perDay);
+          setTitle(s.title);
+          create.mutate(s);
+        }}
+      />
       <div className="planner-layout">
         <section className="plan-builder">
           <h2>What’s your next chapter?</h2>
@@ -121,7 +215,7 @@ function PlanContent() {
           <button
             className="button primary full"
             disabled={!topics.length || create.isPending}
-            onClick={() => create.mutate()}
+            onClick={() => create.mutate(undefined)}
           >
             {create.isPending
               ? "Finding the connections…"

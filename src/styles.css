@@ -8323,3 +8323,65 @@ kbd {
     font-size: 11px;
   }
 }
+
+/* ---- Plan advisor ---- */
+.plan-advisor {
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.plan-advisor-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+}
+.plan-advisor-form > div {
+  flex: 1 1 260px;
+}
+.plan-advisor-form h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+}
+.plan-advisor-form p {
+  margin: 4px 0 0;
+}
+.plan-suggestion {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.plan-suggestion h3 {
+  margin: 2px 0 0;
+}
+.advisor-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: topic;
+}
+.advisor-topics li {
+  padding: 4px 10px;
+  border: 1px solid var(--teal);
+  border-radius: 999px;
+  background: var(--teal-row);
+  font-size: 13px;
+  counter-increment: topic;
+}
+.advisor-topics li::before {
+  content: counter(topic) ". ";
+  color: var(--accent);
+}
+.advisor-reasons {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  color: var(--muted);
+}
