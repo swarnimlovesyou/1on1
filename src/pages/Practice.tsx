@@ -43,7 +43,7 @@ export const starters: Record<string, string> = {
   cpp: "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    // Read the problem input and write your solution here.\n    return 0;\n}\n",
 };
 const PRACTICE_TABS: [string, string][] = [
-  ["problems", "Our problems"],
+  ["problems", "Problems"],
   ["bank", "Question bank"],
   ["sheets", "Sheets"],
   ["companies", "Companies"],
@@ -56,11 +56,20 @@ export function Practice() {
     { progress } = useApp(),
     [search, setSearch] = useState(""),
     [difficulty, setDifficulty] = useState("All"),
-    [topic, setTopic] = useState("All topics"),
+    topic = params.get("topic") ?? "All topics",
+    setTopic = (t: string) => {
+      const next = new URLSearchParams(window.location.search);
+      if (t === "All topics") next.delete("topic");
+      else next.set("topic", t);
+      setParams(next, { replace: true });
+    },
     [status, setStatus] = useState("All problems");
   if (q.isLoading) return <Loading />;
   if (q.error) return <ErrorState error={q.error} />;
-  const topics = ["All topics", ...new Set(q.data?.flatMap((p) => p.topics))];
+  // every topic is visible at once, most common first, with how many problems it has
+  const topicCounts = new Map<string, number>();
+  for (const p of q.data ?? []) for (const t of p.topics) topicCounts.set(t, (topicCounts.get(t) ?? 0) + 1);
+  const topics = ["All topics", ...[...topicCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => t)];
   const rows = q.data?.filter(
     (p) =>
       p.title.toLowerCase().includes(search.toLowerCase()) &&
@@ -120,6 +129,14 @@ export function Practice() {
           Build my plan <ArrowRight size={16} />
         </Link>
       </div>
+      <div className="topic-chips" role="group" aria-label="Problem topic">
+        {topics.map((t) => (
+          <button key={t} type="button" className={topic === t ? "active" : ""} aria-pressed={topic === t} onClick={() => setTopic(t)}>
+            {t}
+            <span>{t === "All topics" ? q.data?.length ?? 0 : topicCounts.get(t)}</span>
+          </button>
+        ))}
+      </div>
       <div className="practice-filters">
         <div className="search-field">
           <MagnifyingGlass size={17} />
@@ -136,15 +153,6 @@ export function Practice() {
           onChange={(e) => setDifficulty(e.target.value)}
         >
           {["All", "Easy", "Medium", "Hard"].map((x) => (
-            <option key={x}>{x}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Problem topic"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-        >
-          {topics.map((x) => (
             <option key={x}>{x}</option>
           ))}
         </select>

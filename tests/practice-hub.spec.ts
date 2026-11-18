@@ -109,3 +109,16 @@ test("the bank sorts hardest first, keeps the sort in the URL, and a filter pick
   await expect(page).toHaveURL(/source=Codeforces/);
   await expect(page).toHaveURL(/sort=hardest/);
 });
+
+test("problems show every topic as a chip with its count, and a chip filters in the URL", async ({ page }) => {
+  await page.goto("/practice");
+  await expect(page.getByRole("tab", { name: "Problems", exact: true })).toHaveAttribute("aria-selected", "true");
+  const chips = page.locator(".topic-chips button");
+  expect(await chips.count()).toBeGreaterThan(8);
+  await expect(chips.first()).toContainText(/All topics\s*60/);
+  const arrays = chips.filter({ hasText: /^Arrays/ });
+  const count = Number((await arrays.innerText()).match(/\d+/)![0]);
+  await arrays.click();
+  await expect(page).toHaveURL(/topic=Arrays/);
+  await expect(page.locator(".problem-table tbody tr")).toHaveCount(count);
+});
