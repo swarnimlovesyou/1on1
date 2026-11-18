@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-/** Reads the paper (light) and night (dark) token blocks straight from the stylesheet. */
+/** Reads the single light token block (the datalis system) straight from the stylesheet. */
 const css: string = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
 function block(selector: string) {
   const start = css.indexOf(selector + " {");
@@ -22,10 +22,7 @@ function contrast(a: string, b: string) {
 }
 const families = ["foundations", "searching", "linear", "recursion", "trees", "graphs"];
 
-describe.each([
-  ["paper", ":root", "#FBFAF7"],
-  ["night", ':root[data-theme="dark"]', "#17181B"],
-])("%s theme", (_, selector, page) => {
+describe.each([["datalis", ":root", "#F4F6F5"]])("%s theme", (_, selector, page) => {
   const t = block(selector);
   it("uses the designed page colour", () => {
     expect(t["--bg"]?.toUpperCase()).toBe(page);
@@ -60,10 +57,7 @@ function rule(selector: string) {
   return css.slice(start, css.indexOf("}", start));
 }
 
-describe.each([
-  ["paper", ":root"],
-  ["night", ':root[data-theme="dark"]'],
-])("%s state colours", (_, selector) => {
+describe.each([["datalis", ":root"]])("%s state colours", (_, selector) => {
   it("stay distinguishable from every family colour, so a status never reads as a subject", () => {
     const t = block(selector);
     for (const state of ["--success", "--warning", "--error"])
@@ -72,7 +66,12 @@ describe.each([
   });
 });
 
-it("draws primary buttons and links in ink, keeping the ink-blue for focus and state", () => {
-  expect(rule(".primary")).toMatch(/background:\s*var\(--ink\)/);
+it("draws primary buttons in teal with ink text, the datalis way, and links in ink", () => {
+  expect(rule(".primary")).toMatch(/background:\s*var\(--teal\)/);
+  expect(rule(".primary")).toMatch(/color:\s*var\(--ink\)/);
   expect(rule(".text-link")).toMatch(/color:\s*var\(--ink\)/);
+});
+
+it("has no dark theme left to drift out of date", () => {
+  expect(css).not.toMatch(/data-theme="dark"|prefers-color-scheme:\s*dark/);
 });

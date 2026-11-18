@@ -46,7 +46,7 @@ export function Settings() {
   );
 }
 function SettingsContent() {
-  const { user, theme, setTheme, progress, reload, notify } = useApp(),
+  const { user, progress, reload, notify } = useApp(),
     qc = useQueryClient();
   const [username, setUsername] = useState(""),
     [goal, setGoal] = useState(progress.goal ?? "Understand the fundamentals");
@@ -125,29 +125,6 @@ function SettingsContent() {
           >
             Save preference <Check size={16} />
           </button>
-        </section>
-        <section>
-          <h2>Set the atmosphere</h2>
-          <p className="muted">
-            Choose the theme that feels right for your study session.
-          </p>
-          <div className="theme-options">
-            {["light", "dark", "system"].map((t) => (
-              <button
-                className={theme === t ? "active" : ""}
-                key={t}
-                onClick={() => setTheme(t)}
-              >
-                <span className={"theme-preview " + t}>
-                  <i />
-                  <i />
-                  <i />
-                </span>
-                {t[0].toUpperCase() + t.slice(1)}
-                {theme === t && <CheckCircle size={16} />}
-              </button>
-            ))}
-          </div>
         </section>
         <section>
           <div className="section-heading">

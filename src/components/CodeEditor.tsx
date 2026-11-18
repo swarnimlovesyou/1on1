@@ -5,7 +5,6 @@ import "monaco-editor/esm/vs/basic-languages/java/java.contribution";
 import "monaco-editor/esm/vs/basic-languages/python/python.contribution";
 import "monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution";
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-import { useApp } from "../context";
 import { editorTheme } from "./editorTheme";
 self.MonacoEnvironment = { getWorker: () => new EditorWorker() };
 loader.config({ monaco });
@@ -18,11 +17,7 @@ export default function CodeEditor({
   onChange: (s: string) => void;
   language: string;
 }) {
-  const { theme } = useApp();
-  const name = editorTheme(
-    theme,
-    matchMedia("(prefers-color-scheme: dark)").matches,
-  );
+  const name = editorTheme("light", false); // the app is light only
   useEffect(() => {
     // the page's CSS variables don't reach Monaco, so the paper and night palettes are repeated here
     monaco.editor.defineTheme("1on1-paper", {

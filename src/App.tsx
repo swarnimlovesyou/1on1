@@ -24,8 +24,6 @@ import {
   ListChecks,
   Trophy,
   ChartLine,
-  Sun,
-  Moon,
   SidebarSimple,
   SignOut,
   ArrowRight,
@@ -137,19 +135,11 @@ export default function App() {
   const progress = { ...emptyProgress, ...pq.data };
   const [notice, setNotice] = useState(""),
     [mobile, setMobile] = useState(false);
-  const [theme, setTheme] = useState(
-    () => localStorage.getItem("1on1-theme") ?? "system",
-  );
+  // light only, like datalis; clear any older saved choice
   useEffect(() => {
-    const media = matchMedia("(prefers-color-scheme: dark)");
-    const apply = () =>
-      (document.documentElement.dataset.theme =
-        theme === "system" ? (media.matches ? "dark" : "light") : theme);
-    apply();
-    media.addEventListener("change", apply);
-    localStorage.setItem("1on1-theme", theme);
-    return () => media.removeEventListener("change", apply);
-  }, [theme]);
+    document.documentElement.dataset.theme = "light";
+    localStorage.removeItem("1on1-theme");
+  }, []);
   useEffect(() => {
     if (!notice) return;
     const t = setTimeout(() => setNotice(""), 4500);
@@ -239,8 +229,6 @@ export default function App() {
         progressReady: pq.isSuccess || !user,
         notify: setNotice,
         reload,
-        theme,
-        setTheme,
       }}
     >
       {location.pathname === "/" ? (
@@ -309,25 +297,6 @@ export default function App() {
                 <kbd>
                   <Command size={11} /> K
                 </kbd>
-              </button>
-              <button
-                className="icon-btn"
-                aria-label="Toggle color theme"
-                onClick={() =>
-                  setTheme(
-                    document.documentElement.dataset.theme === "dark"
-                      ? "light"
-                      : "dark",
-                  )
-                }
-              >
-                {theme === "dark" ||
-                (theme === "system" &&
-                  document.documentElement.dataset.theme === "dark") ? (
-                  <Sun size={20} />
-                ) : (
-                  <Moon size={20} />
-                )}
               </button>
               {user ? (
                 <button

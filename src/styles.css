@@ -1,25 +1,25 @@
 @import "tailwindcss";
 @theme {
-  --font-sans: "Inter Tight", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
-  --font-text: "Source Serif 4", Georgia, serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-text: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 :root {
   font-family: var(--font-sans);
-  color: #1F2430;
-  background: #FBFAF7;
+  color: #0e1b19;
+  background: #f4f6f5;
   font-synthesis: none;
   font-weight: 400;
   font-size: 14px;
-  --bg: #FBFAF7;
+  --bg: #f4f6f5;
   --surface: #FFFFFF;
-  --surface-soft: #F1EEE6;
-  --ink: #1F2430;
-  --muted: #5E6370;
-  --line: #E7E3DA;
-  --accent: #2F4A6E;
-  --accent-wash: #E8EDF3;
+  --surface-soft: #eef3f1;
+  --ink: #0e1b19;
+  --muted: #5e6e6a;
+  --line: #e3e9e6;
+  --accent: #04786c;
+  --accent-wash: #05b8a51f;
   --success: #40761A;
   --warning: #7D6A00;
   --error: #A8325A;
@@ -35,40 +35,21 @@
   --family-trees-wash: #F5E7E0;
   --family-graphs: #2F55A4;
   --family-graphs-wash: #E6ECF7;
-  --radius-card: 10px;
-  --radius-control: 6px;
+  --radius-card: 12px;
+  --radius-control: 9px;
   --trace-cell-width: 58px;
-  --shadow: 0 12px 32px #1F243014;
+  --shadow: 0 1px 2px #0e1b190d, 0 12px 32px #0e1b190f;
+  --line-strong: #d2dad7;
+  --subtle: #9aa7a3;
+  --teal: #05b8a5;
+  --teal-hover: #04a594;
+  --teal-row: #05b8a514;
+  --aqua: #a5e9de;
+  --obsidian: #0c1715;
+  --charcoal: #13211f;
+  --slate: #2c3c39;
+  --focus-ring: 0 0 0 2px #05b8a5d9;
   color-scheme: light;
-}
-:root[data-theme="dark"] {
-  --bg: #17181B;
-  --surface: #1E2024;
-  --surface-soft: #25282D;
-  --ink: #ECE8DF;
-  --muted: #A39F96;
-  --line: #33363C;
-  --accent: #A9BEDC;
-  --accent-wash: #232B37;
-  --success: #9CCB6B;
-  --warning: #E8CF5C;
-  --error: #F28FAE;
-  --family-foundations: #9DB4CC;
-  --family-foundations-wash: #232A33;
-  --family-searching: #7CC2B0;
-  --family-searching-wash: #1F2B28;
-  --family-linear: #E0B465;
-  --family-linear-wash: #2D2618;
-  --family-recursion: #C79BD0;
-  --family-recursion-wash: #2A2230;
-  --family-trees: #E59A74;
-  --family-trees-wash: #2E221C;
-  --family-graphs: #8EAEF0;
-  --family-graphs-wash: #1F2638;
-  --shadow: 0 12px 32px #0006;
-  color-scheme: dark;
-  background: var(--bg);
-  color: var(--ink);
 }
 * {
   box-sizing: border-box;
@@ -259,11 +240,8 @@ section[id] {
   transform: translateY(-1px);
 }
 .primary {
-  background: var(--ink);
-  color: var(--surface);
-}
-:root[data-theme="dark"] .primary {
-  color: var(--bg);
+  background: var(--teal);
+  color: var(--ink);
 }
 .primary:hover:not(:disabled) {
   filter: brightness(0.96);
@@ -6735,25 +6713,6 @@ button.global-search:hover {
   --frame-light: #2A221C;
   --frame-edge: #6B4A32;
 }
-:root[data-theme="dark"] {
-  --m-sky-top: #070D1A;
-  --m-sky-mid: #142340;
-  --m-sky-low: #233759;
-  --m-sun: #9FB6E0;
-  --m-cloud: #3A4C6E;
-  --m-far: #23314D;
-  --m-snow: #8EA2C6;
-  --m-mid: #1A263D;
-  --m-hill: #18291F;
-  --m-grass-top: #1E3326;
-  --m-grass-low: #0F1B14;
-  --m-ink: #F2EFE8;
-  --m-glass: rgba(20, 30, 50, 0.45);
-  --m-glass-line: rgba(255, 255, 255, 0.16);
-  --frame-dark: #07090D;
-  --frame-light: #151A22;
-  --frame-edge: #2F3A4C;
-}
 .meadow-hero {
   position: relative;
   isolation: isolate;
@@ -6793,16 +6752,6 @@ button.global-search:hover {
 .meadow-first {
   text-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 2px rgba(255, 255, 255, 0.9);
 }
-:root[data-theme="dark"] .meadow-sub,
-:root[data-theme="dark"] .meadow-first {
-  text-shadow: 0 0 14px rgba(5, 10, 20, 0.95), 0 0 2px rgba(5, 10, 20, 0.9);
-}
-:root[data-theme="dark"] .meadow-photo {
-  filter: brightness(0.42) saturate(0.75) hue-rotate(-12deg);
-}
-:root[data-theme="dark"] .meadow-wash {
-  fill: rgba(8, 14, 30, 0.35);
-}
 .meadow-credit {
   position: absolute;
   right: 22px;
@@ -6821,15 +6770,6 @@ button.global-search:hover {
 .meadow-stars circle {
   fill: #FFFFFF;
   opacity: 0;
-}
-:root[data-theme="dark"] .meadow-stars circle {
-  opacity: 0.7;
-}
-:root[data-theme="dark"] .meadow-moon {
-  fill: #E8EEF9;
-}
-:root[data-theme="dark"] .meadow-clouds ellipse {
-  opacity: 0.5;
 }
 .meadow-nav {
   display: grid;
@@ -7088,9 +7028,6 @@ button.global-search:hover {
   --lab-series: #2a78d6;
   --lab-reference: #8a8983;
 }
-:root[data-theme="dark"] {
-  --lab-series: #3987e5;
-}
 .lab-figure {
   margin: 8px 0 0;
 }
@@ -7216,4 +7153,17 @@ button.global-search:hover {
 .sheet-row .asked-at {
   flex-basis: 100%;
   margin: 0 0 0 32px;
+}
+
+/* ---- datalis focus ring ---- */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+progress {
+  accent-color: var(--teal);
 }
