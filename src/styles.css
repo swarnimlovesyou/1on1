@@ -7308,3 +7308,35 @@ progress {
 kbd {
   white-space: nowrap;
 }
+
+/* ---- "I was asked this" ---- */
+.report-asked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.report-asked input[type="text"],
+.report-asked > input {
+  width: 160px;
+}
+.report-asked fieldset {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.report-asked fieldset label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+}
+.report-asked p {
+  flex-basis: 100%;
+  margin: 0;
+}

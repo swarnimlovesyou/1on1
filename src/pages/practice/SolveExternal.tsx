@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowUpRight, Play } from "@phosphor-icons/react";
 import { api } from "../../api";
 import type { BankItem, Submission } from "../../types";
 import CompanyTags from "../../components/CompanyTags";
+import ReportAsked from "../../components/ReportAsked";
 import { Loading, ErrorState } from "../../components/Shared";
 import FamilyMark from "../../components/FamilyMark";
 import { familyOfProblem } from "../../families";
@@ -89,6 +90,7 @@ export default function SolveExternal() {
             ))}
           </div>
           <CompanyTags companies={q.companies} limit={4} />
+          <ReportAsked questionId={q.id} />
         </div>
       </div>
       <p className="solve-statement">
