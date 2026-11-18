@@ -7981,3 +7981,85 @@ kbd {
   border-color: var(--teal);
   background: var(--teal-row);
 }
+
+/* ---- Tables in the datalis style: bordered card, quiet header, teal hover ---- */
+.table-scroll {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow-x: auto;
+}
+.problem-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.problem-table thead th {
+  position: sticky;
+  top: 0;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+}
+.problem-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.problem-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.problem-table tbody tr:hover {
+  background: var(--teal-row);
+}
+.bank-row .solve-here {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border: 1px solid #05b8a560;
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+  text-decoration: none;
+}
+.bank-row .solve-here:hover {
+  background: var(--teal-row);
+}
+.bank-source {
+  color: var(--slate);
+  font-size: 13px;
+}
+.difficulty {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.difficulty.easy {
+  background: #e6f6ef;
+  color: #18794e;
+}
+.difficulty.medium {
+  background: #fff3df;
+  color: #8a5a00;
+}
+.difficulty.hard {
+  background: #fde8ea;
+  color: #b42335;
+}
+.practice-filters {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.bank-row td:first-child {
+  min-width: 280px;
+}
+.question-bank .practice-filters .search-field {
+  flex: 1 1 240px;
+}
