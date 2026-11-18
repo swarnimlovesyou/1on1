@@ -66,7 +66,7 @@ Initial usage limits are 30 AI requests and 50 execution actions per user per UT
 - Public LeetCode profile connector with cached snapshots, recent accepted problems, manual refresh cooldown, six-hour scheduled refresh, and explicit stale/unavailable states.
 - Administrator content editing, JSON import/export, draft/publication controls, and usage overview.
 - Algorithm evidence view with seeded comparative benchmarks and JSON export.
-- Responsive light/dark/system themes, keyboard navigation, focus states, text alternatives, and reduced-motion styles.
+- One responsive light theme (datalis visual language), single-key shortcuts, keyboard navigation, focus states, text alternatives, and reduced-motion styles.
 
 ## Algorithms assessed
 

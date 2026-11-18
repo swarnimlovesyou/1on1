@@ -55,7 +55,10 @@ All are in `backend/src/main/java/com/oneonone/` unless another path is given.
 | `BankService` | Question bank search, filtering, sorting, company lists | Read-only JSON resource held in memory |
 | `SheetController` | Blind 75 / NeetCode 150 sheets, ticks, top reporting companies per item | `sheets.json`; ticks in the database |
 | `ContestService` | Upcoming contests from two external sources with caching | In-memory cache per source |
-| `LabService` | Step counts of real traces at four sizes; growth-curve fit | Stateless; uses `TraceEngine` |
+| `BoardTraces` | Step-by-step traces for the 16 board concepts, drawn by one generic renderer | Stateless; bounded teaching inputs |
+| `QuizService` | Quiz-style mock OA: mixed sections, timed, graded on the server | Database |
+| `PlanAdvisor` | Plan suggestions from the learner's record; Gemini when configured, validated, with a rule fallback | Database; Gemini at the boundary |
+| `StudyCircles` | Weekly circle problem and member weekly activity | Stateless |
 | `DrillService` | Seeded aptitude and reasoning question generators and grading | Stateless; logs one learning event per topic per day |
 | `PrepController` | Prep guides, server-graded quizzes and puzzle answer checks | Content from `content.json` |
 | `MockService` | Timed mock assessments scored from official accepted runs | Database |
@@ -140,13 +143,9 @@ On a request, sources that are due (one hour after a success, ten minutes after 
 
 The AtCoder parser depends on the page's markup; if AtCoder changes it, the source reports `ok: false` rather than showing wrong data. LeetCode and CodeChef schedules are not read; the page links to them.
 
-### Growth-curve fitting (`LabService.java`, `LabTest`)
+### Board traces (`BoardTraces.java`, `BoardTracesTest`)
 
-For each supported algorithm (binary search, two pointers, sliding window, merge sort, quick sort) the lab builds inputs of n = 4, 8, 16 and 32 distinct values (the trace engine's teaching limit is 32), runs the real `TraceEngine` on three seeded random inputs per size (seed `n·1009 + run`), and averages the number of trace steps. Searches use an absent target so they do their full work.
-
-Each reference curve f ∈ {log₂ n, n, n log₂ n, n²} is scaled by `steps(32) / f(32)`, so every curve meets the measurement at n = 32. The lab reports the curve with the smallest sum of squared log errors, Σ (ln steps(n) − ln scaled f(n))². Log error compares ratios, so small sizes count as much as large ones. `LabTest` checks that each algorithm's closest curve is its textbook class, that step counts never shrink, and that results are repeatable.
-
-This is a one-parameter fit on four points, anchored at the largest size. Constant setup steps in a trace can pull small sizes away from the curve. The result illustrates growth on these inputs; it is not a proof of complexity and says nothing about wall-clock time.
+Each of the 16 board concepts runs the real algorithm in Java and records, at every step, the panels to draw: arrays with per-cell marks, a stack or deque, text with the pattern's offset, a table with the active cell and the cells it read, or a graph with edge and vertex states. The client draws panels as sent, so a new concept needs a trace but no new renderer. Inputs are bounded to teaching sizes (8 vertices, 16 edges, 12 values, 24-character text, capacity 12). `BoardTracesTest` checks every default input ends on the textbook answer, that a cycle and a negative cycle are reported, and that out-of-range inputs are rejected.
 
 ### Question bank filtering and sorting (`BankService.java`, `BankTest`)
 
@@ -189,7 +188,7 @@ Other content: the 60 problems, 33 lessons and Prep guides are original. The cur
 
 ## 6. Visualization, AI and judging
 
-The trace engine accepts a supported algorithm, bounded integer input, a target/window/rank, and optional words. It produces a versioned trace with independent state snapshots, stable entity IDs, variable values, active positions, pseudocode line references and explanatory text. A step's array is copied so later mutations cannot rewrite previous states. The frontend renders these records rather than executing an assessed algorithm in browser libraries. The Animations gallery (`src/pages/Animations.tsx`) and the performance lab reuse the same traces; the gallery requests a trace only when the learner presses play.
+The trace engine accepts a supported algorithm, bounded integer input, a target/window/rank, and optional words. It produces a versioned trace with independent state snapshots, stable entity IDs, variable values, active positions, pseudocode line references and explanatory text. A step's array is copied so later mutations cannot rewrite previous states. The frontend renders these records rather than executing an assessed algorithm in browser libraries. The Animations gallery (`src/pages/Animations.tsx`) reuses the same traces; the gallery requests a trace only when the learner presses play.
 
 Interactive sizes are deliberately bounded for interpretability (at most 32 values). Large-scale performance evidence uses separate benchmark datasets. Recursion and DP have explicit scalar limits. Invalid input receives a useful message. Graph scenes derive a small directed graph from the numeric input and disclose that construction. Tracing of a learner's own source code is not built (section 9).
 
@@ -244,7 +243,6 @@ Set cover is compared with accepting the first candidate that adds any uncovered
 
 In-process timings exclude HTTP, database and network latency and are not a substitute for a calibrated JMH study. JVM compilation, garbage collection and machine contention introduce noise. Repeat on the demonstration machine and retain raw exports.
 
-The performance lab (section 4) is a different kind of evidence: it counts trace steps on inputs of at most 32 values, for teaching. It does not replace these timed benchmarks.
 
 The [validation record](VALIDATION.md) contains the measured table and links to the raw exports. At 100,000 records in that run, Quickselect averaged 6.21938 ms against 22.70114 ms for sorting; indexed prefix retrieval averaged 0.06134 ms against a 14.49820 ms scan with construction excluded. On 10,000 practice candidates, greedy coverage selected eight questions instead of fifteen but took 294.26538 ms versus 0.09720 ms. These observations support different conclusions: indexing/selection helped these queries, while set cover improved plan compactness at an additional computational cost. They do not establish universal speedups.
 

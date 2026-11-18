@@ -118,12 +118,9 @@ These tracks cover general topics. They make no claim to match any particular ex
 
 - Planned: step through the learner's real executed Python with line highlighting, variables, collections, references and mutations; capped traces with explicit truncation and unsupported-feature reports.
 
-### Visual Big-O profiler (performance lab)
+### Visual Big-O profiler
 
-**Status: partial.** The performance lab (`/learn/lab`, `LabService`, `pages/LabPage.tsx`) is built for trace step counts. Profiling the learner's own code (measured runtime) is **not built**, because it also needs the runner.
-
-- For binary search, two pointers, sliding window, merge sort and quick sort, the lab counts the steps of the real Java trace at n = 4, 8, 16 and 32 (averaged over three seeded random inputs) and plots them against log n, n, n log n and n² curves, naming the closest.
-- It shows operation counts, not wall-clock time. Four small sizes illustrate growth; they do not prove an algorithm's Big-O.
+**Status: removed.** The performance lab that counted trace steps at four input sizes was removed in the November 2026 revamp: it showed little a learner could act on. Profiling the learner's own code still needs the isolated runner and is **not built**.
 
 ## 8. Contextual AI companion — "The Blob"
 
@@ -149,7 +146,7 @@ These tracks cover general topics. They make no claim to match any particular ex
 
 **Status: partial, in progress.** A read-only MCP adapter was added on 17 November 2026 (`mcp/server.mjs`, stdio transport). It calls the public Java API and owns no logic. Its tests (`mcp/server.test.mjs`) run against a stub API; a check in Claude Desktop against a running 1on1 is not recorded here. Codex and ChatGPT were not tried.
 
-- Built: eight public tools: `search_library`, `get_lesson` (no answers), `run_trace`, `search_questions`, `upcoming_contests`, `measure_growth`, `get_drill` and `check_drill`. Setup is in `mcp/README.md`.
+- Built: seven public tools: `search_library`, `get_lesson` (no answers), `run_trace`, `search_questions`, `upcoming_contests`, `get_drill` and `check_drill`. Setup is in `mcp/README.md`.
 - Not built: pairing with a signed-in study session, so no tool can read or change a learner's account, notes, dry runs or review items; browser updates from the assistant; the **Concept Coach**, **Exam Practice** and **Debugging Guide** skills.
 - Planned order: Claude Desktop first, then ChatGPT and Codex against their actual connection requirements.
 - External-assistant mode runs inside Claude/ChatGPT/Codex. The website's Blob keeps its own model integration.
@@ -172,12 +169,26 @@ References: [Claude local MCP](https://support.claude.com/en/articles/10949351-g
 
 **Status: built.**
 
-- Paper and night themes; Fraunces, Source Serif 4 and Inter Tight; six algorithm-family colours used across the library, map, lesson and problem headers and trace highlights.
-- **Landing page:** a framed photo hero with the photographer's Unsplash credit.
-- **Grouped sidebar:** Learn (Home, Explore concepts, Animations, Performance lab), Practise (Practice, Sheets, Contests, Prep) and Your work (plan, notebook, progress, study together).
+- **One light theme** in the datalis visual language: Geist and Geist Mono, a pale green-grey page, white cards, ink text and a teal accent. The light/dark toggle was removed; a saved dark preference is ignored.
+- **Landing page:** a live sliding-window animation framed as a browser window, a working percentages drill, live contests, and an interactive keyboard-shortcut grid.
+- **Grouped sidebar with keys:** Learn (Home, Explore concepts, Animations), Practise (Practice, Sheets, Contests, Prep) and Your work (plan, notebook, progress, study together). Single-key shortcuts (H, L, A, P, S, C, R, N, G; `?` lists them) are ignored while typing.
 - **Command palette:** Ctrl+K (⌘+K on macOS) jumps to any page, lesson, Prep track or guide, or sheet (`components/CommandPalette.tsx`).
 - Loading, empty, unavailable and error states; keyboard access, reduced motion and phone layouts.
 - No XP/level economy, compulsory unlocks or constant mascot movement.
+
+## 13. November 2026 revamp
+
+**Status: built.**
+
+- **Home dashboard:** the next step from the learning map, reviews due, streak, this week's count, an 84-day activity grid, live contests with countdowns, and questions other learners recently reported being asked ("I was asked this", `ReportController`).
+- **Lesson flow:** what it is, why it matters, see it in action (animation with a follow-along transcript), the logic, its code, where it is used, how it connects (before and after concepts), then the check and practice.
+- **Explore concepts:** family, difficulty and status filters kept in the URL; learning paths as a progress timeline with the next lesson marked; animations gallery with family filters and search.
+- **Trace board:** 16 new concepts (union-find, topological sort, Kruskal, Bellman-Ford, Floyd-Warshall, segment and Fenwick trees, interval scheduling, bit manipulation, KMP, Rabin-Karp, monotonic stack and queue, 0/1 knapsack, LCS, matrix-chain interval DP) traced step by step in Java (`BoardTraces`) and drawn by one generic renderer (`BoardModel.tsx`): arrays, stacks, text with a sliding pattern, DP tables with the cells each value reads, and graphs.
+- **Practice:** topic chips with counts; a quiz-style mock OA (15 or 30 aptitude, reasoning and CS questions, timed, graded on the server with a per-section score and review) beside the coding mock.
+- **Prep guides:** Notes, Quiz and Sources tabs; free references checked to resolve; "Save as PDF" print layout; a per-track handbook of every guide's notes.
+- **Plan it for me:** suggests topics, pace and difficulty from missed checks and solved problems; Gemini writes it when a key is set, constrained to real topics and validated, with a fixed-rule fallback (`PlanAdvisor`).
+- **Progress:** where you've been (evidence states across concepts, families) and where you're heading (next step, the concepts now unlocked, the plan's finishing date and overdue tasks).
+- **Study together:** a weekly circle problem (one the fewest members have solved, fixed for the ISO week) and member cards with this week's activity.
 
 ## Delivery boundaries and definition of completion
 

@@ -7,7 +7,7 @@
 - Run `npm run dev` (Vite on port 5173, API on 8080). Open `http://localhost:5173` in a fresh window.
 - Create a student account in advance and use it for a few real actions (a lesson, a drill), so the progress page has activity. Do not seed fake activity.
 - The machine needs internet for the contests page. If a source is down, the page says so; that is part of the demo.
-- Keep a second tab open on `/learn/lab` in case the network is slow.
+- Keep a second tab open on `/learn/animations` in case the network is slow.
 
 ## Ten-to-twelve-minute flow
 
@@ -33,11 +33,11 @@ Times are cumulative. "Click" is what to do; "Say" is one or two lines.
 - **Say:** "Answers are graded on the server; the browser never receives the answer key. The dry run is checked against the real trace step, and the first wrong field is named."
 - **Say:** "A miss here schedules a review for tomorrow; successes return after 1, 3 and 7 days."
 
-### 4. Performance lab (3:45–4:45)
+### 4. A new concept on the trace board (3:45–4:45)
 
-- **Click:** sidebar → Performance lab. Choose Binary search, then Merge sort.
-- **Say:** "The lab runs the real trace on random inputs of 4, 8, 16 and 32 values and counts its steps. Binary search follows log n, merge sort n log n."
-- **Say:** "These are step counts of our own traces at small sizes, not wall-clock timing and not a proof of Big-O. Profiling your own code needs the isolated runner, which is not available here."
+- **Click:** Explore concepts → 0/1 Knapsack → See it in action. Step through the table.
+- **Say:** "Each cell names the two cells it read: skip the item, or take it and look up the remaining capacity. The trace is computed in Java; the page only draws it."
+- **Click:** change the capacity and press Update experiment.
 
 ### 5. Practice: sheets, bank, solve here (4:45–7:15)
 
