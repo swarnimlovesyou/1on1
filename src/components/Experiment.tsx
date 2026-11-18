@@ -486,7 +486,8 @@ export default function Experiment({
             <ol>
               {trace?.steps.map((item) => (
                 <li key={item.id}>
-                  {item.text} Values: {item.array.join(", ")}.
+                  {item.text}
+                  {item.array.length > 0 && ` Values: ${item.array.join(", ")}.`}
                 </li>
               ))}
             </ol>

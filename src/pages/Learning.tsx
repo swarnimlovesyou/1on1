@@ -404,17 +404,13 @@ export function NotebookPage() {
             {label}
           </a>
         ))}
-        <div className="chapter-bottom">
-          <span>Space to be curious.</span>
-          <p>You can change the input, break an assumption, and start again.</p>
-        </div>
       </aside>
       <article className="study-notebook has-family" style={familyStyle(familyOfLesson(l))}>
         <FamilyMark family={familyOfLesson(l)} label />
         <div className="notebook-breadcrumb">
-          <span>{l.topics[0]}</span>
+          <Link to="/learn">Explore concepts</Link>
           <ArrowRight size={13} />
-          {l.subtitle}
+          <span>{FAMILIES[familyOfLesson(l)].label}</span>
           <Bookmark id={l.id} />
         </div>
         <h1 className="display">{l.title}</h1>
@@ -426,184 +422,183 @@ export function NotebookPage() {
           <span>{l.difficulty}</span>
           <span>Notebook {String(l.order).padStart(2, "0")}</span>
         </div>
-        <section id="idea">
-          <h2>The idea</h2>
-          <p className="lesson-prose">{l.body}</p>
-          {l.teaching && (
-            <>
-              <h3>What you will learn</h3>
-              <ul>
-                {l.teaching.objectives.map((objective) => (
-                  <li key={objective}>{objective}</li>
-                ))}
-              </ul>
-              {!!l.teaching.prerequisites.length && l.prerequisiteNotes ? (
-                <>
-                  <h3>Recommended first</h3>
-                  <ul className="prerequisite-notes">
-                    {l.teaching.prerequisites.map((cid) => {
-                      const concept = curriculum.data?.concepts.find(
-                        (c) => c.id === cid,
-                      );
-                      return (
-                        <li key={cid}>
-                          {concept ? (
-                            <Link to={"/learn/" + concept.lessonIds[0]}>
-                              {concept.title}
-                            </Link>
-                          ) : (
-                            cid.replace("concept-", "").replaceAll("-", " ")
-                          )}
-                          {l.prerequisiteNotes?.[cid] && (
-                            <span>: {l.prerequisiteNotes[cid]}</span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </>
-              ) : !!l.teaching.prerequisites.length && (
-                <p>
-                  Recommended first:{" "}
-                  {l.teaching.prerequisites.map((cid, index) => {
-                    const concept = curriculum.data?.concepts.find(
-                      (c) => c.id === cid,
-                    );
-                    return (
-                      <span key={cid}>
-                        {index > 0 ? ", " : ""}
-                        {concept ? (
-                          <Link to={"/learn/" + concept.lessonIds[0]}>
-                            {concept.title}
-                          </Link>
-                        ) : (
-                          cid.replace("concept-", "").replaceAll("-", " ")
-                        )}
-                      </span>
-                    );
-                  })}
-                </p>
-              )}
-            </>
-          )}
-          {l.blocks
-            ?.filter((block) => block.id === "worked")
-            .map((block) => (
-              <div className="lesson-block" key={block.id}>
-                <h3>{block.title}</h3>
-                <p className="lesson-prose">{block.text}</p>
+        {(() => {
+          // a short lead first; the rest of the idea waits behind "Read the full idea"
+          const sentences = l.body.split(/(?<=[.!?])\s+/);
+          const lead = sentences.slice(0, 2).join(" ");
+          const rest = sentences.slice(2).join(" ");
+          const goals = l.teaching?.objectives ?? l.objectives ?? [];
+          const prereqs = l.teaching?.prerequisites ?? [];
+          return (
+            <section id="idea" className="lesson-idea">
+              <div className="idea-main">
+                <h2>The idea</h2>
+                <p className="lesson-prose lesson-lead">{lead}</p>
+                {rest && (
+                  <details className="read-more">
+                    <summary>Read the full idea</summary>
+                    <p className="lesson-prose">{rest}</p>
+                  </details>
+                )}
               </div>
-            ))}
-        </section>
+              {(goals.length > 0 || prereqs.length > 0) && (
+                <aside className="idea-side">
+                  {goals.length > 0 && (
+                    <>
+                      <h3>You will be able to</h3>
+                      <ul className="learn-goals">
+                        {goals.map((goal) => (
+                          <li key={goal}>{goal}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {prereqs.length > 0 && (
+                    <>
+                      <h3>Recommended first</h3>
+                      <ul className="prerequisite-notes">
+                        {prereqs.map((cid) => {
+                          const concept = curriculum.data?.concepts.find((c) => c.id === cid);
+                          return (
+                            <li key={cid}>
+                              {concept ? <Link to={"/learn/" + concept.lessonIds[0]}>{concept.title}</Link> : cid.replace("concept-", "").replaceAll("-", " ")}
+                              {l.prerequisiteNotes?.[cid] && <small>{l.prerequisiteNotes[cid]}</small>}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </>
+                  )}
+                </aside>
+              )}
+            </section>
+          );
+        })()}
         <section id="experiment">
-          {savedContext?.scene &&
-            savedContext.step > 0 &&
-            savedContext.traceRevision !== 3 && (
-              <p className="inline-alert">
-                The visualization has been rebuilt. Your input is preserved;
-                playback restarts from the beginning.
-              </p>
-            )}
+          {savedContext?.scene && savedContext.step > 0 && savedContext.traceRevision !== 3 && (
+            <p className="inline-alert">The visualization has been rebuilt. Your input is preserved; playback restarts from the beginning.</p>
+          )}
           <div className="section-heading">
             <div>
-              <h2>What if you could see it?</h2>
-              <p>
-                {scene
-                  ? "Step through slowly. Then make it your own."
-                  : "Follow the state changes in this worked model."}
-              </p>
+              <h2>See it in action</h2>
+              <p>{scene ? "Press play, or step through and predict each move before it happens." : "Follow the state changes in this worked model."}</p>
             </div>
-            <Tutor
-              lesson={l.id}
-              experiment={contextScene ?? scene}
-              step={step}
-              onScene={setActiveScene}
-            />
+            <Tutor lesson={l.id} experiment={contextScene ?? scene} step={step} onScene={setActiveScene} />
           </div>
-          {scene ? (
-            <Experiment
-              key={l.id}
-              scene={scene}
-              initialStep={
-                activeScene
-                  ? 0
-                  : savedContext?.traceRevision === 3
-                    ? savedContext.step
-                    : 0
-              }
-              code={l.code}
-              onStep={(s, index, revision) => {
-                setStep(index);
-                setContextScene(s);
-                setTraceRevision(revision);
-              }}
-            />
-          ) : (
-            l.teaching && (
-              <div className="lesson-block">
-                <h3>{l.teaching.visualization.exampleInput}</h3>
-                <ol>
-                  {l.teaching.visualization.expectedStates.map(
-                    (state, index) => (
-                      <li key={index}>{state}</li>
-                    ),
+          {(() => {
+            const worked = l.blocks?.find((block) => block.id === "worked");
+            const steps = (worked?.text ?? l.teaching?.workedExample ?? "").split(/(?<=[.!?])\s+/).filter(Boolean);
+            return (
+              <div className={"experiment-layout" + (steps.length ? " with-follow" : "")}>
+                <div className="experiment-main">
+                  {scene ? (
+                    <Experiment
+                      key={l.id}
+                      scene={scene}
+                      initialStep={activeScene ? 0 : savedContext?.traceRevision === 3 ? savedContext.step : 0}
+                      code={l.code}
+                      onStep={(s, index, revision) => {
+                        setStep(index);
+                        setContextScene(s);
+                        setTraceRevision(revision);
+                      }}
+                    />
+                  ) : (
+                    l.teaching && (
+                      <div className="lesson-block">
+                        <h3>{l.teaching.visualization.exampleInput}</h3>
+                        <ol>
+                          {l.teaching.visualization.expectedStates.map((state, index) => (
+                            <li key={index}>{state}</li>
+                          ))}
+                        </ol>
+                        <p>{l.teaching.visualization.manipulation}</p>
+                        <p className="muted">This worked example is read-only. An interactive canvas for this concept is not available yet.</p>
+                      </div>
+                    )
                   )}
-                </ol>
-                <p>{l.teaching.visualization.manipulation}</p>
-                <p className="muted">
-                  This worked example is read-only. An interactive canvas for
-                  this concept is not available yet.
-                </p>
+                </div>
+                {steps.length > 0 && (
+                  <aside className="follow-along" aria-label="Follow along">
+                    <h3>{worked?.title ?? "Follow along"}</h3>
+                    <ol>
+                      {steps.map((sentence, index) => (
+                        <li key={index}>{sentence}</li>
+                      ))}
+                    </ol>
+                  </aside>
+                )}
               </div>
-            )
-          )}
+            );
+          })()}
         </section>
         {l.teaching && (
           <section id="code">
-            <h2>Minimal Java: {l.teaching.title}</h2>
-            <p className="lesson-prose">{l.teaching.workedExample}</p>
-            <pre className="reference-code">
-              {l.teaching.java.implementation}
-            </pre>
-            {l.teaching.java.lineAnnotations.map((annotation) => (
-              <p key={annotation.line}>
-                <strong>Line {annotation.line}:</strong>{" "}
-                {annotation.explanation}
-              </p>
-            ))}
-            <p>
-              <strong>Time:</strong> {l.teaching.complexity.time}.{" "}
-              <strong>Space:</strong> {l.teaching.complexity.space}.
-            </p>
-            <p className="muted">{l.teaching.complexity.assumptions}</p>
+            <h2>Connect it to code</h2>
+            <p className="muted code-caption">{l.teaching.workedExample}</p>
+            <div className="code-layout">
+              <div className="code-main">
+                <pre className="reference-code">{l.teaching.java.implementation}</pre>
+                {l.teaching.java.lineAnnotations.length > 0 && (
+                  <ul className="line-notes">
+                    {l.teaching.java.lineAnnotations.map((annotation) => (
+                      <li key={annotation.line}>
+                        <span className="line-chip">Line {annotation.line}</span>
+                        {annotation.explanation}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <aside className="code-side">
+                <div>
+                  <span>Time</span>
+                  <strong>{l.teaching.complexity.time}</strong>
+                </div>
+                <div>
+                  <span>Space</span>
+                  <strong>{l.teaching.complexity.space}</strong>
+                </div>
+                <p className="muted">{l.teaching.complexity.assumptions}</p>
+              </aside>
+            </div>
           </section>
         )}
         <section id="pattern">
           <h2>The pattern to hold onto</h2>
-          <div className="insight">
-            <Lightbulb size={22} />
-            <p>{l.invariant}</p>
-          </div>
-          <div className="complexity-row">
-            <div>
-              <span>Time</span>
-              <strong>{l.timeComplexity}</strong>
+          <div className="pattern-grid">
+            <div className="insight">
+              <Lightbulb size={22} />
+              <p>{l.invariant}</p>
             </div>
-            <div>
-              <span>Space</span>
-              <strong>{l.spaceComplexity}</strong>
-            </div>
-          </div>
-          <h3>Watch out for this</h3>
-          <p className="lesson-prose">{l.pitfall}</p>
-          {l.blocks
-            ?.filter((block) => block.id !== "worked")
-            .map((block) => (
-              <div className="lesson-block" key={block.id}>
-                <h3>{block.title}</h3>
-                <p className="lesson-prose">{block.text}</p>
+            <div className="complexity-row">
+              <div>
+                <span>Time</span>
+                <strong>{l.timeComplexity}</strong>
               </div>
-            ))}
+              <div>
+                <span>Space</span>
+                <strong>{l.spaceComplexity}</strong>
+              </div>
+            </div>
+            <div className="pitfall-card">
+              <h3>Watch out for this</h3>
+              <p className="lesson-prose">{l.pitfall}</p>
+            </div>
+          </div>
+          {!!l.blocks?.filter((block) => block.id !== "worked").length && (
+            <details className="go-deeper">
+              <summary>Go deeper: why it works and what it costs</summary>
+              {l.blocks
+                ?.filter((block) => block.id !== "worked")
+                .map((block) => (
+                  <div className="lesson-block" key={block.id}>
+                    <h3>{block.title}</h3>
+                    <p className="lesson-prose">{block.text}</p>
+                  </div>
+                ))}
+            </details>
+          )}
         </section>
         <div id="checkpoint" className="lesson-challenges">
           <h2>Try the idea yourself.</h2>

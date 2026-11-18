@@ -61,6 +61,7 @@ export interface Lesson {
   blocks?: LessonBlock[];
   /** Why each prerequisite concept matters here, keyed by concept id. */
   prerequisiteNotes?: Record<string, string>;
+  objectives?: string[];
   challenges: Challenge[];
   referenceJourney?: boolean;
   linkedProblems?: string[];
