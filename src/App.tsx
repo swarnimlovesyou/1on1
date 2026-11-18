@@ -119,6 +119,7 @@ export default function App() {
   });
   const user = session.data?.user ?? null;
   const [palette, setPalette] = useState(false);
+  const lessonCount = useQuery({ queryKey: ["lessons"], queryFn: () => api<{ id: string }[]>("/lessons") }).data?.length ?? 0;
   const [keys, setKeys] = useState(false);
   useShortcuts(
     useCallback((path: string) => navigate(path), [navigate]),
@@ -170,7 +171,7 @@ export default function App() {
                 <Link key={path} to={path} className={current ? "active" : undefined} aria-current={current ? "page" : undefined}>
                   <Icon size={20} />
                   <span>{label}</span>
-                  {path === "/learn" && <span className="nav-count">24</span>}
+                  {path === "/learn" && lessonCount > 0 && <span className="nav-count">{lessonCount}</span>}
                   {keyFor(path) && (
                     <kbd className="nav-key" aria-hidden="true">
                       {keyFor(path)}

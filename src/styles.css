@@ -7834,3 +7834,106 @@ kbd {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---- Library filters and learning path timeline ---- */
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 18px;
+}
+.library-filters select {
+  min-width: 170px;
+}
+.path-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.path-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.path-progress progress {
+  width: 180px;
+}
+.path-summary .button {
+  margin-left: auto;
+}
+.path-steps {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 4px;
+  list-style: none;
+}
+.path-steps::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: var(--line);
+}
+.path-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+}
+.path-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.path-step a {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+.path-step a small {
+  color: var(--muted);
+}
+.path-step.done .path-dot {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #ffffff;
+}
+.path-step.next .path-dot {
+  border-color: var(--teal);
+  color: var(--accent);
+}
+.path-step.next a {
+  border-color: var(--teal);
+  background: var(--teal-row);
+}
+.path-card-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

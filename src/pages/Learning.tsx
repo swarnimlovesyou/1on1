@@ -79,194 +79,215 @@ export function Library() {
       queryKey: ["paths"],
       queryFn: () => api<Path[]>("/paths"),
     });
-  const [tab, setTab] = useState("All concepts"),
-    [topic, setTopic] = useState("All topics"),
-    [q, setQ] = useState(params.get("q") ?? "");
-  const path = paths.data?.find((p) => p.id === params.get("path"));
+  // every filter lives in the URL, so reload and back keep it
+  const view = params.get("view") ?? "all",
+    family = params.get("family") ?? "",
+    difficulty = params.get("difficulty") ?? "",
+    status = params.get("status") ?? "";
+  const [q, setQ] = useState(params.get("q") ?? "");
+  const set = (key: string, value: string) => {
+    const next = new URLSearchParams(window.location.search);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setParams(next, { replace: key !== "view" && key !== "path" });
+  };
+  const path = paths.data?.find((x) => x.id === params.get("path"));
   const search = useQuery({
     queryKey: ["search", q],
-    queryFn: () =>
-      api<(Lesson | Problem)[]>("/search?q=" + encodeURIComponent(q)),
+    queryFn: () => api<(Lesson | Problem)[]>("/search?q=" + encodeURIComponent(q)),
     enabled: !!q,
   });
   if (lessons.isLoading) return <Loading />;
   if (lessons.error) return <ErrorState error={lessons.error} />;
-  const topics = [
-    "All topics",
-    ...new Set(lessons.data?.flatMap((l) => l.topics)),
-  ];
-  const rows = lessons.data?.filter(
+  const all = lessons.data ?? [];
+  const difficulties = [...new Set(all.map((l) => l.difficulty))];
+  const rows = all.filter(
     (l) =>
-      (topic === "All topics" || l.topics.includes(topic)) &&
-      (!path || path.lessons.includes(l.id)) &&
-      (tab !== "Saved for later" || progress.bookmarks.includes(l.id)) &&
+      (!family || familyOfLesson(l) === family) &&
+      (!difficulty || l.difficulty === difficulty) &&
+      (status !== "explored" || progress.completed.includes(l.id)) &&
+      (status !== "new" || !progress.completed.includes(l.id)) &&
+      (status !== "saved" || progress.bookmarks.includes(l.id)) &&
       (!q || search.data?.some((r) => r.id === l.id)),
   );
-  // with no filter the collection reads as a book: one section per algorithm family
   const FAMILY_IDS = Object.keys(FAMILIES) as FamilyId[];
-  const grouped =
-    !!rows?.length &&
-    tab === "All concepts" &&
-    topic === "All topics" &&
-    !path &&
-    !q;
+  const grouped = !!rows.length && !family && !difficulty && !status && !q;
   const renderRow = (l: Lesson) => (
-          <article className="concept-row" key={l.id}>
-            <span className="concept-order">
-              {String(l.order).padStart(2, "0")}
-            </span>
-            <Link to={"/learn/" + l.id} className="concept-main">
-              <span className="concept-topic">
-                <FamilyMark family={familyOfLesson(l)} />
-                {l.topics[0]}
-                <span> / </span>
-                {l.subtitle}
-              </span>
-              <h2>{l.title}</h2>
-              <p>{l.body.slice(0, 118)}…</p>
-              <div className="concept-meta">
-                <span>
-                  <Clock size={14} />
-                  {l.minutes} min
-                </span>
-                <span>{l.difficulty}</span>
-                <span className="concept-complexity">
-                  {l.timeComplexity}
-                </span>
-              </div>
-            </Link>
-            <div className="concept-actions">
-              {progress.completed.includes(l.id) && (
-                <span className="complete-badge">
-                  <CheckCircle size={17} />
-                  Explored
-                </span>
-              )}
-              <Bookmark id={l.id} />
-              <Link
-                aria-label={"Open " + l.title}
-                className="open-concept"
-                to={"/learn/" + l.id}
-              >
-                <ArrowUpRight size={21} />
-              </Link>
-            </div>
-          </article>
+    <article className="concept-row" key={l.id}>
+      <span className="concept-order">{String(l.order).padStart(2, "0")}</span>
+      <Link to={"/learn/" + l.id} className="concept-main">
+        <span className="concept-topic">
+          <FamilyMark family={familyOfLesson(l)} />
+          {l.topics[0]}
+        </span>
+        <h2>{l.title}</h2>
+        <p>{l.why ?? l.body.slice(0, 118) + "…"}</p>
+        <div className="concept-meta">
+          <span>
+            <Clock size={14} />
+            {l.minutes} min
+          </span>
+          <span>{l.difficulty}</span>
+          <span className="concept-complexity">{l.timeComplexity}</span>
+        </div>
+      </Link>
+      <div className="concept-actions">
+        {progress.completed.includes(l.id) && (
+          <span className="complete-badge">
+            <CheckCircle size={17} />
+            Explored
+          </span>
+        )}
+        <Bookmark id={l.id} />
+        <Link aria-label={"Open " + l.title} className="open-concept" to={"/learn/" + l.id}>
+          <ArrowUpRight size={21} />
+        </Link>
+      </div>
+    </article>
   );
+  if (path) {
+    const steps = path.lessons.map((id) => all.find((l) => l.id === id)).filter(Boolean) as Lesson[];
+    const done = steps.filter((l) => progress.completed.includes(l.id)).length;
+    const next = steps.find((l) => !progress.completed.includes(l.id));
+    const minutes = steps.reduce((sum, l) => sum + (l.minutes ?? 0), 0);
+    return (
+      <div className="path-view">
+        <button className="back-link" type="button" onClick={() => setParams({ view: "paths" })}>
+          <ArrowRight size={16} style={{ transform: "rotate(180deg)" }} aria-hidden="true" />
+          All learning paths
+        </button>
+        <PageHeading title={path.title} description={path.description} />
+        <div className="path-summary">
+          <div className="path-progress">
+            <strong>
+              {done} of {steps.length}
+            </strong>{" "}
+            lessons explored
+            <progress max={steps.length} value={done} aria-hidden="true" />
+          </div>
+          <span className="muted">About {Math.round(minutes / 60)} hours in all</span>
+          {next && (
+            <Link className="button primary" to={"/learn/" + next.id}>
+              {done ? "Continue the path" : "Start the path"} <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          )}
+        </div>
+        <ol className="path-steps">
+          {steps.map((l, i) => {
+            const state = progress.completed.includes(l.id) ? "done" : l === next ? "next" : "later";
+            return (
+              <li key={l.id} className={"path-step " + state} style={familyStyle(familyOfLesson(l))}>
+                <span className="path-dot" aria-hidden="true">
+                  {state === "done" ? <CheckCircle size={16} weight="fill" /> : i + 1}
+                </span>
+                <Link to={"/learn/" + l.id}>
+                  <strong>{l.title}</strong>
+                  <small>
+                    {FAMILIES[familyOfLesson(l)].label}, {l.minutes} min
+                    {state === "next" ? ", up next" : ""}
+                  </small>
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    );
+  }
   return (
     <>
       <PageHeading
-        title={path?.title ?? "Make the idea click."}
-        description={
-          path?.description ??
-          "A collection of little experiments, big ideas, and moments of understanding."
-        }
+        title="Make the idea click."
+        description="Every lesson pairs a short idea with an animation of the real algorithm, then checks you understood it."
         action={
           <span className="collection-count">
             <BooksCount />
-            {lessons.data?.length ?? 0} notebooks to explore
+            {all.length} lessons to explore
           </span>
         }
       />
       <div className="library-toolbar">
-        <div className="tabs">
-          {["All concepts", "Concept map", "Learning paths", "Saved for later"].map((t) => (
-            <button
-              key={t}
-              className={tab === t ? "active" : ""}
-              onClick={() => {
-                setTab(t);
-                setParams({});
-              }}
-            >
-              {t}
-              {t === "Saved for later" && (
-                <span>{progress.bookmarks.length}</span>
-              )}
+        <div className="tabs" role="tablist" aria-label="Library views">
+          {[
+            ["all", "All concepts"],
+            ["map", "Concept map"],
+            ["paths", "Learning paths"],
+          ].map(([id, label]) => (
+            <button key={id} role="tab" aria-selected={view === id} className={view === id ? "active" : ""} onClick={() => set("view", id === "all" ? "" : id)}>
+              {label}
             </button>
           ))}
         </div>
         <div className="search-field">
           <MagnifyingGlass size={17} />
-          <input
-            aria-label="Search the learning library"
-            placeholder="Search a concept or topic…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+          <input aria-label="Search the learning library" placeholder="Search a concept or topic…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
-      {tab === "Concept map" ? (
+      {view === "map" ? (
         <ConceptMap />
-      ) : tab === "Learning paths" ? (
+      ) : view === "paths" ? (
         <div className="learning-paths">
-          {paths.data?.map((p, i) => (
-            <Link
-              key={p.id}
-              to={"/learn?path=" + p.id}
-              onClick={() => setTab("All concepts")}
-              className="learning-path"
-            >
-              <span className={"path-marker path-" + i}>
-                <Compass size={28} />
-              </span>
-              <h2>{p.title}</h2>
-              <p>{p.description}</p>
-              <span>
-                {p.lessons.length} notebooks <ArrowRight size={17} />
-              </span>
-            </Link>
-          ))}
+          {paths.data?.map((x, i) => {
+            const done = x.lessons.filter((id) => progress.completed.includes(id)).length;
+            return (
+              <Link key={x.id} to={"/learn?path=" + x.id} className="learning-path">
+                <span className={"path-marker path-" + i}>
+                  <Compass size={28} />
+                </span>
+                <h2>{x.title}</h2>
+                <p>{x.description}</p>
+                <span className="path-card-progress">
+                  {done} of {x.lessons.length} explored <ArrowRight size={17} />
+                </span>
+              </Link>
+            );
+          })}
         </div>
       ) : (
         <>
-          <div className="topic-filters">
-            {topics.map((t) => (
-              <button
-                key={t}
-                className={topic === t ? "active" : ""}
-                onClick={() => setTopic(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-          <Link className="prep-feature" to="/learn/animations">
-            <strong>All animations</strong>
-            <span>Every algorithm's step-by-step animation on one page, to play, step and scrub.</span>
-          </Link>
-          <div className="library-list-header">
-            <span>The notebook collection</span>
-            <span>{rows?.length} notebooks</span>
+          <div className="library-filters">
+            <select aria-label="Family" value={family} onChange={(e) => set("family", e.target.value)}>
+              <option value="">All families</option>
+              {FAMILY_IDS.map((f) => (
+                <option key={f} value={f}>
+                  {FAMILIES[f].label}
+                </option>
+              ))}
+            </select>
+            <select aria-label="Difficulty" value={difficulty} onChange={(e) => set("difficulty", e.target.value)}>
+              <option value="">Any difficulty</option>
+              {difficulties.map((d) => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+            <select aria-label="Status" value={status} onChange={(e) => set("status", e.target.value)}>
+              <option value="">Any status</option>
+              <option value="new">Not started</option>
+              <option value="explored">Explored</option>
+              <option value="saved">Saved for later</option>
+            </select>
+            <span className="muted">{rows.length} lessons</span>
           </div>
           {grouped ? (
-            FAMILY_IDS.map((family) => {
-              const members = rows!.filter((l) => familyOfLesson(l) === family);
+            FAMILY_IDS.map((f) => {
+              const members = rows.filter((l) => familyOfLesson(l) === f);
               return members.length ? (
-                <section key={family} className="family-group">
+                <section key={f} className="family-group">
                   <h2 className="family-heading">
-                    <FamilyMark family={family} label />
+                    <FamilyMark family={f} label />
                   </h2>
                   <div className="concept-list">{members.map(renderRow)}</div>
                 </section>
               ) : null;
             })
           ) : (
-            <div className="concept-list">{rows?.map(renderRow)}</div>
+            <div className="concept-list">{rows.map(renderRow)}</div>
           )}
-          {!rows?.length && (
+          {!rows.length && (
             <div className="empty">
               <BookOpen size={35} />
-              <h2>
-                {tab === "Saved for later"
-                  ? "Keep a good idea close."
-                  : "No concepts match yet."}
-              </h2>
-              <p>
-                {tab === "Saved for later"
-                  ? "Bookmark a concept to find it here when you’re ready."
-                  : "Try a different topic or search prefix."}
-              </p>
+              <h2>{status === "saved" ? "Nothing saved here yet." : "No concepts match yet."}</h2>
+              <p>{status === "saved" ? "Bookmark a lesson to find it here when you're ready." : "Try another family, difficulty or search."}</p>
             </div>
           )}
         </>
