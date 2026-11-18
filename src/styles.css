@@ -7937,3 +7937,18 @@ kbd {
   align-items: center;
   gap: 6px;
 }
+
+.animation-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.animation-filters .contest-filters {
+  margin: 0;
+}
+.animation-filters input {
+  width: min(260px, 100%);
+}

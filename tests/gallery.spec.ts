@@ -27,3 +27,15 @@ test("each play button names its animation for screen readers", async ({ page })
   await expect(page.getByRole("button", { name: /Play this animation: Binary Search$/ })).toHaveCount(1);
   await expect(page.getByRole("link", { name: /Open the lesson\s*:\s*Binary Search$/ })).toHaveCount(1);
 });
+
+test("animations can be filtered by family and searched", async ({ page }) => {
+  await page.goto("/learn/animations");
+  await page.getByRole("button", { name: "Graphs", exact: true }).click();
+  const graphs = await page.locator(".animation-card").count();
+  expect(graphs).toBeGreaterThan(0);
+  expect(graphs).toBeLessThan(33);
+  await page.getByRole("button", { name: "All", exact: true }).click();
+  await page.getByRole("searchbox", { name: "Search animations" }).fill("binary");
+  await expect(page.locator(".animation-card").first()).toBeVisible();
+  for (const title of await page.locator(".animation-card h3").allInnerTexts()) expect(title.toLowerCase()).toContain("binary");
+});

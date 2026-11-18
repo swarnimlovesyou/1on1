@@ -11,9 +11,14 @@ import { useLessons } from "./Learning";
 /** Every lesson's animation in one place. Each one runs its Java trace only when the learner presses play. */
 export default function Animations() {
   const lessons = useLessons();
+  const [only, setOnly] = useState<FamilyId | "">("");
+  const [query, setQuery] = useState("");
   if (lessons.isLoading) return <Loading />;
   if (lessons.error || !lessons.data) return <ErrorState error={lessons.error} retry={() => lessons.refetch()} />;
-  const withScene = lessons.data.filter((l) => l.experiment);
+  const needle = query.trim().toLowerCase();
+  const withScene = lessons.data.filter(
+    (l) => l.experiment && (!only || familyOfLesson(l) === only) && (!needle || (l.title + " " + l.topics.join(" ")).toLowerCase().includes(needle)),
+  );
   return (
     <>
       <Link className="back-link" to="/learn">
@@ -24,6 +29,20 @@ export default function Animations() {
         title="Every animation, in one place."
         description="Each one runs the real algorithm in Java and lets you play, step and scrub through it. Open the lesson when you want the why."
       />
+      <div className="animation-filters">
+        <div className="contest-filters" role="group" aria-label="Family">
+          <button type="button" className={!only ? "active" : ""} aria-pressed={!only} onClick={() => setOnly("")}>
+            All
+          </button>
+          {(Object.keys(FAMILIES) as FamilyId[]).map((f) => (
+            <button key={f} type="button" className={only === f ? "active" : ""} aria-pressed={only === f} onClick={() => setOnly(f)}>
+              {FAMILIES[f].label.split(" ")[0]}
+            </button>
+          ))}
+        </div>
+        <input type="search" aria-label="Search animations" placeholder="Search animations" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </div>
+      {!withScene.length && <p className="muted">No animations match. Try another family or word.</p>}
       {(Object.keys(FAMILIES) as FamilyId[]).map((family) => {
         const members = withScene.filter((l) => familyOfLesson(l) === family);
         return members.length ? (
@@ -48,7 +67,7 @@ function AnimationCard({ lesson, family }: { lesson: Lesson; family: FamilyId })
   return (
     <article className="animation-card has-family" style={familyStyle(family)}>
       <h3>{lesson.title}</h3>
-      {lesson.invariant && <p className="muted">{lesson.invariant}</p>}
+      <p className="muted">{lesson.why ?? lesson.invariant}</p>
       {open ? (
         <Experiment scene={lesson.experiment!} compact />
       ) : (

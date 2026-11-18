@@ -245,6 +245,10 @@ export function Library() {
         </div>
       ) : (
         <>
+          <Link className="prep-feature" to="/learn/animations">
+            <strong>All animations</strong>
+            <span>Every algorithm's step-by-step animation on one page, to play, step and scrub.</span>
+          </Link>
           <div className="library-filters">
             <select aria-label="Family" value={family} onChange={(e) => set("family", e.target.value)}>
               <option value="">All families</option>
