@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Link,
   NavLink,
@@ -48,6 +48,7 @@ import Animations from "./pages/Animations";
 import Contests from "./pages/contests/Contests";
 import LabPage from "./pages/LabPage";
 import CommandPalette from "./components/CommandPalette";
+import { SHORTCUTS, keyFor, useShortcuts } from "./shortcuts";
 import PlaygroundPage from "./pages/prep/PlaygroundPage";
 import {
   Planner,
@@ -121,6 +122,11 @@ export default function App() {
   });
   const user = session.data?.user ?? null;
   const [palette, setPalette] = useState(false);
+  const [keys, setKeys] = useState(false);
+  useShortcuts(
+    useCallback((path: string) => navigate(path), [navigate]),
+    useCallback(() => setKeys(true), []),
+  );
   // fetched once for the whole app (the tutor reads it to say up front when AI is unavailable)
   useQuery({
     queryKey: ["system"],
@@ -168,6 +174,11 @@ export default function App() {
                   <Icon size={20} />
                   <span>{label}</span>
                   {path === "/learn" && <span className="nav-count">24</span>}
+                  {keyFor(path) && (
+                    <kbd className="nav-key" aria-hidden="true">
+                      {keyFor(path)}
+                    </kbd>
+                  )}
                 </Link>
               );
             })}
@@ -245,6 +256,49 @@ export default function App() {
         <div className="app-shell">
           <aside className="sidebar">{sidebar}</aside>
           <CommandPalette open={palette} setOpen={setPalette} />
+          <Dialog.Root open={keys} onOpenChange={setKeys}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="palette-backdrop" />
+              <Dialog.Content className="palette keys-dialog" aria-describedby={undefined}>
+                <Dialog.Title>Keyboard shortcuts</Dialog.Title>
+                <dl>
+                  {SHORTCUTS.map(([key, , label]) => (
+                    <div key={key}>
+                      <dt>
+                        <kbd>{key}</kbd>
+                      </dt>
+                      <dd>{label}</dd>
+                    </div>
+                  ))}
+                  <div>
+                    <dt>
+                      <kbd>Ctrl K</kbd>
+                    </dt>
+                    <dd>Jump to anything</dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <kbd>?</kbd>
+                    </dt>
+                    <dd>This list</dd>
+                  </div>
+                </dl>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <div className="key-strip" aria-hidden="true">
+            {SHORTCUTS.map(([key, , label]) => (
+              <span key={key}>
+                <kbd>{key}</kbd> {label}
+              </span>
+            ))}
+            <span>
+              <kbd>Ctrl K</kbd> Jump to
+            </span>
+            <span>
+              <kbd>?</kbd> Keys
+            </span>
+          </div>
           <Dialog.Root open={mobile} onOpenChange={setMobile}>
             <Dialog.Portal>
               <Dialog.Overlay className="overlay" />
