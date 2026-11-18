@@ -3,13 +3,14 @@ import { clock, timeUsed, useCountdown, useIntegritySignals } from "./mockTime";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle, Circle, Timer } from "@phosphor-icons/react";
+import QuizRunner from "./QuizRunner";
 import { api } from "../../api";
 import type { MockView } from "../../types";
 import { useApp } from "../../context";
 import { Loading, ErrorState } from "../../components/Shared";
 
 /** Timed assessments over 1on1's own judged problems. */
-export default function MockOA() {
+function CodingMock() {
   const { user, notify } = useApp();
   const qc = useQueryClient();
   const mocks = useQuery({ queryKey: ["mocks"], queryFn: () => api<MockView[]>("/mocks"), enabled: !!user });
@@ -144,6 +145,31 @@ export default function MockOA() {
           ))}
         </section>
       )}
+    </div>
+  );
+}
+
+/** Mock assessments: a timed quiz (aptitude, reasoning, CS) or a coding round on 1on1's own problems. */
+export default function MockOA() {
+  const { user } = useApp();
+  const mocks = useQuery({ queryKey: ["mocks"], queryFn: () => api<MockView[]>("/mocks"), enabled: !!user });
+  const [mode, setMode] = useState<"quiz" | "coding">("quiz");
+  const running = mocks.data?.some((m) => !m.finished);
+  // a coding mock still running reopens where the learner left it, and stays there through its report
+  useEffect(() => {
+    if (running) setMode("coding");
+  }, [running]);
+  return (
+    <div className="mock-area">
+      <div className="land-tabs" role="tablist" aria-label="Mock type">
+        <button role="tab" aria-selected={mode === "quiz"} className={mode === "quiz" ? "active" : ""} onClick={() => setMode("quiz")}>
+          Quiz
+        </button>
+        <button role="tab" aria-selected={mode === "coding"} className={mode === "coding" ? "active" : ""} onClick={() => setMode("coding")}>
+          Coding
+        </button>
+      </div>
+      {mode === "quiz" ? <QuizRunner /> : <CodingMock />}
     </div>
   );
 }

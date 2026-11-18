@@ -28,6 +28,7 @@ test("a learner starts a mock, opens a problem with its timer and finishes with 
   await page.getByRole("button", { name: "Create your account" }).click();
   await page.getByRole("button", { name: "Find my first lightbulb moment" }).click();
   await page.goto("/practice?tab=mock");
+  await page.getByRole("tab", { name: "Coding" }).click();
   await page.getByRole("combobox", { name: "Problems" }).selectOption("3");
   await page.getByRole("combobox", { name: "Time" }).selectOption("60");
   await page.getByRole("button", { name: "Start mock" }).click();
