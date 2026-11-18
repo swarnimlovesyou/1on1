@@ -94,7 +94,7 @@ test("desktop and mobile surfaces remain readable without overflow", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/home");
-  await expect(page.locator(".continue-section a.button")).toHaveAttribute(
+  await expect(page.locator(".dash-next a.button")).toHaveAttribute(
     "href",
     "/learn/lesson-complexity",
   );
