@@ -144,10 +144,12 @@ These tracks cover general topics. They make no claim to match any particular ex
 
 ## 10. Claude, ChatGPT, and Codex integration through MCP
 
-**Status: partial, in progress.** A read-only MCP adapter was added on 17 November 2026 (`mcp/server.mjs`, stdio transport). It calls the public Java API and owns no logic. Its tests (`mcp/server.test.mjs`) run against a stub API; a check in Claude Desktop against a running 1on1 is not recorded here. Codex and ChatGPT were not tried.
+**Status: built; live clients not verified.** The MCP adapter (`mcp/server.mjs`, stdio transport) calls the Java API and owns no logic. Its tests run against a stub API, its smoke script against a running 1on1, and the pairing flow end to end in the browser (`tests/assistant-pairing.spec.ts`). A session inside Claude Desktop itself is not recorded here; Codex and ChatGPT were not tried.
 
-- Built: seven public tools: `search_library`, `get_lesson` (no answers), `run_trace`, `search_questions`, `upcoming_contests`, `get_drill` and `check_drill`. Setup is in `mcp/README.md`.
-- Not built: pairing with a signed-in study session, so no tool can read or change a learner's account, notes, dry runs or review items; browser updates from the assistant; the **Concept Coach**, **Exam Practice** and **Debugging Guide** skills.
+- Built: seven public tools (`search_library`, `get_lesson` without answers, `run_trace`, `search_questions`, `upcoming_contests`, `get_drill`, `check_drill`).
+- Built: **pairing.** Settings → Connect an assistant makes a revocable token, shown once and stored hashed. With it the adapter adds `my_context`, `search_my_notes`, `save_note` and `search_my_sources` (`AssistantController`); nothing paired can grade, change the account or read another learner.
+- Built: the **Concept Coach**, **Exam Practice** and **Debugging Guide** skills (`mcp/skills/*/SKILL.md`), written to the teaching policy and these tools. Not yet run in a live assistant.
+- Not built: browser updates pushed from the assistant (opening an experiment in the learner's tab).
 - Planned order: Claude Desktop first, then ChatGPT and Codex against their actual connection requirements.
 - External-assistant mode runs inside Claude/ChatGPT/Codex. The website's Blob keeps its own model integration.
 
