@@ -430,7 +430,7 @@ class LearningEvidenceTest {
       List.of("lesson-two-pointers"),
       progress.summary("alice").get("completed")
     );
-    assertEquals(33, store.list("lesson", "public").size());
+    assertEquals(49, store.list("lesson", "public").size());
     assertEquals(context, store.owned("study-retained", "alice"));
     assertEquals(
       List.of("problem-three-window"),

@@ -6,7 +6,7 @@ test("the library links to every animation in one place, loaded only when asked"
   await page.goto("/learn");
   await page.getByRole("link", { name: /All animations/ }).click();
   await expect(page).toHaveURL(/\/learn\/animations$/);
-  await expect(page.locator(".animation-card")).toHaveCount(33);
+  await expect(page.locator(".animation-card")).toHaveCount(49);
   expect(traces.length).toBe(0);
   const first = page.locator(".animation-card").first();
   await first.getByRole("button", { name: /Play this animation/ }).click();
@@ -33,7 +33,7 @@ test("animations can be filtered by family and searched", async ({ page }) => {
   await page.getByRole("button", { name: "Graphs", exact: true }).click();
   const graphs = await page.locator(".animation-card").count();
   expect(graphs).toBeGreaterThan(0);
-  expect(graphs).toBeLessThan(33);
+  expect(graphs).toBeLessThan(49);
   await page.getByRole("button", { name: "All", exact: true }).click();
   await page.getByRole("searchbox", { name: "Search animations" }).fill("binary");
   await expect(page.locator(".animation-card").first()).toBeVisible();

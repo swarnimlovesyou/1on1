@@ -10,6 +10,7 @@ import { SHORTCUTS } from "../shortcuts";
 import type { Scene } from "../types";
 import { usePrep } from "./prep/usePrep";
 import { useLessons } from "./Learning";
+import HeroStepper from "./landing/HeroStepper";
 
 const demoScene: Scene = { algorithm: "sliding-window", input: "2, 1, 5, 1, 3, 2", target: 3 };
 
@@ -134,8 +135,7 @@ export default function LandingPage() {
               1on1 is a DSA and placement-prep workspace. Step through each algorithm one move at a time, answer questions that are graded
               as you go, then practise on real questions until you could explain it to someone else.
             </p>
-          </div>
-          <div className="land-hero-actions">
+            <div className="land-hero-actions">
             <div>
               <Link className="button primary" to="/learn">
                 Start learning
@@ -144,8 +144,10 @@ export default function LandingPage() {
                 Open your first notebook
               </Link>
             </div>
-            <small>{count(lessons.data?.length, "33")} animated lessons. No sign-up needed to start.</small>
+            <small>{count(lessons.data?.length, "49")} animated lessons. No sign-up needed to start.</small>
+            </div>
           </div>
+          <HeroStepper />
           <ul className="land-checks">
             {["Every algorithm animated", `${count(bank.data?.total, "16,000+")} practice questions`, "Answers graded on the server", "Placement prep built in"].map(
               (c) => (

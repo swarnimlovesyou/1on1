@@ -30,8 +30,8 @@ class CurriculumTest {
     assertEquals(1, ((Number) data.get("version")).intValue());
     var concepts = Store.items(data.get("concepts"));
     var questions = Store.items(data.get("questions"));
-    assertEquals(24, concepts.size());
-    assertEquals(47, questions.size());
+    assertEquals(40, concepts.size());
+    assertEquals(79, questions.size());
     var ids = new HashSet<String>();
     var qids = new HashSet<String>();
     for (var q : questions) {
@@ -63,11 +63,11 @@ class CurriculumTest {
         ).isEmpty()
       );
       var apps = Store.items(c.get("applications"));
-      assertEquals(2, apps.size());
+      assertTrue(apps.size() == 2 || apps.size() == 3, "two or three canonical applications per concept");
       associations += apps.size();
       for (var app : apps) assertTrue(qids.contains(app.get("questionId")));
     }
-    assertEquals(48, associations);
+    assertEquals(82, associations);
     for (var c : concepts)
       for (var app : Store.items(c.get("applications")))
         for (var prerequisite : Store.strings(
@@ -203,7 +203,7 @@ class CurriculumTest {
       .stream()
       .map(l -> l.get("id").toString())
       .collect(java.util.stream.Collectors.toSet());
-    assertEquals(33, ids.size());
+    assertEquals(49, ids.size());
     assertEquals(60, Store.items(content.get("problems")).size());
     for (String algorithm : TraceEngine.SUPPORTED)
       assertTrue(ids.contains("lesson-" + algorithm));

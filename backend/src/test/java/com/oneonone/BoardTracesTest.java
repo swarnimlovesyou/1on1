@@ -25,13 +25,21 @@ class BoardTracesTest {
     assertTrue(steps.size() >= 3, "a real walk-through, not a jump to the end");
     for (var s : steps) {
       assertFalse(s.get("text").toString().isBlank());
-      var panels = Store.items(s.get("board"));
+      var panels = Store.items(((Map<String, Object>) s.get("visual")).get("board"));
       assertFalse(panels.isEmpty(), "every step has something to draw");
     }
     return ((Map<String, Object>) steps.getLast().get("variables")).get("answer");
   }
 
   @Test
+  @SuppressWarnings("unchecked")
+  void boardPanelsSurviveTheTypedTraceContract() {
+    var typed = Contracts.ExecutionTrace.from(run("lcs", null, 0, "ab|b"));
+    assertFalse(Store.items(typed.steps().getFirst().visual().get("board")).isEmpty());
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
   void graphTraces() {
     assertEquals(2, answer(run("union-find", "0,1,2,3,1,2,4,5", 6, null)));
     assertEquals(List.of(0, 1, 2, 3, 4), answer(run("topological-sort", "0,2,1,2,2,3,3,4,1,4", 5, null)));
@@ -42,7 +50,7 @@ class BoardTracesTest {
     assertEquals("negative cycle", answer(run("bellman-ford", "0,1,1,1,2,-2,2,1,1", 3, null)));
     assertEquals("negative cycle", answer(run("floyd-warshall", "0,1,1,1,0,-3", 2, null)));
     var dup = Store.items(run("kruskal", "0,1,5,0,1,2", 2, null).get("steps")).getLast();
-    var edges = Store.items(Store.items(dup.get("board")).getFirst().get("edges"));
+    var edges = Store.items(Store.items(((Map<String, Object>) dup.get("visual")).get("board")).getFirst().get("edges"));
     assertEquals(List.of("rejected", "chosen"), edges.stream().map(e -> e.get("state")).toList(), "a parallel edge keeps its own mark");
     assertEquals(3, run("lcs", null, 0, "ab|b").get("revision"), "study position saving accepts this revision");
   }

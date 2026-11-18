@@ -40,7 +40,7 @@ class PrepContentTest {
       assertTrue(ids.add(g.get("id").toString()), "duplicate guide " + g.get("id"));
       assertEquals(5, Store.items(g.get("challenges")).size(), g.get("id").toString());
     }
-    assertEquals(33, Store.items(content.get("lessons")).size(), "the DSA catalogue is untouched");
+    assertEquals(49, Store.items(content.get("lessons")).size(), "the DSA catalogue is untouched");
   }
 
   @Test

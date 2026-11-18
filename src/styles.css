@@ -8819,3 +8819,126 @@ kbd {
     --board-cell: 38px;
   }
 }
+
+/* ---- Landing hero stepper ---- */
+.land-hero .land-hero-actions {
+  margin-top: 28px;
+}
+.land-hero {
+  align-items: center;
+}
+.hero-stepper {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--slate);
+  border-radius: 14px;
+  background: var(--obsidian);
+  color: #e6f3ef;
+  box-shadow: 0 24px 60px -30px #0c171599;
+}
+.hero-stepper-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: var(--aqua);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.hero-stepper-count {
+  margin-left: auto;
+  color: #8fa7a1;
+}
+.hero-stepper-toggle {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--slate);
+  border-radius: 8px;
+  background: var(--charcoal);
+  color: var(--aqua);
+  cursor: pointer;
+}
+.hero-stepper-cells {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hero-stepper-cells li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0 6px;
+  border: 1px solid var(--slate);
+  border-radius: 9px;
+  background: var(--charcoal);
+  transition: opacity 0.35s, background 0.35s, border-color 0.35s, transform 0.35s;
+}
+.hero-stepper-cells span {
+  font-family: var(--font-mono);
+  font-size: 17px;
+}
+.hero-stepper-cells small {
+  min-height: 14px;
+  color: #8fa7a1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.hero-stepper-cells li.out {
+  opacity: 0.28;
+}
+.hero-stepper-cells li.mid {
+  border-color: var(--aqua);
+  transform: translateY(-3px);
+}
+.hero-stepper-cells li.found {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: var(--ink);
+  transform: translateY(-3px);
+}
+.hero-stepper-cells li.found small {
+  color: var(--ink);
+}
+.hero-stepper figcaption {
+  min-height: 3em;
+  margin-top: 16px;
+  color: #d3e6e1;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.hero-stepper-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.hero-stepper-dots button {
+  width: 22px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: var(--slate);
+  cursor: pointer;
+}
+.hero-stepper-dots button.current {
+  background: var(--teal);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-stepper-cells li {
+    transition: none;
+  }
+}
+@media (max-width: 900px) {
+  .land-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-stepper {
+    display: none;
+  }
+}

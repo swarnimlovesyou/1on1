@@ -18,6 +18,12 @@ const CONCEPTS: Record<string, FamilyId> = {
   recursion: "recursion", backtracking: "recursion", "dynamic-programming": "recursion",
   "binary-trees": "trees", bst: "trees", heaps: "trees",
   graphs: "graphs", bfs: "graphs", dfs: "graphs",
+  bits: "foundations",
+  "union-find": "graphs", "topological-sort": "graphs", kruskal: "graphs", "bellman-ford": "graphs", "floyd-warshall": "graphs",
+  "segment-tree": "trees", fenwick: "trees",
+  "interval-scheduling": "searching", kmp: "searching", "rabin-karp": "searching",
+  "monotonic-stack": "linear", "monotonic-queue": "linear",
+  knapsack: "recursion", lcs: "recursion", "interval-dp": "recursion",
 };
 
 // advanced lessons have no concept; a trie is a tree, quickselect partitions, Bloom filters and set cover build on sets

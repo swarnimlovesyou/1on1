@@ -51,3 +51,14 @@ test("a returning learner can sign in, and the page fits a phone", async ({ page
   await expect(page.getByRole("link", { name: "Sign in" }).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+test("the hero's right side steps through a binary search and can be paused", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  const stepper = page.locator(".hero-stepper");
+  await expect(stepper).toBeVisible();
+  await stepper.getByRole("button", { name: "Pause the animation" }).click();
+  await stepper.getByRole("button", { name: "Step 4" }).click();
+  await expect(stepper.locator("figcaption")).toContainText("Found in 3 moves");
+  await expect(stepper.locator("li.found")).toHaveText(/42/);
+});

@@ -265,4 +265,132 @@ USES = {
             dict(where="OpenStreetMap routing", how="Routing engines convert OpenStreetMap ways into a sparse graph of intersections and road segments before running shortest-path search."),
         ],
     ),
+    'lesson-bits': dict(
+        why="A machine word holds 32 or 64 yes/no flags, and AND, OR, XOR and shifts change them all in one instruction. Small sets, permissions and parity checks become a few integer operations instead of loops over arrays.",
+        uses=[
+            dict(where="Unix file permissions", how="The read, write and execute rights for owner, group and others are nine bits of the file mode, so chmod 755 sets them from three octal digits and checks are bit masks."),
+            dict(where="Chess engine bitboards", how="Engines such as Stockfish store each piece type as a 64-bit board, one bit per square, and generate moves with shifts and masks."),
+            dict(where="Population count instructions", how="Java's Integer.bitCount and C++ std::popcount count set bits, and modern CPUs provide a POPCNT instruction for exactly this."),
+        ],
+    ),
+    'lesson-union-find': dict(
+        why="Rerunning a graph search after every new connection costs O(V+E) each time. Union-find answers whether two items are connected, and merges groups, in close to constant time while connections keep arriving.",
+        uses=[
+            dict(where="Kruskal's minimum spanning tree", how="Kruskal's algorithm asks union-find whether each candidate edge joins two different components before adding it."),
+            dict(where="Connected-component labelling", how="The classic two-pass labelling of binary images records which provisional labels touch and merges them with union-find."),
+            dict(where="Type inference", how="Unification in Hindley-Milner type checkers merges type variables found to be equal, commonly with a union-find structure."),
+        ],
+    ),
+    'lesson-topological-sort': dict(
+        why="Whenever tasks depend on other tasks, they must run in an order where every prerequisite comes first. A topological sort finds such an order in linear time, or proves that circular dependencies make one impossible.",
+        uses=[
+            dict(where="Build tools", how="make and Bazel treat targets as vertices and prerequisites as edges, and build in a topological order so every input exists before it is used."),
+            dict(where="Python graphlib", how="The standard library's graphlib.TopologicalSorter returns nodes in dependency order and raises CycleError when the graph has a cycle."),
+            dict(where="Workflow schedulers", how="Apache Airflow describes pipelines as directed acyclic graphs and starts a task only after all its upstream tasks have finished."),
+        ],
+    ),
+    'lesson-kruskal': dict(
+        why="Connecting every point of a network with the least total wire, pipe or road is a minimum spanning tree problem. Kruskal solves it with one sort and a union-find pass.",
+        uses=[
+            dict(where="Network design", how="Laying cable, pipes or roads so every site is connected at minimum total length is the textbook minimum spanning tree application."),
+            dict(where="Single-linkage clustering", how="Removing the k-1 heaviest edges of a minimum spanning tree gives the same k clusters as single-linkage hierarchical clustering."),
+            dict(where="Approximate travelling salesman tours", how="For distances obeying the triangle inequality, walking a minimum spanning tree and skipping repeated cities gives a tour at most twice the optimum."),
+        ],
+    ),
+    'lesson-bellman-ford': dict(
+        why="Dijkstra fails as soon as an edge cost is negative, and some problems naturally have negative costs. Bellman-Ford still finds shortest paths, and it also reports when a negative cycle makes them meaningless.",
+        uses=[
+            dict(where="Distance-vector routing", how="RIP routers repeatedly share distance tables with neighbours and relax routes through them, a distributed form of Bellman-Ford."),
+            dict(where="Currency arbitrage detection", how="Taking minus the logarithm of each exchange rate turns a profitable loop of trades into a negative cycle that Bellman-Ford can detect."),
+            dict(where="Johnson's algorithm", how="Johnson's all-pairs algorithm runs Bellman-Ford once to reweight edges so none is negative, then runs Dijkstra from every vertex."),
+        ],
+    ),
+    'lesson-floyd-warshall': dict(
+        why="When a graph is small but questions arrive about every pair of vertices, computing one source at a time repeats work. Floyd-Warshall fills the whole distance table in three short loops.",
+        uses=[
+            dict(where="NetworkX", how="networkx.floyd_warshall computes the distance between every pair of nodes, which suits small dense graphs."),
+            dict(where="Transitive closure", how="Warshall's form of the same loops, with booleans instead of distances, computes which items can reach which, such as indirect dependencies."),
+            dict(where="Automata to regular expressions", how="Kleene's construction builds a regular expression for a finite automaton with the same loop over allowed intermediate states."),
+        ],
+    ),
+    'lesson-segment-tree': dict(
+        why="Prefix sums answer range questions instantly but cost O(n) per update, and scanning costs O(n) per question. A segment tree keeps both operations at O(log n), and also works for minimum, maximum and other combinable summaries.",
+        uses=[
+            dict(where="Sweep-line geometry", how="Computing the area covered by many overlapping rectangles sweeps a line across them while a segment tree tracks how much of the line is covered."),
+            dict(where="Lowest common ancestor queries", how="Recording an Euler tour of a tree turns a lowest-common-ancestor query into a range-minimum query, which a segment tree answers in O(log n)."),
+            dict(where="Booking systems", how="A segment tree over time slots with range updates can report the peak number of overlapping bookings in any period as bookings arrive."),
+        ],
+    ),
+    'lesson-fenwick': dict(
+        why="Many counting problems need running totals while individual counts change. A Fenwick tree does both in O(log n) with a single array and a few lines of code.",
+        uses=[
+            dict(where="Arithmetic coding", how="Peter Fenwick introduced the structure in 1994 to maintain cumulative symbol frequencies for adaptive data compression."),
+            dict(where="Counting inversions", how="Scanning values and asking how many larger values were already seen counts out-of-order pairs in O(n log n), a measure used to compare rankings."),
+            dict(where="Live rank queries", how="Indexing scores into a Fenwick tree of counts lets a leaderboard report how many players are below a score while scores keep changing."),
+        ],
+    ),
+    'lesson-interval-scheduling': dict(
+        why="Choosing the most compatible requests by trial is exponential. Sorting by finish time and taking each request that still fits is optimal for this problem and runs in O(n log n).",
+        uses=[
+            dict(where="Room booking", how="Accepting the largest number of meetings in a single room is exactly this problem when every meeting counts the same."),
+            dict(where="Single-machine job selection", how="When jobs have fixed start and end times and equal value, earliest finish maximises how many one machine can complete."),
+            dict(where="Placing the fewest checkpoints", how="Covering every interval with as few points as possible, such as sensors or arrows, uses the same earliest-end sort and greedy choice."),
+        ],
+    ),
+    'lesson-kmp': dict(
+        why="The naive search can compare the same text characters many times, up to O(nm) in total. KMP reuses what the matched characters already revealed and never moves backwards in the text, so it finishes in O(n+m).",
+        uses=[
+            dict(where="Intrusion detection", how="Snort matches packet payloads against many signatures with Aho-Corasick, which extends KMP's failure links from one pattern to a set of patterns."),
+            dict(where="Streaming input", how="Because the text position only moves forward, KMP can search data arriving over a network or serial line without buffering it for a second pass."),
+            dict(where="Period detection", how="The last failure value gives the longest border of a string, and the length minus that border is its shortest repeating period."),
+        ],
+    ),
+    'lesson-rabin-karp': dict(
+        why="Comparing a pattern at every position costs O(m) per position. A rolling hash updates in O(1) per step, so only positions whose hash matches need a full comparison, and it compares many fixed-length windows at once.",
+        uses=[
+            dict(where="Plagiarism detection", how="Stanford's MOSS hashes every k-character window of each submission and compares selected fingerprints to find shared passages."),
+            dict(where="Backup deduplication", how="Tools such as restic cut files where a rolling Rabin fingerprint hits a chosen pattern, so an insertion only changes nearby chunks."),
+            dict(where="Genome analysis", how="Read aligners and assemblers hash fixed-length k-mers of DNA, updating the hash as the window slides one base at a time."),
+        ],
+    ),
+    'lesson-monotonic-stack': dict(
+        why="Finding the next larger value for every position by scanning ahead costs O(n²) in the worst case. A stack of still-waiting positions resolves all of them in one O(n) pass.",
+        uses=[
+            dict(where="Cartesian trees", how="Building a Cartesian tree, used for range-minimum preprocessing, keeps the rightmost path on a stack and pops larger values as each element arrives."),
+            dict(where="Stock span indicators", how="The span of a price, the number of consecutive earlier days with no higher price, comes from a stack of earlier higher prices."),
+            dict(where="Maximal rectangles", how="The largest all-ones rectangle in a binary grid is found row by row with the histogram stack technique, as in some layout and image tasks."),
+        ],
+    ),
+    'lesson-monotonic-queue': dict(
+        why="Recomputing the maximum of each window costs O(k) per step, and a heap costs O(log k). A deque that keeps only possible maxima gives every window maximum in O(1) amortised time.",
+        uses=[
+            dict(where="Streaming max and min filters", how="Lemire's streaming maximum-minimum filter keeps monotonic wedges of candidates to compute running extremes with about three comparisons per value."),
+            dict(where="Image morphology", how="Dilation and erosion with a line-shaped window are sliding maximum and minimum filters along rows and columns."),
+            dict(where="Trading indicators", how="Channel indicators such as Donchian channels report the highest high and lowest low over the last n periods of a price series."),
+        ],
+    ),
+    'lesson-knapsack': dict(
+        why="Trying every subset of n items costs 2^n. When weights are small integers, a table over item count and capacity solves the take-or-skip problem in O(nW).",
+        uses=[
+            dict(where="Capital budgeting", how="Choosing which projects to fund under a fixed budget, each funded fully or not at all, is a 0/1 knapsack over cost and expected return."),
+            dict(where="Load balancing", how="Splitting jobs between two machines as evenly as possible is subset sum, a special case of the knapsack table."),
+            dict(where="Knapsack cryptosystems", how="The Merkle-Hellman cryptosystem of 1978 was based on a hard knapsack instance; it was later broken, which is why it is a historical example."),
+        ],
+    ),
+    'lesson-lcs': dict(
+        why="Comparing two sequences position by position fails as soon as one has an insertion. The LCS table finds the largest set of matching items that keep their order, which is the core of every diff.",
+        uses=[
+            dict(where="diff and git diff", how="GNU diff and Git use Myers' algorithm, which finds a shortest edit script and so a longest common subsequence of the lines."),
+            dict(where="Sequence alignment", how="Needleman-Wunsch alignment of DNA or protein sequences fills the same two-dimensional table with scores for matches, mismatches and gaps."),
+            dict(where="Three-way merges", how="diff3 and version-control merges align both edited versions with their common ancestor to find which regions changed on each side."),
+        ],
+    ),
+    'lesson-interval-dp': dict(
+        why="Some problems are about how to bracket or split a sequence, and the number of bracketings grows exponentially. Interval DP solves every contiguous range once, from short to long, in polynomial time.",
+        uses=[
+            dict(where="NumPy multi_dot", how="numpy.linalg.multi_dot picks the cheapest multiplication order for three or more matrices with the matrix-chain dynamic program."),
+            dict(where="CYK parsing", how="The CYK algorithm decides which grammar symbols can produce each span of a sentence, combining shorter spans into longer ones."),
+            dict(where="RNA folding", how="The Nussinov algorithm predicts RNA secondary structure by maximising base pairs over every subsequence range."),
+        ],
+    ),
 }

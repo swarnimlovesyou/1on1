@@ -60,7 +60,7 @@ class PrepTest {
     challenges.attempt("learner", "challenge-test-guide-q2", new Contracts.AttemptRequest(1, UUID.randomUUID().toString()));
     assertEquals("guide-cs-fundamentals-test", store.db.queryForObject("select lesson_id from challenge_attempts", String.class));
     var map = new LearningMapService(store).map("learner");
-    assertEquals(24, Store.items(map.get("concepts")).size());
+    assertEquals(40, Store.items(map.get("concepts")).size());
     assertTrue(Store.items(map.get("reviewsDue")).isEmpty());
   }
 

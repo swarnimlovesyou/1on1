@@ -47,7 +47,7 @@ class PracticeContentTest {
 
   @Test
   void everyCoreLessonHasTwoSubstantiveChecksAndAPatternDrillAndLinkedProblems() {
-    assertEquals(24, core.size());
+    assertEquals(40, core.size());
     for (var lesson : core) {
       var list = ChallengeService.authored(lesson);
       long substantive = list.stream().filter(c -> List.of("prediction", "dry-run", "manipulation").contains(c.get("kind"))).count();
@@ -132,7 +132,7 @@ class PracticeContentTest {
       assertFalse(grade(c, wrong).correct(), c.get("id") + " accepted a wrong value");
       checked++;
     }
-    assertEquals(31, checked, "one dry run per core and advanced lesson");
+    assertEquals(47, checked, "one dry run per core and advanced lesson");
   }
 
   @Test

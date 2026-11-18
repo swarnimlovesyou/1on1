@@ -9,6 +9,23 @@ SCENES = {
     'intervals':dict(input='1,3,2,6,8,10',target=0),
     'matrices':dict(input='1,2,3,4,5,6',target=3),
     'graphs':dict(input='0,1,0,2,2,3',target=4),
+    # Phase 3: fixed contract with the board traces (algorithm id = lesson slug)
+    'union-find':dict(input='0,1,2,3,1,2,4,5',target=6),
+    'topological-sort':dict(input='0,2,1,2,2,3,3,4,1,4',target=5),
+    'kruskal':dict(input='0,1,4,0,2,1,1,2,2,1,3,5,2,3,8,3,4,3',target=5),
+    'bellman-ford':dict(input='0,1,6,0,2,7,1,2,8,1,3,5,2,3,-3,3,1,-2',target=4),
+    'floyd-warshall':dict(input='0,1,3,1,2,1,0,2,7,2,3,2',target=4),
+    'segment-tree':dict(input='5,2,7,1,3,6|1,4',target=0),
+    'fenwick':dict(input='5,2,7,1,3,6',target=4),
+    'interval-scheduling':dict(input='1,4,3,5,0,6,5,7,3,9,5,9,6,10,8,11',target=0),
+    'bits':dict(input='4,1,2,1,2',target=0),
+    'kmp':dict(input='',target=0,words='abxabcabcaby|abcaby'),
+    'rabin-karp':dict(input='',target=0,words='abracadabra|cad'),
+    'monotonic-stack':dict(input='2,1,5,6,2,3',target=0),
+    'monotonic-queue':dict(input='1,3,-1,-3,5,3,6,7',target=3),
+    'knapsack':dict(input='1,1,3,4,4,5,5,7',target=7),
+    'lcs':dict(input='',target=0,words='abcde|ace'),
+    'interval-dp':dict(input='10,30,5,60',target=0),
 }
 
 def enrich(lessons,curriculum):

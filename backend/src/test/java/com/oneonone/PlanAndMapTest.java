@@ -93,7 +93,7 @@ class PlanAndMapTest {
   void conceptsComeInPrerequisiteOrderAndAGuestStartsAtTheBeginning() {
     var m = map.map(null);
     var concepts = Store.items(m.get("concepts"));
-    assertEquals(24, concepts.size());
+    assertEquals(40, concepts.size());
     Map<String, Integer> position = new HashMap<>();
     for (int i = 0; i < concepts.size(); i++) position.put(concepts.get(i).get("id").toString(), i);
     for (var c : concepts) for (String p : Store.strings(c.get("prerequisites"))) assertTrue(

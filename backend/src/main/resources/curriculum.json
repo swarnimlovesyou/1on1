@@ -1,7 +1,7 @@
 {
   "version": 1,
   "title": "1on1 Core Curriculum",
-  "conceptCount": 24,
+  "conceptCount": 40,
   "flow": [
     "visual-concept",
     "minimal-java",
@@ -2538,6 +2538,1784 @@
       ],
       "contentStatus": "authored",
       "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-bits",
+      "title": "Bit Manipulation",
+      "order": 25,
+      "prerequisites": [
+        "concept-arrays"
+      ],
+      "lessonIds": [
+        "lesson-bits"
+      ],
+      "objectives": [
+        "Use XOR to cancel values that appear in pairs.",
+        "Clear the lowest set bit with n & (n-1) and count set bits with it."
+      ],
+      "mentalModel": "An int is a row of 32 switches. XOR flips switches: a value XORed with itself is 0 and XOR with 0 changes nothing, so pairs cancel in any order. n-1 turns the lowest 1 of n into 0 and the zeros below it into 1s, so n & (n-1) removes exactly that lowest 1.",
+      "workedExample": "XOR [4,1,2,1,2] from 0: 4, 5, 7, 6, 4. The two 1s and two 2s cancel, leaving the single 4. For n=6 (110), 6&5=4 (100) and 4&3=0, so 6 has two set bits.",
+      "invariant": "After reading a prefix, x equals the XOR of that prefix, which is the XOR of the values seen an odd number of times.",
+      "commonMistake": "XOR finds a single value only when every other value appears an even number of times. In Java, >> keeps the sign bit and >>> shifts in zeros; a negative int has 32 bits to count, not its absolute value.",
+      "complexity": {
+        "time": "O(n) XOR scan; O(set bits) counting",
+        "space": "O(1)",
+        "assumptions": "32-bit Java int; every value except one appears exactly twice for the XOR trick."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int single(int[] a) {\n        int x = 0;\n        for (int v : a) x ^= v;\n        return x;\n    }\n    static int ones(int n) {\n        int count = 0;\n        while (n != 0) {\n            n &= n - 1;\n            count++;\n        }\n        return count;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int single(int[] a) {\n        int x = 0;\n        for (int v : a) x ^= v;\n        return x;\n    }\n    static int ones(int n) {\n        int count = 0;\n        while (n != 0) {\n            n &= n - 1;\n            count++;\n        }\n        return count;\n    }\n}",
+        "cases": [
+          {
+            "expression": "single(new int[]{4,1,2,1,2})",
+            "expected": "4"
+          },
+          {
+            "expression": "single(new int[]{7})",
+            "expected": "7"
+          },
+          {
+            "expression": "single(new int[]{-3,5,5})",
+            "expected": "-3"
+          },
+          {
+            "expression": "ones(6)",
+            "expected": "2"
+          },
+          {
+            "expression": "ones(0)",
+            "expected": "0"
+          },
+          {
+            "expression": "ones(-1)",
+            "expected": "32"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 3,
+            "explanation": "Fold the next value in; a value seen twice cancels itself."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "What is 6 & 5?",
+        "options": [
+          "4",
+          "6",
+          "0"
+        ],
+        "answer": 0,
+        "explanation": "110 & 101 keeps only the shared 1, giving 100, which is 4: the lowest set bit of 6 is cleared."
+      },
+      "visualization": {
+        "exampleInput": "a=[4,1,2,1,2]",
+        "expectedStates": [
+          "x=4",
+          "x=5",
+          "x=7",
+          "x=6",
+          "x=4: the single value",
+          "4&3=0: one set bit"
+        ],
+        "manipulation": "Change the unpaired value or add a third copy of a value; predict the final XOR.",
+        "limits": "Small nonnegative teaching values so binary rows stay readable.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "bits",
+          "seed": 42,
+          "input": "4,1,2,1,2",
+          "target": 0
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-136",
+          "role": "introduction",
+          "connection": "Cancel pairs with XOR.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-191",
+          "role": "transfer",
+          "connection": "Clear the lowest set bit repeatedly.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-union-find",
+      "title": "Union-Find (Disjoint Set Union)",
+      "order": 26,
+      "prerequisites": [
+        "concept-arrays",
+        "concept-graphs"
+      ],
+      "lessonIds": [
+        "lesson-union-find"
+      ],
+      "objectives": [
+        "Merge groups and test whether two items share a group in near-constant time.",
+        "Explain how union by size and path compression keep trees shallow."
+      ],
+      "mentalModel": "Each group is a tree stored in a parent array, and its root names the group. find follows parent links to the root; union links one root under the other. Two items are connected exactly when their roots are equal.",
+      "workedExample": "Six vertices start as six groups. Union 0,1 then 2,3 leaves four groups. Union 1,2 joins roots 0 and 2 into one group of four. Union 4,5 leaves two groups: {0,1,2,3} and {4,5}.",
+      "invariant": "Every vertex reaches exactly one root, and two vertices share a root precisely when the unions so far connect them.",
+      "commonMistake": "Linking a vertex instead of its root breaks the group apart. Without union by size and path compression a chain can grow to length n, making each find O(n). Union-find cannot split a group again.",
+      "complexity": {
+        "time": "O(α(n)) amortised per operation; α grows so slowly it is below 5 for any practical n",
+        "space": "O(n) parent and size arrays",
+        "assumptions": "Vertices 0..n-1; undirected pairs; union by size with path halving."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int find(int[] parent, int x) {\n        while (parent[x] != x) {\n            parent[x] = parent[parent[x]];\n            x = parent[x];\n        }\n        return x;\n    }\n    static int components(int n, int[] pairs) {\n        if (n < 0 || pairs.length % 2 != 0) throw new IllegalArgumentException();\n        int[] parent = new int[n], size = new int[n];\n        for (int i = 0; i < n; i++) { parent[i] = i; size[i] = 1; }\n        int count = n;\n        for (int i = 0; i < pairs.length; i += 2) {\n            int a = find(parent, pairs[i]), b = find(parent, pairs[i + 1]);\n            if (a == b) continue;\n            if (size[a] < size[b]) { int t = a; a = b; b = t; }\n            parent[b] = a; size[a] += size[b]; count--;\n        }\n        return count;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int find(int[] parent, int x) {\n        while (parent[x] != x) {\n            parent[x] = parent[parent[x]];\n            x = parent[x];\n        }\n        return x;\n    }\n    static int components(int n, int[] pairs) {\n        if (n < 0 || pairs.length % 2 != 0) throw new IllegalArgumentException();\n        int[] parent = new int[n], size = new int[n];\n        for (int i = 0; i < n; i++) { parent[i] = i; size[i] = 1; }\n        int count = n;\n        for (int i = 0; i < pairs.length; i += 2) {\n            int a = find(parent, pairs[i]), b = find(parent, pairs[i + 1]);\n            if (a == b) continue;\n            if (size[a] < size[b]) { int t = a; a = b; b = t; }\n            parent[b] = a; size[a] += size[b]; count--;\n        }\n        return count;\n    }\n}",
+        "cases": [
+          {
+            "expression": "components(6,new int[]{0,1,2,3,1,2,4,5})",
+            "expected": "2"
+          },
+          {
+            "expression": "components(3,new int[]{})",
+            "expected": "3"
+          },
+          {
+            "expression": "components(3,new int[]{0,1,1,0,0,0})",
+            "expected": "2"
+          },
+          {
+            "expression": "components(0,new int[]{})",
+            "expected": "0"
+          },
+          {
+            "expression": "components(2,new int[]{0})",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 16,
+            "explanation": "Hang the smaller tree under the larger root so trees stay shallow."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "After union(0,1) and union(2,3), what does union(1,2) link?",
+        "options": [
+          "Vertex 1 under vertex 2",
+          "The root of 2 under the root of 1",
+          "Nothing, they are already connected"
+        ],
+        "answer": 1,
+        "explanation": "Union always works on roots: find(1)=0 and find(2)=2, so one root is linked under the other."
+      },
+      "visualization": {
+        "exampleInput": "n=6; pairs (0,1),(2,3),(1,2),(4,5)",
+        "expectedStates": [
+          "six singleton groups",
+          "union 0,1: five groups",
+          "union 2,3: four groups",
+          "union 1,2: roots 0 and 2 join, three groups",
+          "union 4,5: two groups"
+        ],
+        "manipulation": "Add a pair that is already connected and check that the count does not change.",
+        "limits": "Small vertex counts; every vertex must lie in 0..n-1.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "union-find",
+          "seed": 42,
+          "input": "0,1,2,3,1,2,4,5",
+          "target": 6
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-547",
+          "role": "introduction",
+          "connection": "Count components with merges.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-684",
+          "role": "transfer",
+          "connection": "Detect the edge whose ends already share a root.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-topological-sort",
+      "title": "Topological Sort",
+      "order": 27,
+      "prerequisites": [
+        "concept-bfs"
+      ],
+      "lessonIds": [
+        "lesson-topological-sort"
+      ],
+      "objectives": [
+        "Order the vertices of a directed acyclic graph so every edge points forward.",
+        "Detect a cycle when some vertices never reach indegree zero."
+      ],
+      "mentalModel": "A vertex can be placed once nothing still points into it. Kahn's algorithm keeps a queue of vertices whose indegree is zero; placing one removes its outgoing edges, which may free its successors.",
+      "workedExample": "Edges 0→2, 1→2, 2→3, 3→4, 1→4 give indegrees [0,0,2,1,2]. The queue starts [0,1]. Placing 0 drops 2 to 1; placing 1 drops 2 to 0 and 4 to 1; then 2, 3 and 4 follow. Order: [0,1,2,3,4].",
+      "invariant": "Every placed vertex has all its predecessors placed earlier, and a vertex enters the queue exactly when its remaining indegree reaches zero.",
+      "commonMistake": "A topological order exists only for acyclic graphs: if fewer than n vertices are placed, the rest lie on or behind a cycle. Many valid orders can exist; the queue discipline picks one.",
+      "complexity": {
+        "time": "O(V+E)",
+        "space": "O(V+E) adjacency plus O(V) indegrees",
+        "assumptions": "Directed edges u→v meaning u before v; ties resolved in vertex order by a FIFO queue; null signals a cycle."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static List<Integer> order(int n, int[] edges) {\n        List<List<Integer>> out = new ArrayList<>();\n        int[] indegree = new int[n];\n        for (int i = 0; i < n; i++) out.add(new ArrayList<>());\n        for (int i = 0; i < edges.length; i += 2) {\n            out.get(edges[i]).add(edges[i + 1]);\n            indegree[edges[i + 1]]++;\n        }\n        Deque<Integer> ready = new ArrayDeque<>();\n        for (int v = 0; v < n; v++) if (indegree[v] == 0) ready.addLast(v);\n        List<Integer> order = new ArrayList<>();\n        while (!ready.isEmpty()) {\n            int u = ready.removeFirst();\n            order.add(u);\n            for (int v : out.get(u)) if (--indegree[v] == 0) ready.addLast(v);\n        }\n        return order.size() == n ? order : null;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic List<Integer> order(int n, int[] edges) {\n        List<List<Integer>> out = new ArrayList<>();\n        int[] indegree = new int[n];\n        for (int i = 0; i < n; i++) out.add(new ArrayList<>());\n        for (int i = 0; i < edges.length; i += 2) {\n            out.get(edges[i]).add(edges[i + 1]);\n            indegree[edges[i + 1]]++;\n        }\n        Deque<Integer> ready = new ArrayDeque<>();\n        for (int v = 0; v < n; v++) if (indegree[v] == 0) ready.addLast(v);\n        List<Integer> order = new ArrayList<>();\n        while (!ready.isEmpty()) {\n            int u = ready.removeFirst();\n            order.add(u);\n            for (int v : out.get(u)) if (--indegree[v] == 0) ready.addLast(v);\n        }\n        return order.size() == n ? order : null;\n    }\n}",
+        "cases": [
+          {
+            "expression": "order(5,new int[]{0,2,1,2,2,3,3,4,1,4})",
+            "expected": "[0, 1, 2, 3, 4]"
+          },
+          {
+            "expression": "order(3,new int[]{0,1,1,2,2,0})",
+            "expected": "null"
+          },
+          {
+            "expression": "order(3,new int[]{})",
+            "expected": "[0, 1, 2]"
+          },
+          {
+            "expression": "order(3,new int[]{2,0})",
+            "expected": "[1, 2, 0]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 15,
+            "explanation": "Removing the edge u→v may free v; enqueue it once nothing points into it."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Indegrees are [0,0,2,1,2]. After placing 0, what is the indegree of vertex 2?",
+        "options": [
+          "2",
+          "1",
+          "0"
+        ],
+        "answer": 1,
+        "explanation": "Only the edge 0→2 has been removed; the edge 1→2 still points into 2."
+      },
+      "visualization": {
+        "exampleInput": "n=5; edges 0→2,1→2,2→3,3→4,1→4",
+        "expectedStates": [
+          "indegree [0,0,2,1,2]; queue [0,1]",
+          "place 0: queue [1]",
+          "place 1: queue [2]",
+          "place 2, then 3, then 4",
+          "order [0,1,2,3,4]"
+        ],
+        "manipulation": "Add an edge that closes a cycle and watch vertices stay stuck above indegree zero.",
+        "limits": "Small directed graphs; vertices must lie in 0..n-1.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "topological-sort",
+          "seed": 42,
+          "input": "0,2,1,2,2,3,3,4,1,4",
+          "target": 5
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-207",
+          "role": "introduction",
+          "connection": "Decide whether an order exists.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-210",
+          "role": "transfer",
+          "connection": "Return the order itself.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-kruskal",
+      "title": "Minimum Spanning Tree (Kruskal)",
+      "order": 28,
+      "prerequisites": [
+        "concept-sorting",
+        "concept-union-find"
+      ],
+      "lessonIds": [
+        "lesson-kruskal"
+      ],
+      "objectives": [
+        "Build a minimum spanning tree by taking the cheapest edge that joins two different components.",
+        "Use union-find to reject edges that would close a cycle."
+      ],
+      "mentalModel": "Sort the edges by weight and walk the list. An edge whose ends are already connected would close a cycle, so skip it; otherwise take it and merge the two components. Once n-1 edges are taken the tree is complete, and every later edge is skipped.",
+      "workedExample": "For 5 vertices the sorted weights are 1 (0-2), 2 (1-2), 3 (3-4), 4 (0-1), 5 (1-3), 8 (2-3). Take 1, 2 and 3; skip 4 because 0 and 1 are already joined; take 5. Four edges, total 11.",
+      "invariant": "The edges taken so far form a forest that is contained in some minimum spanning tree.",
+      "commonMistake": "An MST minimises the total weight of a tree that touches every vertex; it is not a shortest-path tree, and the route between two vertices inside it can be long. A disconnected graph has no spanning tree, only a spanning forest.",
+      "complexity": {
+        "time": "O(E log E) for sorting; the union-find work is nearly linear",
+        "space": "O(V+E)",
+        "assumptions": "Undirected weighted edges as u,v,w triples; returns -1 when the graph is disconnected."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int mst(int n, int[] t) {\n        if (t.length % 3 != 0) throw new IllegalArgumentException();\n        int[][] edges = new int[t.length / 3][];\n        for (int i = 0; i < edges.length; i++) edges[i] = new int[]{t[3 * i], t[3 * i + 1], t[3 * i + 2]};\n        Arrays.sort(edges, Comparator.comparingInt(e -> e[2]));\n        int[] parent = new int[n];\n        for (int i = 0; i < n; i++) parent[i] = i;\n        int total = 0, used = 0;\n        for (int[] e : edges) {\n            int a = find(parent, e[0]), b = find(parent, e[1]);\n            if (a == b) continue;\n            parent[b] = a; total += e[2]; used++;\n        }\n        return used == n - 1 ? total : -1;\n    }\n    static int find(int[] parent, int x) {\n        while (parent[x] != x) {\n            parent[x] = parent[parent[x]];\n            x = parent[x];\n        }\n        return x;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int mst(int n, int[] t) {\n        if (t.length % 3 != 0) throw new IllegalArgumentException();\n        int[][] edges = new int[t.length / 3][];\n        for (int i = 0; i < edges.length; i++) edges[i] = new int[]{t[3 * i], t[3 * i + 1], t[3 * i + 2]};\n        Arrays.sort(edges, Comparator.comparingInt(e -> e[2]));\n        int[] parent = new int[n];\n        for (int i = 0; i < n; i++) parent[i] = i;\n        int total = 0, used = 0;\n        for (int[] e : edges) {\n            int a = find(parent, e[0]), b = find(parent, e[1]);\n            if (a == b) continue;\n            parent[b] = a; total += e[2]; used++;\n        }\n        return used == n - 1 ? total : -1;\n    }\n    static int find(int[] parent, int x) {\n        while (parent[x] != x) {\n            parent[x] = parent[parent[x]];\n            x = parent[x];\n        }\n        return x;\n    }\n}",
+        "cases": [
+          {
+            "expression": "mst(5,new int[]{0,1,4,0,2,1,1,2,2,1,3,5,2,3,8,3,4,3})",
+            "expected": "11"
+          },
+          {
+            "expression": "mst(4,new int[]{0,1,1,2,3,1})",
+            "expected": "-1"
+          },
+          {
+            "expression": "mst(1,new int[]{})",
+            "expected": "0"
+          },
+          {
+            "expression": "mst(3,new int[]{0,1,2,1,2,2,0,2,2})",
+            "expected": "4"
+          },
+          {
+            "expression": "mst(3,new int[]{0,1})",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 11,
+            "explanation": "Both ends already share a root: this edge would close a cycle."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "The edges 0-2 and 1-2 are taken. Why is 0-1 (weight 4) skipped?",
+        "options": [
+          "Its weight is too large",
+          "0 and 1 are already in one component",
+          "It is a directed edge"
+        ],
+        "answer": 1,
+        "explanation": "0 and 1 are already connected through 2, so adding 0-1 would close a cycle."
+      },
+      "visualization": {
+        "exampleInput": "n=5; edges (0,1,4),(0,2,1),(1,2,2),(1,3,5),(2,3,8),(3,4,3)",
+        "expectedStates": [
+          "sort by weight",
+          "take 0-2 (1), 1-2 (2), 3-4 (3)",
+          "skip 0-1 (4): cycle",
+          "take 1-3 (5): four edges, total 11"
+        ],
+        "manipulation": "Lower one skipped weight and predict which tree edge it replaces.",
+        "limits": "Small undirected graphs; equal weights keep input order.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "kruskal",
+          "seed": 42,
+          "input": "0,1,4,0,2,1,1,2,2,1,3,5,2,3,8,3,4,3",
+          "target": 5
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-1584",
+          "role": "introduction",
+          "connection": "Run Kruskal on a complete geometric graph.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1489",
+          "role": "transfer",
+          "connection": "Probe each edge by excluding and forcing it.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-bellman-ford",
+      "title": "Bellman-Ford",
+      "order": 29,
+      "prerequisites": [
+        "concept-graphs",
+        "concept-dynamic-programming"
+      ],
+      "lessonIds": [
+        "lesson-bellman-ford"
+      ],
+      "objectives": [
+        "Find shortest paths when some edge weights are negative.",
+        "Detect a negative cycle reachable from the source."
+      ],
+      "mentalModel": "Relax every edge, in a fixed order, again and again. After pass k every shortest path that uses at most k edges is known. A shortest path visits each vertex once, so n-1 passes are enough; a change in pass n proves a negative cycle.",
+      "workedExample": "From source 0 with distances [0,∞,∞,∞], the first pass sets 1 to 6 and 2 to 7, then 3 to 11 via 1, then to 4 via 2→3 (weight -3), then 1 to 2 via 3→1 (weight -2). The second pass changes nothing, so [0,2,7,4] is final.",
+      "invariant": "After pass k, each distance is at most the length of the shortest path that uses k edges or fewer, and is always the length of some real path.",
+      "commonMistake": "Dijkstra is faster but its settled-means-final argument fails with negative edges. Shortest paths are undefined when a negative cycle is reachable, so report it instead of returning numbers. Never add a weight to an infinite distance.",
+      "complexity": {
+        "time": "O(VE)",
+        "space": "O(V)",
+        "assumptions": "Directed u,v,w triples; Long.MAX_VALUE marks unreachable; null signals a reachable negative cycle; stops early when a pass changes nothing."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static final long INF = Long.MAX_VALUE;\n    static long[] distances(int n, int[] t, int source) {\n        if (t.length % 3 != 0) throw new IllegalArgumentException();\n        long[] d = new long[n];\n        Arrays.fill(d, INF);\n        d[source] = 0;\n        for (int pass = 1; pass <= n; pass++) {\n            boolean changed = false;\n            for (int i = 0; i < t.length; i += 3) {\n                int u = t[i], v = t[i + 1], w = t[i + 2];\n                if (d[u] != INF && d[u] + w < d[v]) { d[v] = d[u] + w; changed = true; }\n            }\n            if (!changed) return d;\n        }\n        return null; // still improving on pass n: a negative cycle is reachable\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic final long INF = Long.MAX_VALUE;\n    static long[] distances(int n, int[] t, int source) {\n        if (t.length % 3 != 0) throw new IllegalArgumentException();\n        long[] d = new long[n];\n        Arrays.fill(d, INF);\n        d[source] = 0;\n        for (int pass = 1; pass <= n; pass++) {\n            boolean changed = false;\n            for (int i = 0; i < t.length; i += 3) {\n                int u = t[i], v = t[i + 1], w = t[i + 2];\n                if (d[u] != INF && d[u] + w < d[v]) { d[v] = d[u] + w; changed = true; }\n            }\n            if (!changed) return d;\n        }\n        return null; // still improving on pass n: a negative cycle is reachable\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(distances(4,new int[]{0,1,6,0,2,7,1,2,8,1,3,5,2,3,-3,3,1,-2},0))",
+            "expected": "[0, 2, 7, 4]"
+          },
+          {
+            "expression": "Arrays.toString(distances(3,new int[]{0,1,1,1,2,-2,2,1,1},0))",
+            "expected": "null"
+          },
+          {
+            "expression": "Arrays.toString(distances(3,new int[]{0,1,5},0))",
+            "expected": "[0, 5, 9223372036854775807]"
+          },
+          {
+            "expression": "Arrays.toString(distances(1,new int[]{},0))",
+            "expected": "[0]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 11,
+            "explanation": "Relax one edge; skip unreachable sources so infinity is never added to."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "In pass 1, distance[3] is 11 via 1→3. Then 2→3 with weight -3 is relaxed and distance[2] is 7. What is distance[3] now?",
+        "options": [
+          "11",
+          "4",
+          "-3"
+        ],
+        "answer": 1,
+        "explanation": "7 + (-3) = 4 is smaller than 11, so the estimate drops to 4."
+      },
+      "visualization": {
+        "exampleInput": "source 0; edges (0,1,6),(0,2,7),(1,2,8),(1,3,5),(2,3,-3),(3,1,-2)",
+        "expectedStates": [
+          "[0,∞,∞,∞]",
+          "pass 1: d[1]=6, d[2]=7, d[3]=11",
+          "2→3 lowers d[3] to 4; 3→1 lowers d[1] to 2",
+          "pass 2: no change; final [0,2,7,4]"
+        ],
+        "manipulation": "Make a cycle negative and watch pass n still improve a distance.",
+        "limits": "Small directed graphs with source 0; the trace stops early when a pass changes nothing.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "bellman-ford",
+          "seed": 42,
+          "input": "0,1,6,0,2,7,1,2,8,1,3,5,2,3,-3,3,1,-2",
+          "target": 4
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-743",
+          "role": "introduction",
+          "connection": "Relax edges from one source.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-787",
+          "role": "transfer",
+          "connection": "Limit the number of edges with pass-by-pass copies.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-floyd-warshall",
+      "title": "Floyd-Warshall",
+      "order": 30,
+      "prerequisites": [
+        "concept-graphs",
+        "concept-matrices",
+        "concept-dynamic-programming"
+      ],
+      "lessonIds": [
+        "lesson-floyd-warshall"
+      ],
+      "objectives": [
+        "Compute shortest distances between every pair of vertices.",
+        "Explain the meaning of the outer loop over intermediate vertices."
+      ],
+      "mentalModel": "Keep a distance matrix. Round k asks, for every pair i,j, whether going through vertex k is shorter: d[i][j] = min(d[i][j], d[i][k] + d[k][j]). After round k, paths may use any of the vertices 0..k in between.",
+      "workedExample": "With edges 0→1 (3), 1→2 (1), 0→2 (7), 2→3 (2), round 0 changes nothing. Round 1 improves 0→2 from 7 to 4. Round 2 sets 0→3 to 6 and 1→3 to 3. Round 3 changes nothing. Row 0 ends as [0,3,4,6].",
+      "invariant": "After round k, d[i][j] is the shortest i-to-j distance using only vertices 0..k as intermediate stops.",
+      "commonMistake": "The intermediate vertex k must be the outermost loop; putting it inside computes something else. Guard infinite entries before adding them. A negative d[i][i] at the end reveals a negative cycle.",
+      "complexity": {
+        "time": "O(V³)",
+        "space": "O(V²) matrix",
+        "assumptions": "Directed u,v,w triples; INF = 1,000,000,000 marks no path; parallel edges keep the lighter weight."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static final int INF = 1_000_000_000;\n    static int[][] allPairs(int n, int[] t) {\n        if (t.length % 3 != 0) throw new IllegalArgumentException();\n        int[][] d = new int[n][n];\n        for (int[] row : d) Arrays.fill(row, INF);\n        for (int i = 0; i < n; i++) d[i][i] = 0;\n        for (int i = 0; i < t.length; i += 3) d[t[i]][t[i + 1]] = Math.min(d[t[i]][t[i + 1]], t[i + 2]);\n        for (int k = 0; k < n; k++)\n            for (int i = 0; i < n; i++)\n                for (int j = 0; j < n; j++)\n                    if (d[i][k] < INF && d[k][j] < INF && d[i][k] + d[k][j] < d[i][j]) d[i][j] = d[i][k] + d[k][j];\n        return d;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic final int INF = 1_000_000_000;\n    static int[][] allPairs(int n, int[] t) {\n        if (t.length % 3 != 0) throw new IllegalArgumentException();\n        int[][] d = new int[n][n];\n        for (int[] row : d) Arrays.fill(row, INF);\n        for (int i = 0; i < n; i++) d[i][i] = 0;\n        for (int i = 0; i < t.length; i += 3) d[t[i]][t[i + 1]] = Math.min(d[t[i]][t[i + 1]], t[i + 2]);\n        for (int k = 0; k < n; k++)\n            for (int i = 0; i < n; i++)\n                for (int j = 0; j < n; j++)\n                    if (d[i][k] < INF && d[k][j] < INF && d[i][k] + d[k][j] < d[i][j]) d[i][j] = d[i][k] + d[k][j];\n        return d;\n    }\n}",
+        "cases": [
+          {
+            "expression": "allPairs(4,new int[]{0,1,3,1,2,1,0,2,7,2,3,2})[0][3]",
+            "expected": "6"
+          },
+          {
+            "expression": "Arrays.toString(allPairs(4,new int[]{0,1,3,1,2,1,0,2,7,2,3,2})[0])",
+            "expected": "[0, 3, 4, 6]"
+          },
+          {
+            "expression": "allPairs(4,new int[]{0,1,3,1,2,1,0,2,7,2,3,2})[1][0] == INF",
+            "expected": "true"
+          },
+          {
+            "expression": "allPairs(2,new int[]{0,1,5,0,1,2})[0][1]",
+            "expected": "2"
+          },
+          {
+            "expression": "allPairs(3,new int[]{0,1,4,1,2,-2,0,2,3})[0][2]",
+            "expected": "2"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 11,
+            "explanation": "Try vertex k as a stop between i and j; k is the outermost loop."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Before round 2, d[0][2]=4 and d[2][3]=2. What does round 2 set d[0][3] to?",
+        "options": [
+          "7",
+          "6",
+          "Infinity"
+        ],
+        "answer": 1,
+        "explanation": "Going through vertex 2 costs 4 + 2 = 6, which beats no path at all."
+      },
+      "visualization": {
+        "exampleInput": "n=4; edges 0→1 (3), 1→2 (1), 0→2 (7), 2→3 (2)",
+        "expectedStates": [
+          "initial matrix from edges",
+          "k=0: no change",
+          "k=1: d[0][2]=4",
+          "k=2: d[0][3]=6, d[1][3]=3",
+          "k=3: no change"
+        ],
+        "manipulation": "Add a cheaper direct edge and predict which rounds still improve anything.",
+        "limits": "Small directed graphs; the matrix stays readable up to a handful of vertices.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "floyd-warshall",
+          "seed": 42,
+          "input": "0,1,3,1,2,1,0,2,7,2,3,2",
+          "target": 4
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-1334",
+          "role": "introduction",
+          "connection": "Count neighbours from an all-pairs matrix.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1462",
+          "role": "transfer",
+          "connection": "Use the same loop order for boolean reachability.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-segment-tree",
+      "title": "Segment Tree",
+      "order": 31,
+      "prerequisites": [
+        "concept-prefix-sums",
+        "concept-binary-trees"
+      ],
+      "lessonIds": [
+        "lesson-segment-tree"
+      ],
+      "objectives": [
+        "Answer range-sum queries and point updates in O(log n) each.",
+        "Decompose a query range into whole tree nodes."
+      ],
+      "mentalModel": "Pad the array with zeros to a power-of-two length and put the values in the leaves. Every internal node stores the sum of its two children, so it covers one range and its children split that range at the middle. A query adds nodes that lie fully inside the asked range, skips nodes fully outside, and descends only where the range is cut.",
+      "workedExample": "Over [5,2,7,1,3,6], padded to 8 leaves, the root [0,7] holds 24, with children [0,3]=15 and [4,7]=9. The query [1,4] takes [1,1]=2, [2,3]=8 and [4,4]=3 whole. Sum: 13.",
+      "invariant": "Each internal node equals the sum of its two children, and a query never counts any position twice or misses one inside the range.",
+      "commonMistake": "Prefix sums answer static ranges in O(1), but one update costs O(n); a segment tree pays O(log n) for both. Pad with the identity of the operation (0 for sums), and keep one endpoint rule: these bounds are inclusive.",
+      "complexity": {
+        "time": "O(n) build; O(log n) per query and per update",
+        "space": "O(n): fewer than 4n slots after padding",
+        "assumptions": "Inclusive query bounds l..r; int sums; node 1 is the root, node i has children 2i and 2i+1, and position i is the leaf at node size+i."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] build(int[] a) {\n        int size = 1;\n        while (size < a.length) size *= 2;\n        int[] tree = new int[2 * size];\n        for (int i = 0; i < a.length; i++) tree[size + i] = a[i];\n        for (int node = size - 1; node >= 1; node--) tree[node] = tree[2 * node] + tree[2 * node + 1];\n        return tree;\n    }\n    static int query(int[] tree, int node, int lo, int hi, int l, int r) {\n        if (r < lo || hi < l) return 0;\n        if (l <= lo && hi <= r) return tree[node];\n        int mid = (lo + hi) / 2;\n        return query(tree, 2 * node, lo, mid, l, r) + query(tree, 2 * node + 1, mid + 1, hi, l, r);\n    }\n    static void update(int[] tree, int i, int value) {\n        int node = tree.length / 2 + i;\n        tree[node] = value;\n        for (node /= 2; node >= 1; node /= 2) tree[node] = tree[2 * node] + tree[2 * node + 1];\n    }\n    static int rangeSum(int[] a, int l, int r) {\n        if (l < 0 || l > r || r >= a.length) throw new IllegalArgumentException();\n        int[] tree = build(a);\n        return query(tree, 1, 0, tree.length / 2 - 1, l, r);\n    }\n    static int afterUpdate(int[] a, int i, int value, int l, int r) {\n        int[] tree = build(a);\n        update(tree, i, value);\n        return query(tree, 1, 0, tree.length / 2 - 1, l, r);\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] build(int[] a) {\n        int size = 1;\n        while (size < a.length) size *= 2;\n        int[] tree = new int[2 * size];\n        for (int i = 0; i < a.length; i++) tree[size + i] = a[i];\n        for (int node = size - 1; node >= 1; node--) tree[node] = tree[2 * node] + tree[2 * node + 1];\n        return tree;\n    }\n    static int query(int[] tree, int node, int lo, int hi, int l, int r) {\n        if (r < lo || hi < l) return 0;\n        if (l <= lo && hi <= r) return tree[node];\n        int mid = (lo + hi) / 2;\n        return query(tree, 2 * node, lo, mid, l, r) + query(tree, 2 * node + 1, mid + 1, hi, l, r);\n    }\n    static void update(int[] tree, int i, int value) {\n        int node = tree.length / 2 + i;\n        tree[node] = value;\n        for (node /= 2; node >= 1; node /= 2) tree[node] = tree[2 * node] + tree[2 * node + 1];\n    }\n    static int rangeSum(int[] a, int l, int r) {\n        if (l < 0 || l > r || r >= a.length) throw new IllegalArgumentException();\n        int[] tree = build(a);\n        return query(tree, 1, 0, tree.length / 2 - 1, l, r);\n    }\n    static int afterUpdate(int[] a, int i, int value, int l, int r) {\n        int[] tree = build(a);\n        update(tree, i, value);\n        return query(tree, 1, 0, tree.length / 2 - 1, l, r);\n    }\n}",
+        "cases": [
+          {
+            "expression": "rangeSum(new int[]{5,2,7,1,3,6},1,4)",
+            "expected": "13"
+          },
+          {
+            "expression": "rangeSum(new int[]{5,2,7,1,3,6},0,5)",
+            "expected": "24"
+          },
+          {
+            "expression": "rangeSum(new int[]{5,2,7,1,3,6},3,3)",
+            "expected": "1"
+          },
+          {
+            "expression": "afterUpdate(new int[]{5,2,7,1,3,6},2,0,1,4)",
+            "expected": "6"
+          },
+          {
+            "expression": "Arrays.toString(build(new int[]{5,2,7,1,3,6}))",
+            "expected": "[0, 24, 15, 9, 7, 8, 9, 0, 5, 2, 7, 1, 3, 6, 0, 0]"
+          },
+          {
+            "expression": "rangeSum(new int[]{1,2,3},2,9)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 11,
+            "explanation": "A node fully inside the query contributes its stored sum without descending."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Querying [1,4] reaches the node for [2,3]. What happens there?",
+        "options": [
+          "Descend to [2,2] and [3,3]",
+          "Add its stored sum 8 and stop",
+          "Skip it"
+        ],
+        "answer": 1,
+        "explanation": "[2,3] lies fully inside [1,4], so its stored sum 7 + 1 = 8 is used without descending."
+      },
+      "visualization": {
+        "exampleInput": "a=[5,2,7,1,3,6] padded to 8 leaves; query [1,4]",
+        "expectedStates": [
+          "build nodes 7 down to 1; root 24",
+          "[0,7], [0,3] and [0,1] are cut: ask both children",
+          "take [1,1]=2 and [2,3]=8",
+          "[4,7] and [4,5] are cut; take [4,4]=3",
+          "sum 13 from 3 stored nodes"
+        ],
+        "manipulation": "Move either query bound and predict which nodes are taken whole.",
+        "limits": "Small arrays; inclusive bounds within 0..n-1.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "segment-tree",
+          "seed": 42,
+          "input": "5,2,7,1,3,6|1,4",
+          "target": 0
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-307",
+          "role": "introduction",
+          "connection": "Combine range queries with point updates.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-699",
+          "role": "transfer",
+          "connection": "Extend the tree to range maximum with range assignment.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-fenwick",
+      "title": "Fenwick Tree (Binary Indexed Tree)",
+      "order": 32,
+      "prerequisites": [
+        "concept-prefix-sums",
+        "concept-bits"
+      ],
+      "lessonIds": [
+        "lesson-fenwick"
+      ],
+      "objectives": [
+        "Maintain prefix sums under point updates in O(log n).",
+        "Use the lowest set bit to jump between responsible slots."
+      ],
+      "mentalModel": "Slot i (1-based) stores the sum of the last lowbit(i) values ending at i, where lowbit(i) = i & -i. A prefix query adds a slot and jumps down by its lowbit; an update adds to a slot and jumps up by its lowbit.",
+      "workedExample": "For [5,2,7,1,3,6] the slots 1..6 hold [5,7,7,15,3,9]. The prefix sum of indices 0..4 reads slot 5 (3) and then slot 4 (15): 18 after two reads.",
+      "invariant": "Slot i equals the sum of the original values at 1-based positions i-lowbit(i)+1 through i.",
+      "commonMistake": "The tree is 1-based: forgetting the +1 shift makes index 0 loop forever because 0 & -0 is 0. A Fenwick tree answers prefix sums; a range [l,r] is prefix(r) - prefix(l-1). Minimum or maximum queries need a different structure.",
+      "complexity": {
+        "time": "O(n log n) build by repeated add; O(log n) per add and per prefix query",
+        "space": "O(n)",
+        "assumptions": "0-based public indices mapped to 1-based slots; int sums."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] fenwick(int[] a) {\n        int[] tree = new int[a.length + 1];\n        for (int i = 0; i < a.length; i++) add(tree, i, a[i]);\n        return tree;\n    }\n    static void add(int[] tree, int i, int delta) {\n        for (int j = i + 1; j < tree.length; j += j & -j) tree[j] += delta;\n    }\n    static int prefix(int[] tree, int i) {\n        int sum = 0;\n        for (int j = i + 1; j > 0; j -= j & -j) sum += tree[j];\n        return sum;\n    }\n    static int afterAdd(int[] a, int i, int delta, int q) {\n        int[] tree = fenwick(a);\n        add(tree, i, delta);\n        return prefix(tree, q);\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] fenwick(int[] a) {\n        int[] tree = new int[a.length + 1];\n        for (int i = 0; i < a.length; i++) add(tree, i, a[i]);\n        return tree;\n    }\n    static void add(int[] tree, int i, int delta) {\n        for (int j = i + 1; j < tree.length; j += j & -j) tree[j] += delta;\n    }\n    static int prefix(int[] tree, int i) {\n        int sum = 0;\n        for (int j = i + 1; j > 0; j -= j & -j) sum += tree[j];\n        return sum;\n    }\n    static int afterAdd(int[] a, int i, int delta, int q) {\n        int[] tree = fenwick(a);\n        add(tree, i, delta);\n        return prefix(tree, q);\n    }\n}",
+        "cases": [
+          {
+            "expression": "prefix(fenwick(new int[]{5,2,7,1,3,6}),4)",
+            "expected": "18"
+          },
+          {
+            "expression": "Arrays.toString(fenwick(new int[]{5,2,7,1,3,6}))",
+            "expected": "[0, 5, 7, 7, 15, 3, 9]"
+          },
+          {
+            "expression": "prefix(fenwick(new int[]{5,2,7,1,3,6}),5)",
+            "expected": "24"
+          },
+          {
+            "expression": "prefix(fenwick(new int[]{}),-1)",
+            "expected": "0"
+          },
+          {
+            "expression": "afterAdd(new int[]{5,2,7,1,3,6},2,-7,4)",
+            "expected": "11"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 11,
+            "explanation": "Jump down by the lowest set bit to the next slot that covers an earlier block."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "A prefix query starts at slot 6. Which slot does it read next?",
+        "options": [
+          "5",
+          "4",
+          "3"
+        ],
+        "answer": 1,
+        "explanation": "6 is 110 in binary; its lowest set bit is 2, so the query jumps to 6 - 2 = 4."
+      },
+      "visualization": {
+        "exampleInput": "a=[5,2,7,1,3,6]; prefix of indices 0..4",
+        "expectedStates": [
+          "slots [5,7,7,15,3,9]",
+          "read slot 5: 3",
+          "jump 5-1=4, read 15: 18",
+          "jump 4-4=0: stop with 18"
+        ],
+        "manipulation": "Change one value and predict which slots its update touches.",
+        "limits": "Small arrays; prefix index within 0..n-1.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "fenwick",
+          "seed": 42,
+          "input": "5,2,7,1,3,6",
+          "target": 4
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-307",
+          "role": "introduction",
+          "connection": "Replace a prefix table with an updatable tree.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-315",
+          "role": "transfer",
+          "connection": "Count earlier-seen ranks with prefix queries.",
+          "additionalPrerequisites": [
+            "concept-sorting"
+          ],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-interval-scheduling",
+      "title": "Greedy: Interval Scheduling",
+      "order": 33,
+      "prerequisites": [
+        "concept-intervals"
+      ],
+      "lessonIds": [
+        "lesson-interval-scheduling"
+      ],
+      "objectives": [
+        "Choose the largest set of non-overlapping intervals greedily.",
+        "Prove the earliest-finish rule with an exchange argument."
+      ],
+      "mentalModel": "Sort by end time. Take the interval that finishes first, discard everything that overlaps it, and repeat. Finishing early leaves the most room for what follows.",
+      "workedExample": "Sorted by end: (1,4),(3,5),(0,6),(5,7),(3,9),(5,9),(6,10),(8,11). Take (1,4); skip (3,5) and (0,6). Take (5,7); skip (3,9), (5,9) and (6,10). Take (8,11). Three intervals.",
+      "invariant": "After each choice, the chosen intervals end no later than the first intervals of some optimal schedule of the same size.",
+      "commonMistake": "Sorting by start time or by length fails: a long interval that starts first can block several short ones. Decide whether touching endpoints overlap; here an interval may start exactly when the previous one ends.",
+      "complexity": {
+        "time": "O(n log n) for sorting; O(n) scan",
+        "space": "O(n) for the sorted copy",
+        "assumptions": "Pairs start,end with start < end; touching intervals are compatible (start >= last end)."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int maxNonOverlapping(int[] t) {\n        if (t.length % 2 != 0) throw new IllegalArgumentException();\n        int[][] iv = new int[t.length / 2][];\n        for (int i = 0; i < iv.length; i++) iv[i] = new int[]{t[2 * i], t[2 * i + 1]};\n        Arrays.sort(iv, Comparator.comparingInt(x -> x[1]));\n        int count = 0;\n        long end = Long.MIN_VALUE;\n        for (int[] x : iv) if (x[0] >= end) { count++; end = x[1]; }\n        return count;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int maxNonOverlapping(int[] t) {\n        if (t.length % 2 != 0) throw new IllegalArgumentException();\n        int[][] iv = new int[t.length / 2][];\n        for (int i = 0; i < iv.length; i++) iv[i] = new int[]{t[2 * i], t[2 * i + 1]};\n        Arrays.sort(iv, Comparator.comparingInt(x -> x[1]));\n        int count = 0;\n        long end = Long.MIN_VALUE;\n        for (int[] x : iv) if (x[0] >= end) { count++; end = x[1]; }\n        return count;\n    }\n}",
+        "cases": [
+          {
+            "expression": "maxNonOverlapping(new int[]{1,4,3,5,0,6,5,7,3,9,5,9,6,10,8,11})",
+            "expected": "3"
+          },
+          {
+            "expression": "maxNonOverlapping(new int[]{})",
+            "expected": "0"
+          },
+          {
+            "expression": "maxNonOverlapping(new int[]{1,2,2,3,3,4})",
+            "expected": "3"
+          },
+          {
+            "expression": "maxNonOverlapping(new int[]{1,10,2,3,4,5})",
+            "expected": "2"
+          },
+          {
+            "expression": "maxNonOverlapping(new int[]{1})",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 8,
+            "explanation": "Take the interval that finishes first among those still compatible."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "The last chosen interval ends at 7. Is (6,10) compatible?",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "answer": 1,
+        "explanation": "It starts at 6, before 7, so it overlaps the chosen (5,7)."
+      },
+      "visualization": {
+        "exampleInput": "intervals (1,4),(3,5),(0,6),(5,7),(3,9),(5,9),(6,10),(8,11)",
+        "expectedStates": [
+          "sort by end",
+          "take (1,4)",
+          "skip (3,5),(0,6); take (5,7)",
+          "skip (3,9),(5,9),(6,10); take (8,11)",
+          "three intervals"
+        ],
+        "manipulation": "Lengthen one chosen interval and predict which later choice changes.",
+        "limits": "Small sets of intervals; equal ends keep input order.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "interval-scheduling",
+          "seed": 42,
+          "input": "1,4,3,5,0,6,5,7,3,9,5,9,6,10,8,11",
+          "target": 0
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-435",
+          "role": "introduction",
+          "connection": "Keep the most intervals, remove the rest.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-452",
+          "role": "transfer",
+          "connection": "Share one arrow across overlapping balloons.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-kmp",
+      "title": "KMP String Matching",
+      "order": 34,
+      "prerequisites": [
+        "concept-strings"
+      ],
+      "lessonIds": [
+        "lesson-kmp"
+      ],
+      "objectives": [
+        "Build the failure table: the longest proper prefix of each pattern prefix that is also its suffix.",
+        "Match without moving the text index backwards."
+      ],
+      "mentalModel": "When a mismatch happens after k matched characters, those k characters are known. The failure table says how long a prefix of the pattern they still end with, so the match resumes there instead of restarting.",
+      "workedExample": "The pattern abcaby has failure table [0,0,0,1,2,0]. In abxabcabcaby, the match reaches abcab at index 8 and then meets c instead of y. The table keeps ab matched (k=2), c matches, and abcaby completes at index 6.",
+      "invariant": "Before reading text position i, the first k pattern characters equal the k text characters just before i, and k is the longest such match.",
+      "commonMistake": "Off-by-one errors in the table are the usual bug: f[i] describes the prefix ending at i, so after a mismatch at k fall back to f[k-1]. The text index never moves back; only k does.",
+      "complexity": {
+        "time": "O(n+m)",
+        "space": "O(m) failure table",
+        "assumptions": "Returns the first match index or -1; an empty pattern matches at 0."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] failure(String p) {\n        int[] f = new int[p.length()];\n        for (int i = 1, k = 0; i < p.length(); i++) {\n            while (k > 0 && p.charAt(i) != p.charAt(k)) k = f[k - 1];\n            if (p.charAt(i) == p.charAt(k)) k++;\n            f[i] = k;\n        }\n        return f;\n    }\n    static int indexOf(String text, String p) {\n        if (p.isEmpty()) return 0;\n        int[] f = failure(p);\n        for (int i = 0, k = 0; i < text.length(); i++) {\n            while (k > 0 && text.charAt(i) != p.charAt(k)) k = f[k - 1];\n            if (text.charAt(i) == p.charAt(k)) k++;\n            if (k == p.length()) return i - k + 1;\n        }\n        return -1;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] failure(String p) {\n        int[] f = new int[p.length()];\n        for (int i = 1, k = 0; i < p.length(); i++) {\n            while (k > 0 && p.charAt(i) != p.charAt(k)) k = f[k - 1];\n            if (p.charAt(i) == p.charAt(k)) k++;\n            f[i] = k;\n        }\n        return f;\n    }\n    static int indexOf(String text, String p) {\n        if (p.isEmpty()) return 0;\n        int[] f = failure(p);\n        for (int i = 0, k = 0; i < text.length(); i++) {\n            while (k > 0 && text.charAt(i) != p.charAt(k)) k = f[k - 1];\n            if (text.charAt(i) == p.charAt(k)) k++;\n            if (k == p.length()) return i - k + 1;\n        }\n        return -1;\n    }\n}",
+        "cases": [
+          {
+            "expression": "indexOf(\"abxabcabcaby\",\"abcaby\")",
+            "expected": "6"
+          },
+          {
+            "expression": "Arrays.toString(failure(\"abcaby\"))",
+            "expected": "[0, 0, 0, 1, 2, 0]"
+          },
+          {
+            "expression": "Arrays.toString(failure(\"aabaaa\"))",
+            "expected": "[0, 1, 0, 1, 2, 2]"
+          },
+          {
+            "expression": "indexOf(\"aaaa\",\"ab\")",
+            "expected": "-1"
+          },
+          {
+            "expression": "indexOf(\"abc\",\"\")",
+            "expected": "0"
+          },
+          {
+            "expression": "indexOf(\"aaab\",\"aab\")",
+            "expected": "1"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 14,
+            "explanation": "Fall back through the failure table instead of moving the text index back."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Five characters abcab are matched and the next text character is c, not y. Where does matching resume?",
+        "options": [
+          "From the start of the pattern",
+          "With k=2: ab is still matched",
+          "At the next text position with k=0"
+        ],
+        "answer": 1,
+        "explanation": "f[4]=2: abcab ends with ab, which is also how the pattern starts."
+      },
+      "visualization": {
+        "exampleInput": "text abxabcabcaby, pattern abcaby",
+        "expectedStates": [
+          "failure [0,0,0,1,2,0]",
+          "ab matched, x fails: k=0",
+          "abcab matched at index 8",
+          "c≠y: k falls back to 2",
+          "c,a,b,y match: found at 6"
+        ],
+        "manipulation": "Change the pattern to repeat its opening letters and watch the table grow.",
+        "limits": "Short lowercase text and pattern separated by |.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "kmp",
+          "seed": 42,
+          "input": "",
+          "target": 0,
+          "words": "abxabcabcaby|abcaby"
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-28",
+          "role": "introduction",
+          "connection": "Replace the nested baseline with the failure table.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-459",
+          "role": "transfer",
+          "connection": "Read periodicity from the last failure value.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-rabin-karp",
+      "title": "Rolling Hash (Rabin-Karp)",
+      "order": 35,
+      "prerequisites": [
+        "concept-strings",
+        "concept-hashing",
+        "concept-fixed-window"
+      ],
+      "lessonIds": [
+        "lesson-rabin-karp"
+      ],
+      "objectives": [
+        "Update a window hash in O(1) as the window slides.",
+        "Verify every hash match, because different strings can share a hash."
+      ],
+      "mentalModel": "Treat a window of m characters as a number in base B, reduced modulo M. Sliding right removes the leading character's contribution, shifts by B and adds the new character. Only windows whose hash equals the pattern hash are compared character by character.",
+      "workedExample": "With base 31, modulus 101 and character codes, cad hashes to 74. The windows of abracadabra hash to 15 (abr), 41 (bra), 45 (rac), 29 (aca) and then 74 (cad). The fifth window matches and checks out: index 4.",
+      "invariant": "Before comparing window i, hw equals the hash of text[i..i+m) and hp equals the hash of the pattern.",
+      "commonMistake": "Equal hashes do not prove equal strings, so always verify. Negative intermediate values need +M before the modulus in Java. A small modulus makes collisions frequent; real code uses a large prime or two hashes.",
+      "complexity": {
+        "time": "O(n+m) expected; O(nm) when many hashes collide",
+        "space": "O(1)",
+        "assumptions": "Polynomial hash with base 31 and modulus 101 over Java char codes; first match index or -1."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static final int B = 31, M = 101;\n    static int indexOf(String text, String p) {\n        int m = p.length(), n = text.length();\n        if (m > n) return -1;\n        int high = 1, hp = 0, hw = 0;\n        for (int i = 0; i < m - 1; i++) high = high * B % M;\n        for (int i = 0; i < m; i++) {\n            hp = (hp * B + p.charAt(i)) % M;\n            hw = (hw * B + text.charAt(i)) % M;\n        }\n        for (int i = 0; ; i++) {\n            if (hw == hp && text.regionMatches(i, p, 0, m)) return i;\n            if (i + m == n) return -1;\n            hw = ((hw - text.charAt(i) * high % M + M) * B + text.charAt(i + m)) % M;\n        }\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic final int B = 31, M = 101;\n    static int indexOf(String text, String p) {\n        int m = p.length(), n = text.length();\n        if (m > n) return -1;\n        int high = 1, hp = 0, hw = 0;\n        for (int i = 0; i < m - 1; i++) high = high * B % M;\n        for (int i = 0; i < m; i++) {\n            hp = (hp * B + p.charAt(i)) % M;\n            hw = (hw * B + text.charAt(i)) % M;\n        }\n        for (int i = 0; ; i++) {\n            if (hw == hp && text.regionMatches(i, p, 0, m)) return i;\n            if (i + m == n) return -1;\n            hw = ((hw - text.charAt(i) * high % M + M) * B + text.charAt(i + m)) % M;\n        }\n    }\n}",
+        "cases": [
+          {
+            "expression": "indexOf(\"abracadabra\",\"cad\")",
+            "expected": "4"
+          },
+          {
+            "expression": "indexOf(\"abracadabra\",\"abra\")",
+            "expected": "0"
+          },
+          {
+            "expression": "indexOf(\"abracadabra\",\"bra\")",
+            "expected": "1"
+          },
+          {
+            "expression": "indexOf(\"abc\",\"d\")",
+            "expected": "-1"
+          },
+          {
+            "expression": "indexOf(\"ab\",\"abc\")",
+            "expected": "-1"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 12,
+            "explanation": "Equal hashes only suggest a match; compare the characters to confirm it."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "A window hash equals the pattern hash. What must happen next?",
+        "options": [
+          "Report the match",
+          "Compare the window with the pattern character by character",
+          "Skip m positions"
+        ],
+        "answer": 1,
+        "explanation": "Different strings can share a hash modulo 101; only a direct comparison proves a match."
+      },
+      "visualization": {
+        "exampleInput": "text abracadabra, pattern cad; B=31, M=101",
+        "expectedStates": [
+          "pattern hash 74",
+          "abr 15, bra 41, rac 45, aca 29",
+          "cad 74: hashes equal",
+          "characters agree: found at 4"
+        ],
+        "manipulation": "Pick a pattern that occurs twice and compare the hashes of both windows.",
+        "limits": "Short text and pattern separated by |; base 31 and modulus 101 are fixed.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "rabin-karp",
+          "seed": 42,
+          "input": "",
+          "target": 0,
+          "words": "abracadabra|cad"
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-187",
+          "role": "introduction",
+          "connection": "Roll a fixed-length code across the text.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1044",
+          "role": "transfer",
+          "connection": "Combine rolling hashes with binary search on length.",
+          "additionalPrerequisites": [
+            "concept-binary-search"
+          ],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-monotonic-stack",
+      "title": "Monotonic Stack",
+      "order": 36,
+      "prerequisites": [
+        "concept-stacks"
+      ],
+      "lessonIds": [
+        "lesson-monotonic-stack"
+      ],
+      "objectives": [
+        "Find the next greater element for every position in one pass.",
+        "Explain why each index is pushed and popped at most once."
+      ],
+      "mentalModel": "Keep a stack of indices still waiting for a larger value; their values decrease from bottom to top. A new value pops every smaller waiting value, and it is their answer.",
+      "workedExample": "For [2,1,5,6,2,3]: 2 and 1 wait. 5 pops 1 and 2, so both get 5. 6 pops 5. 2 waits on 6. 3 pops 2. 6 and 3 never find a larger value. Result [5,5,6,-1,3,-1].",
+      "invariant": "The stack holds, in order, the indices that have no greater value yet, and their values never increase from bottom to top.",
+      "commonMistake": "Push indices, not values, so the answer can be written to the right position. Decide whether equal values pop (strictly greater versus greater or equal). The inner while loop is still O(n) in total.",
+      "complexity": {
+        "time": "O(n) amortised: each index is pushed and popped at most once",
+        "space": "O(n) stack",
+        "assumptions": "Next strictly greater value to the right; -1 when none exists."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] nextGreater(int[] a) {\n        int[] out = new int[a.length];\n        Arrays.fill(out, -1);\n        Deque<Integer> stack = new ArrayDeque<>();\n        for (int i = 0; i < a.length; i++) {\n            while (!stack.isEmpty() && a[stack.peek()] < a[i]) out[stack.pop()] = a[i];\n            stack.push(i);\n        }\n        return out;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] nextGreater(int[] a) {\n        int[] out = new int[a.length];\n        Arrays.fill(out, -1);\n        Deque<Integer> stack = new ArrayDeque<>();\n        for (int i = 0; i < a.length; i++) {\n            while (!stack.isEmpty() && a[stack.peek()] < a[i]) out[stack.pop()] = a[i];\n            stack.push(i);\n        }\n        return out;\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(nextGreater(new int[]{2,1,5,6,2,3}))",
+            "expected": "[5, 5, 6, -1, 3, -1]"
+          },
+          {
+            "expression": "Arrays.toString(nextGreater(new int[]{}))",
+            "expected": "[]"
+          },
+          {
+            "expression": "Arrays.toString(nextGreater(new int[]{3,3}))",
+            "expected": "[-1, -1]"
+          },
+          {
+            "expression": "Arrays.toString(nextGreater(new int[]{1,2,3}))",
+            "expected": "[2, 3, -1]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "The new value answers every smaller index still waiting on the stack."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "The stack holds values 6 and 2 (top). The next value is 3. What happens?",
+        "options": [
+          "3 is pushed on top of 2",
+          "2 is popped with answer 3, then 3 is pushed",
+          "6 and 2 are both popped"
+        ],
+        "answer": 1,
+        "explanation": "3 beats 2 but not 6, so only 2 is resolved."
+      },
+      "visualization": {
+        "exampleInput": "a=[2,1,5,6,2,3]",
+        "expectedStates": [
+          "push 2, push 1",
+          "5 pops 1 and 2",
+          "6 pops 5",
+          "push 2",
+          "3 pops 2",
+          "result [5,5,6,-1,3,-1]"
+        ],
+        "manipulation": "Make the input decreasing and watch the stack hold everything.",
+        "limits": "Small integer arrays; strict comparison.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "monotonic-stack",
+          "seed": 42,
+          "input": "2,1,5,6,2,3",
+          "target": 0
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-739",
+          "role": "introduction",
+          "connection": "Store waiting indices to measure distances.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-496",
+          "role": "transfer",
+          "connection": "Answer queries through a map of next greater values.",
+          "additionalPrerequisites": [
+            "concept-hashing"
+          ],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-84",
+          "role": "transfer",
+          "connection": "Use popped bars to bound rectangles on both sides.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-monotonic-queue",
+      "title": "Monotonic Queue",
+      "order": 37,
+      "prerequisites": [
+        "concept-queues",
+        "concept-fixed-window"
+      ],
+      "lessonIds": [
+        "lesson-monotonic-queue"
+      ],
+      "objectives": [
+        "Report the maximum of every window of size k in O(n) total.",
+        "Maintain a deque whose front is always the current maximum."
+      ],
+      "mentalModel": "Keep a deque of indices with decreasing values. Before adding a new index, remove values no larger than it from the back, since they can never be a maximum again; then remove the front if it has left the window.",
+      "workedExample": "For [1,3,-1,-3,5,3,6,7] with k=3: 3 pushes out 1; -1 and -3 wait behind 3, giving maxima 3 and 3. 5 is at least as large as -3, -1 and 3, so all three leave from the back: 5, then 5 again with 3 behind it. 6 and 7 each clear the deque. Maxima [3,3,5,5,6,7].",
+      "invariant": "The deque holds indices inside the current window in increasing order, with strictly decreasing values, and its front is the window maximum.",
+      "commonMistake": "Store indices so expiry can be checked; values alone cannot tell when the front leaves the window. Popping only from the front, or only from the back, does not keep both properties.",
+      "complexity": {
+        "time": "O(n): each index enters and leaves the deque once",
+        "space": "O(k) deque",
+        "assumptions": "1 <= k <= n; outputs n-k+1 maxima."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[] windowMax(int[] a, int k) {\n        if (k < 1 || k > a.length) throw new IllegalArgumentException();\n        int[] out = new int[a.length - k + 1];\n        Deque<Integer> dq = new ArrayDeque<>();\n        for (int i = 0; i < a.length; i++) {\n            while (!dq.isEmpty() && a[dq.peekLast()] <= a[i]) dq.pollLast();\n            dq.addLast(i);\n            if (dq.peekFirst() <= i - k) dq.pollFirst();\n            if (i >= k - 1) out[i - k + 1] = a[dq.peekFirst()];\n        }\n        return out;\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[] windowMax(int[] a, int k) {\n        if (k < 1 || k > a.length) throw new IllegalArgumentException();\n        int[] out = new int[a.length - k + 1];\n        Deque<Integer> dq = new ArrayDeque<>();\n        for (int i = 0; i < a.length; i++) {\n            while (!dq.isEmpty() && a[dq.peekLast()] <= a[i]) dq.pollLast();\n            dq.addLast(i);\n            if (dq.peekFirst() <= i - k) dq.pollFirst();\n            if (i >= k - 1) out[i - k + 1] = a[dq.peekFirst()];\n        }\n        return out;\n    }\n}",
+        "cases": [
+          {
+            "expression": "Arrays.toString(windowMax(new int[]{1,3,-1,-3,5,3,6,7},3))",
+            "expected": "[3, 3, 5, 5, 6, 7]"
+          },
+          {
+            "expression": "Arrays.toString(windowMax(new int[]{4,2},1))",
+            "expected": "[4, 2]"
+          },
+          {
+            "expression": "Arrays.toString(windowMax(new int[]{1,2,3},3))",
+            "expected": "[3]"
+          },
+          {
+            "expression": "windowMax(new int[]{1,2},5)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 6,
+            "explanation": "Values no larger than the newcomer can never be a window maximum again."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "The deque holds values 3, -1, -3 and the next value is 5. What does the deque hold after adding it?",
+        "options": [
+          "3, -1, -3, 5",
+          "5",
+          "3, 5"
+        ],
+        "answer": 1,
+        "explanation": "5 is at least as large as -3, -1 and 3, so all three are dropped from the back before 5 is added."
+      },
+      "visualization": {
+        "exampleInput": "a=[1,3,-1,-3,5,3,6,7], k=3",
+        "expectedStates": [
+          "3 removes 1",
+          "deque 3,-1: max 3",
+          "deque 3,-1,-3: max 3",
+          "5 drops -3, -1 and 3 from the back: max 5",
+          "deque 5,3: max 5",
+          "6 then 7: maxima [3,3,5,5,6,7]"
+        ],
+        "manipulation": "Change k and predict how many maxima are reported and when values expire.",
+        "limits": "Small integer arrays; 1 <= k <= n.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "monotonic-queue",
+          "seed": 42,
+          "input": "1,3,-1,-3,5,3,6,7",
+          "target": 3
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-239",
+          "role": "introduction",
+          "connection": "Keep the window maximum at the deque front.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1438",
+          "role": "transfer",
+          "connection": "Keep two deques for a variable window.",
+          "additionalPrerequisites": [
+            "concept-variable-window"
+          ],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-knapsack",
+      "title": "0/1 Knapsack",
+      "order": 38,
+      "prerequisites": [
+        "concept-dynamic-programming"
+      ],
+      "lessonIds": [
+        "lesson-knapsack"
+      ],
+      "objectives": [
+        "Define the state as the best value from the first i items within capacity c.",
+        "Fill the table with the take-or-skip choice for each item."
+      ],
+      "mentalModel": "dp[i][c] is the best value using only the first i items with capacity c. Item i is either skipped, leaving dp[i-1][c], or taken once, giving its value plus dp[i-1][c-w].",
+      "workedExample": "Items (1,1),(3,4),(4,5),(5,7) as weight,value with capacity 7. Row 1 is all 1s from c=1. Row 2 reaches 5 at c=4. Row 3 takes items 2 and 3 together at c=7: 4+5=9. Row 4 offers 7+1=8 at c=7, so 9 stays.",
+      "invariant": "After row i, dp[i][c] is the best value of any subset of the first i items whose weight is at most c.",
+      "commonMistake": "Reading the current row instead of the previous one lets an item be used twice, which is the unbounded knapsack. A one-row version must loop capacity downwards. Sorting by value per weight is a greedy heuristic, not a solution.",
+      "complexity": {
+        "time": "O(n·W)",
+        "space": "O(n·W) table; O(W) with one row",
+        "assumptions": "Pairs weight,value with nonnegative integers; capacity W >= 0. Pseudo-polynomial: the cost grows with W, not its number of digits."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int best(int[] items, int capacity) {\n        if (items.length % 2 != 0 || capacity < 0) throw new IllegalArgumentException();\n        int n = items.length / 2;\n        int[][] dp = new int[n + 1][capacity + 1];\n        for (int i = 1; i <= n; i++) {\n            int w = items[2 * i - 2], v = items[2 * i - 1];\n            for (int c = 0; c <= capacity; c++) {\n                dp[i][c] = dp[i - 1][c];\n                if (w <= c) dp[i][c] = Math.max(dp[i][c], dp[i - 1][c - w] + v);\n            }\n        }\n        return dp[n][capacity];\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int best(int[] items, int capacity) {\n        if (items.length % 2 != 0 || capacity < 0) throw new IllegalArgumentException();\n        int n = items.length / 2;\n        int[][] dp = new int[n + 1][capacity + 1];\n        for (int i = 1; i <= n; i++) {\n            int w = items[2 * i - 2], v = items[2 * i - 1];\n            for (int c = 0; c <= capacity; c++) {\n                dp[i][c] = dp[i - 1][c];\n                if (w <= c) dp[i][c] = Math.max(dp[i][c], dp[i - 1][c - w] + v);\n            }\n        }\n        return dp[n][capacity];\n    }\n}",
+        "cases": [
+          {
+            "expression": "best(new int[]{1,1,3,4,4,5,5,7},7)",
+            "expected": "9"
+          },
+          {
+            "expression": "best(new int[]{},5)",
+            "expected": "0"
+          },
+          {
+            "expression": "best(new int[]{6,10},5)",
+            "expected": "0"
+          },
+          {
+            "expression": "best(new int[]{2,3,2,3},4)",
+            "expected": "6"
+          },
+          {
+            "expression": "best(new int[]{2,3},4)",
+            "expected": "3"
+          },
+          {
+            "expression": "best(new int[]{1},3)",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 9,
+            "explanation": "Take the item once: its value plus the best of the previous row at the remaining capacity."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "At capacity 7, taking item 4 (weight 5, value 7) leaves capacity 2. With the first three items, the best for capacity 2 is 1. Should item 4 be taken?",
+        "options": [
+          "Yes: 7 + 1 = 8 beats skipping",
+          "No: skipping keeps 9",
+          "Only if it is the lightest item"
+        ],
+        "answer": 1,
+        "explanation": "Skipping keeps dp[3][7]=9, which is larger than 8."
+      },
+      "visualization": {
+        "exampleInput": "items (1,1),(3,4),(4,5),(5,7); W=7",
+        "expectedStates": [
+          "row 1: [0,1,1,1,1,1,1,1]",
+          "row 2: [0,1,1,4,5,5,5,5]",
+          "row 3: [0,1,1,4,5,6,6,9]",
+          "row 4: [0,1,1,4,5,7,8,9]",
+          "answer 9"
+        ],
+        "manipulation": "Raise the capacity by one and predict which cells change.",
+        "limits": "A few items and a small capacity so the table fits on screen.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "knapsack",
+          "seed": 42,
+          "input": "1,1,3,4,4,5,5,7",
+          "target": 7
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-416",
+          "role": "introduction",
+          "connection": "Reach half the total with a boolean table.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-494",
+          "role": "transfer",
+          "connection": "Count subsets that reach a derived sum.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-lcs",
+      "title": "Longest Common Subsequence",
+      "order": 39,
+      "prerequisites": [
+        "concept-dynamic-programming",
+        "concept-strings"
+      ],
+      "lessonIds": [
+        "lesson-lcs"
+      ],
+      "objectives": [
+        "Define a two-dimensional state over prefixes of both strings.",
+        "Recover one common subsequence by walking the table backwards."
+      ],
+      "mentalModel": "dp[i][j] is the LCS length of the first i characters of a and the first j of b. Equal last characters extend the diagonal answer by one; otherwise drop one last character and keep the better result.",
+      "workedExample": "For abcde and ace the table fills row by row. The a's match first (1), then c extends it to 2, then e to 3. The bottom-right cell is 3 and walking back along the matches gives ace.",
+      "invariant": "Every cell depends only on the cells above, to the left and diagonally above-left, which are filled earlier in row-major order.",
+      "commonMistake": "A subsequence keeps order but may skip characters; a substring must be contiguous and uses a different recurrence. Use one extra row and column for empty prefixes, or index errors follow.",
+      "complexity": {
+        "time": "O(nm)",
+        "space": "O(nm) table; O(min(n,m)) for the length alone",
+        "assumptions": "Exact character equality; the reconstruction prefers moving up on ties."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static int[][] table(String a, String b) {\n        int[][] dp = new int[a.length() + 1][b.length() + 1];\n        for (int i = 1; i <= a.length(); i++)\n            for (int j = 1; j <= b.length(); j++)\n                dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1) ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);\n        return dp;\n    }\n    static int lcs(String a, String b) {\n        return table(a, b)[a.length()][b.length()];\n    }\n    static String common(String a, String b) {\n        int[][] dp = table(a, b);\n        StringBuilder out = new StringBuilder();\n        for (int i = a.length(), j = b.length(); i > 0 && j > 0; ) {\n            if (a.charAt(i - 1) == b.charAt(j - 1)) { out.append(a.charAt(i - 1)); i--; j--; }\n            else if (dp[i - 1][j] >= dp[i][j - 1]) i--;\n            else j--;\n        }\n        return out.reverse().toString();\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic int[][] table(String a, String b) {\n        int[][] dp = new int[a.length() + 1][b.length() + 1];\n        for (int i = 1; i <= a.length(); i++)\n            for (int j = 1; j <= b.length(); j++)\n                dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1) ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);\n        return dp;\n    }\n    static int lcs(String a, String b) {\n        return table(a, b)[a.length()][b.length()];\n    }\n    static String common(String a, String b) {\n        int[][] dp = table(a, b);\n        StringBuilder out = new StringBuilder();\n        for (int i = a.length(), j = b.length(); i > 0 && j > 0; ) {\n            if (a.charAt(i - 1) == b.charAt(j - 1)) { out.append(a.charAt(i - 1)); i--; j--; }\n            else if (dp[i - 1][j] >= dp[i][j - 1]) i--;\n            else j--;\n        }\n        return out.reverse().toString();\n    }\n}",
+        "cases": [
+          {
+            "expression": "lcs(\"abcde\",\"ace\")",
+            "expected": "3"
+          },
+          {
+            "expression": "common(\"abcde\",\"ace\")",
+            "expected": "ace"
+          },
+          {
+            "expression": "lcs(\"abc\",\"def\")",
+            "expected": "0"
+          },
+          {
+            "expression": "lcs(\"\",\"abc\")",
+            "expected": "0"
+          },
+          {
+            "expression": "Arrays.toString(table(\"abcde\",\"ace\")[3])",
+            "expected": "[0, 1, 2, 2]"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 5,
+            "explanation": "A match extends the diagonal; otherwise keep the better of dropping either last character."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "a[i-1] and b[j-1] are different. Which cells decide dp[i][j]?",
+        "options": [
+          "Only the diagonal cell",
+          "The cell above and the cell to the left",
+          "The whole previous row"
+        ],
+        "answer": 1,
+        "explanation": "One of the two last characters is not in the common subsequence, so drop either and keep the larger."
+      },
+      "visualization": {
+        "exampleInput": "a=abcde, b=ace",
+        "expectedStates": [
+          "row a: [0,1,1,1]",
+          "row b: [0,1,1,1]",
+          "row c: [0,1,2,2]",
+          "row d: [0,1,2,2]",
+          "row e: [0,1,2,3]; answer 3"
+        ],
+        "manipulation": "Swap two letters in one string and predict the new bottom-right cell.",
+        "limits": "Short lowercase strings separated by |.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "lcs",
+          "seed": 42,
+          "input": "",
+          "target": 0,
+          "words": "abcde|ace"
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-1143",
+          "role": "introduction",
+          "connection": "Fill the prefix-pair table.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-583",
+          "role": "transfer",
+          "connection": "Turn the LCS length into a deletion count.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-72",
+          "role": "transfer",
+          "connection": "Change the recurrence to count edits.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
+    },
+    {
+      "id": "concept-interval-dp",
+      "title": "Interval DP (Matrix Chain)",
+      "order": 40,
+      "prerequisites": [
+        "concept-dynamic-programming"
+      ],
+      "lessonIds": [
+        "lesson-interval-dp"
+      ],
+      "objectives": [
+        "Solve a problem over every contiguous range, from short ranges to long ones.",
+        "Choose the best split point for each range."
+      ],
+      "mentalModel": "cost[i][j] is the cheapest way to multiply matrices i..j. The last multiplication splits the range at some k, so try every k: cost[i][k] + cost[k+1][j] + p[i]·p[k+1]·p[j+1]. Fill ranges in order of length.",
+      "workedExample": "Dimensions [10,30,5,60] give A (10×30), B (30×5) and C (5×60). AB costs 1500 and BC costs 9000. For ABC, splitting after A costs 0+9000+18000=27000; splitting after B costs 1500+0+3000=4500. The answer is 4500.",
+      "invariant": "When a range of length L is filled, every shorter range inside it already holds its optimal cost.",
+      "commonMistake": "Filling by i and j in plain row order reads ranges that are not ready yet; iterate by length. The product of three dimensions can exceed int, so use long. The table holds costs only; record the best k to rebuild the bracketing.",
+      "complexity": {
+        "time": "O(n³) for n matrices",
+        "space": "O(n²)",
+        "assumptions": "p has n+1 dimensions for n matrices; costs counted as scalar multiplications."
+      },
+      "java": {
+        "language": "java",
+        "className": "CurriculumExample",
+        "implementation": "static long chain(int[] p) {\n        int n = p.length - 1;\n        if (n < 1) throw new IllegalArgumentException();\n        long[][] cost = new long[n][n];\n        for (int len = 2; len <= n; len++)\n            for (int i = 0; i + len - 1 < n; i++) {\n                int j = i + len - 1;\n                cost[i][j] = Long.MAX_VALUE;\n                for (int k = i; k < j; k++)\n                    cost[i][j] = Math.min(cost[i][j], cost[i][k] + cost[k + 1][j] + (long) p[i] * p[k + 1] * p[j + 1]);\n            }\n        return cost[0][n - 1];\n    }",
+        "source": "import java.util.*;\nclass CurriculumExample {\nstatic long chain(int[] p) {\n        int n = p.length - 1;\n        if (n < 1) throw new IllegalArgumentException();\n        long[][] cost = new long[n][n];\n        for (int len = 2; len <= n; len++)\n            for (int i = 0; i + len - 1 < n; i++) {\n                int j = i + len - 1;\n                cost[i][j] = Long.MAX_VALUE;\n                for (int k = i; k < j; k++)\n                    cost[i][j] = Math.min(cost[i][j], cost[i][k] + cost[k + 1][j] + (long) p[i] * p[k + 1] * p[j + 1]);\n            }\n        return cost[0][n - 1];\n    }\n}",
+        "cases": [
+          {
+            "expression": "chain(new int[]{10,30,5,60})",
+            "expected": "4500"
+          },
+          {
+            "expression": "chain(new int[]{10,20})",
+            "expected": "0"
+          },
+          {
+            "expression": "chain(new int[]{40,20,30,10,30})",
+            "expected": "26000"
+          },
+          {
+            "expression": "chain(new int[]{1,2,3,4})",
+            "expected": "18"
+          },
+          {
+            "expression": "chain(new int[]{5})",
+            "expectedException": "IllegalArgumentException"
+          }
+        ],
+        "lineAnnotations": [
+          {
+            "line": 9,
+            "explanation": "Try every split; both halves are shorter ranges and already final."
+          }
+        ]
+      },
+      "checkpoint": {
+        "question": "Why must all ranges of length 2 be filled before any range of length 3?",
+        "options": [
+          "Longer ranges read the costs of shorter ones",
+          "It makes the table symmetric",
+          "Length 3 ranges are cheaper"
+        ],
+        "answer": 0,
+        "explanation": "Every split of a length-3 range uses a length-1 and a length-2 subrange."
+      },
+      "visualization": {
+        "exampleInput": "p=[10,30,5,60]",
+        "expectedStates": [
+          "single matrices cost 0",
+          "AB=1500, BC=9000",
+          "ABC split after A: 27000",
+          "ABC split after B: 4500",
+          "answer 4500"
+        ],
+        "manipulation": "Change the middle dimension and predict which split wins.",
+        "limits": "Two to a few matrices so the triangle of ranges stays readable.",
+        "interactiveStatus": "interactive",
+        "scene": {
+          "algorithm": "interval-dp",
+          "seed": 42,
+          "input": "10,30,5,60",
+          "target": 0
+        },
+        "gaps": [
+          "This is bounded authored execution, not tracing arbitrary student code."
+        ],
+        "traceRevision": 3
+      },
+      "applications": [
+        {
+          "questionId": "leetcode-312",
+          "role": "introduction",
+          "connection": "Choose the last item in each range.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        },
+        {
+          "questionId": "leetcode-1039",
+          "role": "transfer",
+          "connection": "Split a polygon at a third vertex.",
+          "additionalPrerequisites": [],
+          "perspective": "primary application"
+        }
+      ],
+      "contentStatus": "authored",
+      "practiceStatus": "planned-phase-2"
     }
   ],
   "questions": [
@@ -4427,6 +6205,962 @@
             "file": "amazon/all.csv"
           }
         ]
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-136",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "136",
+      "title": "Single Number",
+      "canonicalUrl": "https://leetcode.com/problems/single-number/",
+      "conceptTags": [
+        "concept-bits"
+      ],
+      "progressiveHints": [
+        "Pairs should vanish without being stored.",
+        "x ^ x is 0 and x ^ 0 is x, in any order.",
+        "XOR every value into one accumulator; the pairs cancel and the unpaired value remains, in O(1) extra space."
+      ],
+      "approachOutline": "XOR every value into one accumulator; the pairs cancel and the unpaired value remains, in O(1) extra space.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-191",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "191",
+      "title": "Number of 1 Bits",
+      "canonicalUrl": "https://leetcode.com/problems/number-of-1-bits/",
+      "conceptTags": [
+        "concept-bits"
+      ],
+      "progressiveHints": [
+        "Count switches that are on without testing all 32 positions.",
+        "n & (n-1) turns off exactly one set bit.",
+        "Repeat n &= n-1 until n is zero and count the iterations; treat the input as unsigned where the statement requires it."
+      ],
+      "approachOutline": "Repeat n &= n-1 until n is zero and count the iterations; treat the input as unsigned where the statement requires it.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-547",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "547",
+      "title": "Number of Provinces",
+      "canonicalUrl": "https://leetcode.com/problems/number-of-provinces/",
+      "conceptTags": [
+        "concept-union-find",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "A province is a connected component.",
+        "Each successful merge reduces the component count by one.",
+        "Start with n components and union every connected pair from the matrix; return the count after all merges. DFS over the matrix is an equally valid alternative."
+      ],
+      "approachOutline": "Start with n components and union every connected pair from the matrix; return the count after all merges. DFS over the matrix is an equally valid alternative.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-684",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "684",
+      "title": "Redundant Connection",
+      "canonicalUrl": "https://leetcode.com/problems/redundant-connection/",
+      "conceptTags": [
+        "concept-union-find",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "A tree plus one edge has exactly one cycle.",
+        "An edge whose ends already share a root closes that cycle.",
+        "Process edges in order with union-find and return the first edge whose endpoints are already connected, matching the required tie rule."
+      ],
+      "approachOutline": "Process edges in order with union-find and return the first edge whose endpoints are already connected, matching the required tie rule.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-207",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "207",
+      "title": "Course Schedule",
+      "canonicalUrl": "https://leetcode.com/problems/course-schedule/",
+      "conceptTags": [
+        "concept-topological-sort",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "Finishing every course is possible exactly when there is no cycle.",
+        "Count how many courses reach indegree zero.",
+        "Run Kahn's algorithm on the prerequisite graph, minding the edge direction; answer true when every course is placed."
+      ],
+      "approachOutline": "Run Kahn's algorithm on the prerequisite graph, minding the edge direction; answer true when every course is placed.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-210",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "210",
+      "title": "Course Schedule II",
+      "canonicalUrl": "https://leetcode.com/problems/course-schedule-ii/",
+      "conceptTags": [
+        "concept-topological-sort",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "Return the order itself, not only whether one exists.",
+        "Any valid topological order is accepted.",
+        "Record vertices as they leave the zero-indegree queue; return an empty result if fewer than n are placed."
+      ],
+      "approachOutline": "Record vertices as they leave the zero-indegree queue; return an empty result if fewer than n are placed.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1584",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1584",
+      "title": "Min Cost to Connect All Points",
+      "canonicalUrl": "https://leetcode.com/problems/min-cost-to-connect-all-points/",
+      "conceptTags": [
+        "concept-kruskal",
+        "concept-union-find"
+      ],
+      "progressiveHints": [
+        "Every pair of points is a candidate edge.",
+        "The weight is the Manhattan distance.",
+        "Generate all pairwise edges, sort them and run Kruskal until n-1 edges are taken; Prim's algorithm on the dense graph avoids storing all edges."
+      ],
+      "approachOutline": "Generate all pairwise edges, sort them and run Kruskal until n-1 edges are taken; Prim's algorithm on the dense graph avoids storing all edges.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1489",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1489",
+      "title": "Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree",
+      "canonicalUrl": "https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/",
+      "conceptTags": [
+        "concept-kruskal",
+        "concept-union-find"
+      ],
+      "progressiveHints": [
+        "Compute the MST weight once as a baseline.",
+        "Test each edge by excluding it, then by forcing it in first.",
+        "An edge is critical if excluding it raises the weight or disconnects the graph, and pseudo-critical if forcing it keeps the baseline weight."
+      ],
+      "approachOutline": "An edge is critical if excluding it raises the weight or disconnects the graph, and pseudo-critical if forcing it keeps the baseline weight.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-743",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "743",
+      "title": "Network Delay Time",
+      "canonicalUrl": "https://leetcode.com/problems/network-delay-time/",
+      "conceptTags": [
+        "concept-bellman-ford",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "The answer is the largest shortest distance from the source.",
+        "Weights are nonnegative, so Dijkstra also works.",
+        "Relax all edges up to n-1 times from the source; return the maximum distance, or -1 if any node stays unreachable."
+      ],
+      "approachOutline": "Relax all edges up to n-1 times from the source; return the maximum distance, or -1 if any node stays unreachable.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-787",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "787",
+      "title": "Cheapest Flights Within K Stops",
+      "canonicalUrl": "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
+      "conceptTags": [
+        "concept-bellman-ford",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "At most k stops means at most k+1 edges.",
+        "Relax from a copy of the previous pass so one pass adds one edge.",
+        "Run k+1 Bellman-Ford passes, each reading the distances from before the pass; return the destination distance or -1."
+      ],
+      "approachOutline": "Run k+1 Bellman-Ford passes, each reading the distances from before the pass; return the destination distance or -1.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1334",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1334",
+      "title": "Find the City With the Smallest Number of Neighbors at a Threshold Distance",
+      "canonicalUrl": "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/",
+      "conceptTags": [
+        "concept-floyd-warshall",
+        "concept-graphs"
+      ],
+      "progressiveHints": [
+        "Every city needs distances to every other city.",
+        "Edges are undirected, so store both directions.",
+        "Run Floyd-Warshall, count cities within the threshold from each city, and break ties by the larger index as the statement asks."
+      ],
+      "approachOutline": "Run Floyd-Warshall, count cities within the threshold from each city, and break ties by the larger index as the statement asks.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1462",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1462",
+      "title": "Course Schedule IV",
+      "canonicalUrl": "https://leetcode.com/problems/course-schedule-iv/",
+      "conceptTags": [
+        "concept-floyd-warshall",
+        "concept-topological-sort"
+      ],
+      "progressiveHints": [
+        "A query asks whether one course is reachable from another.",
+        "Reachability is shortest paths with booleans.",
+        "Compute the transitive closure with the Floyd-Warshall loop order, using reach[i][j] |= reach[i][k] && reach[k][j], then answer each query in O(1)."
+      ],
+      "approachOutline": "Compute the transitive closure with the Floyd-Warshall loop order, using reach[i][j] |= reach[i][k] && reach[k][j], then answer each query in O(1).",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-307",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "307",
+      "title": "Range Sum Query - Mutable",
+      "canonicalUrl": "https://leetcode.com/problems/range-sum-query-mutable/",
+      "conceptTags": [
+        "concept-segment-tree",
+        "concept-fenwick"
+      ],
+      "progressiveHints": [
+        "Prefix sums make an update cost O(n).",
+        "A tree of partial sums balances updates and queries.",
+        "Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add."
+      ],
+      "approachOutline": "Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-699",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "699",
+      "title": "Falling Squares",
+      "canonicalUrl": "https://leetcode.com/problems/falling-squares/",
+      "conceptTags": [
+        "concept-segment-tree"
+      ],
+      "progressiveHints": [
+        "Each square lands on the tallest point under its base.",
+        "Compress coordinates to the edges of all squares.",
+        "Over compressed coordinates, query the range maximum, then assign the new height to the whole range; a segment tree with range assignment does both in O(log n)."
+      ],
+      "approachOutline": "Over compressed coordinates, query the range maximum, then assign the new height to the whole range; a segment tree with range assignment does both in O(log n).",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-315",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "315",
+      "title": "Count of Smaller Numbers After Self",
+      "canonicalUrl": "https://leetcode.com/problems/count-of-smaller-numbers-after-self/",
+      "conceptTags": [
+        "concept-fenwick",
+        "concept-sorting"
+      ],
+      "progressiveHints": [
+        "Scan from the right so the values to the right are already seen.",
+        "Count seen values below the current one with a prefix sum over ranks.",
+        "Compress values to ranks, walk right to left, query the Fenwick prefix below the current rank, then add one at its rank."
+      ],
+      "approachOutline": "Compress values to ranks, walk right to left, query the Fenwick prefix below the current rank, then add one at its rank.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-435",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "435",
+      "title": "Non-overlapping Intervals",
+      "canonicalUrl": "https://leetcode.com/problems/non-overlapping-intervals/",
+      "conceptTags": [
+        "concept-interval-scheduling",
+        "concept-intervals"
+      ],
+      "progressiveHints": [
+        "Removing the fewest intervals means keeping the most.",
+        "Here touching endpoints do not overlap.",
+        "Sort by end, keep each interval that starts at or after the last kept end, and return the total minus the number kept."
+      ],
+      "approachOutline": "Sort by end, keep each interval that starts at or after the last kept end, and return the total minus the number kept.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-452",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "452",
+      "title": "Minimum Number of Arrows to Burst Balloons",
+      "canonicalUrl": "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/",
+      "conceptTags": [
+        "concept-interval-scheduling",
+        "concept-intervals"
+      ],
+      "progressiveHints": [
+        "One arrow can burst every balloon covering one x.",
+        "Shoot at the end of the balloon that finishes first.",
+        "Sort by end; start a new arrow only when a balloon starts strictly after the current arrow position, because touching balloons share an arrow."
+      ],
+      "approachOutline": "Sort by end; start a new arrow only when a balloon starts strictly after the current arrow position, because touching balloons share an arrow.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-459",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "459",
+      "title": "Repeated Substring Pattern",
+      "canonicalUrl": "https://leetcode.com/problems/repeated-substring-pattern/",
+      "conceptTags": [
+        "concept-kmp",
+        "concept-strings"
+      ],
+      "progressiveHints": [
+        "Look at the longest proper prefix that is also a suffix.",
+        "The failure value of the last position gives it.",
+        "Let L be the last failure value; the string repeats exactly when L > 0 and n is divisible by n - L."
+      ],
+      "approachOutline": "Let L be the last failure value; the string repeats exactly when L > 0 and n is divisible by n - L.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-187",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "187",
+      "title": "Repeated DNA Sequences",
+      "canonicalUrl": "https://leetcode.com/problems/repeated-dna-sequences/",
+      "conceptTags": [
+        "concept-rabin-karp",
+        "concept-hashing"
+      ],
+      "progressiveHints": [
+        "Every window has the same length, 10.",
+        "Encode each letter in 2 bits and roll the code.",
+        "Slide a fixed window, update its code in O(1), and report codes seen a second time exactly once."
+      ],
+      "approachOutline": "Slide a fixed window, update its code in O(1), and report codes seen a second time exactly once.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1044",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1044",
+      "title": "Longest Duplicate Substring",
+      "canonicalUrl": "https://leetcode.com/problems/longest-duplicate-substring/",
+      "conceptTags": [
+        "concept-rabin-karp",
+        "concept-binary-search"
+      ],
+      "progressiveHints": [
+        "If a duplicate of length L exists, one of every shorter length exists too.",
+        "Binary search the length; check each length with rolling hashes.",
+        "For a candidate length, hash every window into a set and verify equal hashes to rule out collisions; keep the longest length that has a duplicate."
+      ],
+      "approachOutline": "For a candidate length, hash every window into a set and verify equal hashes to rule out collisions; keep the longest length that has a duplicate.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-739",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "739",
+      "title": "Daily Temperatures",
+      "canonicalUrl": "https://leetcode.com/problems/daily-temperatures/",
+      "conceptTags": [
+        "concept-monotonic-stack",
+        "concept-stacks"
+      ],
+      "progressiveHints": [
+        "Each day waits for the first warmer day.",
+        "The answer is a distance, so keep indices.",
+        "Scan with a stack of waiting indices; a warmer day pops each cooler one and records the index difference."
+      ],
+      "approachOutline": "Scan with a stack of waiting indices; a warmer day pops each cooler one and records the index difference.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-496",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "496",
+      "title": "Next Greater Element I",
+      "canonicalUrl": "https://leetcode.com/problems/next-greater-element-i/",
+      "conceptTags": [
+        "concept-monotonic-stack",
+        "concept-hashing"
+      ],
+      "progressiveHints": [
+        "Answer every value of the larger array once.",
+        "Store each next greater value in a map.",
+        "Run the monotonic stack over nums2, map each value to its next greater value, then look up every query value."
+      ],
+      "approachOutline": "Run the monotonic stack over nums2, map each value to its next greater value, then look up every query value.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-84",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "84",
+      "title": "Largest Rectangle in Histogram",
+      "canonicalUrl": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+      "conceptTags": [
+        "concept-monotonic-stack"
+      ],
+      "progressiveHints": [
+        "Each bar is the shortest bar of some best rectangle.",
+        "A popped bar knows both its left and right limits.",
+        "Keep increasing heights on a stack; when a lower bar arrives, pop and compute the width between the new top and the current index. Use a final zero bar to flush."
+      ],
+      "approachOutline": "Keep increasing heights on a stack; when a lower bar arrives, pop and compute the width between the new top and the current index. Use a final zero bar to flush.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-239",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "239",
+      "title": "Sliding Window Maximum",
+      "canonicalUrl": "https://leetcode.com/problems/sliding-window-maximum/",
+      "conceptTags": [
+        "concept-monotonic-queue",
+        "concept-fixed-window"
+      ],
+      "progressiveHints": [
+        "A sorted structure costs O(log k) per step.",
+        "A value behind a larger, later value can never be a maximum.",
+        "Keep a deque of indices with decreasing values; drop the expired front, pop smaller backs, and read the front once the first window is full."
+      ],
+      "approachOutline": "Keep a deque of indices with decreasing values; drop the expired front, pop smaller backs, and read the front once the first window is full.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1438",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1438",
+      "title": "Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit",
+      "canonicalUrl": "https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/",
+      "conceptTags": [
+        "concept-monotonic-queue",
+        "concept-variable-window"
+      ],
+      "progressiveHints": [
+        "The window is valid while max minus min is within the limit.",
+        "Keep one deque for maxima and one for minima.",
+        "Grow the right end, shrink the left end while the two deque fronts differ by more than the limit, and track the longest valid length."
+      ],
+      "approachOutline": "Grow the right end, shrink the left end while the two deque fronts differ by more than the limit, and track the longest valid length.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-416",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "416",
+      "title": "Partition Equal Subset Sum",
+      "canonicalUrl": "https://leetcode.com/problems/partition-equal-subset-sum/",
+      "conceptTags": [
+        "concept-knapsack",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "An odd total cannot split evenly.",
+        "Ask whether some subset reaches half the total.",
+        "Run a boolean 0/1 knapsack over sums up to half the total, looping sums downwards so each number is used once."
+      ],
+      "approachOutline": "Run a boolean 0/1 knapsack over sums up to half the total, looping sums downwards so each number is used once.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-494",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "494",
+      "title": "Target Sum",
+      "canonicalUrl": "https://leetcode.com/problems/target-sum/",
+      "conceptTags": [
+        "concept-knapsack",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "Signs split the numbers into a plus group and a minus group.",
+        "The plus group must sum to (total + target) / 2.",
+        "Check parity and range, then count subsets reaching that sum with a 0/1 knapsack of counts."
+      ],
+      "approachOutline": "Check parity and range, then count subsets reaching that sum with a 0/1 knapsack of counts.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1143",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1143",
+      "title": "Longest Common Subsequence",
+      "canonicalUrl": "https://leetcode.com/problems/longest-common-subsequence/",
+      "conceptTags": [
+        "concept-lcs",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "Define the state over two prefixes.",
+        "Matching last characters extend the diagonal.",
+        "Fill an (n+1) by (m+1) table with the match or max-of-neighbours rule and return the bottom-right cell."
+      ],
+      "approachOutline": "Fill an (n+1) by (m+1) table with the match or max-of-neighbours rule and return the bottom-right cell.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-583",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "583",
+      "title": "Delete Operation for Two Strings",
+      "canonicalUrl": "https://leetcode.com/problems/delete-operation-for-two-strings/",
+      "conceptTags": [
+        "concept-lcs",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "The characters kept form a common subsequence.",
+        "Keep as many as possible.",
+        "Compute the LCS length L and return n + m - 2L."
+      ],
+      "approachOutline": "Compute the LCS length L and return n + m - 2L.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-72",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "72",
+      "title": "Edit Distance",
+      "canonicalUrl": "https://leetcode.com/problems/edit-distance/",
+      "conceptTags": [
+        "concept-lcs",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "The table has the same shape as LCS.",
+        "Three moves: insert, delete or replace, each costing one.",
+        "Set the empty-prefix row and column to their lengths, then take the diagonal for a match or one plus the minimum of the three neighbours."
+      ],
+      "approachOutline": "Set the empty-prefix row and column to their lengths, then take the diagonal for a match or one plus the minimum of the three neighbours.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-312",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "312",
+      "title": "Burst Balloons",
+      "canonicalUrl": "https://leetcode.com/problems/burst-balloons/",
+      "conceptTags": [
+        "concept-interval-dp",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "Choose the last balloon to burst in a range, not the first.",
+        "Its neighbours at that moment are the range boundaries.",
+        "Pad with 1 on both ends and fill ranges by length, trying every last balloon k with cost left + right + boundary product."
+      ],
+      "approachOutline": "Pad with 1 on both ends and fill ranges by length, trying every last balloon k with cost left + right + boundary product.",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
+      },
+      "implementationStatus": "planned-phase-2",
+      "access": "Check availability at the canonical platform"
+    },
+    {
+      "id": "leetcode-1039",
+      "kind": "external-reference",
+      "platform": "leetcode",
+      "platformId": "1039",
+      "title": "Minimum Score Triangulation of Polygon",
+      "canonicalUrl": "https://leetcode.com/problems/minimum-score-triangulation-of-polygon/",
+      "conceptTags": [
+        "concept-interval-dp",
+        "concept-dynamic-programming"
+      ],
+      "progressiveHints": [
+        "The edge from i to j belongs to exactly one triangle.",
+        "Its third vertex k splits the polygon in two.",
+        "Fill ranges by length with cost[i][j] = min over k of cost[i][k] + cost[k][j] + v[i]·v[k]·v[j]."
+      ],
+      "approachOutline": "Fill ranges by length with cost[i][j] = min over k of cost[i][k] + cost[k][j] + v[i]·v[k]·v[j].",
+      "provenance": {
+        "sourceIds": [
+          "leetcode-canonical",
+          "company-csv",
+          "handbook",
+          "grind75"
+        ],
+        "selectionBasis": "Manual pedagogical selection informed by topic coverage; not a claim of membership in every source list.",
+        "companyLikelihood": null
       },
       "implementationStatus": "planned-phase-2",
       "access": "Check availability at the canonical platform"

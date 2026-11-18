@@ -2,7 +2,7 @@
 
 Generated from the original authoring source in `scripts/curriculum_content.py`. Version 1. 24 concepts; visual concept → minimal Java → 1–2 applications. The skill-tree interface is undecided; practice and UI/UX are Phase 2.
 
-47 canonical question records serve 48 concept associations. Question references are planning metadata, not imported statements or new in-app grading integrations.
+79 canonical question records serve 48 concept associations. Question references are planning metadata, not imported statements or new in-app grading integrations.
 
 ## Source selection
 
@@ -1733,6 +1733,1244 @@ Additional prerequisites: None beyond the concept sequence.
 Progressive hints: Define best for a prefix of houses. → For the last house, either skip it or take it and skip its neighbour. → Use best[i]=max(best[i-1], value[i-1]+best[i-2]) with empty-prefix base zero; optionally roll two previous results.
 
 Approach: Use best[i]=max(best[i-1], value[i-1]+best[i-2]) with empty-prefix base zero; optionally roll two previous results.
+
+
+## 25. Bit Manipulation
+
+**Objectives:** Use XOR to cancel values that appear in pairs. Clear the lowest set bit with n & (n-1) and count set bits with it.
+
+**Prerequisites:** concept-arrays
+
+### Visual concept
+
+An int is a row of 32 switches. XOR flips switches: a value XORed with itself is 0 and XOR with 0 changes nothing, so pairs cancel in any order. n-1 turns the lowest 1 of n into 0 and the zeros below it into 1s, so n & (n-1) removes exactly that lowest 1.
+
+XOR [4,1,2,1,2] from 0: 4, 5, 7, 6, 4. The two 1s and two 2s cancel, leaving the single 4. For n=6 (110), 6&5=4 (100) and 4&3=0, so 6 has two set bits.
+
+**Invariant:** After reading a prefix, x equals the XOR of that prefix, which is the XOR of the values seen an odd number of times.
+
+**Watch out:** XOR finds a single value only when every other value appears an even number of times. In Java, >> keeps the sign bit and >>> shifts in zeros; a negative int has 32 bits to count, not its absolute value.
+
+**Visual specification:** a=[4,1,2,1,2]
+
+x=4 → x=5 → x=7 → x=6 → x=4: the single value → 4&3=0: one set bit
+
+**Manipulation:** Change the unpaired value or add a third copy of a value; predict the final XOR.
+
+**Limits:** Small nonnegative teaching values so binary rows stay readable.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int single(int[] a) {
+        int x = 0;
+        for (int v : a) x ^= v;
+        return x;
+    }
+    static int ones(int n) {
+        int count = 0;
+        while (n != 0) {
+            n &= n - 1;
+            count++;
+        }
+        return count;
+    }
+```
+
+**Time:** O(n) XOR scan; O(set bits) counting. **Space:** O(1).
+
+**Assumptions:** 32-bit Java int; every value except one appears exactly twice for the XOR trick.
+
+**Prediction:** What is 6 & 5?
+
+### Question applications — Phase 2
+
+Code line 3: Fold the next value in; a value seen twice cancels itself.
+
+**Introduction: [Single Number](https://leetcode.com/problems/single-number/).** Cancel pairs with XOR.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Pairs should vanish without being stored. → x ^ x is 0 and x ^ 0 is x, in any order. → XOR every value into one accumulator; the pairs cancel and the unpaired value remains, in O(1) extra space.
+
+Approach: XOR every value into one accumulator; the pairs cancel and the unpaired value remains, in O(1) extra space.
+
+**Transfer: [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/).** Clear the lowest set bit repeatedly.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Count switches that are on without testing all 32 positions. → n & (n-1) turns off exactly one set bit. → Repeat n &= n-1 until n is zero and count the iterations; treat the input as unsigned where the statement requires it.
+
+Approach: Repeat n &= n-1 until n is zero and count the iterations; treat the input as unsigned where the statement requires it.
+
+
+## 26. Union-Find (Disjoint Set Union)
+
+**Objectives:** Merge groups and test whether two items share a group in near-constant time. Explain how union by size and path compression keep trees shallow.
+
+**Prerequisites:** concept-arrays, concept-graphs
+
+### Visual concept
+
+Each group is a tree stored in a parent array, and its root names the group. find follows parent links to the root; union links one root under the other. Two items are connected exactly when their roots are equal.
+
+Six vertices start as six groups. Union 0,1 then 2,3 leaves four groups. Union 1,2 joins roots 0 and 2 into one group of four. Union 4,5 leaves two groups: {0,1,2,3} and {4,5}.
+
+**Invariant:** Every vertex reaches exactly one root, and two vertices share a root precisely when the unions so far connect them.
+
+**Watch out:** Linking a vertex instead of its root breaks the group apart. Without union by size and path compression a chain can grow to length n, making each find O(n). Union-find cannot split a group again.
+
+**Visual specification:** n=6; pairs (0,1),(2,3),(1,2),(4,5)
+
+six singleton groups → union 0,1: five groups → union 2,3: four groups → union 1,2: roots 0 and 2 join, three groups → union 4,5: two groups
+
+**Manipulation:** Add a pair that is already connected and check that the count does not change.
+
+**Limits:** Small vertex counts; every vertex must lie in 0..n-1.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int find(int[] parent, int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    }
+    static int components(int n, int[] pairs) {
+        if (n < 0 || pairs.length % 2 != 0) throw new IllegalArgumentException();
+        int[] parent = new int[n], size = new int[n];
+        for (int i = 0; i < n; i++) { parent[i] = i; size[i] = 1; }
+        int count = n;
+        for (int i = 0; i < pairs.length; i += 2) {
+            int a = find(parent, pairs[i]), b = find(parent, pairs[i + 1]);
+            if (a == b) continue;
+            if (size[a] < size[b]) { int t = a; a = b; b = t; }
+            parent[b] = a; size[a] += size[b]; count--;
+        }
+        return count;
+    }
+```
+
+**Time:** O(α(n)) amortised per operation; α grows so slowly it is below 5 for any practical n. **Space:** O(n) parent and size arrays.
+
+**Assumptions:** Vertices 0..n-1; undirected pairs; union by size with path halving.
+
+**Prediction:** After union(0,1) and union(2,3), what does union(1,2) link?
+
+### Question applications — Phase 2
+
+Code line 16: Hang the smaller tree under the larger root so trees stay shallow.
+
+**Introduction: [Number of Provinces](https://leetcode.com/problems/number-of-provinces/).** Count components with merges.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: A province is a connected component. → Each successful merge reduces the component count by one. → Start with n components and union every connected pair from the matrix; return the count after all merges. DFS over the matrix is an equally valid alternative.
+
+Approach: Start with n components and union every connected pair from the matrix; return the count after all merges. DFS over the matrix is an equally valid alternative.
+
+**Transfer: [Redundant Connection](https://leetcode.com/problems/redundant-connection/).** Detect the edge whose ends already share a root.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: A tree plus one edge has exactly one cycle. → An edge whose ends already share a root closes that cycle. → Process edges in order with union-find and return the first edge whose endpoints are already connected, matching the required tie rule.
+
+Approach: Process edges in order with union-find and return the first edge whose endpoints are already connected, matching the required tie rule.
+
+
+## 27. Topological Sort
+
+**Objectives:** Order the vertices of a directed acyclic graph so every edge points forward. Detect a cycle when some vertices never reach indegree zero.
+
+**Prerequisites:** concept-bfs
+
+### Visual concept
+
+A vertex can be placed once nothing still points into it. Kahn's algorithm keeps a queue of vertices whose indegree is zero; placing one removes its outgoing edges, which may free its successors.
+
+Edges 0→2, 1→2, 2→3, 3→4, 1→4 give indegrees [0,0,2,1,2]. The queue starts [0,1]. Placing 0 drops 2 to 1; placing 1 drops 2 to 0 and 4 to 1; then 2, 3 and 4 follow. Order: [0,1,2,3,4].
+
+**Invariant:** Every placed vertex has all its predecessors placed earlier, and a vertex enters the queue exactly when its remaining indegree reaches zero.
+
+**Watch out:** A topological order exists only for acyclic graphs: if fewer than n vertices are placed, the rest lie on or behind a cycle. Many valid orders can exist; the queue discipline picks one.
+
+**Visual specification:** n=5; edges 0→2,1→2,2→3,3→4,1→4
+
+indegree [0,0,2,1,2]; queue [0,1] → place 0: queue [1] → place 1: queue [2] → place 2, then 3, then 4 → order [0,1,2,3,4]
+
+**Manipulation:** Add an edge that closes a cycle and watch vertices stay stuck above indegree zero.
+
+**Limits:** Small directed graphs; vertices must lie in 0..n-1.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static List<Integer> order(int n, int[] edges) {
+        List<List<Integer>> out = new ArrayList<>();
+        int[] indegree = new int[n];
+        for (int i = 0; i < n; i++) out.add(new ArrayList<>());
+        for (int i = 0; i < edges.length; i += 2) {
+            out.get(edges[i]).add(edges[i + 1]);
+            indegree[edges[i + 1]]++;
+        }
+        Deque<Integer> ready = new ArrayDeque<>();
+        for (int v = 0; v < n; v++) if (indegree[v] == 0) ready.addLast(v);
+        List<Integer> order = new ArrayList<>();
+        while (!ready.isEmpty()) {
+            int u = ready.removeFirst();
+            order.add(u);
+            for (int v : out.get(u)) if (--indegree[v] == 0) ready.addLast(v);
+        }
+        return order.size() == n ? order : null;
+    }
+```
+
+**Time:** O(V+E). **Space:** O(V+E) adjacency plus O(V) indegrees.
+
+**Assumptions:** Directed edges u→v meaning u before v; ties resolved in vertex order by a FIFO queue; null signals a cycle.
+
+**Prediction:** Indegrees are [0,0,2,1,2]. After placing 0, what is the indegree of vertex 2?
+
+### Question applications — Phase 2
+
+Code line 15: Removing the edge u→v may free v; enqueue it once nothing points into it.
+
+**Introduction: [Course Schedule](https://leetcode.com/problems/course-schedule/).** Decide whether an order exists.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Finishing every course is possible exactly when there is no cycle. → Count how many courses reach indegree zero. → Run Kahn's algorithm on the prerequisite graph, minding the edge direction; answer true when every course is placed.
+
+Approach: Run Kahn's algorithm on the prerequisite graph, minding the edge direction; answer true when every course is placed.
+
+**Transfer: [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/).** Return the order itself.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Return the order itself, not only whether one exists. → Any valid topological order is accepted. → Record vertices as they leave the zero-indegree queue; return an empty result if fewer than n are placed.
+
+Approach: Record vertices as they leave the zero-indegree queue; return an empty result if fewer than n are placed.
+
+
+## 28. Minimum Spanning Tree (Kruskal)
+
+**Objectives:** Build a minimum spanning tree by taking the cheapest edge that joins two different components. Use union-find to reject edges that would close a cycle.
+
+**Prerequisites:** concept-sorting, concept-union-find
+
+### Visual concept
+
+Sort the edges by weight and walk the list. An edge whose ends are already connected would close a cycle, so skip it; otherwise take it and merge the two components. Once n-1 edges are taken the tree is complete, and every later edge is skipped.
+
+For 5 vertices the sorted weights are 1 (0-2), 2 (1-2), 3 (3-4), 4 (0-1), 5 (1-3), 8 (2-3). Take 1, 2 and 3; skip 4 because 0 and 1 are already joined; take 5. Four edges, total 11.
+
+**Invariant:** The edges taken so far form a forest that is contained in some minimum spanning tree.
+
+**Watch out:** An MST minimises the total weight of a tree that touches every vertex; it is not a shortest-path tree, and the route between two vertices inside it can be long. A disconnected graph has no spanning tree, only a spanning forest.
+
+**Visual specification:** n=5; edges (0,1,4),(0,2,1),(1,2,2),(1,3,5),(2,3,8),(3,4,3)
+
+sort by weight → take 0-2 (1), 1-2 (2), 3-4 (3) → skip 0-1 (4): cycle → take 1-3 (5): four edges, total 11
+
+**Manipulation:** Lower one skipped weight and predict which tree edge it replaces.
+
+**Limits:** Small undirected graphs; equal weights keep input order.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int mst(int n, int[] t) {
+        if (t.length % 3 != 0) throw new IllegalArgumentException();
+        int[][] edges = new int[t.length / 3][];
+        for (int i = 0; i < edges.length; i++) edges[i] = new int[]{t[3 * i], t[3 * i + 1], t[3 * i + 2]};
+        Arrays.sort(edges, Comparator.comparingInt(e -> e[2]));
+        int[] parent = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+        int total = 0, used = 0;
+        for (int[] e : edges) {
+            int a = find(parent, e[0]), b = find(parent, e[1]);
+            if (a == b) continue;
+            parent[b] = a; total += e[2]; used++;
+        }
+        return used == n - 1 ? total : -1;
+    }
+    static int find(int[] parent, int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    }
+```
+
+**Time:** O(E log E) for sorting; the union-find work is nearly linear. **Space:** O(V+E).
+
+**Assumptions:** Undirected weighted edges as u,v,w triples; returns -1 when the graph is disconnected.
+
+**Prediction:** The edges 0-2 and 1-2 are taken. Why is 0-1 (weight 4) skipped?
+
+### Question applications — Phase 2
+
+Code line 11: Both ends already share a root: this edge would close a cycle.
+
+**Introduction: [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/).** Run Kruskal on a complete geometric graph.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Every pair of points is a candidate edge. → The weight is the Manhattan distance. → Generate all pairwise edges, sort them and run Kruskal until n-1 edges are taken; Prim's algorithm on the dense graph avoids storing all edges.
+
+Approach: Generate all pairwise edges, sort them and run Kruskal until n-1 edges are taken; Prim's algorithm on the dense graph avoids storing all edges.
+
+**Transfer: [Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/).** Probe each edge by excluding and forcing it.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Compute the MST weight once as a baseline. → Test each edge by excluding it, then by forcing it in first. → An edge is critical if excluding it raises the weight or disconnects the graph, and pseudo-critical if forcing it keeps the baseline weight.
+
+Approach: An edge is critical if excluding it raises the weight or disconnects the graph, and pseudo-critical if forcing it keeps the baseline weight.
+
+
+## 29. Bellman-Ford
+
+**Objectives:** Find shortest paths when some edge weights are negative. Detect a negative cycle reachable from the source.
+
+**Prerequisites:** concept-graphs, concept-dynamic-programming
+
+### Visual concept
+
+Relax every edge, in a fixed order, again and again. After pass k every shortest path that uses at most k edges is known. A shortest path visits each vertex once, so n-1 passes are enough; a change in pass n proves a negative cycle.
+
+From source 0 with distances [0,∞,∞,∞], the first pass sets 1 to 6 and 2 to 7, then 3 to 11 via 1, then to 4 via 2→3 (weight -3), then 1 to 2 via 3→1 (weight -2). The second pass changes nothing, so [0,2,7,4] is final.
+
+**Invariant:** After pass k, each distance is at most the length of the shortest path that uses k edges or fewer, and is always the length of some real path.
+
+**Watch out:** Dijkstra is faster but its settled-means-final argument fails with negative edges. Shortest paths are undefined when a negative cycle is reachable, so report it instead of returning numbers. Never add a weight to an infinite distance.
+
+**Visual specification:** source 0; edges (0,1,6),(0,2,7),(1,2,8),(1,3,5),(2,3,-3),(3,1,-2)
+
+[0,∞,∞,∞] → pass 1: d[1]=6, d[2]=7, d[3]=11 → 2→3 lowers d[3] to 4; 3→1 lowers d[1] to 2 → pass 2: no change; final [0,2,7,4]
+
+**Manipulation:** Make a cycle negative and watch pass n still improve a distance.
+
+**Limits:** Small directed graphs with source 0; the trace stops early when a pass changes nothing.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static final long INF = Long.MAX_VALUE;
+    static long[] distances(int n, int[] t, int source) {
+        if (t.length % 3 != 0) throw new IllegalArgumentException();
+        long[] d = new long[n];
+        Arrays.fill(d, INF);
+        d[source] = 0;
+        for (int pass = 1; pass <= n; pass++) {
+            boolean changed = false;
+            for (int i = 0; i < t.length; i += 3) {
+                int u = t[i], v = t[i + 1], w = t[i + 2];
+                if (d[u] != INF && d[u] + w < d[v]) { d[v] = d[u] + w; changed = true; }
+            }
+            if (!changed) return d;
+        }
+        return null; // still improving on pass n: a negative cycle is reachable
+    }
+```
+
+**Time:** O(VE). **Space:** O(V).
+
+**Assumptions:** Directed u,v,w triples; Long.MAX_VALUE marks unreachable; null signals a reachable negative cycle; stops early when a pass changes nothing.
+
+**Prediction:** In pass 1, distance[3] is 11 via 1→3. Then 2→3 with weight -3 is relaxed and distance[2] is 7. What is distance[3] now?
+
+### Question applications — Phase 2
+
+Code line 11: Relax one edge; skip unreachable sources so infinity is never added to.
+
+**Introduction: [Network Delay Time](https://leetcode.com/problems/network-delay-time/).** Relax edges from one source.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: The answer is the largest shortest distance from the source. → Weights are nonnegative, so Dijkstra also works. → Relax all edges up to n-1 times from the source; return the maximum distance, or -1 if any node stays unreachable.
+
+Approach: Relax all edges up to n-1 times from the source; return the maximum distance, or -1 if any node stays unreachable.
+
+**Transfer: [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/).** Limit the number of edges with pass-by-pass copies.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: At most k stops means at most k+1 edges. → Relax from a copy of the previous pass so one pass adds one edge. → Run k+1 Bellman-Ford passes, each reading the distances from before the pass; return the destination distance or -1.
+
+Approach: Run k+1 Bellman-Ford passes, each reading the distances from before the pass; return the destination distance or -1.
+
+
+## 30. Floyd-Warshall
+
+**Objectives:** Compute shortest distances between every pair of vertices. Explain the meaning of the outer loop over intermediate vertices.
+
+**Prerequisites:** concept-graphs, concept-matrices, concept-dynamic-programming
+
+### Visual concept
+
+Keep a distance matrix. Round k asks, for every pair i,j, whether going through vertex k is shorter: d[i][j] = min(d[i][j], d[i][k] + d[k][j]). After round k, paths may use any of the vertices 0..k in between.
+
+With edges 0→1 (3), 1→2 (1), 0→2 (7), 2→3 (2), round 0 changes nothing. Round 1 improves 0→2 from 7 to 4. Round 2 sets 0→3 to 6 and 1→3 to 3. Round 3 changes nothing. Row 0 ends as [0,3,4,6].
+
+**Invariant:** After round k, d[i][j] is the shortest i-to-j distance using only vertices 0..k as intermediate stops.
+
+**Watch out:** The intermediate vertex k must be the outermost loop; putting it inside computes something else. Guard infinite entries before adding them. A negative d[i][i] at the end reveals a negative cycle.
+
+**Visual specification:** n=4; edges 0→1 (3), 1→2 (1), 0→2 (7), 2→3 (2)
+
+initial matrix from edges → k=0: no change → k=1: d[0][2]=4 → k=2: d[0][3]=6, d[1][3]=3 → k=3: no change
+
+**Manipulation:** Add a cheaper direct edge and predict which rounds still improve anything.
+
+**Limits:** Small directed graphs; the matrix stays readable up to a handful of vertices.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static final int INF = 1_000_000_000;
+    static int[][] allPairs(int n, int[] t) {
+        if (t.length % 3 != 0) throw new IllegalArgumentException();
+        int[][] d = new int[n][n];
+        for (int[] row : d) Arrays.fill(row, INF);
+        for (int i = 0; i < n; i++) d[i][i] = 0;
+        for (int i = 0; i < t.length; i += 3) d[t[i]][t[i + 1]] = Math.min(d[t[i]][t[i + 1]], t[i + 2]);
+        for (int k = 0; k < n; k++)
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    if (d[i][k] < INF && d[k][j] < INF && d[i][k] + d[k][j] < d[i][j]) d[i][j] = d[i][k] + d[k][j];
+        return d;
+    }
+```
+
+**Time:** O(V³). **Space:** O(V²) matrix.
+
+**Assumptions:** Directed u,v,w triples; INF = 1,000,000,000 marks no path; parallel edges keep the lighter weight.
+
+**Prediction:** Before round 2, d[0][2]=4 and d[2][3]=2. What does round 2 set d[0][3] to?
+
+### Question applications — Phase 2
+
+Code line 11: Try vertex k as a stop between i and j; k is the outermost loop.
+
+**Introduction: [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/).** Count neighbours from an all-pairs matrix.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Every city needs distances to every other city. → Edges are undirected, so store both directions. → Run Floyd-Warshall, count cities within the threshold from each city, and break ties by the larger index as the statement asks.
+
+Approach: Run Floyd-Warshall, count cities within the threshold from each city, and break ties by the larger index as the statement asks.
+
+**Transfer: [Course Schedule IV](https://leetcode.com/problems/course-schedule-iv/).** Use the same loop order for boolean reachability.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: A query asks whether one course is reachable from another. → Reachability is shortest paths with booleans. → Compute the transitive closure with the Floyd-Warshall loop order, using reach[i][j] |= reach[i][k] && reach[k][j], then answer each query in O(1).
+
+Approach: Compute the transitive closure with the Floyd-Warshall loop order, using reach[i][j] |= reach[i][k] && reach[k][j], then answer each query in O(1).
+
+
+## 31. Segment Tree
+
+**Objectives:** Answer range-sum queries and point updates in O(log n) each. Decompose a query range into whole tree nodes.
+
+**Prerequisites:** concept-prefix-sums, concept-binary-trees
+
+### Visual concept
+
+Pad the array with zeros to a power-of-two length and put the values in the leaves. Every internal node stores the sum of its two children, so it covers one range and its children split that range at the middle. A query adds nodes that lie fully inside the asked range, skips nodes fully outside, and descends only where the range is cut.
+
+Over [5,2,7,1,3,6], padded to 8 leaves, the root [0,7] holds 24, with children [0,3]=15 and [4,7]=9. The query [1,4] takes [1,1]=2, [2,3]=8 and [4,4]=3 whole. Sum: 13.
+
+**Invariant:** Each internal node equals the sum of its two children, and a query never counts any position twice or misses one inside the range.
+
+**Watch out:** Prefix sums answer static ranges in O(1), but one update costs O(n); a segment tree pays O(log n) for both. Pad with the identity of the operation (0 for sums), and keep one endpoint rule: these bounds are inclusive.
+
+**Visual specification:** a=[5,2,7,1,3,6] padded to 8 leaves; query [1,4]
+
+build nodes 7 down to 1; root 24 → [0,7], [0,3] and [0,1] are cut: ask both children → take [1,1]=2 and [2,3]=8 → [4,7] and [4,5] are cut; take [4,4]=3 → sum 13 from 3 stored nodes
+
+**Manipulation:** Move either query bound and predict which nodes are taken whole.
+
+**Limits:** Small arrays; inclusive bounds within 0..n-1.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int[] build(int[] a) {
+        int size = 1;
+        while (size < a.length) size *= 2;
+        int[] tree = new int[2 * size];
+        for (int i = 0; i < a.length; i++) tree[size + i] = a[i];
+        for (int node = size - 1; node >= 1; node--) tree[node] = tree[2 * node] + tree[2 * node + 1];
+        return tree;
+    }
+    static int query(int[] tree, int node, int lo, int hi, int l, int r) {
+        if (r < lo || hi < l) return 0;
+        if (l <= lo && hi <= r) return tree[node];
+        int mid = (lo + hi) / 2;
+        return query(tree, 2 * node, lo, mid, l, r) + query(tree, 2 * node + 1, mid + 1, hi, l, r);
+    }
+    static void update(int[] tree, int i, int value) {
+        int node = tree.length / 2 + i;
+        tree[node] = value;
+        for (node /= 2; node >= 1; node /= 2) tree[node] = tree[2 * node] + tree[2 * node + 1];
+    }
+    static int rangeSum(int[] a, int l, int r) {
+        if (l < 0 || l > r || r >= a.length) throw new IllegalArgumentException();
+        int[] tree = build(a);
+        return query(tree, 1, 0, tree.length / 2 - 1, l, r);
+    }
+    static int afterUpdate(int[] a, int i, int value, int l, int r) {
+        int[] tree = build(a);
+        update(tree, i, value);
+        return query(tree, 1, 0, tree.length / 2 - 1, l, r);
+    }
+```
+
+**Time:** O(n) build; O(log n) per query and per update. **Space:** O(n): fewer than 4n slots after padding.
+
+**Assumptions:** Inclusive query bounds l..r; int sums; node 1 is the root, node i has children 2i and 2i+1, and position i is the leaf at node size+i.
+
+**Prediction:** Querying [1,4] reaches the node for [2,3]. What happens there?
+
+### Question applications — Phase 2
+
+Code line 11: A node fully inside the query contributes its stored sum without descending.
+
+**Introduction: [Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/).** Combine range queries with point updates.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Prefix sums make an update cost O(n). → A tree of partial sums balances updates and queries. → Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add.
+
+Approach: Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add.
+
+**Transfer: [Falling Squares](https://leetcode.com/problems/falling-squares/).** Extend the tree to range maximum with range assignment.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Each square lands on the tallest point under its base. → Compress coordinates to the edges of all squares. → Over compressed coordinates, query the range maximum, then assign the new height to the whole range; a segment tree with range assignment does both in O(log n).
+
+Approach: Over compressed coordinates, query the range maximum, then assign the new height to the whole range; a segment tree with range assignment does both in O(log n).
+
+
+## 32. Fenwick Tree (Binary Indexed Tree)
+
+**Objectives:** Maintain prefix sums under point updates in O(log n). Use the lowest set bit to jump between responsible slots.
+
+**Prerequisites:** concept-prefix-sums, concept-bits
+
+### Visual concept
+
+Slot i (1-based) stores the sum of the last lowbit(i) values ending at i, where lowbit(i) = i & -i. A prefix query adds a slot and jumps down by its lowbit; an update adds to a slot and jumps up by its lowbit.
+
+For [5,2,7,1,3,6] the slots 1..6 hold [5,7,7,15,3,9]. The prefix sum of indices 0..4 reads slot 5 (3) and then slot 4 (15): 18 after two reads.
+
+**Invariant:** Slot i equals the sum of the original values at 1-based positions i-lowbit(i)+1 through i.
+
+**Watch out:** The tree is 1-based: forgetting the +1 shift makes index 0 loop forever because 0 & -0 is 0. A Fenwick tree answers prefix sums; a range [l,r] is prefix(r) - prefix(l-1). Minimum or maximum queries need a different structure.
+
+**Visual specification:** a=[5,2,7,1,3,6]; prefix of indices 0..4
+
+slots [5,7,7,15,3,9] → read slot 5: 3 → jump 5-1=4, read 15: 18 → jump 4-4=0: stop with 18
+
+**Manipulation:** Change one value and predict which slots its update touches.
+
+**Limits:** Small arrays; prefix index within 0..n-1.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int[] fenwick(int[] a) {
+        int[] tree = new int[a.length + 1];
+        for (int i = 0; i < a.length; i++) add(tree, i, a[i]);
+        return tree;
+    }
+    static void add(int[] tree, int i, int delta) {
+        for (int j = i + 1; j < tree.length; j += j & -j) tree[j] += delta;
+    }
+    static int prefix(int[] tree, int i) {
+        int sum = 0;
+        for (int j = i + 1; j > 0; j -= j & -j) sum += tree[j];
+        return sum;
+    }
+    static int afterAdd(int[] a, int i, int delta, int q) {
+        int[] tree = fenwick(a);
+        add(tree, i, delta);
+        return prefix(tree, q);
+    }
+```
+
+**Time:** O(n log n) build by repeated add; O(log n) per add and per prefix query. **Space:** O(n).
+
+**Assumptions:** 0-based public indices mapped to 1-based slots; int sums.
+
+**Prediction:** A prefix query starts at slot 6. Which slot does it read next?
+
+### Question applications — Phase 2
+
+Code line 11: Jump down by the lowest set bit to the next slot that covers an earlier block.
+
+**Introduction: [Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/).** Replace a prefix table with an updatable tree.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Prefix sums make an update cost O(n). → A tree of partial sums balances updates and queries. → Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add.
+
+Approach: Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add.
+
+**Transfer: [Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/).** Count earlier-seen ranks with prefix queries.
+
+Additional prerequisites: concept-sorting.
+
+Progressive hints: Scan from the right so the values to the right are already seen. → Count seen values below the current one with a prefix sum over ranks. → Compress values to ranks, walk right to left, query the Fenwick prefix below the current rank, then add one at its rank.
+
+Approach: Compress values to ranks, walk right to left, query the Fenwick prefix below the current rank, then add one at its rank.
+
+
+## 33. Greedy: Interval Scheduling
+
+**Objectives:** Choose the largest set of non-overlapping intervals greedily. Prove the earliest-finish rule with an exchange argument.
+
+**Prerequisites:** concept-intervals
+
+### Visual concept
+
+Sort by end time. Take the interval that finishes first, discard everything that overlaps it, and repeat. Finishing early leaves the most room for what follows.
+
+Sorted by end: (1,4),(3,5),(0,6),(5,7),(3,9),(5,9),(6,10),(8,11). Take (1,4); skip (3,5) and (0,6). Take (5,7); skip (3,9), (5,9) and (6,10). Take (8,11). Three intervals.
+
+**Invariant:** After each choice, the chosen intervals end no later than the first intervals of some optimal schedule of the same size.
+
+**Watch out:** Sorting by start time or by length fails: a long interval that starts first can block several short ones. Decide whether touching endpoints overlap; here an interval may start exactly when the previous one ends.
+
+**Visual specification:** intervals (1,4),(3,5),(0,6),(5,7),(3,9),(5,9),(6,10),(8,11)
+
+sort by end → take (1,4) → skip (3,5),(0,6); take (5,7) → skip (3,9),(5,9),(6,10); take (8,11) → three intervals
+
+**Manipulation:** Lengthen one chosen interval and predict which later choice changes.
+
+**Limits:** Small sets of intervals; equal ends keep input order.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int maxNonOverlapping(int[] t) {
+        if (t.length % 2 != 0) throw new IllegalArgumentException();
+        int[][] iv = new int[t.length / 2][];
+        for (int i = 0; i < iv.length; i++) iv[i] = new int[]{t[2 * i], t[2 * i + 1]};
+        Arrays.sort(iv, Comparator.comparingInt(x -> x[1]));
+        int count = 0;
+        long end = Long.MIN_VALUE;
+        for (int[] x : iv) if (x[0] >= end) { count++; end = x[1]; }
+        return count;
+    }
+```
+
+**Time:** O(n log n) for sorting; O(n) scan. **Space:** O(n) for the sorted copy.
+
+**Assumptions:** Pairs start,end with start < end; touching intervals are compatible (start >= last end).
+
+**Prediction:** The last chosen interval ends at 7. Is (6,10) compatible?
+
+### Question applications — Phase 2
+
+Code line 8: Take the interval that finishes first among those still compatible.
+
+**Introduction: [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/).** Keep the most intervals, remove the rest.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Removing the fewest intervals means keeping the most. → Here touching endpoints do not overlap. → Sort by end, keep each interval that starts at or after the last kept end, and return the total minus the number kept.
+
+Approach: Sort by end, keep each interval that starts at or after the last kept end, and return the total minus the number kept.
+
+**Transfer: [Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/).** Share one arrow across overlapping balloons.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: One arrow can burst every balloon covering one x. → Shoot at the end of the balloon that finishes first. → Sort by end; start a new arrow only when a balloon starts strictly after the current arrow position, because touching balloons share an arrow.
+
+Approach: Sort by end; start a new arrow only when a balloon starts strictly after the current arrow position, because touching balloons share an arrow.
+
+
+## 34. KMP String Matching
+
+**Objectives:** Build the failure table: the longest proper prefix of each pattern prefix that is also its suffix. Match without moving the text index backwards.
+
+**Prerequisites:** concept-strings
+
+### Visual concept
+
+When a mismatch happens after k matched characters, those k characters are known. The failure table says how long a prefix of the pattern they still end with, so the match resumes there instead of restarting.
+
+The pattern abcaby has failure table [0,0,0,1,2,0]. In abxabcabcaby, the match reaches abcab at index 8 and then meets c instead of y. The table keeps ab matched (k=2), c matches, and abcaby completes at index 6.
+
+**Invariant:** Before reading text position i, the first k pattern characters equal the k text characters just before i, and k is the longest such match.
+
+**Watch out:** Off-by-one errors in the table are the usual bug: f[i] describes the prefix ending at i, so after a mismatch at k fall back to f[k-1]. The text index never moves back; only k does.
+
+**Visual specification:** text abxabcabcaby, pattern abcaby
+
+failure [0,0,0,1,2,0] → ab matched, x fails: k=0 → abcab matched at index 8 → c≠y: k falls back to 2 → c,a,b,y match: found at 6
+
+**Manipulation:** Change the pattern to repeat its opening letters and watch the table grow.
+
+**Limits:** Short lowercase text and pattern separated by |.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int[] failure(String p) {
+        int[] f = new int[p.length()];
+        for (int i = 1, k = 0; i < p.length(); i++) {
+            while (k > 0 && p.charAt(i) != p.charAt(k)) k = f[k - 1];
+            if (p.charAt(i) == p.charAt(k)) k++;
+            f[i] = k;
+        }
+        return f;
+    }
+    static int indexOf(String text, String p) {
+        if (p.isEmpty()) return 0;
+        int[] f = failure(p);
+        for (int i = 0, k = 0; i < text.length(); i++) {
+            while (k > 0 && text.charAt(i) != p.charAt(k)) k = f[k - 1];
+            if (text.charAt(i) == p.charAt(k)) k++;
+            if (k == p.length()) return i - k + 1;
+        }
+        return -1;
+    }
+```
+
+**Time:** O(n+m). **Space:** O(m) failure table.
+
+**Assumptions:** Returns the first match index or -1; an empty pattern matches at 0.
+
+**Prediction:** Five characters abcab are matched and the next text character is c, not y. Where does matching resume?
+
+### Question applications — Phase 2
+
+Code line 14: Fall back through the failure table instead of moving the text index back.
+
+**Introduction: [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/).** Replace the nested baseline with the failure table.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Try each possible starting position. → A mismatch rules out that start, not every later start. → Use a bounded nested comparison as the introductory solution; separate this baseline from later KMP optimization.
+
+Approach: Use a bounded nested comparison as the introductory solution; separate this baseline from later KMP optimization.
+
+**Transfer: [Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/).** Read periodicity from the last failure value.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Look at the longest proper prefix that is also a suffix. → The failure value of the last position gives it. → Let L be the last failure value; the string repeats exactly when L > 0 and n is divisible by n - L.
+
+Approach: Let L be the last failure value; the string repeats exactly when L > 0 and n is divisible by n - L.
+
+
+## 35. Rolling Hash (Rabin-Karp)
+
+**Objectives:** Update a window hash in O(1) as the window slides. Verify every hash match, because different strings can share a hash.
+
+**Prerequisites:** concept-strings, concept-hashing, concept-fixed-window
+
+### Visual concept
+
+Treat a window of m characters as a number in base B, reduced modulo M. Sliding right removes the leading character's contribution, shifts by B and adds the new character. Only windows whose hash equals the pattern hash are compared character by character.
+
+With base 31, modulus 101 and character codes, cad hashes to 74. The windows of abracadabra hash to 15 (abr), 41 (bra), 45 (rac), 29 (aca) and then 74 (cad). The fifth window matches and checks out: index 4.
+
+**Invariant:** Before comparing window i, hw equals the hash of text[i..i+m) and hp equals the hash of the pattern.
+
+**Watch out:** Equal hashes do not prove equal strings, so always verify. Negative intermediate values need +M before the modulus in Java. A small modulus makes collisions frequent; real code uses a large prime or two hashes.
+
+**Visual specification:** text abracadabra, pattern cad; B=31, M=101
+
+pattern hash 74 → abr 15, bra 41, rac 45, aca 29 → cad 74: hashes equal → characters agree: found at 4
+
+**Manipulation:** Pick a pattern that occurs twice and compare the hashes of both windows.
+
+**Limits:** Short text and pattern separated by |; base 31 and modulus 101 are fixed.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static final int B = 31, M = 101;
+    static int indexOf(String text, String p) {
+        int m = p.length(), n = text.length();
+        if (m > n) return -1;
+        int high = 1, hp = 0, hw = 0;
+        for (int i = 0; i < m - 1; i++) high = high * B % M;
+        for (int i = 0; i < m; i++) {
+            hp = (hp * B + p.charAt(i)) % M;
+            hw = (hw * B + text.charAt(i)) % M;
+        }
+        for (int i = 0; ; i++) {
+            if (hw == hp && text.regionMatches(i, p, 0, m)) return i;
+            if (i + m == n) return -1;
+            hw = ((hw - text.charAt(i) * high % M + M) * B + text.charAt(i + m)) % M;
+        }
+    }
+```
+
+**Time:** O(n+m) expected; O(nm) when many hashes collide. **Space:** O(1).
+
+**Assumptions:** Polynomial hash with base 31 and modulus 101 over Java char codes; first match index or -1.
+
+**Prediction:** A window hash equals the pattern hash. What must happen next?
+
+### Question applications — Phase 2
+
+Code line 12: Equal hashes only suggest a match; compare the characters to confirm it.
+
+**Introduction: [Repeated DNA Sequences](https://leetcode.com/problems/repeated-dna-sequences/).** Roll a fixed-length code across the text.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Every window has the same length, 10. → Encode each letter in 2 bits and roll the code. → Slide a fixed window, update its code in O(1), and report codes seen a second time exactly once.
+
+Approach: Slide a fixed window, update its code in O(1), and report codes seen a second time exactly once.
+
+**Transfer: [Longest Duplicate Substring](https://leetcode.com/problems/longest-duplicate-substring/).** Combine rolling hashes with binary search on length.
+
+Additional prerequisites: concept-binary-search.
+
+Progressive hints: If a duplicate of length L exists, one of every shorter length exists too. → Binary search the length; check each length with rolling hashes. → For a candidate length, hash every window into a set and verify equal hashes to rule out collisions; keep the longest length that has a duplicate.
+
+Approach: For a candidate length, hash every window into a set and verify equal hashes to rule out collisions; keep the longest length that has a duplicate.
+
+
+## 36. Monotonic Stack
+
+**Objectives:** Find the next greater element for every position in one pass. Explain why each index is pushed and popped at most once.
+
+**Prerequisites:** concept-stacks
+
+### Visual concept
+
+Keep a stack of indices still waiting for a larger value; their values decrease from bottom to top. A new value pops every smaller waiting value, and it is their answer.
+
+For [2,1,5,6,2,3]: 2 and 1 wait. 5 pops 1 and 2, so both get 5. 6 pops 5. 2 waits on 6. 3 pops 2. 6 and 3 never find a larger value. Result [5,5,6,-1,3,-1].
+
+**Invariant:** The stack holds, in order, the indices that have no greater value yet, and their values never increase from bottom to top.
+
+**Watch out:** Push indices, not values, so the answer can be written to the right position. Decide whether equal values pop (strictly greater versus greater or equal). The inner while loop is still O(n) in total.
+
+**Visual specification:** a=[2,1,5,6,2,3]
+
+push 2, push 1 → 5 pops 1 and 2 → 6 pops 5 → push 2 → 3 pops 2 → result [5,5,6,-1,3,-1]
+
+**Manipulation:** Make the input decreasing and watch the stack hold everything.
+
+**Limits:** Small integer arrays; strict comparison.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int[] nextGreater(int[] a) {
+        int[] out = new int[a.length];
+        Arrays.fill(out, -1);
+        Deque<Integer> stack = new ArrayDeque<>();
+        for (int i = 0; i < a.length; i++) {
+            while (!stack.isEmpty() && a[stack.peek()] < a[i]) out[stack.pop()] = a[i];
+            stack.push(i);
+        }
+        return out;
+    }
+```
+
+**Time:** O(n) amortised: each index is pushed and popped at most once. **Space:** O(n) stack.
+
+**Assumptions:** Next strictly greater value to the right; -1 when none exists.
+
+**Prediction:** The stack holds values 6 and 2 (top). The next value is 3. What happens?
+
+### Question applications — Phase 2
+
+Code line 6: The new value answers every smaller index still waiting on the stack.
+
+**Introduction: [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/).** Store waiting indices to measure distances.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Each day waits for the first warmer day. → The answer is a distance, so keep indices. → Scan with a stack of waiting indices; a warmer day pops each cooler one and records the index difference.
+
+Approach: Scan with a stack of waiting indices; a warmer day pops each cooler one and records the index difference.
+
+**Transfer: [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/).** Answer queries through a map of next greater values.
+
+Additional prerequisites: concept-hashing.
+
+Progressive hints: Answer every value of the larger array once. → Store each next greater value in a map. → Run the monotonic stack over nums2, map each value to its next greater value, then look up every query value.
+
+Approach: Run the monotonic stack over nums2, map each value to its next greater value, then look up every query value.
+
+**Transfer: [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/).** Use popped bars to bound rectangles on both sides.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Each bar is the shortest bar of some best rectangle. → A popped bar knows both its left and right limits. → Keep increasing heights on a stack; when a lower bar arrives, pop and compute the width between the new top and the current index. Use a final zero bar to flush.
+
+Approach: Keep increasing heights on a stack; when a lower bar arrives, pop and compute the width between the new top and the current index. Use a final zero bar to flush.
+
+
+## 37. Monotonic Queue
+
+**Objectives:** Report the maximum of every window of size k in O(n) total. Maintain a deque whose front is always the current maximum.
+
+**Prerequisites:** concept-queues, concept-fixed-window
+
+### Visual concept
+
+Keep a deque of indices with decreasing values. Before adding a new index, remove values no larger than it from the back, since they can never be a maximum again; then remove the front if it has left the window.
+
+For [1,3,-1,-3,5,3,6,7] with k=3: 3 pushes out 1; -1 and -3 wait behind 3, giving maxima 3 and 3. 5 is at least as large as -3, -1 and 3, so all three leave from the back: 5, then 5 again with 3 behind it. 6 and 7 each clear the deque. Maxima [3,3,5,5,6,7].
+
+**Invariant:** The deque holds indices inside the current window in increasing order, with strictly decreasing values, and its front is the window maximum.
+
+**Watch out:** Store indices so expiry can be checked; values alone cannot tell when the front leaves the window. Popping only from the front, or only from the back, does not keep both properties.
+
+**Visual specification:** a=[1,3,-1,-3,5,3,6,7], k=3
+
+3 removes 1 → deque 3,-1: max 3 → deque 3,-1,-3: max 3 → 5 drops -3, -1 and 3 from the back: max 5 → deque 5,3: max 5 → 6 then 7: maxima [3,3,5,5,6,7]
+
+**Manipulation:** Change k and predict how many maxima are reported and when values expire.
+
+**Limits:** Small integer arrays; 1 <= k <= n.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int[] windowMax(int[] a, int k) {
+        if (k < 1 || k > a.length) throw new IllegalArgumentException();
+        int[] out = new int[a.length - k + 1];
+        Deque<Integer> dq = new ArrayDeque<>();
+        for (int i = 0; i < a.length; i++) {
+            while (!dq.isEmpty() && a[dq.peekLast()] <= a[i]) dq.pollLast();
+            dq.addLast(i);
+            if (dq.peekFirst() <= i - k) dq.pollFirst();
+            if (i >= k - 1) out[i - k + 1] = a[dq.peekFirst()];
+        }
+        return out;
+    }
+```
+
+**Time:** O(n): each index enters and leaves the deque once. **Space:** O(k) deque.
+
+**Assumptions:** 1 <= k <= n; outputs n-k+1 maxima.
+
+**Prediction:** The deque holds values 3, -1, -3 and the next value is 5. What does the deque hold after adding it?
+
+### Question applications — Phase 2
+
+Code line 6: Values no larger than the newcomer can never be a window maximum again.
+
+**Introduction: [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/).** Keep the window maximum at the deque front.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: A sorted structure costs O(log k) per step. → A value behind a larger, later value can never be a maximum. → Keep a deque of indices with decreasing values; drop the expired front, pop smaller backs, and read the front once the first window is full.
+
+Approach: Keep a deque of indices with decreasing values; drop the expired front, pop smaller backs, and read the front once the first window is full.
+
+**Transfer: [Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/).** Keep two deques for a variable window.
+
+Additional prerequisites: concept-variable-window.
+
+Progressive hints: The window is valid while max minus min is within the limit. → Keep one deque for maxima and one for minima. → Grow the right end, shrink the left end while the two deque fronts differ by more than the limit, and track the longest valid length.
+
+Approach: Grow the right end, shrink the left end while the two deque fronts differ by more than the limit, and track the longest valid length.
+
+
+## 38. 0/1 Knapsack
+
+**Objectives:** Define the state as the best value from the first i items within capacity c. Fill the table with the take-or-skip choice for each item.
+
+**Prerequisites:** concept-dynamic-programming
+
+### Visual concept
+
+dp[i][c] is the best value using only the first i items with capacity c. Item i is either skipped, leaving dp[i-1][c], or taken once, giving its value plus dp[i-1][c-w].
+
+Items (1,1),(3,4),(4,5),(5,7) as weight,value with capacity 7. Row 1 is all 1s from c=1. Row 2 reaches 5 at c=4. Row 3 takes items 2 and 3 together at c=7: 4+5=9. Row 4 offers 7+1=8 at c=7, so 9 stays.
+
+**Invariant:** After row i, dp[i][c] is the best value of any subset of the first i items whose weight is at most c.
+
+**Watch out:** Reading the current row instead of the previous one lets an item be used twice, which is the unbounded knapsack. A one-row version must loop capacity downwards. Sorting by value per weight is a greedy heuristic, not a solution.
+
+**Visual specification:** items (1,1),(3,4),(4,5),(5,7); W=7
+
+row 1: [0,1,1,1,1,1,1,1] → row 2: [0,1,1,4,5,5,5,5] → row 3: [0,1,1,4,5,6,6,9] → row 4: [0,1,1,4,5,7,8,9] → answer 9
+
+**Manipulation:** Raise the capacity by one and predict which cells change.
+
+**Limits:** A few items and a small capacity so the table fits on screen.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int best(int[] items, int capacity) {
+        if (items.length % 2 != 0 || capacity < 0) throw new IllegalArgumentException();
+        int n = items.length / 2;
+        int[][] dp = new int[n + 1][capacity + 1];
+        for (int i = 1; i <= n; i++) {
+            int w = items[2 * i - 2], v = items[2 * i - 1];
+            for (int c = 0; c <= capacity; c++) {
+                dp[i][c] = dp[i - 1][c];
+                if (w <= c) dp[i][c] = Math.max(dp[i][c], dp[i - 1][c - w] + v);
+            }
+        }
+        return dp[n][capacity];
+    }
+```
+
+**Time:** O(n·W). **Space:** O(n·W) table; O(W) with one row.
+
+**Assumptions:** Pairs weight,value with nonnegative integers; capacity W >= 0. Pseudo-polynomial: the cost grows with W, not its number of digits.
+
+**Prediction:** At capacity 7, taking item 4 (weight 5, value 7) leaves capacity 2. With the first three items, the best for capacity 2 is 1. Should item 4 be taken?
+
+### Question applications — Phase 2
+
+Code line 9: Take the item once: its value plus the best of the previous row at the remaining capacity.
+
+**Introduction: [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/).** Reach half the total with a boolean table.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: An odd total cannot split evenly. → Ask whether some subset reaches half the total. → Run a boolean 0/1 knapsack over sums up to half the total, looping sums downwards so each number is used once.
+
+Approach: Run a boolean 0/1 knapsack over sums up to half the total, looping sums downwards so each number is used once.
+
+**Transfer: [Target Sum](https://leetcode.com/problems/target-sum/).** Count subsets that reach a derived sum.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Signs split the numbers into a plus group and a minus group. → The plus group must sum to (total + target) / 2. → Check parity and range, then count subsets reaching that sum with a 0/1 knapsack of counts.
+
+Approach: Check parity and range, then count subsets reaching that sum with a 0/1 knapsack of counts.
+
+
+## 39. Longest Common Subsequence
+
+**Objectives:** Define a two-dimensional state over prefixes of both strings. Recover one common subsequence by walking the table backwards.
+
+**Prerequisites:** concept-dynamic-programming, concept-strings
+
+### Visual concept
+
+dp[i][j] is the LCS length of the first i characters of a and the first j of b. Equal last characters extend the diagonal answer by one; otherwise drop one last character and keep the better result.
+
+For abcde and ace the table fills row by row. The a's match first (1), then c extends it to 2, then e to 3. The bottom-right cell is 3 and walking back along the matches gives ace.
+
+**Invariant:** Every cell depends only on the cells above, to the left and diagonally above-left, which are filled earlier in row-major order.
+
+**Watch out:** A subsequence keeps order but may skip characters; a substring must be contiguous and uses a different recurrence. Use one extra row and column for empty prefixes, or index errors follow.
+
+**Visual specification:** a=abcde, b=ace
+
+row a: [0,1,1,1] → row b: [0,1,1,1] → row c: [0,1,2,2] → row d: [0,1,2,2] → row e: [0,1,2,3]; answer 3
+
+**Manipulation:** Swap two letters in one string and predict the new bottom-right cell.
+
+**Limits:** Short lowercase strings separated by |.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static int[][] table(String a, String b) {
+        int[][] dp = new int[a.length() + 1][b.length() + 1];
+        for (int i = 1; i <= a.length(); i++)
+            for (int j = 1; j <= b.length(); j++)
+                dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1) ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+        return dp;
+    }
+    static int lcs(String a, String b) {
+        return table(a, b)[a.length()][b.length()];
+    }
+    static String common(String a, String b) {
+        int[][] dp = table(a, b);
+        StringBuilder out = new StringBuilder();
+        for (int i = a.length(), j = b.length(); i > 0 && j > 0; ) {
+            if (a.charAt(i - 1) == b.charAt(j - 1)) { out.append(a.charAt(i - 1)); i--; j--; }
+            else if (dp[i - 1][j] >= dp[i][j - 1]) i--;
+            else j--;
+        }
+        return out.reverse().toString();
+    }
+```
+
+**Time:** O(nm). **Space:** O(nm) table; O(min(n,m)) for the length alone.
+
+**Assumptions:** Exact character equality; the reconstruction prefers moving up on ties.
+
+**Prediction:** a[i-1] and b[j-1] are different. Which cells decide dp[i][j]?
+
+### Question applications — Phase 2
+
+Code line 5: A match extends the diagonal; otherwise keep the better of dropping either last character.
+
+**Introduction: [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/).** Fill the prefix-pair table.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Define the state over two prefixes. → Matching last characters extend the diagonal. → Fill an (n+1) by (m+1) table with the match or max-of-neighbours rule and return the bottom-right cell.
+
+Approach: Fill an (n+1) by (m+1) table with the match or max-of-neighbours rule and return the bottom-right cell.
+
+**Transfer: [Delete Operation for Two Strings](https://leetcode.com/problems/delete-operation-for-two-strings/).** Turn the LCS length into a deletion count.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: The characters kept form a common subsequence. → Keep as many as possible. → Compute the LCS length L and return n + m - 2L.
+
+Approach: Compute the LCS length L and return n + m - 2L.
+
+**Transfer: [Edit Distance](https://leetcode.com/problems/edit-distance/).** Change the recurrence to count edits.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: The table has the same shape as LCS. → Three moves: insert, delete or replace, each costing one. → Set the empty-prefix row and column to their lengths, then take the diagonal for a match or one plus the minimum of the three neighbours.
+
+Approach: Set the empty-prefix row and column to their lengths, then take the diagonal for a match or one plus the minimum of the three neighbours.
+
+
+## 40. Interval DP (Matrix Chain)
+
+**Objectives:** Solve a problem over every contiguous range, from short ranges to long ones. Choose the best split point for each range.
+
+**Prerequisites:** concept-dynamic-programming
+
+### Visual concept
+
+cost[i][j] is the cheapest way to multiply matrices i..j. The last multiplication splits the range at some k, so try every k: cost[i][k] + cost[k+1][j] + p[i]·p[k+1]·p[j+1]. Fill ranges in order of length.
+
+Dimensions [10,30,5,60] give A (10×30), B (30×5) and C (5×60). AB costs 1500 and BC costs 9000. For ABC, splitting after A costs 0+9000+18000=27000; splitting after B costs 1500+0+3000=4500. The answer is 4500.
+
+**Invariant:** When a range of length L is filled, every shorter range inside it already holds its optimal cost.
+
+**Watch out:** Filling by i and j in plain row order reads ranges that are not ready yet; iterate by length. The product of three dimensions can exceed int, so use long. The table holds costs only; record the best k to rebuild the bracketing.
+
+**Visual specification:** p=[10,30,5,60]
+
+single matrices cost 0 → AB=1500, BC=9000 → ABC split after A: 27000 → ABC split after B: 4500 → answer 4500
+
+**Manipulation:** Change the middle dimension and predict which split wins.
+
+**Limits:** Two to a few matrices so the triangle of ranges stays readable.
+
+**Interactive readiness:** interactive
+
+- This is bounded authored execution, not tracing arbitrary student code.
+
+### Minimal Java
+
+```java
+static long chain(int[] p) {
+        int n = p.length - 1;
+        if (n < 1) throw new IllegalArgumentException();
+        long[][] cost = new long[n][n];
+        for (int len = 2; len <= n; len++)
+            for (int i = 0; i + len - 1 < n; i++) {
+                int j = i + len - 1;
+                cost[i][j] = Long.MAX_VALUE;
+                for (int k = i; k < j; k++)
+                    cost[i][j] = Math.min(cost[i][j], cost[i][k] + cost[k + 1][j] + (long) p[i] * p[k + 1] * p[j + 1]);
+            }
+        return cost[0][n - 1];
+    }
+```
+
+**Time:** O(n³) for n matrices. **Space:** O(n²).
+
+**Assumptions:** p has n+1 dimensions for n matrices; costs counted as scalar multiplications.
+
+**Prediction:** Why must all ranges of length 2 be filled before any range of length 3?
+
+### Question applications — Phase 2
+
+Code line 9: Try every split; both halves are shorter ranges and already final.
+
+**Introduction: [Burst Balloons](https://leetcode.com/problems/burst-balloons/).** Choose the last item in each range.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: Choose the last balloon to burst in a range, not the first. → Its neighbours at that moment are the range boundaries. → Pad with 1 on both ends and fill ranges by length, trying every last balloon k with cost left + right + boundary product.
+
+Approach: Pad with 1 on both ends and fill ranges by length, trying every last balloon k with cost left + right + boundary product.
+
+**Transfer: [Minimum Score Triangulation of Polygon](https://leetcode.com/problems/minimum-score-triangulation-of-polygon/).** Split a polygon at a third vertex.
+
+Additional prerequisites: None beyond the concept sequence.
+
+Progressive hints: The edge from i to j belongs to exactly one triangle. → Its third vertex k splits the polygon in two. → Fill ranges by length with cost[i][j] = min over k of cost[i][k] + cost[k][j] + v[i]·v[k]·v[j].
+
+Approach: Fill ranges by length with cost[i][j] = min over k of cost[i][k] + cost[k][j] + v[i]·v[k]·v[j].
 
 ## Phase 2 handover
 

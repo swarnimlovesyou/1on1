@@ -24,7 +24,8 @@ export default function SceneCanvas({
     ease: [0.16, 1, 0.3, 1] as const,
   };
   const props = { step, algorithm, timing };
-  if ("board" in step) return <BoardModel step={step} timing={timing} />;
+  if (step.visual && "board" in step.visual)
+    return <BoardModel step={step} timing={timing} />;
   if (["bfs", "dfs", "dijkstra", "max-flow", "graphs"].includes(algorithm))
     return <GraphModel {...props} />;
   if (

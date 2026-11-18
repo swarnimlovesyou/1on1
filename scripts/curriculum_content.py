@@ -524,6 +524,442 @@ concept('dynamic-programming', 'Dynamic Programming: Memoization and Tabulation'
     ('If F(4)=3 and F(5)=5, what is F(6)?', ['5','8','13'],1,'The recurrence reads both earlier states: 3+5=8.'),
     ('F(7), base F(0)=0,F(1)=1', ['base [0,1]','write 1,2,3,5,8,13','both methods return 13'], 'Change n, compare repeated calls with cache hits and bottom-up writes.', 'n=0..16; do not imply Fibonacci is the complete DP curriculum; practice derives two distinct state models.'))
 
+# Phase 3 concepts. Each default input below is the experiment contract with the trace engine.
+FIND = '''static int find(int[] parent, int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    }'''
+
+concept('bits', 'Bit Manipulation', ['arrays'], ['bits'],
+    ['Use XOR to cancel values that appear in pairs.', 'Clear the lowest set bit with n & (n-1) and count set bits with it.'],
+    'An int is a row of 32 switches. XOR flips switches: a value XORed with itself is 0 and XOR with 0 changes nothing, so pairs cancel in any order. n-1 turns the lowest 1 of n into 0 and the zeros below it into 1s, so n & (n-1) removes exactly that lowest 1.',
+    'XOR [4,1,2,1,2] from 0: 4, 5, 7, 6, 4. The two 1s and two 2s cancel, leaving the single 4. For n=6 (110), 6&5=4 (100) and 4&3=0, so 6 has two set bits.',
+    'After reading a prefix, x equals the XOR of that prefix, which is the XOR of the values seen an odd number of times.',
+    'XOR finds a single value only when every other value appears an even number of times. In Java, >> keeps the sign bit and >>> shifts in zeros; a negative int has 32 bits to count, not its absolute value.',
+    dict(time='O(n) XOR scan; O(set bits) counting', space='O(1)', assumptions='32-bit Java int; every value except one appears exactly twice for the XOR trick.'),
+    '''static int single(int[] a) {
+        int x = 0;
+        for (int v : a) x ^= v;
+        return x;
+    }
+    static int ones(int n) {
+        int count = 0;
+        while (n != 0) {
+            n &= n - 1;
+            count++;
+        }
+        return count;
+    }''',
+    [('single(new int[]{4,1,2,1,2})','4'), ('single(new int[]{7})','7'), ('single(new int[]{-3,5,5})','-3'), ('ones(6)','2'), ('ones(0)','0'), ('ones(-1)','32')],
+    ('What is 6 & 5?', ['4','6','0'],0,'110 & 101 keeps only the shared 1, giving 100, which is 4: the lowest set bit of 6 is cleared.'),
+    ('a=[4,1,2,1,2]', ['x=4','x=5','x=7','x=6','x=4: the single value','4&3=0: one set bit'], 'Change the unpaired value or add a third copy of a value; predict the final XOR.', 'Small nonnegative teaching values so binary rows stay readable.'))
+
+concept('union-find', 'Union-Find (Disjoint Set Union)', ['arrays','graphs'], ['union-find'],
+    ['Merge groups and test whether two items share a group in near-constant time.', 'Explain how union by size and path compression keep trees shallow.'],
+    'Each group is a tree stored in a parent array, and its root names the group. find follows parent links to the root; union links one root under the other. Two items are connected exactly when their roots are equal.',
+    'Six vertices start as six groups. Union 0,1 then 2,3 leaves four groups. Union 1,2 joins roots 0 and 2 into one group of four. Union 4,5 leaves two groups: {0,1,2,3} and {4,5}.',
+    'Every vertex reaches exactly one root, and two vertices share a root precisely when the unions so far connect them.',
+    'Linking a vertex instead of its root breaks the group apart. Without union by size and path compression a chain can grow to length n, making each find O(n). Union-find cannot split a group again.',
+    dict(time='O(α(n)) amortised per operation; α grows so slowly it is below 5 for any practical n', space='O(n) parent and size arrays', assumptions='Vertices 0..n-1; undirected pairs; union by size with path halving.'),
+    FIND + '''
+    static int components(int n, int[] pairs) {
+        if (n < 0 || pairs.length % 2 != 0) throw new IllegalArgumentException();
+        int[] parent = new int[n], size = new int[n];
+        for (int i = 0; i < n; i++) { parent[i] = i; size[i] = 1; }
+        int count = n;
+        for (int i = 0; i < pairs.length; i += 2) {
+            int a = find(parent, pairs[i]), b = find(parent, pairs[i + 1]);
+            if (a == b) continue;
+            if (size[a] < size[b]) { int t = a; a = b; b = t; }
+            parent[b] = a; size[a] += size[b]; count--;
+        }
+        return count;
+    }''',
+    [('components(6,new int[]{0,1,2,3,1,2,4,5})','2'), ('components(3,new int[]{})','3'), ('components(3,new int[]{0,1,1,0,0,0})','2'), ('components(0,new int[]{})','0')],
+    ('After union(0,1) and union(2,3), what does union(1,2) link?', ['Vertex 1 under vertex 2','The root of 2 under the root of 1','Nothing, they are already connected'],1,'Union always works on roots: find(1)=0 and find(2)=2, so one root is linked under the other.'),
+    ('n=6; pairs (0,1),(2,3),(1,2),(4,5)', ['six singleton groups','union 0,1: five groups','union 2,3: four groups','union 1,2: roots 0 and 2 join, three groups','union 4,5: two groups'], 'Add a pair that is already connected and check that the count does not change.', 'Small vertex counts; every vertex must lie in 0..n-1.'))
+
+concept('topological-sort', 'Topological Sort', ['bfs'], ['topological-sort'],
+    ['Order the vertices of a directed acyclic graph so every edge points forward.', 'Detect a cycle when some vertices never reach indegree zero.'],
+    'A vertex can be placed once nothing still points into it. Kahn\'s algorithm keeps a queue of vertices whose indegree is zero; placing one removes its outgoing edges, which may free its successors.',
+    'Edges 0→2, 1→2, 2→3, 3→4, 1→4 give indegrees [0,0,2,1,2]. The queue starts [0,1]. Placing 0 drops 2 to 1; placing 1 drops 2 to 0 and 4 to 1; then 2, 3 and 4 follow. Order: [0,1,2,3,4].',
+    'Every placed vertex has all its predecessors placed earlier, and a vertex enters the queue exactly when its remaining indegree reaches zero.',
+    'A topological order exists only for acyclic graphs: if fewer than n vertices are placed, the rest lie on or behind a cycle. Many valid orders can exist; the queue discipline picks one.',
+    dict(time='O(V+E)', space='O(V+E) adjacency plus O(V) indegrees', assumptions='Directed edges u→v meaning u before v; ties resolved in vertex order by a FIFO queue; null signals a cycle.'),
+    '''static List<Integer> order(int n, int[] edges) {
+        List<List<Integer>> out = new ArrayList<>();
+        int[] indegree = new int[n];
+        for (int i = 0; i < n; i++) out.add(new ArrayList<>());
+        for (int i = 0; i < edges.length; i += 2) {
+            out.get(edges[i]).add(edges[i + 1]);
+            indegree[edges[i + 1]]++;
+        }
+        Deque<Integer> ready = new ArrayDeque<>();
+        for (int v = 0; v < n; v++) if (indegree[v] == 0) ready.addLast(v);
+        List<Integer> order = new ArrayList<>();
+        while (!ready.isEmpty()) {
+            int u = ready.removeFirst();
+            order.add(u);
+            for (int v : out.get(u)) if (--indegree[v] == 0) ready.addLast(v);
+        }
+        return order.size() == n ? order : null;
+    }''',
+    [('order(5,new int[]{0,2,1,2,2,3,3,4,1,4})','[0, 1, 2, 3, 4]'), ('order(3,new int[]{0,1,1,2,2,0})','null'), ('order(3,new int[]{})','[0, 1, 2]'), ('order(3,new int[]{2,0})','[1, 2, 0]')],
+    ('Indegrees are [0,0,2,1,2]. After placing 0, what is the indegree of vertex 2?', ['2','1','0'],1,'Only the edge 0→2 has been removed; the edge 1→2 still points into 2.'),
+    ('n=5; edges 0→2,1→2,2→3,3→4,1→4', ['indegree [0,0,2,1,2]; queue [0,1]','place 0: queue [1]','place 1: queue [2]','place 2, then 3, then 4','order [0,1,2,3,4]'], 'Add an edge that closes a cycle and watch vertices stay stuck above indegree zero.', 'Small directed graphs; vertices must lie in 0..n-1.'))
+
+concept('kruskal', 'Minimum Spanning Tree (Kruskal)', ['sorting','union-find'], ['kruskal'],
+    ['Build a minimum spanning tree by taking the cheapest edge that joins two different components.', 'Use union-find to reject edges that would close a cycle.'],
+    'Sort the edges by weight and walk the list. An edge whose ends are already connected would close a cycle, so skip it; otherwise take it and merge the two components. Once n-1 edges are taken the tree is complete, and every later edge is skipped.',
+    'For 5 vertices the sorted weights are 1 (0-2), 2 (1-2), 3 (3-4), 4 (0-1), 5 (1-3), 8 (2-3). Take 1, 2 and 3; skip 4 because 0 and 1 are already joined; take 5. Four edges, total 11.',
+    'The edges taken so far form a forest that is contained in some minimum spanning tree.',
+    'An MST minimises the total weight of a tree that touches every vertex; it is not a shortest-path tree, and the route between two vertices inside it can be long. A disconnected graph has no spanning tree, only a spanning forest.',
+    dict(time='O(E log E) for sorting; the union-find work is nearly linear', space='O(V+E)', assumptions='Undirected weighted edges as u,v,w triples; returns -1 when the graph is disconnected.'),
+    '''static int mst(int n, int[] t) {
+        if (t.length % 3 != 0) throw new IllegalArgumentException();
+        int[][] edges = new int[t.length / 3][];
+        for (int i = 0; i < edges.length; i++) edges[i] = new int[]{t[3 * i], t[3 * i + 1], t[3 * i + 2]};
+        Arrays.sort(edges, Comparator.comparingInt(e -> e[2]));
+        int[] parent = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+        int total = 0, used = 0;
+        for (int[] e : edges) {
+            int a = find(parent, e[0]), b = find(parent, e[1]);
+            if (a == b) continue;
+            parent[b] = a; total += e[2]; used++;
+        }
+        return used == n - 1 ? total : -1;
+    }
+    ''' + FIND,
+    [('mst(5,new int[]{0,1,4,0,2,1,1,2,2,1,3,5,2,3,8,3,4,3})','11'), ('mst(4,new int[]{0,1,1,2,3,1})','-1'), ('mst(1,new int[]{})','0'), ('mst(3,new int[]{0,1,2,1,2,2,0,2,2})','4')],
+    ('The edges 0-2 and 1-2 are taken. Why is 0-1 (weight 4) skipped?', ['Its weight is too large','0 and 1 are already in one component','It is a directed edge'],1,'0 and 1 are already connected through 2, so adding 0-1 would close a cycle.'),
+    ('n=5; edges (0,1,4),(0,2,1),(1,2,2),(1,3,5),(2,3,8),(3,4,3)', ['sort by weight','take 0-2 (1), 1-2 (2), 3-4 (3)','skip 0-1 (4): cycle','take 1-3 (5): four edges, total 11'], 'Lower one skipped weight and predict which tree edge it replaces.', 'Small undirected graphs; equal weights keep input order.'))
+
+concept('bellman-ford', 'Bellman-Ford', ['graphs','dynamic-programming'], ['bellman-ford'],
+    ['Find shortest paths when some edge weights are negative.', 'Detect a negative cycle reachable from the source.'],
+    'Relax every edge, in a fixed order, again and again. After pass k every shortest path that uses at most k edges is known. A shortest path visits each vertex once, so n-1 passes are enough; a change in pass n proves a negative cycle.',
+    'From source 0 with distances [0,∞,∞,∞], the first pass sets 1 to 6 and 2 to 7, then 3 to 11 via 1, then to 4 via 2→3 (weight -3), then 1 to 2 via 3→1 (weight -2). The second pass changes nothing, so [0,2,7,4] is final.',
+    'After pass k, each distance is at most the length of the shortest path that uses k edges or fewer, and is always the length of some real path.',
+    'Dijkstra is faster but its settled-means-final argument fails with negative edges. Shortest paths are undefined when a negative cycle is reachable, so report it instead of returning numbers. Never add a weight to an infinite distance.',
+    dict(time='O(VE)', space='O(V)', assumptions='Directed u,v,w triples; Long.MAX_VALUE marks unreachable; null signals a reachable negative cycle; stops early when a pass changes nothing.'),
+    '''static final long INF = Long.MAX_VALUE;
+    static long[] distances(int n, int[] t, int source) {
+        if (t.length % 3 != 0) throw new IllegalArgumentException();
+        long[] d = new long[n];
+        Arrays.fill(d, INF);
+        d[source] = 0;
+        for (int pass = 1; pass <= n; pass++) {
+            boolean changed = false;
+            for (int i = 0; i < t.length; i += 3) {
+                int u = t[i], v = t[i + 1], w = t[i + 2];
+                if (d[u] != INF && d[u] + w < d[v]) { d[v] = d[u] + w; changed = true; }
+            }
+            if (!changed) return d;
+        }
+        return null; // still improving on pass n: a negative cycle is reachable
+    }''',
+    [('Arrays.toString(distances(4,new int[]{0,1,6,0,2,7,1,2,8,1,3,5,2,3,-3,3,1,-2},0))','[0, 2, 7, 4]'), ('Arrays.toString(distances(3,new int[]{0,1,1,1,2,-2,2,1,1},0))','null'), ('Arrays.toString(distances(3,new int[]{0,1,5},0))','[0, 5, 9223372036854775807]'), ('Arrays.toString(distances(1,new int[]{},0))','[0]')],
+    ('In pass 1, distance[3] is 11 via 1→3. Then 2→3 with weight -3 is relaxed and distance[2] is 7. What is distance[3] now?', ['11','4','-3'],1,'7 + (-3) = 4 is smaller than 11, so the estimate drops to 4.'),
+    ('source 0; edges (0,1,6),(0,2,7),(1,2,8),(1,3,5),(2,3,-3),(3,1,-2)', ['[0,∞,∞,∞]','pass 1: d[1]=6, d[2]=7, d[3]=11','2→3 lowers d[3] to 4; 3→1 lowers d[1] to 2','pass 2: no change; final [0,2,7,4]'], 'Make a cycle negative and watch pass n still improve a distance.', 'Small directed graphs with source 0; the trace stops early when a pass changes nothing.'))
+
+concept('floyd-warshall', 'Floyd-Warshall', ['graphs','matrices','dynamic-programming'], ['floyd-warshall'],
+    ['Compute shortest distances between every pair of vertices.', 'Explain the meaning of the outer loop over intermediate vertices.'],
+    'Keep a distance matrix. Round k asks, for every pair i,j, whether going through vertex k is shorter: d[i][j] = min(d[i][j], d[i][k] + d[k][j]). After round k, paths may use any of the vertices 0..k in between.',
+    'With edges 0→1 (3), 1→2 (1), 0→2 (7), 2→3 (2), round 0 changes nothing. Round 1 improves 0→2 from 7 to 4. Round 2 sets 0→3 to 6 and 1→3 to 3. Round 3 changes nothing. Row 0 ends as [0,3,4,6].',
+    'After round k, d[i][j] is the shortest i-to-j distance using only vertices 0..k as intermediate stops.',
+    'The intermediate vertex k must be the outermost loop; putting it inside computes something else. Guard infinite entries before adding them. A negative d[i][i] at the end reveals a negative cycle.',
+    dict(time='O(V³)', space='O(V²) matrix', assumptions='Directed u,v,w triples; INF = 1,000,000,000 marks no path; parallel edges keep the lighter weight.'),
+    '''static final int INF = 1_000_000_000;
+    static int[][] allPairs(int n, int[] t) {
+        if (t.length % 3 != 0) throw new IllegalArgumentException();
+        int[][] d = new int[n][n];
+        for (int[] row : d) Arrays.fill(row, INF);
+        for (int i = 0; i < n; i++) d[i][i] = 0;
+        for (int i = 0; i < t.length; i += 3) d[t[i]][t[i + 1]] = Math.min(d[t[i]][t[i + 1]], t[i + 2]);
+        for (int k = 0; k < n; k++)
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    if (d[i][k] < INF && d[k][j] < INF && d[i][k] + d[k][j] < d[i][j]) d[i][j] = d[i][k] + d[k][j];
+        return d;
+    }''',
+    [('allPairs(4,new int[]{0,1,3,1,2,1,0,2,7,2,3,2})[0][3]','6'), ('Arrays.toString(allPairs(4,new int[]{0,1,3,1,2,1,0,2,7,2,3,2})[0])','[0, 3, 4, 6]'), ('allPairs(4,new int[]{0,1,3,1,2,1,0,2,7,2,3,2})[1][0] == INF','true'), ('allPairs(2,new int[]{0,1,5,0,1,2})[0][1]','2'), ('allPairs(3,new int[]{0,1,4,1,2,-2,0,2,3})[0][2]','2')],
+    ('Before round 2, d[0][2]=4 and d[2][3]=2. What does round 2 set d[0][3] to?', ['7','6','Infinity'],1,'Going through vertex 2 costs 4 + 2 = 6, which beats no path at all.'),
+    ('n=4; edges 0→1 (3), 1→2 (1), 0→2 (7), 2→3 (2)', ['initial matrix from edges','k=0: no change','k=1: d[0][2]=4','k=2: d[0][3]=6, d[1][3]=3','k=3: no change'], 'Add a cheaper direct edge and predict which rounds still improve anything.', 'Small directed graphs; the matrix stays readable up to a handful of vertices.'))
+
+concept('segment-tree', 'Segment Tree', ['prefix-sums','binary-trees'], ['segment-tree'],
+    ['Answer range-sum queries and point updates in O(log n) each.', 'Decompose a query range into whole tree nodes.'],
+    'Pad the array with zeros to a power-of-two length and put the values in the leaves. Every internal node stores the sum of its two children, so it covers one range and its children split that range at the middle. A query adds nodes that lie fully inside the asked range, skips nodes fully outside, and descends only where the range is cut.',
+    'Over [5,2,7,1,3,6], padded to 8 leaves, the root [0,7] holds 24, with children [0,3]=15 and [4,7]=9. The query [1,4] takes [1,1]=2, [2,3]=8 and [4,4]=3 whole. Sum: 13.',
+    'Each internal node equals the sum of its two children, and a query never counts any position twice or misses one inside the range.',
+    'Prefix sums answer static ranges in O(1), but one update costs O(n); a segment tree pays O(log n) for both. Pad with the identity of the operation (0 for sums), and keep one endpoint rule: these bounds are inclusive.',
+    dict(time='O(n) build; O(log n) per query and per update', space='O(n): fewer than 4n slots after padding', assumptions='Inclusive query bounds l..r; int sums; node 1 is the root, node i has children 2i and 2i+1, and position i is the leaf at node size+i.'),
+    '''static int[] build(int[] a) {
+        int size = 1;
+        while (size < a.length) size *= 2;
+        int[] tree = new int[2 * size];
+        for (int i = 0; i < a.length; i++) tree[size + i] = a[i];
+        for (int node = size - 1; node >= 1; node--) tree[node] = tree[2 * node] + tree[2 * node + 1];
+        return tree;
+    }
+    static int query(int[] tree, int node, int lo, int hi, int l, int r) {
+        if (r < lo || hi < l) return 0;
+        if (l <= lo && hi <= r) return tree[node];
+        int mid = (lo + hi) / 2;
+        return query(tree, 2 * node, lo, mid, l, r) + query(tree, 2 * node + 1, mid + 1, hi, l, r);
+    }
+    static void update(int[] tree, int i, int value) {
+        int node = tree.length / 2 + i;
+        tree[node] = value;
+        for (node /= 2; node >= 1; node /= 2) tree[node] = tree[2 * node] + tree[2 * node + 1];
+    }
+    static int rangeSum(int[] a, int l, int r) {
+        if (l < 0 || l > r || r >= a.length) throw new IllegalArgumentException();
+        int[] tree = build(a);
+        return query(tree, 1, 0, tree.length / 2 - 1, l, r);
+    }
+    static int afterUpdate(int[] a, int i, int value, int l, int r) {
+        int[] tree = build(a);
+        update(tree, i, value);
+        return query(tree, 1, 0, tree.length / 2 - 1, l, r);
+    }''',
+    [('rangeSum(new int[]{5,2,7,1,3,6},1,4)','13'), ('rangeSum(new int[]{5,2,7,1,3,6},0,5)','24'), ('rangeSum(new int[]{5,2,7,1,3,6},3,3)','1'), ('afterUpdate(new int[]{5,2,7,1,3,6},2,0,1,4)','6'), ('Arrays.toString(build(new int[]{5,2,7,1,3,6}))','[0, 24, 15, 9, 7, 8, 9, 0, 5, 2, 7, 1, 3, 6, 0, 0]')],
+    ('Querying [1,4] reaches the node for [2,3]. What happens there?', ['Descend to [2,2] and [3,3]','Add its stored sum 8 and stop','Skip it'],1,'[2,3] lies fully inside [1,4], so its stored sum 7 + 1 = 8 is used without descending.'),
+    ('a=[5,2,7,1,3,6] padded to 8 leaves; query [1,4]', ['build nodes 7 down to 1; root 24','[0,7], [0,3] and [0,1] are cut: ask both children','take [1,1]=2 and [2,3]=8','[4,7] and [4,5] are cut; take [4,4]=3','sum 13 from 3 stored nodes'], 'Move either query bound and predict which nodes are taken whole.', 'Small arrays; inclusive bounds within 0..n-1.'))
+
+concept('fenwick', 'Fenwick Tree (Binary Indexed Tree)', ['prefix-sums','bits'], ['fenwick'],
+    ['Maintain prefix sums under point updates in O(log n).', 'Use the lowest set bit to jump between responsible slots.'],
+    'Slot i (1-based) stores the sum of the last lowbit(i) values ending at i, where lowbit(i) = i & -i. A prefix query adds a slot and jumps down by its lowbit; an update adds to a slot and jumps up by its lowbit.',
+    'For [5,2,7,1,3,6] the slots 1..6 hold [5,7,7,15,3,9]. The prefix sum of indices 0..4 reads slot 5 (3) and then slot 4 (15): 18 after two reads.',
+    'Slot i equals the sum of the original values at 1-based positions i-lowbit(i)+1 through i.',
+    'The tree is 1-based: forgetting the +1 shift makes index 0 loop forever because 0 & -0 is 0. A Fenwick tree answers prefix sums; a range [l,r] is prefix(r) - prefix(l-1). Minimum or maximum queries need a different structure.',
+    dict(time='O(n log n) build by repeated add; O(log n) per add and per prefix query', space='O(n)', assumptions='0-based public indices mapped to 1-based slots; int sums.'),
+    '''static int[] fenwick(int[] a) {
+        int[] tree = new int[a.length + 1];
+        for (int i = 0; i < a.length; i++) add(tree, i, a[i]);
+        return tree;
+    }
+    static void add(int[] tree, int i, int delta) {
+        for (int j = i + 1; j < tree.length; j += j & -j) tree[j] += delta;
+    }
+    static int prefix(int[] tree, int i) {
+        int sum = 0;
+        for (int j = i + 1; j > 0; j -= j & -j) sum += tree[j];
+        return sum;
+    }
+    static int afterAdd(int[] a, int i, int delta, int q) {
+        int[] tree = fenwick(a);
+        add(tree, i, delta);
+        return prefix(tree, q);
+    }''',
+    [('prefix(fenwick(new int[]{5,2,7,1,3,6}),4)','18'), ('Arrays.toString(fenwick(new int[]{5,2,7,1,3,6}))','[0, 5, 7, 7, 15, 3, 9]'), ('prefix(fenwick(new int[]{5,2,7,1,3,6}),5)','24'), ('prefix(fenwick(new int[]{}),-1)','0'), ('afterAdd(new int[]{5,2,7,1,3,6},2,-7,4)','11')],
+    ('A prefix query starts at slot 6. Which slot does it read next?', ['5','4','3'],1,'6 is 110 in binary; its lowest set bit is 2, so the query jumps to 6 - 2 = 4.'),
+    ('a=[5,2,7,1,3,6]; prefix of indices 0..4', ['slots [5,7,7,15,3,9]','read slot 5: 3','jump 5-1=4, read 15: 18','jump 4-4=0: stop with 18'], 'Change one value and predict which slots its update touches.', 'Small arrays; prefix index within 0..n-1.'))
+
+concept('interval-scheduling', 'Greedy: Interval Scheduling', ['intervals'], ['interval-scheduling'],
+    ['Choose the largest set of non-overlapping intervals greedily.', 'Prove the earliest-finish rule with an exchange argument.'],
+    'Sort by end time. Take the interval that finishes first, discard everything that overlaps it, and repeat. Finishing early leaves the most room for what follows.',
+    'Sorted by end: (1,4),(3,5),(0,6),(5,7),(3,9),(5,9),(6,10),(8,11). Take (1,4); skip (3,5) and (0,6). Take (5,7); skip (3,9), (5,9) and (6,10). Take (8,11). Three intervals.',
+    'After each choice, the chosen intervals end no later than the first intervals of some optimal schedule of the same size.',
+    'Sorting by start time or by length fails: a long interval that starts first can block several short ones. Decide whether touching endpoints overlap; here an interval may start exactly when the previous one ends.',
+    dict(time='O(n log n) for sorting; O(n) scan', space='O(n) for the sorted copy', assumptions='Pairs start,end with start < end; touching intervals are compatible (start >= last end).'),
+    '''static int maxNonOverlapping(int[] t) {
+        if (t.length % 2 != 0) throw new IllegalArgumentException();
+        int[][] iv = new int[t.length / 2][];
+        for (int i = 0; i < iv.length; i++) iv[i] = new int[]{t[2 * i], t[2 * i + 1]};
+        Arrays.sort(iv, Comparator.comparingInt(x -> x[1]));
+        int count = 0;
+        long end = Long.MIN_VALUE;
+        for (int[] x : iv) if (x[0] >= end) { count++; end = x[1]; }
+        return count;
+    }''',
+    [('maxNonOverlapping(new int[]{1,4,3,5,0,6,5,7,3,9,5,9,6,10,8,11})','3'), ('maxNonOverlapping(new int[]{})','0'), ('maxNonOverlapping(new int[]{1,2,2,3,3,4})','3'), ('maxNonOverlapping(new int[]{1,10,2,3,4,5})','2')],
+    ('The last chosen interval ends at 7. Is (6,10) compatible?', ['Yes','No'],1,'It starts at 6, before 7, so it overlaps the chosen (5,7).'),
+    ('intervals (1,4),(3,5),(0,6),(5,7),(3,9),(5,9),(6,10),(8,11)', ['sort by end','take (1,4)','skip (3,5),(0,6); take (5,7)','skip (3,9),(5,9),(6,10); take (8,11)','three intervals'], 'Lengthen one chosen interval and predict which later choice changes.', 'Small sets of intervals; equal ends keep input order.'))
+
+concept('kmp', 'KMP String Matching', ['strings'], ['kmp'],
+    ['Build the failure table: the longest proper prefix of each pattern prefix that is also its suffix.', 'Match without moving the text index backwards.'],
+    'When a mismatch happens after k matched characters, those k characters are known. The failure table says how long a prefix of the pattern they still end with, so the match resumes there instead of restarting.',
+    'The pattern abcaby has failure table [0,0,0,1,2,0]. In abxabcabcaby, the match reaches abcab at index 8 and then meets c instead of y. The table keeps ab matched (k=2), c matches, and abcaby completes at index 6.',
+    'Before reading text position i, the first k pattern characters equal the k text characters just before i, and k is the longest such match.',
+    'Off-by-one errors in the table are the usual bug: f[i] describes the prefix ending at i, so after a mismatch at k fall back to f[k-1]. The text index never moves back; only k does.',
+    dict(time='O(n+m)', space='O(m) failure table', assumptions='Returns the first match index or -1; an empty pattern matches at 0.'),
+    '''static int[] failure(String p) {
+        int[] f = new int[p.length()];
+        for (int i = 1, k = 0; i < p.length(); i++) {
+            while (k > 0 && p.charAt(i) != p.charAt(k)) k = f[k - 1];
+            if (p.charAt(i) == p.charAt(k)) k++;
+            f[i] = k;
+        }
+        return f;
+    }
+    static int indexOf(String text, String p) {
+        if (p.isEmpty()) return 0;
+        int[] f = failure(p);
+        for (int i = 0, k = 0; i < text.length(); i++) {
+            while (k > 0 && text.charAt(i) != p.charAt(k)) k = f[k - 1];
+            if (text.charAt(i) == p.charAt(k)) k++;
+            if (k == p.length()) return i - k + 1;
+        }
+        return -1;
+    }''',
+    [('indexOf("abxabcabcaby","abcaby")','6'), ('Arrays.toString(failure("abcaby"))','[0, 0, 0, 1, 2, 0]'), ('Arrays.toString(failure("aabaaa"))','[0, 1, 0, 1, 2, 2]'), ('indexOf("aaaa","ab")','-1'), ('indexOf("abc","")','0'), ('indexOf("aaab","aab")','1')],
+    ('Five characters abcab are matched and the next text character is c, not y. Where does matching resume?', ['From the start of the pattern','With k=2: ab is still matched','At the next text position with k=0'],1,'f[4]=2: abcab ends with ab, which is also how the pattern starts.'),
+    ('text abxabcabcaby, pattern abcaby', ['failure [0,0,0,1,2,0]','ab matched, x fails: k=0','abcab matched at index 8','c≠y: k falls back to 2','c,a,b,y match: found at 6'], 'Change the pattern to repeat its opening letters and watch the table grow.', 'Short lowercase text and pattern separated by |.'))
+
+concept('rabin-karp', 'Rolling Hash (Rabin-Karp)', ['strings','hashing','fixed-window'], ['rabin-karp'],
+    ['Update a window hash in O(1) as the window slides.', 'Verify every hash match, because different strings can share a hash.'],
+    'Treat a window of m characters as a number in base B, reduced modulo M. Sliding right removes the leading character\'s contribution, shifts by B and adds the new character. Only windows whose hash equals the pattern hash are compared character by character.',
+    'With base 31, modulus 101 and character codes, cad hashes to 74. The windows of abracadabra hash to 15 (abr), 41 (bra), 45 (rac), 29 (aca) and then 74 (cad). The fifth window matches and checks out: index 4.',
+    'Before comparing window i, hw equals the hash of text[i..i+m) and hp equals the hash of the pattern.',
+    'Equal hashes do not prove equal strings, so always verify. Negative intermediate values need +M before the modulus in Java. A small modulus makes collisions frequent; real code uses a large prime or two hashes.',
+    dict(time='O(n+m) expected; O(nm) when many hashes collide', space='O(1)', assumptions='Polynomial hash with base 31 and modulus 101 over Java char codes; first match index or -1.'),
+    '''static final int B = 31, M = 101;
+    static int indexOf(String text, String p) {
+        int m = p.length(), n = text.length();
+        if (m > n) return -1;
+        int high = 1, hp = 0, hw = 0;
+        for (int i = 0; i < m - 1; i++) high = high * B % M;
+        for (int i = 0; i < m; i++) {
+            hp = (hp * B + p.charAt(i)) % M;
+            hw = (hw * B + text.charAt(i)) % M;
+        }
+        for (int i = 0; ; i++) {
+            if (hw == hp && text.regionMatches(i, p, 0, m)) return i;
+            if (i + m == n) return -1;
+            hw = ((hw - text.charAt(i) * high % M + M) * B + text.charAt(i + m)) % M;
+        }
+    }''',
+    [('indexOf("abracadabra","cad")','4'), ('indexOf("abracadabra","abra")','0'), ('indexOf("abracadabra","bra")','1'), ('indexOf("abc","d")','-1'), ('indexOf("ab","abc")','-1')],
+    ('A window hash equals the pattern hash. What must happen next?', ['Report the match','Compare the window with the pattern character by character','Skip m positions'],1,'Different strings can share a hash modulo 101; only a direct comparison proves a match.'),
+    ('text abracadabra, pattern cad; B=31, M=101', ['pattern hash 74','abr 15, bra 41, rac 45, aca 29','cad 74: hashes equal','characters agree: found at 4'], 'Pick a pattern that occurs twice and compare the hashes of both windows.', 'Short text and pattern separated by |; base 31 and modulus 101 are fixed.'))
+
+concept('monotonic-stack', 'Monotonic Stack', ['stacks'], ['monotonic-stack'],
+    ['Find the next greater element for every position in one pass.', 'Explain why each index is pushed and popped at most once.'],
+    'Keep a stack of indices still waiting for a larger value; their values decrease from bottom to top. A new value pops every smaller waiting value, and it is their answer.',
+    'For [2,1,5,6,2,3]: 2 and 1 wait. 5 pops 1 and 2, so both get 5. 6 pops 5. 2 waits on 6. 3 pops 2. 6 and 3 never find a larger value. Result [5,5,6,-1,3,-1].',
+    'The stack holds, in order, the indices that have no greater value yet, and their values never increase from bottom to top.',
+    'Push indices, not values, so the answer can be written to the right position. Decide whether equal values pop (strictly greater versus greater or equal). The inner while loop is still O(n) in total.',
+    dict(time='O(n) amortised: each index is pushed and popped at most once', space='O(n) stack', assumptions='Next strictly greater value to the right; -1 when none exists.'),
+    '''static int[] nextGreater(int[] a) {
+        int[] out = new int[a.length];
+        Arrays.fill(out, -1);
+        Deque<Integer> stack = new ArrayDeque<>();
+        for (int i = 0; i < a.length; i++) {
+            while (!stack.isEmpty() && a[stack.peek()] < a[i]) out[stack.pop()] = a[i];
+            stack.push(i);
+        }
+        return out;
+    }''',
+    [('Arrays.toString(nextGreater(new int[]{2,1,5,6,2,3}))','[5, 5, 6, -1, 3, -1]'), ('Arrays.toString(nextGreater(new int[]{}))','[]'), ('Arrays.toString(nextGreater(new int[]{3,3}))','[-1, -1]'), ('Arrays.toString(nextGreater(new int[]{1,2,3}))','[2, 3, -1]')],
+    ('The stack holds values 6 and 2 (top). The next value is 3. What happens?', ['3 is pushed on top of 2','2 is popped with answer 3, then 3 is pushed','6 and 2 are both popped'],1,'3 beats 2 but not 6, so only 2 is resolved.'),
+    ('a=[2,1,5,6,2,3]', ['push 2, push 1','5 pops 1 and 2','6 pops 5','push 2','3 pops 2','result [5,5,6,-1,3,-1]'], 'Make the input decreasing and watch the stack hold everything.', 'Small integer arrays; strict comparison.'))
+
+concept('monotonic-queue', 'Monotonic Queue', ['queues','fixed-window'], ['monotonic-queue'],
+    ['Report the maximum of every window of size k in O(n) total.', 'Maintain a deque whose front is always the current maximum.'],
+    'Keep a deque of indices with decreasing values. Before adding a new index, remove values no larger than it from the back, since they can never be a maximum again; then remove the front if it has left the window.',
+    'For [1,3,-1,-3,5,3,6,7] with k=3: 3 pushes out 1; -1 and -3 wait behind 3, giving maxima 3 and 3. 5 is at least as large as -3, -1 and 3, so all three leave from the back: 5, then 5 again with 3 behind it. 6 and 7 each clear the deque. Maxima [3,3,5,5,6,7].',
+    'The deque holds indices inside the current window in increasing order, with strictly decreasing values, and its front is the window maximum.',
+    'Store indices so expiry can be checked; values alone cannot tell when the front leaves the window. Popping only from the front, or only from the back, does not keep both properties.',
+    dict(time='O(n): each index enters and leaves the deque once', space='O(k) deque', assumptions='1 <= k <= n; outputs n-k+1 maxima.'),
+    '''static int[] windowMax(int[] a, int k) {
+        if (k < 1 || k > a.length) throw new IllegalArgumentException();
+        int[] out = new int[a.length - k + 1];
+        Deque<Integer> dq = new ArrayDeque<>();
+        for (int i = 0; i < a.length; i++) {
+            while (!dq.isEmpty() && a[dq.peekLast()] <= a[i]) dq.pollLast();
+            dq.addLast(i);
+            if (dq.peekFirst() <= i - k) dq.pollFirst();
+            if (i >= k - 1) out[i - k + 1] = a[dq.peekFirst()];
+        }
+        return out;
+    }''',
+    [('Arrays.toString(windowMax(new int[]{1,3,-1,-3,5,3,6,7},3))','[3, 3, 5, 5, 6, 7]'), ('Arrays.toString(windowMax(new int[]{4,2},1))','[4, 2]'), ('Arrays.toString(windowMax(new int[]{1,2,3},3))','[3]')],
+    ('The deque holds values 3, -1, -3 and the next value is 5. What does the deque hold after adding it?', ['3, -1, -3, 5','5','3, 5'],1,'5 is at least as large as -3, -1 and 3, so all three are dropped from the back before 5 is added.'),
+    ('a=[1,3,-1,-3,5,3,6,7], k=3', ['3 removes 1','deque 3,-1: max 3','deque 3,-1,-3: max 3','5 drops -3, -1 and 3 from the back: max 5','deque 5,3: max 5','6 then 7: maxima [3,3,5,5,6,7]'], 'Change k and predict how many maxima are reported and when values expire.', 'Small integer arrays; 1 <= k <= n.'))
+
+concept('knapsack', '0/1 Knapsack', ['dynamic-programming'], ['knapsack'],
+    ['Define the state as the best value from the first i items within capacity c.', 'Fill the table with the take-or-skip choice for each item.'],
+    'dp[i][c] is the best value using only the first i items with capacity c. Item i is either skipped, leaving dp[i-1][c], or taken once, giving its value plus dp[i-1][c-w].',
+    'Items (1,1),(3,4),(4,5),(5,7) as weight,value with capacity 7. Row 1 is all 1s from c=1. Row 2 reaches 5 at c=4. Row 3 takes items 2 and 3 together at c=7: 4+5=9. Row 4 offers 7+1=8 at c=7, so 9 stays.',
+    'After row i, dp[i][c] is the best value of any subset of the first i items whose weight is at most c.',
+    'Reading the current row instead of the previous one lets an item be used twice, which is the unbounded knapsack. A one-row version must loop capacity downwards. Sorting by value per weight is a greedy heuristic, not a solution.',
+    dict(time='O(n·W)', space='O(n·W) table; O(W) with one row', assumptions='Pairs weight,value with nonnegative integers; capacity W >= 0. Pseudo-polynomial: the cost grows with W, not its number of digits.'),
+    '''static int best(int[] items, int capacity) {
+        if (items.length % 2 != 0 || capacity < 0) throw new IllegalArgumentException();
+        int n = items.length / 2;
+        int[][] dp = new int[n + 1][capacity + 1];
+        for (int i = 1; i <= n; i++) {
+            int w = items[2 * i - 2], v = items[2 * i - 1];
+            for (int c = 0; c <= capacity; c++) {
+                dp[i][c] = dp[i - 1][c];
+                if (w <= c) dp[i][c] = Math.max(dp[i][c], dp[i - 1][c - w] + v);
+            }
+        }
+        return dp[n][capacity];
+    }''',
+    [('best(new int[]{1,1,3,4,4,5,5,7},7)','9'), ('best(new int[]{},5)','0'), ('best(new int[]{6,10},5)','0'), ('best(new int[]{2,3,2,3},4)','6'), ('best(new int[]{2,3},4)','3')],
+    ('At capacity 7, taking item 4 (weight 5, value 7) leaves capacity 2. With the first three items, the best for capacity 2 is 1. Should item 4 be taken?', ['Yes: 7 + 1 = 8 beats skipping','No: skipping keeps 9','Only if it is the lightest item'],1,'Skipping keeps dp[3][7]=9, which is larger than 8.'),
+    ('items (1,1),(3,4),(4,5),(5,7); W=7', ['row 1: [0,1,1,1,1,1,1,1]','row 2: [0,1,1,4,5,5,5,5]','row 3: [0,1,1,4,5,6,6,9]','row 4: [0,1,1,4,5,7,8,9]','answer 9'], 'Raise the capacity by one and predict which cells change.', 'A few items and a small capacity so the table fits on screen.'))
+
+concept('lcs', 'Longest Common Subsequence', ['dynamic-programming','strings'], ['lcs'],
+    ['Define a two-dimensional state over prefixes of both strings.', 'Recover one common subsequence by walking the table backwards.'],
+    'dp[i][j] is the LCS length of the first i characters of a and the first j of b. Equal last characters extend the diagonal answer by one; otherwise drop one last character and keep the better result.',
+    'For abcde and ace the table fills row by row. The a\'s match first (1), then c extends it to 2, then e to 3. The bottom-right cell is 3 and walking back along the matches gives ace.',
+    'Every cell depends only on the cells above, to the left and diagonally above-left, which are filled earlier in row-major order.',
+    'A subsequence keeps order but may skip characters; a substring must be contiguous and uses a different recurrence. Use one extra row and column for empty prefixes, or index errors follow.',
+    dict(time='O(nm)', space='O(nm) table; O(min(n,m)) for the length alone', assumptions='Exact character equality; the reconstruction prefers moving up on ties.'),
+    '''static int[][] table(String a, String b) {
+        int[][] dp = new int[a.length() + 1][b.length() + 1];
+        for (int i = 1; i <= a.length(); i++)
+            for (int j = 1; j <= b.length(); j++)
+                dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1) ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+        return dp;
+    }
+    static int lcs(String a, String b) {
+        return table(a, b)[a.length()][b.length()];
+    }
+    static String common(String a, String b) {
+        int[][] dp = table(a, b);
+        StringBuilder out = new StringBuilder();
+        for (int i = a.length(), j = b.length(); i > 0 && j > 0; ) {
+            if (a.charAt(i - 1) == b.charAt(j - 1)) { out.append(a.charAt(i - 1)); i--; j--; }
+            else if (dp[i - 1][j] >= dp[i][j - 1]) i--;
+            else j--;
+        }
+        return out.reverse().toString();
+    }''',
+    [('lcs("abcde","ace")','3'), ('common("abcde","ace")','ace'), ('lcs("abc","def")','0'), ('lcs("","abc")','0'), ('Arrays.toString(table("abcde","ace")[3])','[0, 1, 2, 2]')],
+    ('a[i-1] and b[j-1] are different. Which cells decide dp[i][j]?', ['Only the diagonal cell','The cell above and the cell to the left','The whole previous row'],1,'One of the two last characters is not in the common subsequence, so drop either and keep the larger.'),
+    ('a=abcde, b=ace', ['row a: [0,1,1,1]','row b: [0,1,1,1]','row c: [0,1,2,2]','row d: [0,1,2,2]','row e: [0,1,2,3]; answer 3'], 'Swap two letters in one string and predict the new bottom-right cell.', 'Short lowercase strings separated by |.'))
+
+concept('interval-dp', 'Interval DP (Matrix Chain)', ['dynamic-programming'], ['interval-dp'],
+    ['Solve a problem over every contiguous range, from short ranges to long ones.', 'Choose the best split point for each range.'],
+    'cost[i][j] is the cheapest way to multiply matrices i..j. The last multiplication splits the range at some k, so try every k: cost[i][k] + cost[k+1][j] + p[i]·p[k+1]·p[j+1]. Fill ranges in order of length.',
+    'Dimensions [10,30,5,60] give A (10×30), B (30×5) and C (5×60). AB costs 1500 and BC costs 9000. For ABC, splitting after A costs 0+9000+18000=27000; splitting after B costs 1500+0+3000=4500. The answer is 4500.',
+    'When a range of length L is filled, every shorter range inside it already holds its optimal cost.',
+    'Filling by i and j in plain row order reads ranges that are not ready yet; iterate by length. The product of three dimensions can exceed int, so use long. The table holds costs only; record the best k to rebuild the bracketing.',
+    dict(time='O(n³) for n matrices', space='O(n²)', assumptions='p has n+1 dimensions for n matrices; costs counted as scalar multiplications.'),
+    '''static long chain(int[] p) {
+        int n = p.length - 1;
+        if (n < 1) throw new IllegalArgumentException();
+        long[][] cost = new long[n][n];
+        for (int len = 2; len <= n; len++)
+            for (int i = 0; i + len - 1 < n; i++) {
+                int j = i + len - 1;
+                cost[i][j] = Long.MAX_VALUE;
+                for (int k = i; k < j; k++)
+                    cost[i][j] = Math.min(cost[i][j], cost[i][k] + cost[k + 1][j] + (long) p[i] * p[k + 1] * p[j + 1]);
+            }
+        return cost[0][n - 1];
+    }''',
+    [('chain(new int[]{10,30,5,60})','4500'), ('chain(new int[]{10,20})','0'), ('chain(new int[]{40,20,30,10,30})','26000'), ('chain(new int[]{1,2,3,4})','18')],
+    ('Why must all ranges of length 2 be filled before any range of length 3?', ['Longer ranges read the costs of shorter ones','It makes the table symmetric','Length 3 ranges are cheaper'],0,'Every split of a length-3 range uses a length-1 and a length-2 subrange.'),
+    ('p=[10,30,5,60]', ['single matrices cost 0','AB=1500, BC=9000','ABC split after A: 27000','ABC split after B: 4500','answer 4500'], 'Change the middle dimension and predict which split wins.', 'Two to a few matrices so the triangle of ranges stays readable.'))
+
+
 QUESTIONS = {}
 
 
@@ -625,6 +1061,72 @@ question(70,'Climbing Stairs','climbing-stairs',['dynamic-programming'],
 question(198,'House Robber','house-robber',['dynamic-programming','arrays'],
     'Define best for a prefix of houses.', 'For the last house, either skip it or take it and skip its neighbour.', 'Use best[i]=max(best[i-1], value[i-1]+best[i-2]) with empty-prefix base zero; optionally roll two previous results.')
 
+# Phase 3 references: links and original hints only.
+question(136,'Single Number','single-number',['bits'],
+    'Pairs should vanish without being stored.', 'x ^ x is 0 and x ^ 0 is x, in any order.', 'XOR every value into one accumulator; the pairs cancel and the unpaired value remains, in O(1) extra space.')
+question(191,'Number of 1 Bits','number-of-1-bits',['bits'],
+    'Count switches that are on without testing all 32 positions.', 'n & (n-1) turns off exactly one set bit.', 'Repeat n &= n-1 until n is zero and count the iterations; treat the input as unsigned where the statement requires it.')
+question(547,'Number of Provinces','number-of-provinces',['union-find','graphs'],
+    'A province is a connected component.', 'Each successful merge reduces the component count by one.', 'Start with n components and union every connected pair from the matrix; return the count after all merges. DFS over the matrix is an equally valid alternative.')
+question(684,'Redundant Connection','redundant-connection',['union-find','graphs'],
+    'A tree plus one edge has exactly one cycle.', 'An edge whose ends already share a root closes that cycle.', 'Process edges in order with union-find and return the first edge whose endpoints are already connected, matching the required tie rule.')
+question(207,'Course Schedule','course-schedule',['topological-sort','graphs'],
+    'Finishing every course is possible exactly when there is no cycle.', 'Count how many courses reach indegree zero.', "Run Kahn's algorithm on the prerequisite graph, minding the edge direction; answer true when every course is placed.")
+question(210,'Course Schedule II','course-schedule-ii',['topological-sort','graphs'],
+    'Return the order itself, not only whether one exists.', 'Any valid topological order is accepted.', 'Record vertices as they leave the zero-indegree queue; return an empty result if fewer than n are placed.')
+question(1584,'Min Cost to Connect All Points','min-cost-to-connect-all-points',['kruskal','union-find'],
+    'Every pair of points is a candidate edge.', 'The weight is the Manhattan distance.', "Generate all pairwise edges, sort them and run Kruskal until n-1 edges are taken; Prim's algorithm on the dense graph avoids storing all edges.")
+question(1489,'Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree','find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree',['kruskal','union-find'],
+    'Compute the MST weight once as a baseline.', 'Test each edge by excluding it, then by forcing it in first.', 'An edge is critical if excluding it raises the weight or disconnects the graph, and pseudo-critical if forcing it keeps the baseline weight.')
+question(743,'Network Delay Time','network-delay-time',['bellman-ford','graphs'],
+    'The answer is the largest shortest distance from the source.', 'Weights are nonnegative, so Dijkstra also works.', 'Relax all edges up to n-1 times from the source; return the maximum distance, or -1 if any node stays unreachable.')
+question(787,'Cheapest Flights Within K Stops','cheapest-flights-within-k-stops',['bellman-ford','graphs'],
+    'At most k stops means at most k+1 edges.', 'Relax from a copy of the previous pass so one pass adds one edge.', 'Run k+1 Bellman-Ford passes, each reading the distances from before the pass; return the destination distance or -1.')
+question(1334,'Find the City With the Smallest Number of Neighbors at a Threshold Distance','find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance',['floyd-warshall','graphs'],
+    'Every city needs distances to every other city.', 'Edges are undirected, so store both directions.', 'Run Floyd-Warshall, count cities within the threshold from each city, and break ties by the larger index as the statement asks.')
+question(1462,'Course Schedule IV','course-schedule-iv',['floyd-warshall','topological-sort'],
+    'A query asks whether one course is reachable from another.', 'Reachability is shortest paths with booleans.', 'Compute the transitive closure with the Floyd-Warshall loop order, using reach[i][j] |= reach[i][k] && reach[k][j], then answer each query in O(1).')
+question(307,'Range Sum Query - Mutable','range-sum-query-mutable',['segment-tree','fenwick'],
+    'Prefix sums make an update cost O(n).', 'A tree of partial sums balances updates and queries.', 'Use a segment tree or a Fenwick tree; for a Fenwick tree, apply the difference between the new and old value as an add.')
+question(699,'Falling Squares','falling-squares',['segment-tree'],
+    'Each square lands on the tallest point under its base.', 'Compress coordinates to the edges of all squares.', 'Over compressed coordinates, query the range maximum, then assign the new height to the whole range; a segment tree with range assignment does both in O(log n).')
+question(315,'Count of Smaller Numbers After Self','count-of-smaller-numbers-after-self',['fenwick','sorting'],
+    'Scan from the right so the values to the right are already seen.', 'Count seen values below the current one with a prefix sum over ranks.', 'Compress values to ranks, walk right to left, query the Fenwick prefix below the current rank, then add one at its rank.')
+question(435,'Non-overlapping Intervals','non-overlapping-intervals',['interval-scheduling','intervals'],
+    'Removing the fewest intervals means keeping the most.', 'Here touching endpoints do not overlap.', 'Sort by end, keep each interval that starts at or after the last kept end, and return the total minus the number kept.')
+question(452,'Minimum Number of Arrows to Burst Balloons','minimum-number-of-arrows-to-burst-balloons',['interval-scheduling','intervals'],
+    'One arrow can burst every balloon covering one x.', 'Shoot at the end of the balloon that finishes first.', 'Sort by end; start a new arrow only when a balloon starts strictly after the current arrow position, because touching balloons share an arrow.')
+question(459,'Repeated Substring Pattern','repeated-substring-pattern',['kmp','strings'],
+    'Look at the longest proper prefix that is also a suffix.', 'The failure value of the last position gives it.', 'Let L be the last failure value; the string repeats exactly when L > 0 and n is divisible by n - L.')
+question(187,'Repeated DNA Sequences','repeated-dna-sequences',['rabin-karp','hashing'],
+    'Every window has the same length, 10.', 'Encode each letter in 2 bits and roll the code.', 'Slide a fixed window, update its code in O(1), and report codes seen a second time exactly once.')
+question(1044,'Longest Duplicate Substring','longest-duplicate-substring',['rabin-karp','binary-search'],
+    'If a duplicate of length L exists, one of every shorter length exists too.', 'Binary search the length; check each length with rolling hashes.', 'For a candidate length, hash every window into a set and verify equal hashes to rule out collisions; keep the longest length that has a duplicate.')
+question(739,'Daily Temperatures','daily-temperatures',['monotonic-stack','stacks'],
+    'Each day waits for the first warmer day.', 'The answer is a distance, so keep indices.', 'Scan with a stack of waiting indices; a warmer day pops each cooler one and records the index difference.')
+question(496,'Next Greater Element I','next-greater-element-i',['monotonic-stack','hashing'],
+    'Answer every value of the larger array once.', 'Store each next greater value in a map.', 'Run the monotonic stack over nums2, map each value to its next greater value, then look up every query value.')
+question(84,'Largest Rectangle in Histogram','largest-rectangle-in-histogram',['monotonic-stack'],
+    'Each bar is the shortest bar of some best rectangle.', 'A popped bar knows both its left and right limits.', 'Keep increasing heights on a stack; when a lower bar arrives, pop and compute the width between the new top and the current index. Use a final zero bar to flush.')
+question(239,'Sliding Window Maximum','sliding-window-maximum',['monotonic-queue','fixed-window'],
+    'A sorted structure costs O(log k) per step.', 'A value behind a larger, later value can never be a maximum.', 'Keep a deque of indices with decreasing values; drop the expired front, pop smaller backs, and read the front once the first window is full.')
+question(1438,'Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit','longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit',['monotonic-queue','variable-window'],
+    'The window is valid while max minus min is within the limit.', 'Keep one deque for maxima and one for minima.', 'Grow the right end, shrink the left end while the two deque fronts differ by more than the limit, and track the longest valid length.')
+question(416,'Partition Equal Subset Sum','partition-equal-subset-sum',['knapsack','dynamic-programming'],
+    'An odd total cannot split evenly.', 'Ask whether some subset reaches half the total.', 'Run a boolean 0/1 knapsack over sums up to half the total, looping sums downwards so each number is used once.')
+question(494,'Target Sum','target-sum',['knapsack','dynamic-programming'],
+    'Signs split the numbers into a plus group and a minus group.', 'The plus group must sum to (total + target) / 2.', 'Check parity and range, then count subsets reaching that sum with a 0/1 knapsack of counts.')
+question(1143,'Longest Common Subsequence','longest-common-subsequence',['lcs','dynamic-programming'],
+    'Define the state over two prefixes.', 'Matching last characters extend the diagonal.', 'Fill an (n+1) by (m+1) table with the match or max-of-neighbours rule and return the bottom-right cell.')
+question(583,'Delete Operation for Two Strings','delete-operation-for-two-strings',['lcs','dynamic-programming'],
+    'The characters kept form a common subsequence.', 'Keep as many as possible.', 'Compute the LCS length L and return n + m - 2L.')
+question(72,'Edit Distance','edit-distance',['lcs','dynamic-programming'],
+    'The table has the same shape as LCS.', 'Three moves: insert, delete or replace, each costing one.', 'Set the empty-prefix row and column to their lengths, then take the diagonal for a match or one plus the minimum of the three neighbours.')
+question(312,'Burst Balloons','burst-balloons',['interval-dp','dynamic-programming'],
+    'Choose the last balloon to burst in a range, not the first.', 'Its neighbours at that moment are the range boundaries.', 'Pad with 1 on both ends and fill ranges by length, trying every last balloon k with cost left + right + boundary product.')
+question(1039,'Minimum Score Triangulation of Polygon','minimum-score-triangulation-of-polygon',['interval-dp','dynamic-programming'],
+    'The edge from i to j belongs to exactly one triangle.', 'Its third vertex k splits the polygon in two.', 'Fill ranges by length with cost[i][j] = min over k of cost[i][k] + cost[k][j] + v[i]·v[k]·v[j].')
+
 
 def original(key, title, tags, hints, outline, local_problem=None):
     QUESTIONS[key] = dict(id=key, kind='local-problem-reference' if local_problem else 'original-exercise',
@@ -660,6 +1162,12 @@ APPLICATIONS = [
     ['leetcode-104','leetcode-94'], ['leetcode-700','leetcode-98'], ['leetcode-703','leetcode-1046'],
     ['original-adjacency-list','leetcode-1791'], ['leetcode-102','leetcode-994'], ['leetcode-200','leetcode-733'],
     ['leetcode-70','leetcode-198'],
+    ['leetcode-136','leetcode-191'], ['leetcode-547','leetcode-684'], ['leetcode-207','leetcode-210'],
+    ['leetcode-1584','leetcode-1489'], ['leetcode-743','leetcode-787'], ['leetcode-1334','leetcode-1462'],
+    ['leetcode-307','leetcode-699'], ['leetcode-307','leetcode-315'], ['leetcode-435','leetcode-452'],
+    ['leetcode-28','leetcode-459'], ['leetcode-187','leetcode-1044'], ['leetcode-739','leetcode-496','leetcode-84'],
+    ['leetcode-239','leetcode-1438'], ['leetcode-416','leetcode-494'], ['leetcode-1143','leetcode-583','leetcode-72'],
+    ['leetcode-312','leetcode-1039'],
 ]
 
 # Each application explains its transfer, rather than implying all topic tags are prerequisites.
@@ -688,9 +1196,26 @@ CONNECTIONS = [
     ['Reuse FIFO for nodes grouped by depth.','Use simultaneous grid sources and layer-based minutes.'],
     ['Count components across a full grid scan.','Recolour only the start component with early visited marking.'],
     ['Derive route-count states and correct bases.','Derive maximum-value prefix states with take/skip choices.'],
+    ['Cancel pairs with XOR.','Clear the lowest set bit repeatedly.'],
+    ['Count components with merges.','Detect the edge whose ends already share a root.'],
+    ['Decide whether an order exists.','Return the order itself.'],
+    ['Run Kruskal on a complete geometric graph.','Probe each edge by excluding and forcing it.'],
+    ['Relax edges from one source.','Limit the number of edges with pass-by-pass copies.'],
+    ['Count neighbours from an all-pairs matrix.','Use the same loop order for boolean reachability.'],
+    ['Combine range queries with point updates.','Extend the tree to range maximum with range assignment.'],
+    ['Replace a prefix table with an updatable tree.','Count earlier-seen ranks with prefix queries.'],
+    ['Keep the most intervals, remove the rest.','Share one arrow across overlapping balloons.'],
+    ['Replace the nested baseline with the failure table.','Read periodicity from the last failure value.'],
+    ['Roll a fixed-length code across the text.','Combine rolling hashes with binary search on length.'],
+    ['Store waiting indices to measure distances.','Answer queries through a map of next greater values.','Use popped bars to bound rectangles on both sides.'],
+    ['Keep the window maximum at the deque front.','Keep two deques for a variable window.'],
+    ['Reach half the total with a boolean table.','Count subsets that reach a derived sum.'],
+    ['Fill the prefix-pair table.','Turn the LCS length into a deletion count.','Change the recurrence to count edits.'],
+    ['Choose the last item in each range.','Split a polygon at a third vertex.'],
 ]
 
-EXTRA = {(5,1):['recursion'], (6,1):['hashing'], (22,0):['binary-trees']}
+EXTRA = {(5,1):['recursion'], (6,1):['hashing'], (22,0):['binary-trees'],
+         (32,1):['sorting'], (35,1):['binary-search'], (36,1):['hashing'], (37,1):['variable-window']}
 for c, question_ids, connections in zip(CONCEPTS, APPLICATIONS, CONNECTIONS):
     for i, (qid, connection) in enumerate(zip(question_ids, connections)):
         c['applications'].append(dict(questionId=qid, role='introduction' if i == 0 else 'transfer',
@@ -767,6 +1292,22 @@ ANNOTATIONS = [
     ('distance[v]=distance[u]+1; queue.addLast(v)', 'Record discovery and distance before enqueueing, preventing duplicate queue entries.'),
     ('if(!seen[v]) explore', 'Suspend this frame and fully explore one unvisited neighbour before trying the next.'),
     ('dp[i]=dp[i-1]+dp[i-2]', 'Read two final dependencies and store the destination state exactly once.'),
+    ('x ^= v', 'Fold the next value in; a value seen twice cancels itself.'),
+    ('if (size[a] < size[b])', 'Hang the smaller tree under the larger root so trees stay shallow.'),
+    ('if (--indegree[v] == 0)', 'Removing the edge u→v may free v; enqueue it once nothing points into it.'),
+    ('if (a == b) continue;', 'Both ends already share a root: this edge would close a cycle.'),
+    ('d[u] + w < d[v]', 'Relax one edge; skip unreachable sources so infinity is never added to.'),
+    ('d[i][k] + d[k][j] < d[i][j]', 'Try vertex k as a stop between i and j; k is the outermost loop.'),
+    ('if (l <= lo && hi <= r) return tree[node];', 'A node fully inside the query contributes its stored sum without descending.'),
+    ('for (int j = i + 1; j > 0; j -= j & -j)', 'Jump down by the lowest set bit to the next slot that covers an earlier block.'),
+    ('if (x[0] >= end)', 'Take the interval that finishes first among those still compatible.'),
+    ('while (k > 0 && text.charAt(i) != p.charAt(k)) k = f[k - 1];', 'Fall back through the failure table instead of moving the text index back.'),
+    ('if (hw == hp && text.regionMatches(i, p, 0, m)) return i;', 'Equal hashes only suggest a match; compare the characters to confirm it.'),
+    ('while (!stack.isEmpty() && a[stack.peek()] < a[i])', 'The new value answers every smaller index still waiting on the stack.'),
+    ('while (!dq.isEmpty() && a[dq.peekLast()] <= a[i]) dq.pollLast();', 'Values no larger than the newcomer can never be a window maximum again.'),
+    ('if (w <= c) dp[i][c]', 'Take the item once: its value plus the best of the previous row at the remaining capacity.'),
+    ('dp[i][j] = a.charAt(i - 1) == b.charAt(j - 1)', 'A match extends the diagonal; otherwise keep the better of dropping either last character.'),
+    ('for (int k = i; k < j; k++)', 'Try every split; both halves are shorter ranges and already final.'),
 ]
 for c, (anchor, explanation) in zip(CONCEPTS, ANNOTATIONS):
     lines=c['java']['implementation'].splitlines()
@@ -774,7 +1315,11 @@ for c, (anchor, explanation) in zip(CONCEPTS, ANNOTATIONS):
 
 for slug, expression in [('complexity','counts(-1)'),('fixed-window','bestWindow(new int[]{},0)'),
                           ('matrices','transpose(new int[][]{{1},{2,3}})'),('recursion','factorial(-1)'),
-                          ('prefix-sums','range(prefix(new int[]{1}),0,2)')]:
+                          ('prefix-sums','range(prefix(new int[]{1}),0,2)'),
+                          ('union-find','components(2,new int[]{0})'),('kruskal','mst(3,new int[]{0,1})'),
+                          ('segment-tree','rangeSum(new int[]{1,2,3},2,9)'),('interval-scheduling','maxNonOverlapping(new int[]{1})'),
+                          ('monotonic-queue','windowMax(new int[]{1,2},5)'),('knapsack','best(new int[]{1},3)'),
+                          ('interval-dp','chain(new int[]{5})')]:
     next(c for c in CONCEPTS if c['id']=='concept-'+slug)['java']['cases'].append(
         dict(expression=expression, expectedException='IllegalArgumentException'))
 
@@ -787,7 +1332,7 @@ ADVANCED = [
 
 
 def manifest():
-    return dict(version=1, title='1on1 Core Curriculum', conceptCount=24,
+    return dict(version=1, title='1on1 Core Curriculum', conceptCount=len(CONCEPTS),
         flow=['visual-concept','minimal-java','question-applications'],
         sources=SOURCES, concepts=CONCEPTS, questions=list(QUESTIONS.values()),
         advancedBranch=[dict(lessonId='lesson-'+slug,title=title,prerequisites=['concept-'+x for x in deps]) for slug,title,deps in ADVANCED],
@@ -827,7 +1372,7 @@ def apply(lessons, paths):
             scene=scene, gaps=visual_gaps(c['id']))
     for index, (slug, title, deps) in enumerate(ADVANCED):
         lesson = by_id['lesson-'+slug]
-        lesson.update(title=title, subtitle=title, branch='advanced', order=300+index,
+        lesson.update(title=title, subtitle=title, branch='advanced', order=1000+index,
             prerequisites=[next(x for x in CONCEPTS if x['id']=='concept-'+dep)['lessonIds'][0] for dep in deps])
     for order, lesson in enumerate(sorted(lessons,key=lambda lesson:lesson['order']),1):
         lesson['order']=order

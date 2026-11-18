@@ -21,13 +21,13 @@ test("a learning path is a step timeline with progress and a next step", async (
   await page.getByRole("link", { name: /DSA Foundations/ }).click();
   await expect(page).toHaveURL(/path=path-foundations/);
   const steps = page.locator(".path-step");
-  await expect(steps).toHaveCount(26);
-  await expect(page.locator(".path-progress")).toContainText("0 of 26");
+  await expect(steps).toHaveCount(42);
+  await expect(page.locator(".path-progress")).toContainText("0 of 42");
   await expect(steps.first()).toHaveClass(/next/);
   await expect(page.getByRole("link", { name: /Start the path|Continue the path/ })).toHaveAttribute("href", /\/learn\/lesson-/);
 });
 
 test("the sidebar counts every lesson", async ({ page }) => {
   await page.goto("/learn");
-  await expect(page.getByRole("navigation", { name: "Main navigation" }).locator(".nav-count")).toHaveText("33");
+  await expect(page.getByRole("navigation", { name: "Main navigation" }).locator(".nav-count")).toHaveText("49");
 });

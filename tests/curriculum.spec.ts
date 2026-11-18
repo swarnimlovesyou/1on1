@@ -11,9 +11,9 @@ test("all core notebooks expose real curriculum content and canonical references
   const lessons = (await (
     await page.request.get("/api/v1/lessons")
   ).json()) as Lesson[];
-  expect(curriculum.concepts).toHaveLength(24);
-  expect(curriculum.questions).toHaveLength(47);
-  expect(lessons).toHaveLength(33);
+  expect(curriculum.concepts).toHaveLength(40);
+  expect(curriculum.questions).toHaveLength(79);
+  expect(lessons).toHaveLength(49);
   expect(
     curriculum.concepts
       .flatMap((c) => c.applications)
@@ -39,7 +39,7 @@ test("all core notebooks expose real curriculum content and canonical references
         .getByRole("heading", { name: "Apply this concept" }),
     ).toBeVisible();
     expect(lesson.experiment).toBeTruthy();
-    await expect(page.locator('.lab-model')).toBeVisible();
+    await expect(page.locator('.lab-model, .board').first()).toBeVisible();
     await expect(page.getByRole('button',{name:'Next step'})).toBeEnabled();
   }
 });

@@ -31,7 +31,8 @@ final class BoardTraces {
     }
 
     void step(String text, int line, Map<String, Object> vars, Object... panels) {
-      run.extra.put("board", List.of(panels));
+      // panels ride inside "visual": the typed trace contract keeps that map and drops unknown fields
+      run.extra.put("visual", Map.of("kind", run.algorithm, "board", List.of(panels)));
       run.step(text, line, List.of(), vars);
     }
   }
