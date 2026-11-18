@@ -42,7 +42,8 @@ interface Cohort {
   id: string;
   name: string;
   code: string;
-  members: { id: string; name: string; score: number }[];
+  members: { id: string; name: string; score: number; solved: number; week: number }[];
+  weeklyProblem?: { id?: string; title?: string; difficulty?: string; solvedBy?: string[] };
   quartiles: { q1?: number; median?: number; q3?: number };
 }
 export function Cohorts() {
@@ -149,29 +150,44 @@ function CohortContent() {
               Native accepted problems earn 1 / 3 / 5 points for easy / medium /
               hard. Each problem counts once.
             </p>
-            <table className="simple-table">
-              <thead>
-                <tr>
-                  <th>Position</th>
-                  <th>Learning together</th>
-                  <th>Activity score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {c.members.map((m, i) => (
-                  <tr key={m.id}>
-                    <td>{i + 1}</td>
-                    <td>
-                      {m.name}
-                      {m.id === user?.id && (
-                        <span className="you-label">You</span>
-                      )}
-                    </td>
-                    <td>{m.score}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {c.weeklyProblem?.id && (
+              <Link className="circle-weekly" to={"/practice/" + c.weeklyProblem.id}>
+                <span className="muted">This week's circle problem</span>
+                <strong>{c.weeklyProblem.title}</strong>
+                <span className={"difficulty " + c.weeklyProblem.difficulty?.toLowerCase()}>{c.weeklyProblem.difficulty}</span>
+                <small>
+                  {c.weeklyProblem.solvedBy?.length
+                    ? "Solved by " + c.weeklyProblem.solvedBy.join(", ")
+                    : "Nobody in the circle has solved it yet. Be the first."}
+                </small>
+              </Link>
+            )}
+            <ol className="circle-members">
+              {c.members.map((m, i) => (
+                <li key={m.id} className={m.id === user?.id ? "me" : ""}>
+                  <span className="circle-rank">{i + 1}</span>
+                  <span className="circle-avatar" aria-hidden="true">
+                    {m.name
+                      .split(/\s+/)
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </span>
+                  <span className="circle-name">
+                    {m.name}
+                    {m.id === user?.id && <span className="you-label">You</span>}
+                    <small>
+                      {m.solved} solved, {m.week} learning {m.week === 1 ? "action" : "actions"} this week
+                    </small>
+                  </span>
+                  <span className="circle-score">
+                    <strong>{m.score}</strong>
+                    <progress max={Math.max(1, c.members[0].score)} value={m.score} aria-label={`${m.name}: ${m.score} points`} />
+                  </span>
+                </li>
+              ))}
+            </ol>
             {c.quartiles.median !== undefined ? (
               <p className="cohort-quartiles">
                 Cohort thresholds · lower quartile {c.quartiles.q1} · median{" "}

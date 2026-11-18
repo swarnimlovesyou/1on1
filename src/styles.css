@@ -8528,3 +8528,88 @@ kbd {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---- Study together ---- */
+.circle-weekly {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  margin: 12px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--teal);
+  border-radius: 12px;
+  background: var(--teal-row);
+  color: var(--ink);
+  text-decoration: none;
+}
+.circle-weekly .muted,
+.circle-weekly small {
+  grid-column: 1 / -1;
+}
+.circle-weekly small {
+  color: var(--muted);
+}
+.circle-members {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+.circle-members li {
+  display: grid;
+  grid-template-columns: 24px 36px minmax(0, 1fr) minmax(90px, 160px);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.circle-members li.me {
+  border-color: var(--teal);
+}
+.circle-rank {
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+.circle-avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--charcoal);
+  color: var(--aqua);
+  font-size: 13px;
+  font-weight: 600;
+}
+.circle-name {
+  display: flex;
+  flex-direction: column;
+}
+.circle-name small {
+  color: var(--muted);
+}
+.circle-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.circle-score progress {
+  width: 100%;
+}
+@media (max-width: 560px) {
+  .circle-members li {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+  .circle-rank,
+  .circle-score progress {
+    display: none;
+  }
+  .circle-score {
+    grid-column: 2;
+    align-items: flex-start;
+  }
+}

@@ -296,6 +296,7 @@ public class LearningController {
     return summaries;
   }
 
+  @SuppressWarnings("unchecked")
   Map<String, Object> cohortView(Map<String, Object> c) {
     var out = new LinkedHashMap<>(c);
     List<Map<String, Object>> members = new ArrayList<>();
@@ -309,6 +310,8 @@ public class LearningController {
           default -> 1;
         }
       );
+    Map<String, Set<String>> solvedBy = new LinkedHashMap<>();
+    Map<String, String> nameOf = new HashMap<>();
     for (String u : Store.strings(c.get("members"))) {
       var names = s.db.queryForList(
         "select name from members where id=?",
@@ -316,13 +319,18 @@ public class LearningController {
         u
       );
       if (names.isEmpty()) continue;
-      int score = Store.strings(progress.summary(u).get("solved"))
-        .stream()
-        .distinct()
-        .mapToInt(id -> weights.getOrDefault(id, 0))
-        .sum();
-      members.add(Map.of("name", names.getFirst(), "score", score, "id", u));
+      var summary = progress.summary(u);
+      var solvedIds = new HashSet<>(Store.strings(summary.get("solved")));
+      solvedBy.put(u, solvedIds);
+      nameOf.put(u, names.getFirst());
+      int score = solvedIds.stream().mapToInt(id -> weights.getOrDefault(id, 0)).sum();
+      int week = StudyCircles.thisWeek(summary.get("activity") instanceof Map<?, ?> m ? (Map<String, ?>) m : Map.of(), PlanService.today());
+      members.add(Map.of("name", names.getFirst(), "score", score, "id", u, "solved", solvedIds.stream().filter(weights::containsKey).count(), "week", week));
     }
+    var published = s.list("problem", "public").stream().filter(p -> !Boolean.FALSE.equals(p.get("published"))).toList();
+    var weekly = new LinkedHashMap<>(StudyCircles.weeklyProblem(c.get("id").toString(), PlanService.today(), published, solvedBy));
+    if (!weekly.isEmpty()) weekly.put("solvedBy", Store.strings(weekly.get("solvedBy")).stream().map(nameOf::get).toList());
+    out.put("weeklyProblem", weekly);
     out.put(
       "members",
       members

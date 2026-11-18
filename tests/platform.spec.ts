@@ -86,6 +86,8 @@ test("student account saves notes, creates a plan, and persists across reload", 
   await expect(
     page.getByRole("heading", { name: "Browser study circle" }),
   ).toBeVisible();
+  await expect(page.locator(".circle-weekly")).toHaveAttribute("href", /\/practice\//);
+  await expect(page.locator(".circle-members li.me")).toContainText("this week");
 });
 test("desktop and mobile surfaces remain readable without overflow", async ({
   page,
