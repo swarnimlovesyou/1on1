@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { forecast, frontier } from "./Journey";
+import { forecast, frontier, latestPlan } from "./Journey";
 import type { MapConcept, Plan } from "../../types";
 
 const c = (id: string, state: MapConcept["state"], prerequisites: string[] = [], order = 0) =>
@@ -9,6 +9,10 @@ describe("journey", () => {
   it("the frontier is unstarted concepts whose prerequisites all have evidence", () => {
     const got = frontier([c("a", "passed"), c("b", "new", ["a"], 2), c("c", "new", ["b"], 3), c("d", "new", [], 1)]);
     expect(got.map((x) => x.id)).toEqual(["d", "b"]);
+  });
+  it("the latest plan is the newest by creation, not the last by id", () => {
+    const plans = [{ id: "plan-z", createdAt: "2026-11-01" }, { id: "plan-a", createdAt: "2026-11-15" }] as unknown as Plan[];
+    expect(latestPlan(plans)?.id).toBe("plan-a");
   });
   it("a plan forecast counts what is left, what is late and when it ends", () => {
     const t = (date: string, done: boolean) => ({ id: date, kind: "problem", problemId: "p", adds: [], date, done, doneAt: null });

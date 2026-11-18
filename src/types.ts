@@ -210,6 +210,7 @@ export interface Plan {
   /** Dated tasks; plans made before tasks existed have none until re-planned. */
   tasks?: PlanTask[];
   startDate?: string;
+  createdAt?: string;
 }
 export type EvidenceState = "new" | "explored" | "passed" | "accepted";
 export interface MapConcept {

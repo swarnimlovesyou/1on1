@@ -172,7 +172,7 @@ function GraphPanel({ p }: { p: Panel }) {
             {e.w !== undefined && (
               <text
                 x={(a.x + b.x) / 2 + (dy / len) * 9}
-                y={(a.y + b.y) / 2 - (dx / len) * 9}
+                y={e.from === e.to ? a.y - 38 : (a.y + b.y) / 2 - (dx / len) * 9}
                 textAnchor="middle"
                 dominantBaseline="middle"
               >

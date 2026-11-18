@@ -58,12 +58,7 @@ export default function Handbook() {
             <section>
               <h2>The puzzle</h2>
               <p className="prose preserve-lines">{g.puzzle.statement}</p>
-              <h3>Solution</h3>
-              <ol>
-                {g.puzzle.solution.map((s) => (
-                  <li key={s}>{s}</li>
-                ))}
-              </ol>
+              <p className="muted">Work it out, then check your answer on the guide page.</p>
             </section>
           )}
         </article>

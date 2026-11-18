@@ -30,7 +30,7 @@ class QuizTest {
 
   @Test
   void aQuizMixesTheSectionsAndNeverSendsAnswers() {
-    var quiz = quizzes.start(Map.of("questions", 15, "minutes", 20));
+    var quiz = quizzes.start("ann", Map.of("questions", 15, "minutes", 20));
     var questions = Store.items(quiz.get("questions"));
     assertEquals(15, questions.size());
     assertEquals(Set.of("Aptitude", "Reasoning", "CS fundamentals"), questions.stream().map(q -> q.get("section")).collect(java.util.stream.Collectors.toSet()));
@@ -41,30 +41,32 @@ class QuizTest {
     }
     assertNotNull(quiz.get("deadline"));
     assertEquals(questions.size(), questions.stream().map(q -> q.get("id")).distinct().count(), "no question twice");
+    for (var q : questions) assertTrue(q.get("id").toString().matches("q[0-9]+"), "ids reveal no topic, seed or guide challenge");
+    assertEquals(404, assertThrows(ResponseStatusException.class, () -> quizzes.submit("bob", quiz.get("id").toString(), Map.of("answers", Map.of()))).getStatusCode().value(), "only its owner can submit");
   }
 
   @Test
   void submittingGradesEverySectionAndExplainsEachQuestion() {
-    var quiz = quizzes.start(Map.of("questions", 15, "minutes", 20));
+    var quiz = quizzes.start("ann", Map.of("questions", 15, "minutes", 20));
     String id = quiz.get("id").toString();
     var answers = new LinkedHashMap<String, Object>();
     for (var q : Store.items(quiz.get("questions"))) answers.put(q.get("id").toString(), quizzes.answerFor(id, q.get("id").toString()));
-    var result = quizzes.submit(id, Map.of("answers", answers));
+    var result = quizzes.submit("ann", id, Map.of("answers", answers));
     assertEquals(15, result.get("score"));
     assertEquals(15, result.get("total"));
     var review = Store.items(result.get("review"));
     assertTrue(review.stream().allMatch(r -> Boolean.TRUE.equals(r.get("correct")) && !r.get("explanation").toString().isBlank()));
     var sections = Store.items(result.get("sections"));
     assertEquals(3, sections.size());
-    assertEquals(result, quizzes.submit(id, Map.of("answers", Map.of())), "a second submit returns the first result");
+    assertEquals(result, quizzes.submit("ann", id, Map.of("answers", Map.of())), "a second submit returns the first result");
   }
 
   @Test
   void blankAnswersScoreZeroAndUnknownQuizzesAreNotFound() {
-    var quiz = quizzes.start(Map.of("questions", 15, "minutes", 20));
-    var result = quizzes.submit(quiz.get("id").toString(), Map.of("answers", Map.of()));
+    var quiz = quizzes.start("ann", Map.of("questions", 15, "minutes", 20));
+    var result = quizzes.submit("ann", quiz.get("id").toString(), Map.of("answers", Map.of()));
     assertEquals(0, result.get("score"));
-    assertEquals(404, assertThrows(ResponseStatusException.class, () -> quizzes.submit("quiz-nope", Map.of("answers", Map.of()))).getStatusCode().value());
-    assertEquals(400, assertThrows(ResponseStatusException.class, () -> quizzes.start(Map.of("questions", 7, "minutes", 20))).getStatusCode().value());
+    assertEquals(404, assertThrows(ResponseStatusException.class, () -> quizzes.submit("ann", "quiz-nope", Map.of("answers", Map.of()))).getStatusCode().value());
+    assertEquals(400, assertThrows(ResponseStatusException.class, () -> quizzes.start("ann", Map.of("questions", 7, "minutes", 20))).getStatusCode().value());
   }
 }

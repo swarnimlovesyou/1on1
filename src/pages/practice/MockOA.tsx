@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clock, timeUsed, useCountdown, useIntegritySignals } from "./mockTime";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -154,22 +154,33 @@ export default function MockOA() {
   const { user } = useApp();
   const mocks = useQuery({ queryKey: ["mocks"], queryFn: () => api<MockView[]>("/mocks"), enabled: !!user });
   const [mode, setMode] = useState<"quiz" | "coding">("quiz");
+  const chosen = useRef(false);
   const running = mocks.data?.some((m) => !m.finished);
-  // a coding mock still running reopens where the learner left it, and stays there through its report
+  // a coding mock still running reopens where the learner left it, unless they already picked a mode
   useEffect(() => {
-    if (running) setMode("coding");
+    if (running && !chosen.current) setMode("coding");
   }, [running]);
+  const pick = (m: "quiz" | "coding") => {
+    chosen.current = true;
+    setMode(m);
+  };
   return (
     <div className="mock-area">
       <div className="land-tabs" role="tablist" aria-label="Mock type">
-        <button role="tab" aria-selected={mode === "quiz"} className={mode === "quiz" ? "active" : ""} onClick={() => setMode("quiz")}>
+        <button type="button" role="tab" aria-selected={mode === "quiz"} className={mode === "quiz" ? "active" : ""} onClick={() => pick("quiz")}>
           Quiz
         </button>
-        <button role="tab" aria-selected={mode === "coding"} className={mode === "coding" ? "active" : ""} onClick={() => setMode("coding")}>
+        <button type="button" role="tab" aria-selected={mode === "coding"} className={mode === "coding" ? "active" : ""} onClick={() => pick("coding")}>
           Coding
         </button>
       </div>
-      {mode === "quiz" ? <QuizRunner /> : <CodingMock />}
+      {/* both stay mounted so switching never loses a quiz or a running mock */}
+      <div role="tabpanel" hidden={mode !== "quiz"}>
+        <QuizRunner />
+      </div>
+      <div role="tabpanel" hidden={mode !== "coding"}>
+        <CodingMock />
+      </div>
     </div>
   );
 }

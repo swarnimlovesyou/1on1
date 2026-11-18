@@ -26,6 +26,19 @@ final class StudyCircles {
     return Map.of("id", pick.get("id"), "title", pick.get("title"), "difficulty", pick.get("difficulty"), "solvedBy", by);
   }
 
+  /** This week's {week, id}: the stored pick while it is still this week's and still published, else a fresh one. */
+  static Map<String, Object> weekly(Map<?, ?> stored, String cohortId, LocalDate day, List<Map<String, Object>> problems, Map<String, Set<String>> solved) {
+    String week = monday(day).toString();
+    if (week.equals(stored.get("week")) && problems.stream().anyMatch(p -> p.get("id").equals(stored.get("id"))))
+      return Map.of("week", week, "id", stored.get("id"));
+    var pick = weeklyProblem(cohortId, day, problems, solved);
+    return pick.isEmpty() ? Map.of() : Map.of("week", week, "id", pick.get("id"));
+  }
+
+  static List<String> solvedBy(Object id, Map<String, Set<String>> solved) {
+    return solved.entrySet().stream().filter(e -> e.getValue().contains(String.valueOf(id))).map(Map.Entry::getKey).sorted().toList();
+  }
+
   /** Learning actions from this week's Monday through today. */
   static int thisWeek(Map<String, ?> activity, LocalDate today) {
     String from = monday(today).toString(), to = today.toString();

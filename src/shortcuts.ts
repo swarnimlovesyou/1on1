@@ -19,7 +19,7 @@ export const keyFor = (path: string) => SHORTCUTS.find(([, p]) => p === path)?.[
 export function isTyping(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
   if (target.closest("input, textarea, select, [contenteditable=''], [contenteditable='true'], .monaco-editor, .cm-editor")) return true;
-  return !!target.closest("[role='dialog']");
+  return !!target.closest("[role='dialog'], [role='alertdialog'], [data-no-shortcuts]");
 }
 
 export function useShortcuts(go: (path: string) => void, help: () => void) {

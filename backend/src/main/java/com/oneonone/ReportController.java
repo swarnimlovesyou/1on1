@@ -41,6 +41,9 @@ public class ReportController {
       .map(rows -> {
         rows.sort(Comparator.comparing((Map<String, Object> r) -> r.get("createdAt").toString()).reversed());
         var latest = rows.getFirst();
+        // free text is public on the home page: show it once two learners agree or it names a known company
+        long reporters = rows.stream().map(r -> r.get("user")).distinct().count();
+        if (reporters < 2 && !knownCompany(latest.get("companyKey").toString())) return null;
         var question = question(latest.get("questionId").toString()).orElse(null);
         if (question == null) return null;
         var out = new LinkedHashMap<String, Object>();
@@ -78,6 +81,7 @@ public class ReportController {
     String stage = String.valueOf(body.get("stage"));
     if (!STAGES.contains(stage)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Say whether it was an online assessment or an interview.");
     String key = company.toLowerCase(Locale.ROOT);
+    store.quota(user, "REPORT", 20);
     String docId = "report-" + UUID.nameUUIDFromBytes((user + "|" + id + "|" + key).getBytes(StandardCharsets.UTF_8));
     var existing = store.find(docId);
     if (existing.isPresent()) return Map.of("saved", true, "repeat", true);
@@ -85,5 +89,12 @@ public class ReportController {
       "questionId", id, "company", company, "companyKey", key, "stage", stage, "user", user, "createdAt", Instant.now().toString()
     ));
     return Map.of("saved", true, "repeat", false);
+  }
+
+  private volatile Set<String> known;
+
+  boolean knownCompany(String key) {
+    if (known == null) known = bank.companies().stream().map(c -> c.get("name").toString().toLowerCase(Locale.ROOT)).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    return known.contains(key);
   }
 }

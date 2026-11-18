@@ -28,6 +28,17 @@ class StudyCirclesTest {
   }
 
   @Test
+  void aStoredPickHoldsAllWeekEvenAfterSomeoneSolvesIt() {
+    var monday = LocalDate.of(2026, 11, 16);
+    var first = StudyCircles.weekly(Map.of(), "cohort-a", monday, problems, Map.of("ann", Set.of("p1", "p2")));
+    assertEquals(Map.of("week", "2026-11-16", "id", "p3"), first);
+    var later = StudyCircles.weekly(first, "cohort-a", monday.plusDays(3), problems, Map.of("ann", Set.of("p1", "p2", "p3")));
+    assertEquals(first, later, "solving it does not move this week's problem");
+    assertEquals(List.of("ann"), StudyCircles.solvedBy("p3", Map.of("ann", Set.of("p3"), "ben", Set.of())));
+    assertNotEquals("2026-11-16", StudyCircles.weekly(first, "cohort-a", monday.plusDays(7), problems, Map.of()).get("week"), "a new week picks again");
+  }
+
+  @Test
   void aWeekCountsActivityFromMondayToToday() {
     var activity = Map.of("2026-11-15", 4, "2026-11-16", 2, "2026-11-18", 3);
     assertEquals(5, StudyCircles.thisWeek(activity, LocalDate.of(2026, 11, 18)));

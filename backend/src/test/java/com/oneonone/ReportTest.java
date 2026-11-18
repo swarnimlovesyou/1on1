@@ -35,8 +35,9 @@ class ReportTest {
     reports.report("u1", Map.of("questionId", "lc-two-sum", "company", "google", "stage", "Interview"));
     reports.report("u2", Map.of("questionId", "lc-two-sum", "company", "Google", "stage", "OA"));
     reports.report("u2", Map.of("questionId", "cf-1000A", "company", "Flipkart", "stage", "OA"));
+    reports.report("u3", Map.of("questionId", "lc-two-sum", "company", "Qqzx Spam", "stage", "OA"));
     var recent = reports.recent();
-    assertEquals(2, recent.size());
+    assertEquals(2, recent.size(), "an unknown company reported by one learner stays hidden");
     var twoSum = recent.stream().filter(r -> "lc-two-sum".equals(r.get("questionId"))).findFirst().orElseThrow();
     assertEquals("Two Sum", twoSum.get("title"));
     assertEquals("Google", twoSum.get("company"));

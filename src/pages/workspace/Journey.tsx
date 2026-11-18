@@ -32,6 +32,11 @@ export function forecast(plan: Plan, today: string) {
   };
 }
 
+/** The most recently created plan; plans arrive ordered by id, not by date. */
+export function latestPlan(plans: Plan[]): Plan | undefined {
+  return [...plans].sort((a, b) => (a.createdAt ?? "").localeCompare(b.createdAt ?? "")).at(-1);
+}
+
 /** What the learner has done, by concept and family, and where they are heading next. */
 export default function Journey() {
   const { progress } = useApp();
@@ -42,7 +47,7 @@ export default function Journey() {
   const counts = STATES.map((s) => ({ ...s, n: concepts.filter((c) => c.state === s.id).length }));
   const next = map.data!.nextAction;
   const ahead = frontier(concepts).slice(0, 3);
-  const plan = progress.plans.at(-1);
+  const plan = latestPlan(progress.plans);
   const f = plan && forecast(plan, map.data!.today);
   const families = (Object.keys(FAMILIES) as FamilyId[])
     .map((id) => {
@@ -109,7 +114,9 @@ export default function Journey() {
               <strong>{plan.title}</strong>
               <small>
                 {f.done} of {f.total} tasks done
-                {f.finish ? `, on course to finish ${new Date(f.finish + "T00:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", timeZone: "UTC" })}` : ", complete"}
+                {f.finish && f.finish < map.data!.today
+                  ? ", every remaining task is overdue"
+                  : f.finish ? `, on course to finish ${new Date(f.finish + "T00:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", timeZone: "UTC" })}` : ", complete"}
                 {f.overdue ? `; ${f.overdue} overdue` : ""}
               </small>
               <progress max={f.total} value={f.done} aria-hidden="true" />

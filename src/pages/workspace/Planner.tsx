@@ -113,10 +113,14 @@ function PlanAdvisor({ onBuild, building }: { onBuild: (s: Suggestion) => void; 
               <li key={r}>{r}</li>
             ))}
           </ul>
-          <button className="button primary" type="button" disabled={building} onClick={() => onBuild(s)}>
-            {building ? "Building…" : "Build this plan"}
-            <ArrowRight size={16} aria-hidden="true" />
-          </button>
+          {s.topics.length ? (
+            <button className="button primary" type="button" disabled={building} onClick={() => onBuild(s)}>
+              {building ? "Building…" : "Build this plan"}
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          ) : (
+            <p className="muted">You've solved every problem in every topic here. Try the question bank or a sheet next.</p>
+          )}
         </div>
       )}
     </section>

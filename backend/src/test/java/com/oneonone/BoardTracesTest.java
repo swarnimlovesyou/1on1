@@ -40,6 +40,11 @@ class BoardTracesTest {
     assertEquals(6, answer(run("floyd-warshall", "0,1,3,1,2,1,0,2,7,2,3,2", 4, null)), "0 to 3 is 3+1+2");
     assertEquals("cycle", answer(run("topological-sort", "0,1,1,2,2,0", 3, null)));
     assertEquals("negative cycle", answer(run("bellman-ford", "0,1,1,1,2,-2,2,1,1", 3, null)));
+    assertEquals("negative cycle", answer(run("floyd-warshall", "0,1,1,1,0,-3", 2, null)));
+    var dup = Store.items(run("kruskal", "0,1,5,0,1,2", 2, null).get("steps")).getLast();
+    var edges = Store.items(Store.items(dup.get("board")).getFirst().get("edges"));
+    assertEquals(List.of("rejected", "chosen"), edges.stream().map(e -> e.get("state")).toList(), "a parallel edge keeps its own mark");
+    assertEquals(3, run("lcs", null, 0, "ab|b").get("revision"), "study position saving accepts this revision");
   }
 
   @Test

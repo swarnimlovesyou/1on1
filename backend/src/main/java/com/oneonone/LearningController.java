@@ -328,8 +328,24 @@ public class LearningController {
       members.add(Map.of("name", names.getFirst(), "score", score, "id", u, "solved", solvedIds.stream().filter(weights::containsKey).count(), "week", week));
     }
     var published = s.list("problem", "public").stream().filter(p -> !Boolean.FALSE.equals(p.get("published"))).toList();
-    var weekly = new LinkedHashMap<>(StudyCircles.weeklyProblem(c.get("id").toString(), PlanService.today(), published, solvedBy));
-    if (!weekly.isEmpty()) weekly.put("solvedBy", Store.strings(weekly.get("solvedBy")).stream().map(nameOf::get).toList());
+    var stored = c.get("weekly") instanceof Map<?, ?> m ? m : Map.of();
+    var pick = StudyCircles.weekly(stored, c.get("id").toString(), PlanService.today(), published, solvedBy);
+    if (!pick.isEmpty() && !pick.equals(stored)) {
+      // keep the week's problem fixed even after members solve it
+      var saved = new LinkedHashMap<>(c);
+      saved.remove("id");
+      saved.put("weekly", pick);
+      String owner = s.db.queryForObject("select owner_id from documents where id=?", String.class, c.get("id"));
+      s.put(c.get("id").toString(), "cohort", owner, saved);
+    }
+    var weekly = new LinkedHashMap<String, Object>();
+    published.stream().filter(p -> p.get("id").equals(pick.get("id"))).findFirst().ifPresent(p -> {
+      weekly.put("id", p.get("id"));
+      weekly.put("title", p.get("title"));
+      weekly.put("difficulty", p.get("difficulty"));
+      weekly.put("solvedBy", StudyCircles.solvedBy(p.get("id"), solvedBy).stream().map(nameOf::get).toList());
+    });
+    out.remove("weekly");
     out.put("weeklyProblem", weekly);
     out.put(
       "members",

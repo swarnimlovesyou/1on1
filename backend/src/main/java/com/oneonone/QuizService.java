@@ -26,7 +26,7 @@ public class QuizService {
     this.drills = drills;
   }
 
-  public Map<String, Object> start(Map<String, Object> body) {
+  public Map<String, Object> start(String user, Map<String, Object> body) {
     int size = number(body.get("questions")), minutes = number(body.get("minutes"));
     if (!SIZES.contains(size) || !MINUTES.contains(minutes))
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose 15 or 30 questions and 20 or 40 minutes.");
@@ -37,6 +37,9 @@ public class QuizService {
     questions.addAll(drillQuestions("reasoning", "Reasoning", each, r));
     questions.addAll(csQuestions(size - 2 * each, r));
     Collections.shuffle(questions, r);
+    store.quota(user, "QUIZ", 40);
+    // opaque ids: a topic-seed or guide-challenge id would let the public drill and challenge endpoints reveal answers
+    for (int i = 0; i < questions.size(); i++) questions.get(i).put("id", "q" + (i + 1));
     String id = "quiz-" + UUID.randomUUID();
     Instant now = Instant.now();
     var doc = new LinkedHashMap<String, Object>();
@@ -44,7 +47,7 @@ public class QuizService {
     doc.put("minutes", minutes);
     doc.put("startedAt", now.toString());
     doc.put("deadline", now.plus(Duration.ofMinutes(minutes)).toString());
-    store.put(id, "quiz", "public", doc);
+    store.put(id, "quiz", user, doc);
     var out = new LinkedHashMap<String, Object>();
     out.put("id", id);
     out.put("minutes", minutes);
@@ -99,18 +102,22 @@ public class QuizService {
     return pool.subList(0, Math.min(count, pool.size()));
   }
 
-  Map<String, Object> quiz(String id) {
-    return store.find(id).filter(q -> id.startsWith("quiz-"))
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "That quiz doesn't exist."));
+  Map<String, Object> quiz(String user, String id) {
+    if (!id.startsWith("quiz-")) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That quiz doesn't exist.");
+    try {
+      return store.owned(id, user);
+    } catch (RuntimeException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That quiz doesn't exist.");
+    }
   }
 
   /** For tests: the stored answer to one question. */
   String answerFor(String quizId, String questionId) {
-    return Store.items(quiz(quizId).get("questions")).stream().filter(q -> questionId.equals(q.get("id"))).findFirst().orElseThrow().get("answer").toString();
+    return Store.items(quiz(store.db.queryForObject("select owner_id from documents where id=?", String.class, quizId), quizId).get("questions")).stream().filter(q -> questionId.equals(q.get("id"))).findFirst().orElseThrow().get("answer").toString();
   }
 
-  public synchronized Map<String, Object> submit(String id, Map<String, Object> body) {
-    var doc = new LinkedHashMap<>(quiz(id));
+  public synchronized Map<String, Object> submit(String user, String id, Map<String, Object> body) {
+    var doc = new LinkedHashMap<>(quiz(user, id));
     if (doc.get("result") instanceof Map<?, ?> earlier) return (Map<String, Object>) earlier;
     var given = body.get("answers") instanceof Map<?, ?> m ? m : Map.of();
     var review = new ArrayList<Map<String, Object>>();
@@ -141,7 +148,7 @@ public class QuizService {
     result.put("sections", bySection.entrySet().stream().map(e -> (Map<String, Object>) new LinkedHashMap<String, Object>(Map.of("section", e.getKey(), "score", e.getValue()[0], "total", e.getValue()[1]))).toList());
     result.put("review", review);
     doc.put("result", result);
-    store.put(id, "quiz", "public", doc);
+    store.put(id, "quiz", user, doc);
     return result;
   }
 

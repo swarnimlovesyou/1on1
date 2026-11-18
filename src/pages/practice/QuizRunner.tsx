@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { useApp } from "../../context";
 import { useMutation } from "@tanstack/react-query";
 import { CheckCircle, XCircle } from "@phosphor-icons/react";
 import { api } from "../../api";
@@ -11,6 +13,8 @@ type Result = { score: number; total: number; late: boolean; sections: { section
 
 /** Timed quiz: aptitude, reasoning and CS fundamentals, one question at a time; graded on the server. */
 export default function QuizRunner() {
+  const { user } = useApp();
+  const autoSubmitted = useRef("");
   const [size, setSize] = useState(15);
   const [minutes, setMinutes] = useState(20);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -28,8 +32,23 @@ export default function QuizRunner() {
     return () => clearInterval(t);
   }, [quiz, submit.data]);
   useEffect(() => {
-    if (quiz && left === 0 && !submit.data && !submit.isPending) submit.mutate(quiz.id); // time is up
+    // time is up: submit once per quiz, even if that request fails
+    if (quiz && left === 0 && autoSubmitted.current !== quiz.id) {
+      autoSubmitted.current = quiz.id;
+      submit.mutate(quiz.id);
+    }
   }, [left, quiz, submit]);
+
+  if (!user)
+    return (
+      <div className="empty">
+        <h2>Sign in to take a timed quiz.</h2>
+        <p>Your attempt is graded on the server and kept with your account.</p>
+        <Link className="button primary small" to="/login">
+          Sign in
+        </Link>
+      </div>
+    );
 
   if (submit.data) {
     const r = submit.data;
@@ -109,7 +128,7 @@ export default function QuizRunner() {
   const set = (value: string) => setAnswers((a) => ({ ...a, [q.id]: value }));
   const unanswered = quiz.questions.filter((x) => !answered(x.id)).length;
   return (
-    <section className="quiz-runner">
+    <section className="quiz-runner" data-no-shortcuts>
       <div className="quiz-top">
         <span className="quiz-section">{q.section}</span>
         <span className={"quiz-timer" + (left < 60 ? " low" : "")} role="timer" aria-label="Time left">
@@ -164,7 +183,7 @@ export default function QuizRunner() {
           <p>
             {unanswered} question{unanswered === 1 ? " is" : "s are"} still unanswered.
           </p>
-          <button className="button" type="button" onClick={() => setConfirm(false)}>
+          <button className="button" type="button" autoFocus onClick={() => setConfirm(false)}>
             Keep going
           </button>
           <button className="button primary" type="button" onClick={() => (setConfirm(false), submit.mutate(quiz.id))}>

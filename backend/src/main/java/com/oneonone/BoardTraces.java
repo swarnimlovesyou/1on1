@@ -68,12 +68,13 @@ final class BoardTraces {
   /** edges: {from,to,w} maps; marks per vertex; edgeMarks keyed "from-to". */
   static Map<String, Object> graph(String title, int n, boolean directed, List<int[]> edges, Map<String, String> edgeMarks, Map<Integer, String> marks, Map<Integer, String> labels) {
     var list = new ArrayList<Map<String, Object>>();
-    for (var e : edges) {
+    for (int k = 0; k < edges.size(); k++) {
+      var e = edges.get(k);
       var m = new LinkedHashMap<String, Object>();
       m.put("from", e[0]);
       m.put("to", e[1]);
       if (e.length > 2) m.put("w", e[2]);
-      m.put("state", edgeMarks.getOrDefault(e[0] + "-" + e[1], "idle"));
+      m.put("state", edgeMarks.getOrDefault("#" + k, edgeMarks.getOrDefault(e[0] + "-" + e[1], "idle"))); // "#k" marks one parallel edge
       list.add(m);
     }
     var l = new LinkedHashMap<String, Object>();
@@ -194,7 +195,7 @@ final class BoardTraces {
     normalized.put("algorithm", algorithm);
     normalized.put("seed", 42);
     var steps = b.run.steps;
-    return Map.of("version", 2, "revision", 1, "algorithm", algorithm, "family", "board", "input", normalized,
+    return Map.of("version", 2, "revision", 3, "algorithm", algorithm, "family", "board", "input", normalized,
       "steps", steps, "result", steps.getLast(), "code", b.code);
   }
 
@@ -209,7 +210,7 @@ final class BoardTraces {
     int n = vertices(target);
     var pairs = tuples(numbers(input, 32, "Up to 16 unions."), 2, n, 16);
     var b = new Board("union-find", List.of(
-      "int find(int x) { while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }",
+      "int find(int x) { while (parent[x] != x) x = parent[x]; return x; } // add path compression in production",
       "void union(int a, int b) {",
       "  int ra = find(a), rb = find(b);",
       "  if (ra == rb) return; // already together",
@@ -323,17 +324,17 @@ final class BoardTraces {
     for (int i = 0; i < sorted.size(); i++) {
       var e = sorted.get(i);
       int ra = find(parent, e[0]), rb = find(parent, e[1]);
-      String key = e[0] + "-" + e[1];
+      String key = "#" + edges.indexOf(e);
       if (ra != rb) {
         parent[rb] = ra;
         total += e[2];
         em.put(key, "chosen");
-        b.step("Edge " + e[0] + "–" + e[1] + " (" + e[2] + ") joins two different trees, so take it. Total " + total + ".", 2, v("edge", key, "total", total),
+        b.step("Edge " + e[0] + "–" + e[1] + " (" + e[2] + ") joins two different trees, so take it. Total " + total + ".", 2, v("edge", e[0] + "-" + e[1], "total", total),
           array("Edge weights, sorted", sorted.stream().map(x -> x[0] + "–" + x[1] + ": " + x[2]).toList(), mark(i, "found")),
           graph("Graph", n, false, edges, new LinkedHashMap<>(em), mark(e[0], "active", e[1], "active"), Map.of()));
       } else {
         em.put(key, "rejected");
-        b.step("Edge " + e[0] + "–" + e[1] + " (" + e[2] + ") connects vertices already in one tree; it would make a cycle, so skip it.", 3, v("edge", key, "total", total),
+        b.step("Edge " + e[0] + "–" + e[1] + " (" + e[2] + ") connects vertices already in one tree; it would make a cycle, so skip it.", 3, v("edge", e[0] + "-" + e[1], "total", total),
           array("Edge weights, sorted", sorted.stream().map(x -> x[0] + "–" + x[1] + ": " + x[2]).toList(), mark(i, "muted")),
           graph("Graph", n, false, edges, new LinkedHashMap<>(em), mark(e[0], "active", e[1], "active"), Map.of()));
       }
@@ -421,6 +422,11 @@ final class BoardTraces {
             table("dist[i][j]", range(n), range(n), cells(d), new int[] { i, j }, List.of(new int[] { i, k }, new int[] { k, j })),
             graph("Graph", n, true, edges, Map.of(), mark(i, "active", k, "found", j, "active"), Map.of()));
         }
+    }
+    for (int i = 0; i < n; i++) if (d[i][i] < 0) {
+      b.step("dist[" + i + "][" + i + "] is " + d[i][i] + ": going round a cycle lowers the cost forever, so there is a negative cycle and shortest paths through it are undefined.", 3,
+        v("answer", "negative cycle"), table("dist[i][j]", range(n), range(n), cells(d), new int[] { i, i }, List.of()));
+      return b;
     }
     b.step("Every vertex has been tried as a stopover, so each cell holds the shortest distance. dist[0][" + (n - 1) + "] = " + show(d[0][n - 1]) + ".", 3,
       v("answer", d[0][n - 1] >= INF / 2 ? null : d[0][n - 1]), table("dist[i][j]", range(n), range(n), cells(d), new int[] { 0, n - 1 }, List.of()));
@@ -607,7 +613,7 @@ final class BoardTraces {
       b.step("y & (y - 1) clears the lowest set bit: " + binary(before) + " → " + binary(y) + ". Set bits counted: " + count + ".", 2, v("y", y, "bits", count),
         array("y in binary", List.of(binary(y).split("")), cleared));
     }
-    b.step("The value without a partner is " + x + ", and it has " + count + " set bit" + (count == 1 ? "" : "s") + ".", 1, v("answer", x, "bits", count),
+    b.step("If every other value appears exactly twice, the one without a partner is " + x + ". It has " + count + " set bit" + (count == 1 ? "" : "s") + ".", 1, v("answer", x, "bits", count),
       array("x in binary", List.of(binary(x).split("")), Map.of()));
     return b;
   }
@@ -804,7 +810,7 @@ final class BoardTraces {
   static Board lcs(String words) {
     String[] p = pair(words);
     String a = p[0], c = p[1];
-    if (a.length() > 10) throw new IllegalArgumentException("Keep both strings to 10 characters so the table fits.");
+    if (a.length() > 10) throw new IllegalArgumentException("Keep the first string to 10 characters and the second to 12 so the table fits.");
     var b = new Board("lcs", List.of(
       "dp[i][j] = LCS length of a[0..i) and b[0..j); row 0 and column 0 are 0;",
       "if (a[i-1] == b[j-1]) dp[i][j] = dp[i-1][j-1] + 1;",
