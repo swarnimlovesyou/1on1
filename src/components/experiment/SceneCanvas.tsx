@@ -4,6 +4,7 @@ import FoundationModel from "./FoundationModels";
 import StructureModel from "./StructureModels";
 import GraphModel from "./GraphModel";
 import AdvancedModel from "./AdvancedModels";
+import BoardModel from "./BoardModel";
 
 export default function SceneCanvas({
   step,
@@ -23,6 +24,7 @@ export default function SceneCanvas({
     ease: [0.16, 1, 0.3, 1] as const,
   };
   const props = { step, algorithm, timing };
+  if ("board" in step) return <BoardModel step={step} timing={timing} />;
   if (["bfs", "dfs", "dijkstra", "max-flow", "graphs"].includes(algorithm))
     return <GraphModel {...props} />;
   if (

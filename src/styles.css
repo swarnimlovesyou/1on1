@@ -8613,3 +8613,209 @@ kbd {
     align-items: flex-start;
   }
 }
+
+/* ---- Generic trace board (new concepts) ---- */
+.board {
+  --board-cell: 46px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+}
+.board-panel {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.board-panel.graph {
+  flex: 0 1 300px;
+}
+.board-panel h4 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.board-array {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.board-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: calc(var(--board-cell) - 4px);
+  padding: 6px 6px 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  transition: background 0.2s, border-color 0.2s;
+}
+.board-cell span {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.board-cell small {
+  color: var(--subtle);
+  font-size: 10px;
+}
+.board-array.text .board-cell {
+  min-width: calc(var(--board-cell) - 4px);
+}
+.board-cell.active {
+  border-color: var(--ink);
+  background: #fff6d6;
+}
+.board-cell.found {
+  border-color: var(--teal);
+  background: var(--teal-row);
+}
+.board-cell.changed {
+  border-color: var(--accent);
+  background: var(--aqua);
+}
+.board-cell.window {
+  background: #eef4f2;
+}
+.board-cell.muted {
+  opacity: 0.45;
+}
+.board-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.board-stack li {
+  padding: 5px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #f7faf9;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.board-stack li:last-child {
+  border-color: var(--teal);
+}
+.board-empty {
+  margin: 0;
+  color: var(--subtle);
+  font-size: 13px;
+}
+.board-table-wrap {
+  overflow-x: auto;
+}
+.board-table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.board-table th,
+.board-table td {
+  min-width: 30px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.board-table th {
+  background: #f7faf9;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.board-table td.empty {
+  color: var(--subtle);
+}
+.board-table td.ref {
+  background: var(--teal-row);
+}
+.board-table td.active {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+  background: var(--aqua);
+  font-weight: 600;
+}
+.board-graph {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  color: var(--slate);
+}
+.board-edge line,
+.board-edge circle {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+.board-edge text {
+  fill: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.board-edge.active line {
+  stroke: var(--ink);
+}
+.board-edge.chosen line {
+  stroke: var(--teal);
+  stroke-width: 3.5;
+}
+.board-edge.rejected line {
+  stroke: #e2a3ab;
+  stroke-dasharray: 4 3;
+}
+.board-node circle {
+  fill: var(--surface);
+  stroke: var(--slate);
+  stroke-width: 2;
+}
+.board-node text {
+  fill: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.board-node .board-node-label {
+  fill: var(--accent);
+  font-size: 11px;
+}
+.board-node.active circle {
+  fill: #fff6d6;
+  stroke: var(--ink);
+}
+.board-node.found circle,
+.board-node.done circle {
+  fill: var(--teal-row);
+  stroke: var(--teal);
+}
+.board-node.changed circle {
+  fill: var(--aqua);
+  stroke: var(--accent);
+}
+.board-vars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+}
+.board-vars dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.board-vars dd {
+  margin: 0;
+  font-family: var(--font-mono);
+}
+@media (max-width: 560px) {
+  .board {
+    --board-cell: 38px;
+  }
+}

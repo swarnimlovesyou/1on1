@@ -33,10 +33,11 @@ public class TraceEngine {
     "quickselect",
     "bloom-filter"
   );
-  public static final Set<String> SUPPORTED = java.util.stream.Stream.concat(
+  public static final Set<String> SUPPORTED = java.util.stream.Stream.of(
     LEGACY.stream(),
-    ConceptTraces.SUPPORTED.stream()
-  ).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    ConceptTraces.SUPPORTED.stream(),
+    BoardTraces.SUPPORTED.stream()
+  ).flatMap(x -> x).collect(java.util.stream.Collectors.toUnmodifiableSet());
 
   static final class Run {
 
@@ -211,6 +212,7 @@ public class TraceEngine {
   public Map<String, Object> trace(Map<String, Object> b) {
     String alg = Store.text(b, "algorithm", "sliding-window");
     if (ConceptTraces.SUPPORTED.contains(alg)) return ConceptTraces.trace(b);
+    if (BoardTraces.SUPPORTED.contains(alg)) return BoardTraces.trace(b);
     if (alg.equals("tree-traversal")) return TreeTraces.trace(b);
     if (!SUPPORTED.contains(alg)) throw new IllegalArgumentException(
       "Choose a supported algorithm from the learning library."

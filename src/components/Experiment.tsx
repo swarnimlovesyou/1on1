@@ -23,6 +23,38 @@ type Props = {
   onStep?: (scene: Scene, step: number, revision?: number) => void;
   initialStep?: number;
 };
+/** Which inputs each board concept takes, and what to call them. */
+const BOARD_FIELDS: Record<
+  string,
+  { input?: string; target?: string; words?: string }
+> = {
+  "union-find": { input: "Unions (pairs of vertices)", target: "Vertex count" },
+  "topological-sort": {
+    input: "Directed edges (from,to pairs)",
+    target: "Vertex count",
+  },
+  kruskal: { input: "Weighted edges (u,v,w triples)", target: "Vertex count" },
+  "bellman-ford": {
+    input: "Directed weighted edges (u,v,w)",
+    target: "Vertex count",
+  },
+  "floyd-warshall": {
+    input: "Directed weighted edges (u,v,w)",
+    target: "Vertex count",
+  },
+  "segment-tree": { input: "Values | query l,r" },
+  fenwick: { input: "Values", target: "Prefix ends at index" },
+  "interval-scheduling": { input: "Intervals (start,end pairs)" },
+  bits: { input: "Values (0 to 255)" },
+  kmp: { words: "Text | pattern" },
+  "rabin-karp": { words: "Text | pattern" },
+  "monotonic-stack": { input: "Values" },
+  "monotonic-queue": { input: "Values", target: "Window size" },
+  knapsack: { input: "Items (weight,value pairs)", target: "Capacity" },
+  lcs: { words: "First | second string" },
+  "interval-dp": { input: "Matrix dimensions" },
+};
+
 export default function Experiment({
   scene,
   code,
@@ -359,27 +391,30 @@ export default function Experiment({
                 />
               </label>
             )}
-            {![
-              "recursion",
-              "memoization",
-              "tabulation",
-              "trie",
-              "bloom-filter",
-              "strings",
-              "variable-window",
-              "complexity",
-              "set-cover",
-            ].includes(scene.algorithm) && (
+            {(BOARD_FIELDS[scene.algorithm]
+              ? !!BOARD_FIELDS[scene.algorithm].input
+              : ![
+                  "recursion",
+                  "memoization",
+                  "tabulation",
+                  "trie",
+                  "bloom-filter",
+                  "strings",
+                  "variable-window",
+                  "complexity",
+                  "set-cover",
+                ].includes(scene.algorithm)) && (
               <label>
-                {scene.algorithm === "intervals"
-                  ? "Interval endpoints (start,end pairs)"
-                  : scene.algorithm === "graphs"
-                    ? "Directed edges (from,to pairs)"
-                    : scene.algorithm === "tree-traversal"
-                      ? "Level-order slots (integers or null)"
-                      : scene.algorithm === "matrices"
-                        ? "Row-major matrix values"
-                        : "Your input"}
+                {BOARD_FIELDS[scene.algorithm]?.input ??
+                  (scene.algorithm === "intervals"
+                    ? "Interval endpoints (start,end pairs)"
+                    : scene.algorithm === "graphs"
+                      ? "Directed edges (from,to pairs)"
+                      : scene.algorithm === "tree-traversal"
+                        ? "Level-order slots (integers or null)"
+                        : scene.algorithm === "matrices"
+                          ? "Row-major matrix values"
+                          : "Your input")}
                 <input
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
@@ -387,7 +422,7 @@ export default function Experiment({
                 />
               </label>
             )}
-            {[
+            {([
               "binary-search",
               "two-pointers",
               "sliding-window",
@@ -398,19 +433,21 @@ export default function Experiment({
               "complexity",
               "matrices",
               "graphs",
-            ].includes(scene.algorithm) && (
+            ].includes(scene.algorithm) ||
+              BOARD_FIELDS[scene.algorithm]?.target) && (
               <label className="target-input">
-                {scene.algorithm === "complexity"
-                  ? "Input size n"
-                  : scene.algorithm === "matrices"
-                    ? "Columns"
-                    : scene.algorithm === "graphs"
-                      ? "Vertex count"
-                      : scene.algorithm === "sliding-window"
-                        ? "Window size"
-                        : scene.algorithm === "tabulation"
-                          ? "n"
-                          : "Target / n / k"}
+                {BOARD_FIELDS[scene.algorithm]?.target ??
+                  (scene.algorithm === "complexity"
+                    ? "Input size n"
+                    : scene.algorithm === "matrices"
+                      ? "Columns"
+                      : scene.algorithm === "graphs"
+                        ? "Vertex count"
+                        : scene.algorithm === "sliding-window"
+                          ? "Window size"
+                          : scene.algorithm === "tabulation"
+                            ? "n"
+                            : "Target / n / k")}
                 <input
                   type="number"
                   min={
@@ -424,25 +461,27 @@ export default function Experiment({
                 />
               </label>
             )}
-            {[
+            {([
               "trie",
               "bloom-filter",
               "strings",
               "variable-window",
               "prefix-sums",
               "set-cover",
-            ].includes(scene.algorithm) && (
+            ].includes(scene.algorithm) ||
+              BOARD_FIELDS[scene.algorithm]?.words) && (
               <label>
-                {scene.algorithm === "strings" ||
-                scene.algorithm === "variable-window"
-                  ? "ASCII text"
-                  : scene.algorithm === "prefix-sums"
-                    ? "Query range: left,right (exclusive)"
-                    : scene.algorithm === "bloom-filter"
-                      ? "Insert words | query word"
-                      : scene.algorithm === "set-cover"
-                        ? "Goal topics (comma-separated)"
-                        : "Words"}
+                {BOARD_FIELDS[scene.algorithm]?.words ??
+                  (scene.algorithm === "strings" ||
+                  scene.algorithm === "variable-window"
+                    ? "ASCII text"
+                    : scene.algorithm === "prefix-sums"
+                      ? "Query range: left,right (exclusive)"
+                      : scene.algorithm === "bloom-filter"
+                        ? "Insert words | query word"
+                        : scene.algorithm === "set-cover"
+                          ? "Goal topics (comma-separated)"
+                          : "Words")}
                 <input
                   value={words}
                   onChange={(event) => setWords(event.target.value)}
@@ -487,7 +526,8 @@ export default function Experiment({
               {trace?.steps.map((item) => (
                 <li key={item.id}>
                   {item.text}
-                  {item.array.length > 0 && ` Values: ${item.array.join(", ")}.`}
+                  {item.array.length > 0 &&
+                    ` Values: ${item.array.join(", ")}.`}
                 </li>
               ))}
             </ol>
