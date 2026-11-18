@@ -49,6 +49,7 @@ public class SecurityConfig {
             "/api/v1/drills/**",
             "/api/v1/contests",
             "/api/v1/reports/recent",
+            "/api/v1/assistant/**",
             "/api/v1/sheets",
             "/api/v1/sheets/*",
             "/api/v1/experiments",
@@ -59,7 +60,8 @@ public class SecurityConfig {
           .anyRequest()
           .authenticated()
       )
-      .csrf(c -> c.csrfTokenRepository(new HttpSessionCsrfTokenRepository()))
+      // the paired-assistant API authenticates by bearer token in AssistantController, never by cookie, so CSRF cannot apply
+      .csrf(c -> c.csrfTokenRepository(new HttpSessionCsrfTokenRepository()).ignoringRequestMatchers("/api/v1/assistant/**"))
       .exceptionHandling(e ->
         e
           .authenticationEntryPoint((q, s, x) -> {

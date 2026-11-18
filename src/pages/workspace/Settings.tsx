@@ -38,6 +38,7 @@ import {
   Gate,
 } from "../../components/Shared";
 import Experiment from "../../components/Experiment";
+import AssistantPairing from "./AssistantPairing";
 export function Settings() {
   return (
     <Gate>
@@ -252,6 +253,7 @@ function SettingsContent() {
             temporarily pause tutoring.
           </p>
         </section>
+        <AssistantPairing />
       </div>
     </>
   );

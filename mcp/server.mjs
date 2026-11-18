@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-// A thin MCP adapter over 1on1's public learning API. It owns no logic: every answer comes from the Java services,
-// so grading, traces and data stay authoritative there. It reads public data only; nothing here can see or change
-// a learner's account (pairing a session would be a separate, explicit step).
+// A thin MCP adapter over 1on1's learning API. It owns no logic: every answer comes from the Java services, so
+// grading, traces and data stay authoritative there. Without a token it reads public data only. With ONEONONE_TOKEN
+// (made under Settings > Connect an assistant) it can also read that one learner's study context, notes and
+// notebook sources, and save a note; the learner can revoke it at any time.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
 const API = (process.env.ONEONONE_API ?? "http://127.0.0.1:8080/api/v1").replace(/\/$/, "");
+const TOKEN = process.env.ONEONONE_TOKEN ?? "";
 
 class ApiError extends Error {}
 
@@ -25,6 +27,14 @@ async function post(path, payload) {
   const cookie = (res.headers.getSetCookie?.() ?? [res.headers.get("set-cookie")].filter(Boolean)).map((c) => c.split(";")[0]).join("; ");
   return (await call(path, { method: "POST", headers: { "content-type": "application/json", "x-csrf-token": session.csrf, cookie }, body: JSON.stringify(payload) })).body;
 }
+
+// The paired-learner API authenticates by bearer token, so it needs no session or CSRF token.
+const mine = (path, payload) =>
+  call(path, {
+    method: payload ? "POST" : "GET",
+    headers: { authorization: "Bearer " + TOKEN, ...(payload ? { "content-type": "application/json" } : {}) },
+    ...(payload ? { body: JSON.stringify(payload) } : {}),
+  }).then((r) => r.body);
 
 const reply = (text) => ({ content: [{ type: "text", text }] });
 
@@ -57,12 +67,17 @@ tool("get_lesson", "Read one lesson: its idea, invariant, common mistake, comple
 tool(
   "run_trace",
   "Run a lesson's algorithm in 1on1's Java trace engine and return each step's narration.",
-  { algorithm: z.string().min(1), input: z.string().min(1).describe("Comma-separated integers, up to 32"), target: z.number().int().optional() },
-  async ({ algorithm, input, target }) => {
-    const trace = await post("/experiments", { algorithm, input, ...(target === undefined ? {} : { target }) });
+  {
+    algorithm: z.string().min(1),
+    input: z.string().optional().describe("Comma-separated integers, up to 32"),
+    target: z.number().int().optional(),
+    words: z.string().optional().describe("Text input, e.g. 'text|pattern' for kmp, rabin-karp and lcs"),
+  },
+  async ({ algorithm, input, target, words }) => {
+    const trace = await post("/experiments", { algorithm, ...(input === undefined ? {} : { input }), ...(target === undefined ? {} : { target }), ...(words === undefined ? {} : { words }) });
     const steps = trace.steps ?? [];
-    const lines = steps.slice(0, 60).map((s, i) => `${i + 1}. ${s.narration ?? s.message ?? ""}`);
-    return [`${steps.length} steps${trace.result !== undefined ? `, result ${trace.result}` : ""}.`, ...lines, steps.length > 60 ? `… ${steps.length - 60} more steps.` : ""].filter(Boolean).join("\n");
+    const lines = steps.slice(0, 60).map((s, i) => `${i + 1}. ${s.text ?? s.narration ?? ""}`);
+    return [`${steps.length} steps.`, ...lines, steps.length > 60 ? `… ${steps.length - 60} more steps.` : ""].filter(Boolean).join("\n");
   },
 );
 
@@ -110,5 +125,31 @@ tool(
     return `${r.correct ? "Correct." : `Not quite; the answer is ${r.expected}.`} ${r.explanation}`;
   },
 );
+
+if (TOKEN) {
+  tool("my_context", "The paired learner's study context: their next step, reviews due and how far each concept has got.", {}, async () => {
+    const c = await mine("/assistant/context");
+    const states = Object.entries(c.conceptsByState ?? {}).map(([k, v]) => `${k} ${v}`).join(", ");
+    const reviews = (c.reviewsDue ?? []).map((r) => `- ${r.title} (due ${r.dueOn})`);
+    return [`Learner: ${c.name}`, `Next step: ${c.nextAction?.title} (${c.nextAction?.reason})`, states && `Concepts: ${states}`, c.lastStudied && `Last studied: ${c.lastStudied}`, reviews.length ? "Reviews due:\n" + reviews.join("\n") : "No reviews due."]
+      .filter(Boolean)
+      .join("\n");
+  });
+
+  tool("search_my_notes", "Search the paired learner's own notes.", { query: z.string().optional() }, async ({ query }) => {
+    const notes = await mine("/assistant/notes?q=" + encodeURIComponent(query ?? ""));
+    return notes.length ? notes.map((n) => `## ${n.title} (${n.createdAt.slice(0, 10)})\n${n.text}`).join("\n\n") : "No notes match.";
+  });
+
+  tool("save_note", "Save a note to the paired learner's notebook (they can edit or delete it in 1on1).", { title: z.string().min(1).max(120), text: z.string().min(1).max(20000) }, async ({ title, text }) => {
+    await mine("/assistant/notes", { title, text });
+    return `Saved "${title}" to the learner's notes.`;
+  });
+
+  tool("search_my_sources", "Search the PDFs the paired learner uploaded to their notebook; cite each passage by source and page.", { query: z.string().min(1) }, async ({ query }) => {
+    const passages = await mine("/assistant/notebook?q=" + encodeURIComponent(query));
+    return passages.length ? passages.map((p) => `[${p.source}, p. ${p.page}] ${p.text}`).join("\n\n") : "Nothing in the learner's sources matches.";
+  });
+}
 
 await server.connect(new StdioServerTransport());
