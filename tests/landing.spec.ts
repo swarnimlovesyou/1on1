@@ -1,42 +1,53 @@
 import { test, expect } from "@playwright/test";
 
-test("the hero sits in a framed landscape with a glass nav, a badge, the headline and a learn box", async ({ page }) => {
+test("the hero leads with the promise, two actions and what you get", async ({ page }) => {
   await page.goto("/");
-  const hero = page.locator(".meadow-hero");
-  await expect(hero.locator("svg.meadow-landscape")).toBeVisible();
-  await expect(hero.locator("image.meadow-photo")).toHaveAttribute("href", "/landing/meadow-grindelwald.jpg");
-  expect((await page.request.get("/landing/meadow-grindelwald.jpg")).ok()).toBeTruthy();
-  await expect(hero.getByRole("link", { name: /Georgi Kalaydzhiev/ })).toHaveAttribute("href", /unsplash\.com/);
-  await expect(hero.getByRole("heading", { level: 1, name: /Make it click/ })).toBeVisible();
-  const pill = hero.getByRole("navigation", { name: "Site" });
-  for (const [name, href] of [["Learn", "/learn"], ["Practise", "/practice"], ["Prep", "/prep"], ["Sheets", "/practice?tab=sheets"]] as const)
-    await expect(pill.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
-  await expect(hero.locator(".meadow-badge")).toContainText(/1\d,\d{3}/);
-  await hero.getByRole("textbox", { name: "What do you want to learn?" }).fill("binary search");
-  await hero.getByRole("button", { name: "Start" }).click();
-  await expect(page).toHaveURL(/\/learn\?q=binary(\+|%20)search$/);
+  await expect(page.getByRole("heading", { level: 1, name: /Make it click/ })).toBeVisible();
+  const nav = page.getByRole("navigation", { name: "Site" });
+  for (const [name, href] of [["Learn", "/learn"], ["Practise", "/practice"], ["Prep", "/prep"], ["Contests", "/contests"]] as const)
+    await expect(nav.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  await expect(page.getByRole("link", { name: "Start learning" }).first()).toHaveAttribute("href", "/learn");
+  await expect(page.getByRole("link", { name: "Open your first notebook" })).toBeVisible();
+  await expect(page.locator(".land-checks li")).toHaveCount(4);
 });
 
-test("below the hero: real figures, a live animation and three ways in", async ({ page }) => {
+test("the product is shown working: a live animation, a sheet row with companies, and a path you can switch", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator(".landing-figures")).toContainText("33");
-  for (const [name, href] of [["Learn", "/learn"], ["Practise", "/practice"], ["Prep", "/prep"]] as const)
-    await expect(page.locator(".ways-in").getByRole("link", { name: new RegExp("^" + name) })).toHaveAttribute("href", href);
-  await expect(page.locator(".landing-demo .experiment-top")).toBeVisible();
+  await expect(page.locator(".land-frame .experiment-top")).toBeVisible();
+  await expect(page.locator(".land-frame .asked-at")).toContainText("Asked at");
+  await page.getByRole("tab", { name: "Preparing for placements" }).click();
+  await expect(page.getByRole("tabpanel")).toContainText(/Blind 75|mock/i);
+  await page.getByRole("tab", { name: "New to DSA" }).click();
+  await expect(page.getByRole("tabpanel")).toContainText(/Arrays/);
 });
 
-test("the landing page fits a phone in both themes", async ({ page }) => {
+test("a real drill question can be checked on the landing page, and contests are live", async ({ page }) => {
+  await page.goto("/");
+  const drill = page.locator(".land-drill");
+  await expect(drill.locator(".land-drill-prompt")).not.toBeEmpty();
+  await drill.getByRole("textbox", { name: "Your answer" }).fill("-1");
+  await drill.getByRole("button", { name: "Check" }).click();
+  await expect(drill.getByRole("status")).toContainText(/Not quite|Correct/);
+  await expect(page.locator(".land-contests li").first()).toBeVisible();
+});
+
+test("the key map answers a key press with what it opens", async ({ page }) => {
+  await page.goto("/");
+  const map = page.locator(".land-keys");
+  await map.getByRole("button", { name: /^C\b/ }).click();
+  await expect(map.locator(".land-key-detail")).toContainText("Contests");
+});
+
+test("the page still renders its promise and actions when the API is down", async ({ page }) => {
+  await page.route("**/api/v1/**", (route) => route.fulfill({ status: 503, json: { message: "down" } }));
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start learning" }).first()).toBeVisible();
+});
+
+test("a returning learner can sign in, and the page fits a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  for (const scheme of ["light", "dark"] as const) {
-    await page.emulateMedia({ colorScheme: scheme });
-    await page.goto("/");
-    await expect(page.locator("h1")).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
-  }
-});
-
-test("a returning learner can sign in from the landing page on a phone", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 900 });
   await page.goto("/");
-  await expect(page.locator(".meadow-hero").getByRole("link", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" }).first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
