@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A thin MCP adapter over 1on1's public learning API: library, lessons, traces, bank, contests, lab and drills.",
+  "description": "A thin MCP adapter over 1on1's public learning API: library, lessons, traces, bank, contests and drills.",
   "bin": { "1on1-mcp": "server.mjs" },
   "scripts": {
     "start": "node server.mjs",

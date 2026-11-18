@@ -8196,3 +8196,130 @@ kbd {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---- Prep guides: tabs, cheat sheet, sources, handbook, print ---- */
+.prep-guide-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 18px 0 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.prep-cheatsheet h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.prep-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.prep-sources {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.prep-sources li {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.prep-sources a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+}
+.prep-sources small {
+  display: block;
+  color: var(--muted);
+}
+.prep-sources p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+.prep-reading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.prep-reading span {
+  color: var(--muted);
+}
+.prep-reading a {
+  color: var(--accent);
+}
+.prep-handbook > .prep-guide {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.handbook-contents ol {
+  columns: 2 260px;
+  margin: 0;
+  padding-left: 20px;
+}
+.handbook-contents a {
+  color: var(--accent);
+}
+.handbook-title {
+  margin: 4px 0;
+  font-size: 26px;
+}
+.handbook-sources {
+  margin-top: 32px;
+}
+@media print {
+  .sidebar,
+  .topbar,
+  .key-strip,
+  .back-link,
+  .prep-guide-bar,
+  .prep-next,
+  .prep-quiz,
+  .guide-panel:not(.notes),
+  .puzzle-hints button,
+  .prep-handbook .page-heading button,
+  .skip-link {
+    display: none !important;
+  }
+  .guide-panel.notes[hidden] {
+    display: block !important;
+  }
+  body,
+  .app-shell,
+  .page {
+    background: #ffffff !important;
+  }
+  .app-shell {
+    display: block !important;
+  }
+  .page {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .prep-handbook > .prep-guide {
+    break-before: page;
+    border-top: 0;
+  }
+  .prep-cheatsheet,
+  .prep-guide section {
+    break-inside: avoid;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    color: #5e6e6a;
+    font-size: 11px;
+  }
+}

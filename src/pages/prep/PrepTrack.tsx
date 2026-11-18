@@ -1,9 +1,10 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle, Circle } from "@phosphor-icons/react";
+import { ArrowLeft, BookOpenText, CheckCircle, Circle } from "@phosphor-icons/react";
 import { useApp } from "../../context";
 import { Loading, ErrorState, PageHeading } from "../../components/Shared";
 import { usePrep } from "./usePrep";
 import { guidePassed } from "./progress";
+import { subjectSources } from "./sources";
 
 /** One track's guides, grouped by subject when the track has subjects. */
 export default function PrepTrack() {
@@ -27,6 +28,14 @@ export default function PrepTrack() {
         <Link className="prep-feature" to="/prep/system-design/playground">
           <strong>Traffic playground</strong>
           <span>Set the load, servers, cache and database, and see where requests queue up.</span>
+        </Link>
+      )}
+      {!!guides.length && (
+        <Link className="prep-feature" to={`/prep/${track}/handbook`}>
+          <strong>
+            <BookOpenText size={18} aria-hidden="true" /> Open the {info.title} handbook
+          </strong>
+          <span>All {guides.length} guides' notes and cheat sheets on one page, ready to save as a PDF.</span>
         </Link>
       )}
       {!guides.length && <p className="muted">Guides for this track are on their way.</p>}
@@ -58,6 +67,16 @@ export default function PrepTrack() {
                 );
               })}
           </ol>
+          {subjectSources(track, group || undefined).length > 0 && (
+            <div className="prep-reading">
+              <span>Read more{group ? ` on ${group}` : ""}:</span>
+              {subjectSources(track, group || undefined).map((s) => (
+                <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer">
+                  {s.title}
+                </a>
+              ))}
+            </div>
+          )}
         </section>
       ))}
     </>

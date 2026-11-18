@@ -48,6 +48,7 @@ import Contests from "./pages/contests/Contests";
 import CommandPalette from "./components/CommandPalette";
 import { SHORTCUTS, keyFor, useShortcuts } from "./shortcuts";
 import PlaygroundPage from "./pages/prep/PlaygroundPage";
+import Handbook from "./pages/prep/Handbook";
 import {
   Planner,
   Notes,
@@ -381,6 +382,7 @@ export default function App() {
                 <Route path="/prep/:track" element={<PrepTrack />} />
                 <Route path="/prep/guide/:id" element={<GuidePage />} />
                 <Route path="/prep/system-design/playground" element={<PlaygroundPage />} />
+                <Route path="/prep/:track/handbook" element={<Handbook />} />
                 <Route path="/prep/drill/:topic" element={<DrillPage />} />
                 <Route path="/plan" element={<Planner />} />
                 <Route path="/notebook" element={<Notes />} />
