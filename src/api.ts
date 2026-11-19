@@ -7,6 +7,14 @@ export class ApiError extends Error {
     super(message);
   }
 }
+// free hosting sleeps when idle and answers with an HTML "loading" page until the server is back
+const WAKING = "The server is starting up after being idle. Try again in about a minute.";
+async function json(r: Response): Promise<Record<string, unknown>> {
+  if (r.status === 204) return {}; // deletes answer with no body
+  if (!(r.headers.get("content-type") ?? "").includes("json")) throw new ApiError(WAKING, r.status === 200 ? 503 : r.status);
+  return r.json();
+}
+
 export async function api<T>(
   path: string,
   body?: unknown,
@@ -17,8 +25,8 @@ export async function api<T>(
   const verb = method ?? (body === undefined ? "GET" : "POST");
   if (verb !== "GET" && !csrf) {
     const r = await fetch("/api/v1/auth/session", { credentials: "include" });
-    const data = await r.json();
-    csrf = data.csrf;
+    const data = await json(r);
+    csrf = String(data.csrf ?? "");
   }
   const r = await fetch("/api/v1" + path, {
     method: verb,
@@ -30,10 +38,11 @@ export async function api<T>(
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  const data = await r.json().catch(() => ({
-    message: "The server could not be reached. Check the connection and retry.",
-  }));
-  if (data.csrf) csrf = data.csrf;
+  const data = await json(r).catch((e) => {
+    if (e instanceof ApiError) throw e;
+    return { message: "The server could not be reached. Check the connection and retry." } as Record<string, unknown>;
+  });
+  if (data.csrf) csrf = String(data.csrf);
   if (!r.ok) {
     if (r.status === 403) {
       csrf = "";
@@ -42,11 +51,11 @@ export async function api<T>(
         return api<T>(path, body, method, signal, true);
     }
     throw new ApiError(
-      data.message ?? "The request could not be completed.",
+      String(data.message ?? "The request could not be completed."),
       r.status,
     );
   }
-  return data;
+  return data as T;
 }
 export function resetCsrf() {
   csrf = "";
