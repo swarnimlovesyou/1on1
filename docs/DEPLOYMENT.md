@@ -23,6 +23,30 @@ This older optional topology remains unverified and is not the primary setup. It
 
 Nginx serves the built SPA, falls back to `index.html` for app routes and forwards `/api` to Java. PostgreSQL is private to the compose network with a named data volume. The API is not exposed directly to the host. Mailpit's UI is bound only to localhost. Mailpit is for local testing; use real authenticated SMTP for public production.
 
+## Free hosting: Vercel, Render and Neon (no local Docker needed)
+
+The hosts build the images themselves, so this machine needs no Docker. The frontend is static on Vercel and proxies
+`/api` to the Java API on Render, so the browser sees one origin and the session cookie works unchanged. Not yet
+rehearsed live.
+
+1. **Database (Neon, free):** create a project and copy its connection details. Use
+   `jdbc:postgresql://<host>/<database>?sslmode=require` as `DATABASE_URL`, plus the user and password. Flyway creates
+   the tables on first start.
+2. **API (Render, free):** New → Blueprint → this repository. `render.yaml` builds `backend/Dockerfile` and asks for
+   the secrets: the Neon details, `APP_BASE_URL` (the Vercel URL from step 3), `GROQ_API_KEY` (free at
+   console.groq.com), `ADMIN_EMAIL`/`ADMIN_PASSWORD`, and optionally `JUDGE0_API_KEY` (Judge0's free RapidAPI plan,
+   50 runs a day) to run code. If the service is not named `oneonone-api`, note its URL.
+3. **Frontend (Vercel, free):** import the repository; `vercel.json` sets the build. If the Render URL differs from
+   `https://oneonone-api.onrender.com`, edit the `/api` rewrite in `vercel.json` first.
+4. Set `APP_BASE_URL` on Render to the Vercel URL and redeploy. Check `/api/v1/system`, sign up, open a lesson and
+   play an animation, start a quiz, and ask the tutor a question.
+
+Known limits of the free plans: Render sleeps after 15 minutes idle and the first request then takes about a minute
+(open the site a few minutes before a demo); sessions live in the API's memory, so a sleep or redeploy signs everyone
+out (learning records stay in Neon); Render's free instance has 512 MB, which a Spring Boot app fits but not
+comfortably; streamed tutor answers pass through Vercel's proxy and may arrive in one piece instead of word by word.
+Without SMTP, use the admin page's reset links. Production does not seed the demo account.
+
 ## Public hosting
 
 Deploy the container application on a Linux host supporting Docker/Java. Configure TLS on the public reverse proxy, use the actual HTTPS `APP_BASE_URL`, and set `COOKIE_SECURE=true`. Inject provider/database/admin secrets using the host's secret store. Disable the local Mailpit service and supply SMTP settings. Use a verified SMTP sender for the deployment domain; adjust the server's reset-message sender if required by the provider.

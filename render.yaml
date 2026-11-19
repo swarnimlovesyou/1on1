@@ -1,0 +1,35 @@
+# Render Blueprint for the Java API (free web service, built from backend/Dockerfile).
+# Secrets marked sync: false are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: oneonone-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/system
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: "8080"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_URL # Neon: jdbc:postgresql://<host>/<db>?sslmode=require
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: APP_BASE_URL # the Vercel URL, used in reset links
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD # 12+ characters
+        sync: false
+      - key: JUDGE0_MODE # rapidapi to run code on Judge0's free hosted plan (50 runs a day)
+        value: rapidapi
+      - key: JUDGE0_API_KEY
+        sync: false
