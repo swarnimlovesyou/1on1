@@ -218,7 +218,7 @@ function SettingsContent() {
         <section>
           <h2>Your learning tools</h2>
           <div className="service-row">
-            <span>Gemini tutor</span>
+            <span>AI tutor{system.data?.aiProvider ? ` (${system.data.aiProvider})` : ""}</span>
             <span
               className={system.data?.aiStatus?.verified ? "success" : "muted"}
             >

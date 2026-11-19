@@ -271,7 +271,7 @@ export default function Tutor({
             )}
             {messages.map((m, i) => (
               <div className={"chat-message " + m.role} key={i}>
-                <small>{m.role === "you" ? "You" : "1on1 · Gemini"}</small>
+                <small>{m.role === "you" ? "You" : "1on1 tutor"}</small>
                 <div className="chat-text">{m.text}</div>
                 {m.scene && (
                   <button
@@ -319,7 +319,7 @@ export default function Tutor({
             ))}
             {!!draftAnswer && (
               <div className="chat-message tutor">
-                <small>1on1 · Gemini</small>
+                <small>1on1 tutor</small>
                 <div className="chat-text">{draftAnswer}</div>
               </div>
             )}

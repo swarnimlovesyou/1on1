@@ -23,6 +23,25 @@ public class TutorService {
   @Value("${app.gemini-model}")
   String model;
 
+  // Groq (OpenAI-compatible, free tier) is used whenever its key is set; otherwise Gemini
+  @Value("${app.groq-key:}")
+  String groqKey = "";
+
+  @Value("${app.groq-model:openai/gpt-oss-120b}")
+  String groqModel = "openai/gpt-oss-120b";
+
+  boolean groq() {
+    return groqKey != null && !groqKey.isBlank();
+  }
+
+  boolean configured() {
+    return groq() || (key != null && !key.isBlank());
+  }
+
+  String provider() {
+    return groq() ? "Groq" : "Gemini";
+  }
+
   private volatile String aiVerifiedAt = "",
     aiFailure = "not_checked";
 
@@ -36,21 +55,21 @@ public class TutorService {
   public Map<String, Object> system() {
     var out = new LinkedHashMap<String, Object>();
     out.put("name", "1on1");
-    out.put("ai", !key.isBlank());
+    out.put("ai", configured());
     out.put("execution", execution.available());
-    out.put("aiProvider", "Google Gemini");
-    out.put("aiModel", model);
+    out.put("aiProvider", groq() ? "Groq" : "Google Gemini");
+    out.put("aiModel", groq() ? groqModel : model);
     out.put(
       "aiStatus",
       Map.of(
         "configured",
-        !key.isBlank(),
+        configured(),
         "verified",
         !aiVerifiedAt.isBlank(),
         "verifiedAt",
         aiVerifiedAt,
         "reason",
-        key.isBlank() ? "not_configured" : aiFailure
+        !configured() ? "not_configured" : aiFailure
       )
     );
     out.put("executionStatus", execution.status());
@@ -94,7 +113,7 @@ public class TutorService {
     }
   }
 
-  /** One Gemini generateContent call returning the model's JSON object. */
+  /** One model call (Gemini generateContent, or Groq chat completions) returning the model's JSON object. */
   @SuppressWarnings("unchecked")
   private Map<String, Object> call(Map<String, Object> body) {
       var factory =
@@ -104,6 +123,19 @@ public class TutorService {
             .build()
         );
       factory.setReadTimeout(Duration.ofSeconds(45));
+      if (groq()) {
+        var reply = RestClient.builder()
+          .requestFactory(factory)
+          .build()
+          .post()
+          .uri(GroqChat.URL)
+          .header("Authorization", "Bearer " + groqKey)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(GroqChat.request(body, groqModel, false))
+          .retrieve()
+          .body(Map.class);
+        return s.decode(GroqChat.text(reply));
+      }
       var response = RestClient.builder()
         .requestFactory(factory)
         .build()
@@ -135,7 +167,7 @@ public class TutorService {
       aiFailure = "provider_quota";
       return new ResponseStatusException(
         HttpStatus.TOO_MANY_REQUESTS,
-        "Gemini's free-tier quota is temporarily exhausted. Try again later; your notebook still works."
+        provider() + "'s free-tier quota is temporarily exhausted. Try again later; your notebook still works."
       );
     }
     aiFailure =
@@ -149,7 +181,7 @@ public class TutorService {
   }
 
   public boolean aiConfigured() {
-    return !key.isBlank();
+    return configured();
   }
 
   /**
@@ -157,9 +189,9 @@ public class TutorService {
    * data, and the required string/array fields. Counts against the learner's daily AI quota.
    */
   public Map<String, Object> generateJson(String user, String instruction, String input, Map<String, Object> properties) {
-    if (key.isBlank()) throw new ResponseStatusException(
+    if (!configured()) throw new ResponseStatusException(
       HttpStatus.SERVICE_UNAVAILABLE,
-      "Add GEMINI_API_KEY to your local .env and restart the backend to enable AI answers."
+      "Add GROQ_API_KEY (or GEMINI_API_KEY) to your local .env and restart the backend to enable AI answers."
     );
     s.quota(user, "AI", 30);
     var config = new LinkedHashMap<String, Object>();
@@ -193,9 +225,9 @@ public class TutorService {
     boolean streaming
   ) {
     String u = AuthController.user(a);
-    if (key.isBlank()) throw new ResponseStatusException(
+    if (!configured()) throw new ResponseStatusException(
       HttpStatus.SERVICE_UNAVAILABLE,
-      "Add GEMINI_API_KEY to your local .env and restart the backend to enable your tutor."
+      "Add GROQ_API_KEY (or GEMINI_API_KEY) to your local .env and restart the backend to enable your tutor."
     );
     String question = Store.text(b, "message", "").strip();
     if (
@@ -379,21 +411,25 @@ public class TutorService {
       running.set(
         aiJobs.submit(() -> {
           try {
-            var request = java.net.http.HttpRequest.newBuilder(
-              java.net.URI.create(
-                "https://generativelanguage.googleapis.com/v1beta/models/" +
-                  model +
-                  ":streamGenerateContent?alt=sse"
-              )
-            )
+            var request = (groq()
+                ? java.net.http.HttpRequest.newBuilder(java.net.URI.create(GroqChat.URL))
+                  .header("Authorization", "Bearer " + groqKey)
+                  .POST(java.net.http.HttpRequest.BodyPublishers.ofString(s.encode(GroqChat.request(prepared.body(), groqModel, true))))
+                : java.net.http.HttpRequest.newBuilder(
+                  java.net.URI.create(
+                    "https://generativelanguage.googleapis.com/v1beta/models/" +
+                      model +
+                      ":streamGenerateContent?alt=sse"
+                  )
+                )
+                  .header("x-goog-api-key", key)
+                  .POST(
+                    java.net.http.HttpRequest.BodyPublishers.ofString(
+                      s.encode(prepared.body())
+                    )
+                  ))
               .timeout(Duration.ofSeconds(45))
               .header("Content-Type", "application/json")
-              .header("x-goog-api-key", key)
-              .POST(
-                java.net.http.HttpRequest.BodyPublishers.ofString(
-                  s.encode(prepared.body())
-                )
-              )
               .build();
             var response = java.net.http.HttpClient.newBuilder()
               .connectTimeout(Duration.ofSeconds(8))
@@ -407,7 +443,7 @@ public class TutorService {
                 Map.of(
                   "message",
                   response.statusCode() == 429
-                    ? "Gemini's free-tier quota is temporarily exhausted. Please try again later."
+                    ? provider() + "'s free-tier quota is temporarily exhausted. Please try again later."
                     : "The tutor is unavailable. Check the configured model and key, then retry."
                 )
               );
@@ -423,6 +459,14 @@ public class TutorService {
                 String payload = line.substring(5).strip();
                 if (payload.isEmpty() || payload.equals("[DONE]")) continue;
                 var data = s.decode(payload);
+                if (groq()) {
+                  String piece = GroqChat.delta(data);
+                  if (!piece.isEmpty()) {
+                    received[0] = true;
+                    sendEvent(emitter, "token", Map.of("text", piece));
+                  }
+                  continue;
+                }
                 var candidates = Store.items(data.get("candidates"));
                 if (candidates.isEmpty()) continue;
                 var content = (Map<String, Object>) candidates

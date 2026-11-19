@@ -40,6 +40,8 @@ Edit the ignored root `.env` locally and restart Java. Never paste keys into cha
 
 | Variable | Purpose |
 | --- | --- |
+| `GROQ_API_KEY` | Optional free Groq key (console.groq.com). When set, the tutor, notebook answers and plan suggestions use Groq instead of Gemini. |
+| `GROQ_MODEL` | Defaults to `openai/gpt-oss-120b`; any Groq chat model with JSON mode. |
 | `GEMINI_API_KEY` | Your Google AI Studio key. Use a replacement if a previous key was exposed. |
 | `GEMINI_MODEL` | Defaults to `gemini-3.1-flash-lite`; change to an available structured-output model in your Google project. Free-tier quotas depend on the project/model. |
 | `JUDGE0_MODE` | Primary setup is `self-hosted`; `rapidapi` requires an explicit separate configuration. |
