@@ -1,75 +1,73 @@
 # Demonstration and assessment evidence
 
-> Refreshed 17 November 2026. Feature status: [FEATURES.md](FEATURES.md). Technical detail: [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md). Live Judge0 runs, live Gemini answers and own-code tracing are not available on the demo machine; the script shows those states honestly instead of skipping past them.
+> Refreshed 19 November 2026. Feature status: [FEATURES.md](FEATURES.md). Technical detail: [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md). Live Judge0 runs and own-code tracing are not available on the demo machine; live tutor answers need a Groq key; the script shows those states honestly instead of skipping past them.
 
 ## Before the demo
 
-- Run `npm run dev` (Vite on port 5173, API on 8080). Open `http://localhost:5173` in a fresh window.
-- Create a student account in advance and use it for a few real actions (a lesson, a drill), so the progress page has activity. Do not seed fake activity.
+- Run `npm run dev:core` (Vite on port 5173, API on 8080). Open `http://localhost:5173` in a fresh window.
+- For live tutor answers, put a free `GROQ_API_KEY` (console.groq.com) in `.env` before starting. Without it the tutor shows its "not configured" state.
+- Create a student account in advance and use it for a few real actions (a lesson, a drill, a quiz), so Home and Progress have activity. Do not seed fake activity.
 - The machine needs internet for the contests page. If a source is down, the page says so; that is part of the demo.
 - Keep a second tab open on `/learn/animations` in case the network is slow.
 
-## Ten-to-twelve-minute flow
+## Twelve-to-fourteen-minute flow
 
 Times are cumulative. "Click" is what to do; "Say" is one or two lines.
 
 ### 1. Landing (0:00–0:45)
 
-- **Click:** open `/`. Point at the framed photo hero and its Unsplash credit, then "Open your first notebook".
+- **Click:** open `/`. Let the binary search on the right step through to 42, then scroll to the live sliding-window frame.
 - **Say:** "1on1 joins a visual explanation, the code, practice and review in one place. Every algorithm state you will see is computed by Java, not drawn by hand."
 
-### 2. Library and an animation (0:45–2:15)
+### 2. Home and the lesson flow (0:45–2:30)
 
-- **Click:** sidebar → Learn → Explore concepts. Show the grouped sidebar (Learn / Practise / Your work). Press Ctrl+K (⌘+K on macOS), type "sliding", open Sliding Window.
-- **Say:** "33 lessons: 24 core concepts, two child lessons and seven advanced ones. The palette jumps to any lesson, guide or sheet."
+- **Click:** sign in. On Home, point at the next step, streak, activity, live contests and "Recently asked". Press `?` to show the keyboard shortcuts, then `L`.
+- **Say:** "49 lessons in seven families. Filters live in the URL; learning paths show what's done and what's next."
+- **Click:** open Sliding Window. Walk the chapters: what it is, why it matters, see it in action, the logic, its code, where it's used, how it connects.
 - **Click:** in the experiment, change the input (e.g. `4, 4, 4, 1`), then play, step back, scrub.
-- **Say:** "The trace comes from the Java trace engine; the browser only renders it. The running-sum invariant holds at every step."
-- **Click:** sidebar → Animations. Press play on one other animation (e.g. Merge Sort).
-- **Say:** "Every animation is on this page and runs its trace only when you press play."
+- **Say:** "The trace comes from the Java trace engine; the browser only renders it. The follow-along text names each move."
 
-### 3. Lesson practice (2:15–3:45)
+### 3. Lesson practice (2:30–3:30)
 
-- **Click:** back in the Sliding Window lesson, answer a prediction question wrong, read the feedback, then answer correctly. Do the pattern drill and fill one dry-run field.
-- **Say:** "Answers are graded on the server; the browser never receives the answer key. The dry run is checked against the real trace step, and the first wrong field is named."
-- **Say:** "A miss here schedules a review for tomorrow; successes return after 1, 3 and 7 days."
+- **Click:** answer a prediction question wrong, read the feedback, then answer correctly. Fill one dry-run field.
+- **Say:** "Answers are graded on the server; the browser never receives the answer key. A miss schedules a review for tomorrow; successes return after 1, 3 and 7 days."
 
-### 4. A new concept on the trace board (3:45–4:45)
+### 4. A new concept on the trace board (3:30–4:30)
 
-- **Click:** Explore concepts → 0/1 Knapsack → See it in action. Step through the table.
-- **Say:** "Each cell names the two cells it read: skip the item, or take it and look up the remaining capacity. The trace is computed in Java; the page only draws it."
-- **Click:** change the capacity and press Update experiment.
+- **Click:** Explore concepts → 0/1 Knapsack → See it in action. Step through the table. Then open Kruskal and step until an edge is rejected.
+- **Say:** "Sixteen new concepts, from union-find to interval DP, share one renderer: arrays, stacks, tables and graphs, all sent by the Java trace. Each table cell shows the cells it read."
 
-### 5. Practice: sheets, bank, solve here (4:45–7:15)
+### 5. Practice: problems, sheets, bank, mock (4:30–7:00)
 
-- **Click:** sidebar → Sheets → Blind 75. Tick a question; point at its lesson link and its reporting companies.
-- **Say:** "Blind 75 and NeetCode 150 come from an MIT-licensed list. Ticks are saved to the account; a LeetCode profile sync can tick questions from the last 20 accepted solves."
-- **Click:** Practice → Question bank. Set Company to a large company, then Sort → Hardest first.
-- **Say:** "16,331 questions from Codeforces, AtCoder, CSES and LeetCode metadata: titles and links only, never statements. Company tags are community-reported, as of May 2022; they show what people reported, not what a company asks."
-- **Click:** on a Codeforces question, press "Solve here". Type a short program and custom input, press Run.
-- **Say:** "The statement stays on Codeforces. Runs here use your own input and are never graded. On this machine the runner is not available, so you see that state instead of a fake result."
+- **Click:** Practice → Problems; pick a topic chip. Then Sheets → Blind 75; tick a question.
+- **Click:** Question bank: set Company to a large company, Sort → Hardest first.
+- **Say:** "About 16,000 questions from Codeforces, AtCoder, CSES and LeetCode metadata: titles and links only, never statements. Company tags are community-reported and dated; learners' own 'I was asked this' reports appear only once two agree or the company is known."
+- **Click:** Mock OA → Quiz → Start the quiz. Answer two, refresh the page to show it survives, then Submit → Submit anyway.
+- **Say:** "Aptitude, reasoning and CS fundamentals on a clock, graded on the server with a section score and a review of every question."
 
-### 6. Contests (7:15–8:00)
+### 6. Contests and Prep (7:00–9:30)
 
-- **Click:** sidebar → Contests. Filter by AtCoder, then "Add to calendar" on one contest.
-- **Say:** "Upcoming Codeforces and AtCoder contests in local time, cached for an hour. If a site fails, the last good list stays and the page marks that source as unavailable. LeetCode and CodeChef are linked, not read."
+- **Click:** Contests: filter by AtCoder, "Add to calendar".
+- **Click:** Prep → CS fundamentals → Deadlocks: show Notes, Quiz and Sources, press "Save as PDF". Back on the track, open the handbook.
+- **Click:** Prep → Aptitude → Percentages → "Practise with unlimited questions"; answer `15%`.
+- **Say:** "Each drill question is generated from a seed; the server regenerates it to grade, so the answer is never sent first."
+- **Click:** System design → Traffic playground. Raise the load until the app tier is the bottleneck, then add servers and a cache.
 
-### 7. Prep: drill, puzzle, playground (8:00–10:15)
+### 7. Plan, progress and study together (9:30–11:30)
 
-- **Click:** sidebar → Prep → Aptitude → Percentages → "Practise with unlimited questions". Answer with a unit, such as `15%`. Then "Next question".
-- **Say:** "Each question is generated on the server from a seed. To grade, the server regenerates it from the seed, so the answer is never sent first."
-- **Click:** Prep → Puzzles → "Handshakes at a meetup". Show one hint, type an answer.
-- **Say:** "Two hints, then the solution. Typed answers are checked on the server."
-- **Click:** Prep → System design → Traffic playground. Raise "Requests per second" until the app tier is the bottleneck, raise "App servers", then turn on the cache and raise its hit rate.
-- **Say:** "App servers are an M/M/c queue, the database an M/M/1 queue that sees only cache misses. It is a teaching model of why latency rises sharply near full load, not a capacity planner."
+- **Click:** My practice plan → Plan it for me: goal, weeks, time a day → Suggest my plan → Build this plan.
+- **Say:** "Topics come from the checks you missed and the problems you haven't solved. With a Groq key the AI writes the suggestion, but only real topics and in-range values are kept; without one, a fixed rule does it. Greedy set cover then picks few problems that cover every topic."
+- **Click:** Progress: "Where you've been" and "Where you're heading".
+- **Click:** Study together: create a circle; show this week's circle problem and the member cards.
 
-### 8. Progress (10:15–11:00)
+### 8. Assistants (11:30–12:30)
 
-- **Click:** sidebar → Your work → Progress.
-- **Say:** "Notebooks explored, problems accepted here, streak and an activity heatmap. Autosaves and open tabs don't count. Problems accepted stays at zero on this machine because no live runner is available."
+- **Click:** Settings → Connect an assistant → Make a token. Show the settings block, then Revoke.
+- **Say:** "An MCP adapter lets an assistant such as Claude use 1on1: lessons, traces, the bank, drills, and, once paired, this learner's next step and notes. The token is shown once, stored hashed, and revoking stops it at once. Three teaching skills ship with it."
 
-### 9. Close (11:00–11:45)
+### 9. Close (12:30–13:15)
 
-- **Say:** "Not shown because they are not built or need services we don't have here: own-code tracing and live grading need the Judge0 runner under Docker; live Blob answers need a Gemini key; the PostgreSQL rehearsal needs the owner's database. A read-only MCP adapter over the public API is in progress; account pairing for it is not built. Tests: `npm run verify` passes, with 149 backend and 40 frontend tests."
+- **Say:** "Not shown because they need services we don't have here: running your own code needs the Judge0 runner (free hosted plan or Docker); own-code tracing needs that runner too; the PostgreSQL rehearsal needs a database. Deployment is set up for Vercel, Render and Neon but not yet live. Tests: 175 backend and 46 frontend tests pass, plus browser tests for every area."
 
 ## Requirement mapping
 
@@ -92,4 +90,4 @@ Times are cumulative. "Click" is what to do; "Say" is one or two lines.
 
 Explain why an algorithm belongs in the product, not only its pseudocode. Be ready to change a test input and reason about the result. For Quickselect, distinguish expected and worst-case time; for set cover, distinguish correctness of coverage from exact minimum size; for trie, separate index construction from bounded query/output work. Explain where the frontend renders state and where Java computes it. Know how a hidden judge case is protected and why a Bloom-filter lesson describes positives as uncertain.
 
-For the later services: explain why a drill can be graded without storing its answer (seeded regeneration); why the lab compares curves on log error and why four sizes up to 32 cannot prove a complexity class; how the contest cache avoids making requests wait on a slow site; why unrated bank questions sort last in both directions; and why the playground caps each tier at 95% utilisation.
+For the later services: explain why a drill can be graded without storing its answer (seeded regeneration); how one board renderer draws all sixteen new traces; how the contest cache avoids making requests wait on a slow site; why unrated bank questions sort last in both directions; and why the playground caps each tier at 95% utilisation.
