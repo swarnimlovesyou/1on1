@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { runPython, toSubmission } from "../../browserPython";
 import { ArrowLeft, ArrowUpRight, Play } from "@phosphor-icons/react";
 import { api } from "../../api";
 import type { BankItem, Submission } from "../../types";
@@ -45,14 +46,23 @@ export default function SolveExternal() {
     setCode(value);
     writeDraft(id, language, value);
   };
+  const qc = useQueryClient();
+  const system = useQuery({ queryKey: ["system"], queryFn: () => api<{ execution: boolean }>("/system"), staleTime: 60_000 });
+  // with no server runner configured, Python runs in the browser instead
+  const inBrowser = language === "python" && system.data?.execution === false;
   const run = useMutation({
-    mutationFn: () =>
-      api<Submission>("/submissions", { problem: id, official: false, language, code, input, requestId: crypto.randomUUID() }),
+    mutationFn: async () => {
+      if (!inBrowser)
+        return api<Submission>("/submissions", { problem: id, official: false, language, code, input, requestId: crypto.randomUUID() });
+      const s = toSubmission(await runPython(code, input), id, code, input);
+      qc.setQueryData(["submission", s.id], s);
+      return s;
+    },
     onSuccess: (s) => setJob(s.id),
   });
   const result = useQuery({
     queryKey: ["submission", job],
-    queryFn: () => api<Submission>("/submissions/" + job),
+    queryFn: () => (job!.startsWith("browser-") ? qc.getQueryData<Submission>(["submission", job])! : api<Submission>("/submissions/" + job)),
     enabled: !!job,
     // stop on an error (an expired session, say) rather than retrying every second unseen
     refetchInterval: (q) => (q.state.error ? false : ["QUEUED", "RUNNING"].includes(q.state.data?.status ?? "QUEUED") ? 1000 : false),
@@ -135,7 +145,10 @@ export default function SolveExternal() {
               {(row?.message || result.data.message) && <p className="muted">{row?.message ?? result.data.message}</p>}
             </div>
           )}
-          <p className="muted">There's no verdict here: compare your output with the statement's examples.</p>
+          <p className="muted">
+            There's no verdict here: compare your output with the statement's examples.
+            {inBrowser && " Python runs in your browser; other languages need the server runner."}
+          </p>
         </div>
       </div>
     </div>

@@ -182,6 +182,8 @@ References: [Claude local MCP](https://support.claude.com/en/articles/10949351-g
 
 **Status: built.**
 
+- **Python in the browser:** when no server runner is configured (as on free hosting), "Run" for Python executes in the learner's browser with Pyodide in a Web Worker: stdin from the custom input, stdout and tracebacks shown, a 10-second limit that stops runaway loops. It is never graded; official submissions and Java/C++ still need the server runner (`src/browserPython.ts`, `public/py-worker.js`).
+
 - **Home dashboard:** the next step from the learning map, reviews due, streak, this week's count, an 84-day activity grid, live contests with countdowns, and questions other learners recently reported being asked ("I was asked this", `ReportController`).
 - **Lesson flow:** what it is, why it matters, see it in action (animation with a follow-along transcript), the logic, its code, where it is used, how it connects (before and after concepts), then the check and practice.
 - **Explore concepts:** family, difficulty and status filters kept in the URL; learning paths as a progress timeline with the next lesson marked; animations gallery with family filters and search.

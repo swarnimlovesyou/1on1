@@ -93,6 +93,10 @@ describe("Java API boundary", () => {
       status: 503,
     });
   });
+  it("says the server is starting up when a sleeping host answers with an HTML page", async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response("<!DOCTYPE html><title>Loading</title>", { status: 200 }));
+    await expect(api("/lessons")).rejects.toMatchObject({ message: expect.stringContaining("starting up"), status: 503 });
+  });
   it("reports invalid JSON error responses with a recovery message", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response("upstream unavailable", { status: 502 }),

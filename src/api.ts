@@ -10,9 +10,10 @@ export class ApiError extends Error {
 // free hosting sleeps when idle and answers with an HTML "loading" page until the server is back
 const WAKING = "The server is starting up after being idle. Try again in about a minute.";
 async function json(r: Response): Promise<Record<string, unknown>> {
-  if (r.status === 204) return {}; // deletes answer with no body
-  if (!(r.headers.get("content-type") ?? "").includes("json")) throw new ApiError(WAKING, r.status === 200 ? 503 : r.status);
-  return r.json();
+  const text = await r.text();
+  if (!text) return {}; // deletes answer 204 with no body
+  if (text.trimStart().startsWith("<")) throw new ApiError(WAKING, r.status === 200 ? 503 : r.status);
+  return JSON.parse(text);
 }
 
 export async function api<T>(

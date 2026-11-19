@@ -75,8 +75,11 @@ test("an external question opens in our editor, links to its statement and keeps
   await page.getByRole("button", { name: "Run" }).click();
   // a signed-in run reaches the runner: either its output, or the server's runner message
   await expect(page.locator(".run-output").or(page.locator(".run-error", { hasText: "Judge0" }))).toBeVisible({ timeout: 60000 });
-  await page.locator(".monaco-editor textarea, textarea.code-fallback").first().focus();
+  // type into the real editor, not the placeholder shown while it loads
+  await page.locator(".monaco-editor textarea").first().focus();
   await page.keyboard.type("// my draft");
+  // reload once the editor has saved the last keystroke
+  await expect.poll(() => page.evaluate(() => Object.values(localStorage).some((v) => v.includes("// my draft")))).toBe(true);
   await page.reload();
   await expect(page.locator(".solve-external")).toContainText("my draft", { timeout: 15000 });
   // going back keeps the bank's filters and page

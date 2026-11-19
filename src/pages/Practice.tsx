@@ -8,7 +8,8 @@ import FamilyMark from "../components/FamilyMark";
 import { familyOfProblem, familyStyle } from "../families";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { runPython, toSubmission } from "../browserPython";
 import {
   MagnifyingGlass,
   ArrowUpRight,
@@ -306,9 +307,16 @@ export function ProblemPage() {
       }>("/problems/" + id + "/editorial"),
     enabled: tab === "Editorial",
   });
+  const runnerQc = useQueryClient();
+  const system = useQuery({ queryKey: ["system"], queryFn: () => api<{ execution: boolean }>("/system"), staleTime: 60_000 });
+  // with no server runner configured, ungraded Python runs happen in the browser; official submissions never do
+  const inBrowser = language === "python" && system.data?.execution === false;
   const submission = useQuery({
     queryKey: ["submission", job],
-    queryFn: () => api<Submission>("/submissions/" + job),
+    queryFn: () =>
+      job!.startsWith("browser-")
+        ? runnerQc.getQueryData<Submission>(["submission", job])!
+        : api<Submission>("/submissions/" + job),
     enabled: !!job,
     refetchInterval: (q) =>
       ["QUEUED", "RUNNING"].includes(q.state.data?.status ?? "QUEUED")
@@ -323,15 +331,15 @@ export function ProblemPage() {
       reload();
   }, [submission.data?.status]);
   const run = useMutation({
-    mutationFn: (official: boolean) =>
-      api<Submission>("/submissions", {
-        problem: id,
-        requestId: crypto.randomUUID(),
-        language,
-        code,
-        input: input || query.data?.samples[0]?.input || "",
-        official,
-      }),
+    mutationFn: async (official: boolean) => {
+      const stdin = input || query.data?.samples[0]?.input || "";
+      if (!official && inBrowser) {
+        const s = toSubmission(await runPython(code, stdin), id ?? "", code, stdin);
+        runnerQc.setQueryData(["submission", s.id], s);
+        return s;
+      }
+      return api<Submission>("/submissions", { problem: id, requestId: crypto.randomUUID(), language, code, input: stdin, official });
+    },
     onSuccess: (j) => {
       setJob(j.id);
       setResultTab("Test results");
