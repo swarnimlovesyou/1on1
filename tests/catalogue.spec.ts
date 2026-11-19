@@ -23,7 +23,7 @@ test("every lesson shows its idea, model, pattern and practice without errors", 
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   const lessons = await catalogue(page, "lessons");
-  expect(lessons.length).toBe(33);
+  expect(lessons.length).toBe(49);
   for (const [index, lesson] of lessons.entries()) {
     // alternate widths so both layouts see the whole catalogue across runs of neighbours
     await page.setViewportSize(

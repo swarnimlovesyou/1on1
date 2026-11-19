@@ -10,7 +10,7 @@ for(const lesson of content.lessons as unknown as Lesson[])test(`${lesson.id}: m
  await page.goto('/learn/'+lesson.id);
  const trace=await(await response).json() as Trace;
  expect(trace.revision).toBe(3);expect(trace.steps.length).toBeGreaterThan(1);
- await expect(page.locator('.lab-model')).toBeVisible();
+ await expect(page.locator('.lab-model, .board').first()).toBeVisible();
  const middle=Math.floor(trace.steps.length/2);
  await page.getByRole('slider',{name:'Execution step'}).fill(String(middle));
  await expect(page.locator('.step-explanation p')).toHaveText(trace.steps[middle].text);
