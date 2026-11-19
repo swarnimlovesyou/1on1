@@ -75,6 +75,8 @@ test("coming back to a drill brings a fresh question", async ({ page }) => {
   await page.goto("/prep/drill/averages");
   await expect(page.locator(".drill-prompt")).toHaveText("Question 1");
   await page.getByRole("link", { name: /Back to/ }).click();
+  // leave only once the guide is on screen, as a learner would; an instant back cancels the navigation
+  await expect(page.locator(".prep-guide h1")).toBeVisible();
   await page.goBack();
   await expect(page.locator(".drill-prompt")).toHaveText("Question 2");
 });

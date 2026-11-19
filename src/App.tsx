@@ -236,7 +236,8 @@ export default function App() {
       value={{
         user,
         progress,
-        progressReady: pq.isSuccess || !user,
+        // not ready until the session has answered: a signed-in learner must never be read as a guest for a moment
+        progressReady: !session.isPending && (pq.isSuccess || !user),
         notify: setNotice,
         reload,
       }}

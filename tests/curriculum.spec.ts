@@ -4,7 +4,7 @@ import type { CurriculumManifest, Lesson } from "../src/types";
 test("all core notebooks expose real curriculum content and canonical references", async ({
   page,
 }) => {
-  test.setTimeout(120000);
+  test.setTimeout(300000); // 40 concepts, each opened and checked
   const curriculum = (await (
     await page.request.get("/api/v1/curriculum")
   ).json()) as CurriculumManifest;

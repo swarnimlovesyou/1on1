@@ -22,11 +22,13 @@ function DrillPage({ topic }: { topic: string }) {
   const [round, setRound] = useState(0);
   const [answer, setAnswer] = useState("");
   const [streak, setStreak] = useState(0);
+  // each visit gets its own cache key, so coming back to a drill always fetches a fresh question
+  const [visit] = useState(() => Math.random());
   const question = useQuery({
-    queryKey: ["drill", topic, round],
+    queryKey: ["drill", topic, visit, round],
     queryFn: () => api<Question>(`/drills/${topic}/next`),
     staleTime: Infinity,
-    gcTime: 0, // coming back to a drill fetches a fresh question
+    gcTime: 0,
     placeholderData: (previous) => previous, // keep the card on screen while the next question loads
     retry: false,
   });

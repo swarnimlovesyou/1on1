@@ -384,7 +384,7 @@ export function NotebookPage() {
     query.data?.id,
     traceRevision,
   ]);
-  if (query.isLoading || (user && !progressReady)) return <Loading />;
+  if (query.isLoading || !progressReady) return <Loading />;
   if (query.error || !query.data) return <ErrorState error={query.error} />;
   const l = query.data,
     savedContext = progress.studyContexts?.find(
